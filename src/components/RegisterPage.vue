@@ -1,25 +1,22 @@
 <template>
-  <div class="min-h-screen bg-gray-100 flex items-center justify-center">
-    <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-lg">
-      <h2 class="text-2xl font-bold text-center mb-8">Register for Swift Invoice</h2>
-      <form @submit.prevent="handleRegister">
-        <div class="mb-4">
-          <label for="name" class="block text-gray-700 font-bold mb-2">Name</label>
-          <input type="text" id="name" v-model="name" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600" required>
-        </div>
-        <div class="mb-4">
-          <label for="email" class="block text-gray-700 font-bold mb-2">Email</label>
-          <input type="email" id="email" v-model="email" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600" required>
-        </div>
-        <div class="mb-6">
-          <label for="password" class="block text-gray-700 font-bold mb-2">Password</label>
-          <input type="password" id="password" v-model="password" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600" required>
-        </div>
-        <div v-if="error" class="text-red-500 mb-4">{{ error }}</div>
-        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600">Register and Pay</button>
-      </form>
-    </div>
-  </div>
+  <v-container fluid class="fill-height bg-grey-lighten-4">
+    <v-row justify="center">
+      <v-col cols="12" sm="8" md="4">
+        <v-card class="pa-4">
+          <v-card-title class="text-h4 font-weight-bold text-center mb-4">Register for Swift Invoice</v-card-title>
+          <v-card-text>
+            <v-form @submit.prevent="handleRegister">
+              <v-text-field v-model="name" label="Name" required variant="outlined" class="mb-4"></v-text-field>
+              <v-text-field v-model="email" label="Email" type="email" required variant="outlined" class="mb-4"></v-text-field>
+              <v-text-field v-model="password" label="Password" type="password" required variant="outlined" class="mb-4"></v-text-field>
+              <v-alert v-if="error" type="error" dense class="mb-4">{{ error }}</v-alert>
+              <v-btn type="submit" color="primary" block x-large>Register and Pay</v-btn>
+            </v-form>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup>
