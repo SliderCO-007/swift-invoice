@@ -12,6 +12,7 @@
               <v-alert v-if="error" type="error" dense class="mb-4">{{ error }}</v-alert>
               <v-btn type="submit" color="primary" block x-large>Register and Pay</v-btn>
             </v-form>
+            <v-btn @click="handleGoogleSignIn" color="red" block x-large class="mt-4">Sign in with Google</v-btn>
           </v-card-text>
         </v-card>
       </v-col>
@@ -21,19 +22,57 @@
 
 <script setup>
 import { ref } from 'vue';
+import useAuth from '../composables/useAuth';
 import { useStripe } from '../composables/useStripe';
 
 const name = ref('');
 const email = ref('');
 const password = ref('');
 
-const { redirectToCheckout, error } = useStripe();
+const { error: authError, signUp, signInWithGoogle } = useAuth();
+const { redirectToCheckout, error: stripeError } = useStripe();
+
+const error = ref(null);
 
 const handleRegister = async () => {
-  // Here you would typically perform form validation
-  // and create the user on your backend.
+  error.value = null; // Reset error before trying
 
-  // For now, we will just proceed to checkout.
+  // First, sign up the user with Firebase
+  await signUp(email.value, password.value);
+
+  // Check for an error from Firebase Auth
+  if (authError.value) {
+    error.value = authError.value;
+    return; // Stop the process if registration fails
+  }
+
+  // If sign up is successful, proceed to Stripe checkout
   await redirectToCheckout();
+
+  // Check for an error from Stripe
+  if (stripeError.value) {
+    error.value = stripeError.value;
+  }
+};
+
+const handleGoogleSignIn = async () => {
+  error.value = null; // Reset error before trying
+
+  // First, sign in the user with Google
+  await signInWithGoogle();
+
+  // Check for an error from Firebase Auth
+  if (authError.value) {
+    error.value = authError.value;
+    return; // Stop the process if registration fails
+  }
+
+  // If sign in is successful, proceed to Stripe checkout
+  await redirectToCheckout();
+
+  // Check for an error from Stripe
+  if (stripeError.value) {
+    error.value = stripeError.value;
+  }
 };
 </script>

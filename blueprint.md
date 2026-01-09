@@ -1,73 +1,57 @@
-# Swift Invoice - Blueprint
+# Swift Invoice Blueprint
 
 ## Overview
 
-Swift Invoice is a web application that allows users to create professional invoices, download them as PDFs, and email them. It features a user registration system with a one-time fee and a per-invoice charge.
+Swift Invoice is a modern, web-based invoicing application designed for freelancers and small businesses. It simplifies the process of creating, sending, and managing invoices, allowing users to get paid faster. The application is built with Vue.js, Vuetify, and Firebase, providing a fast, responsive, and secure user experience.
 
-## Style, Design, and Features
+## Project Outline
 
 ### Style & Design
 
-*   **Framework:** Vue.js with Vite
-*   **Language:** TypeScript and JavaScript
-*   **Styling:** Vuetify
-*   **Database:** Firebase Firestore for data storage.
-*   **Color Palette:** A modern and professional color scheme with a wide range of hues to create a vibrant look. The background has a light gray color (`#f0f2f5`).
-*   **Typography:** Expressive and relevant typography to emphasize key information.
-*   **Iconography:** Modern, interactive icons to enhance usability (Logo, PDF, Email, Analytics).
-*   **Visual Effects:** Multi-layered drop shadows for depth and a "lifted" look for cards. Interactive elements have a "glow" effect and transition effects on hover.
-*   **Accessibility:** The application will be designed with accessibility in mind, following A11Y standards.
+*   **Framework:** Vuetify 3
+*   **Layout:** Clean and modern, with a focus on usability.
+*   **Color Scheme:** A professional and trustworthy palette with shades of blue and grey.
+*   **Typography:** Clear and legible fonts for easy reading.
+*   **Iconography:** Material Design Icons for intuitive navigation.
 
 ### Features
 
-*   **Landing Page:**
-    *   Header with logo and "Register" button that navigates to the registration page.
-    *   Hero section with a clear call-to-action.
-    *   Features section highlighting PDF Generation, Email Invoices, and Payment Tracking.
-    *   Footer with copyright information.
+*   **Landing Page:** A visually appealing entry point with a clear call-to-action.
 *   **User Authentication & Billing:**
-    *   User registration with a $50 one-time fee.
-    *   $1 charge per invoice created.
-*   **User Profile:**
-    *   Users can set up their business name, address, and logo.
-*   **Client & Invoice Management:**
-    *   Create, Read, Update, and Delete (CRUD) operations for clients.
-    *   CRUD operations for invoices.
-    *   Invoices are associated with clients.
-    *   Generate invoices in PDF format.
-    *   Email invoices to the user.
+    *   User registration with a $50 one-time fee via Stripe.
+    *   Email/Password and Google Sign-In options.
+    *   Payment success and cancellation handling.
+*   **User Settings:** Users can save their business information, including company name, address, phone number, and logo.
+*   **Dashboard:** A central hub for users to manage their invoices and view analytics after logging in.
+*   **Invoice Creation:** A powerful editor with live preview for creating professional invoices.
+*   **Invoice Management:** A real-time list of all invoices with their current status.
 
-## Current Plan
+## Completed Plans
 
-### Phase 1: Landing Page and Initial Setup (Completed)
+### Phase 1: User Settings
 
-1.  **Project Setup:** Initialized a Vue.js project with Vite and TypeScript.
-2.  **Install Vuetify:** Installed and configured Vuetify for styling.
-3.  **Create `LandingPage.vue`:** Designed a visually appealing landing page.
-4.  **Component Structure:**
-    *   Created a `LandingPage.vue` component with Header, Main Content, Features, and Footer sections.
-    *   Created a `Logo.vue` component for the brand logo.
-    *   Created icon components for the features section (`IconPDF.vue`, `IconEmail.vue`, `IconAnalytics.vue`).
-5.  **Refine UI:** Applied modern design principles, including shadows, hover effects, and a professional color palette.
+*   **Create `UserSettings.vue` component:** Design a form for users to input their company name, address, phone number, and upload a logo.
+*   **Create `useUserSettings.js` composable:** Implement the logic to save and retrieve user settings from Firebase (Firestore and Storage).
+*   **Add `/settings` route:** Create a new route for the User Settings page and protect it with authentication.
+*   **Update Dashboard:** Add a link to the User Settings page from the main dashboard.
 
-### Phase 2: User Authentication and Registration Flow (In Progress)
+### Phase 2: Invoicing Core
 
-1.  **Create Registration Page:** Designed and built a registration page (`RegisterPage.vue`) with a form for name, email, and password.
-2.  **Set up Routing (Completed):**
-    *   Installed `vue-router`.
-    *   Created `src/router/index.ts` to define routes for the landing page and registration page.
-    *   Updated `src/main.js` to use the router.
-    *   Modified `App.vue` to use `<router-view>`.
-    *   Updated the "Register" button in `LandingPage.vue` to be a `<router-link>`.
-3.  **Implement Stripe Checkout (In Progress):**
-    *   Installed `@stripe/stripe-js`.
-    *   Created a `useStripe.ts` composable to handle Stripe logic.
-    *   Updated the pricing model to a $50 one-time registration fee.
-    *   Integrated a mock Stripe checkout flow for the registration fee.
-4.  **Backend Logic (Mock):** Create mock functions to simulate user creation and subscription status updates.
+*   **Design the Invoice Template:** Create a professional and visually appealing invoice template that will be populated with invoice data.
+*   **Create the Invoice Editor:** Build a form where users can create new invoices, which automatically uses the user's saved business information and provides a live preview.
+*   **Build the Invoice List:** Create a page where users can see a list of all their invoices and their current statuses.
+*   **Create `useInvoices.js` Composable:** Implement the logic for fetching, creating, and managing invoices in Firestore.
+*   **Integrate with UI:** Connect the `InvoiceEditor` and `InvoiceList` components to the `useInvoices` composable to provide a seamless, real-time experience.
 
-### Phase 3: Database Integration with Firebase (In Progress)
+### Phase 3: Firebase Initialization Bug Fix
 
-1.  **Install Firebase:** Installed the `firebase` library.
-2.  **Firebase Configuration:** Created a `src/firebase.ts` file to initialize the Firebase app and Firestore.
-3.  **Create Firestore Composable:** Created a `src/composables/useFirestore.ts` composable to manage interactions with the 'clients' and 'invoices' collections in Firestore. This includes functions for adding and retrieving data.
+*   **Problem:** The application was experiencing a persistent "No Firebase App" error, indicating a race condition or improper initialization of Firebase services.
+*   **Investigation:**
+    *   Analyzed the application's startup process in `main.js`.
+    *   Audited all composables (`useAuth.js`, `useInvoices.js`, `useUserSettings.js`) that interact with Firebase.
+*   **Root Cause Analysis:** Discovered that multiple composables were independently initializing their own Firebase services (`getAuth()`, `getFirestore()`, `getStorage()`) instead of using the centralized `app` instance. This created rogue, unconfigured services.
+*   **Solution:**
+    1.  **Centralized Services:** Refactored `src/firebase.js` to initialize and export all necessary Firebase services (`auth`, `db`, `storage`).
+    2.  **Corrected Composables:** Modified `useAuth.js`, `useInvoices.js`, and `useUserSettings.js` to import the pre-initialized services from `src/firebase.js` instead of creating their own.
+    3.  **Robust Startup:** Converted `src/main.js` to an asynchronous module that explicitly `await`s the full initialization of the `firebase.js` module before mounting the Vue application, completely eliminating any potential for race conditions.
+*   **Outcome:** The Firebase initialization errors were resolved, resulting in a stable and reliable application build.

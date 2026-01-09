@@ -10,14 +10,13 @@
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
-    "@stripe/stripe-js": "^8.6.1",
+    "@stripe/stripe-js": "^3.5.0",
     "firebase": "^12.7.0",
     "vue": "^3.5.24",
     "vue-router": "^4.6.4",
     "vuetify": "^4.0.0-alpha.0"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.18",
     "@vitejs/plugin-vue": "^6.0.1",
     "vite": "^7.2.4"
   }

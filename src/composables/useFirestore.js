@@ -12,7 +12,11 @@ export function useFirestore() {
       const docRef = await addDoc(collection(db, 'clients'), clientData);
       return docRef.id;
     } catch (e) {
-      error.value = e.message;
+      if (e && e.message) {
+        error.value = e.message;
+      } else {
+        error.value = 'An unknown error occurred while adding the client.';
+      }
     }
   };
 
@@ -21,7 +25,11 @@ export function useFirestore() {
       const querySnapshot = await getDocs(collection(db, 'clients'));
       clients.value = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     } catch (e) {
-      error.value = e.message;
+      if (e && e.message) {
+        error.value = e.message;
+      } else {
+        error.value = 'An unknown error occurred while fetching clients.';
+      }
     }
   };
 
@@ -30,7 +38,11 @@ export function useFirestore() {
       const docRef = await addDoc(collection(db, 'invoices'), invoiceData);
       return docRef.id;
     } catch (e) {
-      error.value = e.message;
+        if (e && e.message) {
+            error.value = e.message;
+        } else {
+            error.value = 'An unknown error occurred while adding the invoice.';
+        }
     }
   };
 
@@ -39,7 +51,11 @@ export function useFirestore() {
       const querySnapshot = await getDocs(collection(db, 'invoices'));
       invoices.value = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     } catch (e) {
-      error.value = e.message;
+        if (e && e.message) {
+            error.value = e.message;
+        } else {
+            error.value = 'An unknown error occurred while fetching invoices.';
+        }
     }
   };
 
