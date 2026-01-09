@@ -10,7 +10,7 @@ Swift Invoice is a web application that allows users to create professional invo
 
 *   **Framework:** Vue.js with Vite
 *   **Language:** TypeScript and JavaScript
-*   **Styling:** Tailwind CSS for a utility-first approach.
+*   **Styling:** Vuetify
 *   **Database:** Firebase Firestore for data storage.
 *   **Color Palette:** A modern and professional color scheme with a wide range of hues to create a vibrant look. The background has a light gray color (`#f0f2f5`).
 *   **Typography:** Expressive and relevant typography to emphasize key information.
@@ -42,7 +42,7 @@ Swift Invoice is a web application that allows users to create professional invo
 ### Phase 1: Landing Page and Initial Setup (Completed)
 
 1.  **Project Setup:** Initialized a Vue.js project with Vite and TypeScript.
-2.  **Install Tailwind CSS:** Installed and configured Tailwind CSS for styling.
+2.  **Install Vuetify:** Installed and configured Vuetify for styling.
 3.  **Create `LandingPage.vue`:** Designed a visually appealing landing page.
 4.  **Component Structure:**
     *   Created a `LandingPage.vue` component with Header, Main Content, Features, and Footer sections.
