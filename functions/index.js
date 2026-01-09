@@ -1,9 +1,13 @@
-const functions = require('firebase-functions');
-const stripe = require('stripe')('sk_test_51SnOHZPpf0h9E3zvPnvIAZnqk2xFUSwWjX24A02yRk0eVDKbkvayrTqToqHGlwZGaOKHjBQokQiDMIxdXfH4X6li00KjHHzBE0');
+const {onRequest} = require("firebase-functions/v2/https");
+const {defineString} = require('firebase-functions/params');
+
+const stripeSecretKey = defineString('STRIPE_SECRET_KEY');
+
+const stripe = require('stripe')(stripeSecretKey.value());
 
 const FRONTEND_URL = "https://swift-invoice-9124f.web.app";
 
-exports.createCheckoutSession = functions.https.onCall(async (data, context) => {
+exports.createCheckoutSession = onRequest(async (req, res) => {
   const session = await stripe.checkout.sessions.create({
     line_items: [
       {
@@ -22,7 +26,7 @@ exports.createCheckoutSession = functions.https.onCall(async (data, context) => 
     cancel_url: `${FRONTEND_URL}/register`,
   });
 
-  return {
+  res.send({
     id: session.id
-  };
+  });
 });
