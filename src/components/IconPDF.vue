@@ -1,8 +1,6 @@
 <template>
-  <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-    <path fill-rule="evenodd" d="M4 0a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V6.414A2.122 2.122 0 0017.414 5L14 1.586A2.122 2.122 0 0012.586 1H4zm10.586 2.414L16 4h-2.586V2.414zM16 18H4V2h7v4a2 2 0 002 2h3v10z" clip-rule="evenodd" />
-    <path d="M9.5 14a.5.5 0 01-1 0V9a.5.5 0 011 0v5zM10 11a.5.5 0 11-1 0 .5.5 0 011 0z" />
-    <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="8" font-weight="bold" fill="white">PDF</text>
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
   </svg>
 </template>
 
