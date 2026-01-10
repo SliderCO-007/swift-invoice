@@ -42,6 +42,12 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/invoice/:id',
+    name: 'InvoiceView',
+    component: () => import('../components/InvoiceView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/invoices',
     name: 'InvoiceList',
     component: () => import('../components/InvoiceList.vue'),

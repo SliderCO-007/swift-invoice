@@ -1,6 +1,9 @@
 <template>
-  <v-icon>mdi-receipt-text</v-icon>
+  <img src="/Logo.png" alt="Swift Invoice Logo" />
 </template>
 
-<script setup>
-</script>
+<style scoped>
+img {
+  height: 120px; /* Increased size for better visibility */
+}
+</style>
