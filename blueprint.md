@@ -11,15 +11,19 @@ Swift Invoice is a web-based application designed to simplify the process of cre
 *   **Invoice Management:**
     *   Create, edit, and delete invoices.
     *   View a list of all invoices with their status (Paid, Pending, Draft).
+    *   View a complete and detailed invoice, including all line items.
     *   Mark invoices as paid.
     *   Responsive invoice editor with a live preview.
+    *   **User-Specific Sequential Invoice Numbers:** Each user has their own independent invoice counter, ensuring a professional and sequential numbering system that is unique to their account.
+    *   **Invoice Editor Enhancements:**
+        *   **Auto-population:** The "From" address and tax rate are automatically and reliably populated from user settings when creating a new invoice.
 *   **User Settings:**
     *   Save company information (name, address, email).
-    *   Set a default tax rate.
+    *   Set a default tax rate and an initial invoice counter.
     *   Upload a company logo through a stylish, circular uploader with a live preview.
     *   A dedicated, responsive settings page with a clean and modern design.
 *   **Authentication:**
-    *   Secure user authentication with Firebase Auth.
+    *   Secure user authentication with Firebase Auth, with persistent login sessions.
 *   **Data Persistence:**
     *   Invoices and user settings are saved to a Firestore database.
     *   Company logos are stored in Firebase Storage.
@@ -36,12 +40,13 @@ Swift Invoice is a web-based application designed to simplify the process of cre
     *   A consistent and unified design is maintained across all components, including forms, buttons, and layouts.
     *   Scoped styles are used within Vue components to prevent style conflicts.
 
-## Current Plan: User Settings Page Redesign
+## Current Plan: Multi-Tenant Invoice Counter
 
-*   **Objective:** Redesign the `UserSettings.vue` component to align with the application's light theme and improve user experience.
+*   **Objective:** Refactor the application to support multiple users by moving the global invoice counter to a user-specific counter.
+*   **Problem Diagnosis:** The previous implementation used a single, global counter for all invoices. This would cause conflicts and incorrect invoice numbers in a multi-user environment.
 *   **Changes Implemented:**
-    *   Replaced the previous Vuetify-based design with a custom-built layout using standard HTML elements.
-    *   Applied the application's established light theme, using consistent CSS variables for colors, fonts, and spacing.
-    *   Structured the form in a responsive two-column grid, which collapses to a single column on smaller screens for better accessibility.
-    *   Introduced a visually appealing circular logo uploader with a preview, which moves to the top of the page on mobile devices for a better workflow.
-    *   Ensured the overall design is now consistent with the `InvoiceEditor.vue` and other parts of the application, creating a more cohesive user experience.
+    *   **Updated `useUserSettings.js`:** The `invoiceCounter` field was added to the default user settings structure, initializing it for each user.
+    *   **Refactored `useInvoices.js`:** The `createInvoice` function was significantly updated. It now uses a Firestore transaction to safely read, increment, and write the `invoiceCounter` directly within the current user's settings document.
+    *   **Removed Global Counter:** The old, global `counters` collection is no longer used, and all invoice number generation is now handled on a per-user basis.
+
+This architectural change is critical for scalability and ensures that each user has a private and correct invoice numbering sequence.

@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LandingPage from '../components/LandingPage.vue'
+import getAuthReady from '../composables/getAuthReady'
 import { getAuth } from 'firebase/auth'
 
 const routes = [
@@ -27,7 +28,7 @@ const routes = [
     path: '/dashboard',
     name: 'Dashboard',
     component: () => import('../components/Dashboard.vue'),
-    meta: { requiresAuth: true } // Add meta field to indicate protected route
+    meta: { requiresAuth: true } // This route requires authentication
   },
   {
     path: '/settings',
@@ -61,15 +62,19 @@ const router = createRouter({
 })
 
 // Navigation guard
-router.beforeEach((to, from, next) => {
-  const auth = getAuth()
+router.beforeEach(async (to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
 
-  // If the route requires authentication and the user is not logged in, redirect to the login page.
+  // Wait for Firebase to confirm the authentication state
+  await getAuthReady()
+  const auth = getAuth()
+
   if (requiresAuth && !auth.currentUser) {
+    // If the route requires auth and the user is not logged in, redirect to login.
     next({ name: 'Login' })
   } else {
-    next() // Otherwise, proceed as normal.
+    // Otherwise, proceed as normal.
+    next()
   }
 })
 

@@ -1,21 +1,47 @@
 import { ref } from 'vue'
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
-import { auth } from '../firebase' // Correctly import the initialized auth instance
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  GoogleAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged
+} from 'firebase/auth'
+import { auth } from '../firebase'
 
-const user = ref(null)
+const user = ref(auth.currentUser)
 const error = ref(null)
 
-// No longer need `const auth = getAuth()` here
+// A promise that resolves when the initial auth state is loaded
+let authReadyResolver
+const authReadyPromise = new Promise(resolve => {
+  authReadyResolver = resolve
+})
+
+// The onAuthStateChanged listener is set up once and keeps the user ref in sync
+onAuthStateChanged(auth, (firebaseUser) => {
+  user.value = firebaseUser
+  // If the resolver exists, it means the promise hasn't resolved yet.
+  if (authReadyResolver) {
+    authReadyResolver()
+    authReadyResolver = null // Set to null to prevent it from being called again
+  }
+})
+
+// A new composable function that returns the promise.
+const getAuthReady = () => {
+    return authReadyPromise
+}
 
 const useAuth = () => {
   const signUp = async (email, password) => {
     error.value = null
     try {
-      const res = await createUserWithEmailAndPassword(auth, email, password) // 'auth' is now the imported instance
-      user.value = res.user
+      const res = await createUserWithEmailAndPassword(auth, email, password)
       return res
     } catch (err) {
       error.value = err.message
+      throw err
     }
   }
 
@@ -23,22 +49,10 @@ const useAuth = () => {
     error.value = null
     try {
       const res = await signInWithEmailAndPassword(auth, email, password)
-      user.value = res.user
       return res
     } catch (err) {
       error.value = err.message
-    }
-  }
-
-  const signInWithGoogle = async () => {
-    error.value = null
-    try {
-      const provider = new GoogleAuthProvider()
-      const res = await signInWithPopup(auth, provider)
-      user.value = res.user
-      return res
-    } catch (err) {
-      error.value = err.message
+      throw err
     }
   }
 
@@ -46,13 +60,33 @@ const useAuth = () => {
     error.value = null
     try {
       await signOut(auth)
-      user.value = null
     } catch (err) {
       error.value = err.message
     }
   }
 
-  return { user, error, signUp, login, logout, signInWithGoogle }
+  const signInWithGoogle = async () => {
+    const provider = new GoogleAuthProvider()
+    error.value = null
+    try {
+      const res = await signInWithPopup(auth, provider)
+      return res
+    } catch (err) {
+      error.value = err.message
+      throw err
+    }
+  }
+
+  return {
+    user,
+    error,
+    signUp,
+    login,
+    logout,
+    signInWithGoogle,
+  }
 }
 
+// We export both the main composable and our new auth-ready utility.
+export { getAuthReady }
 export default useAuth

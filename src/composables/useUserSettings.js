@@ -3,56 +3,54 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage } from '../firebase';
 
-const useUserSettings = () => {
-  const settings = ref({
-    companyName: '',
+// This ref will be shared across the app, ensuring consistency
+const settings = ref({
+  company: {
+    name: '',
     address: '',
-    phoneNumber: '',
+    email: '',
     logoUrl: '',
-  });
+  },
+  taxRate: 0,
+  invoiceCounter: 0, // Add the counter to the settings structure
+});
 
+const useUserSettings = () => {
   const loading = ref(false);
   const error = ref(null);
-  const success = ref(false);
 
   const fetchUserSettings = async () => {
+    if (!auth.currentUser) return;
     loading.value = true;
     error.value = null;
-    success.value = false;
-
-    if (!auth.currentUser) {
-      error.value = 'You must be logged in to manage settings.';
-      loading.value = false;
-      return;
-    }
-
     try {
       const docRef = doc(db, 'userSettings', auth.currentUser.uid);
       const docSnap = await getDoc(docRef);
-
       if (docSnap.exists()) {
-        settings.value = { ...settings.value, ...docSnap.data() };
+        const data = docSnap.data();
+        settings.value = {
+            ...settings.value,
+            ...data,
+            company: {
+                ...settings.value.company,
+                ...(data.company || {}),
+            }
+        };
       }
     } catch (err) {
-      error.value = err.message;
+      console.error("Error fetching user settings: ", err);
+      error.value = 'Failed to fetch settings.';
     } finally {
       loading.value = false;
     }
   };
 
-  const saveUserSettings = async (logoFile) => {
+  const saveUserSettings = async (newSettings, logoFile) => {
+    if (!auth.currentUser) return;
     loading.value = true;
     error.value = null;
-    success.value = false;
-
-    if (!auth.currentUser) {
-      error.value = 'You must be logged in to save settings.';
-      loading.value = false;
-      return;
-    }
-
     try {
-      let logoUrl = settings.value.logoUrl;
+      let logoUrl = newSettings.company.logoUrl;
 
       if (logoFile) {
         const logoStorageRef = storageRef(storage, `logos/${auth.currentUser.uid}/${logoFile.name}`);
@@ -60,25 +58,28 @@ const useUserSettings = () => {
         logoUrl = await getDownloadURL(logoStorageRef);
       }
 
-      const userSettings = {
-        companyName: settings.value.companyName,
-        address: settings.value.address,
-        phoneNumber: settings.value.phoneNumber,
-        logoUrl: logoUrl,
+      const settingsToSave = {
+        ...newSettings,
+        company: {
+            ...newSettings.company,
+            logoUrl: logoUrl,
+        }
       };
 
       const docRef = doc(db, 'userSettings', auth.currentUser.uid);
-      await setDoc(docRef, userSettings, { merge: true });
-      settings.value = { ...settings.value, ...userSettings };
-      success.value = true;
+      await setDoc(docRef, settingsToSave, { merge: true });
+      
+      settings.value = settingsToSave;
+
     } catch (err) {
-      error.value = err.message;
+      console.error("Error saving user settings: ", err);
+      error.value = 'Failed to save settings.';
     } finally {
       loading.value = false;
     }
   };
 
-  return { settings, loading, error, success, fetchUserSettings, saveUserSettings };
+  return { settings, loading, error, fetchUserSettings, saveUserSettings };
 };
 
 export default useUserSettings;

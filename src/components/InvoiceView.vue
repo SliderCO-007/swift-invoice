@@ -1,43 +1,52 @@
 <script setup>
-import { onMounted, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { format } from 'date-fns';
 import useInvoices from '../composables/useInvoices';
 
 const route = useRoute();
 const router = useRouter();
-const { invoice, getInvoice, loading, error } = useInvoices();
+const { getInvoice, loading, error } = useInvoices();
 
-onMounted(() => {
+const invoice = ref(null);
+
+onMounted(async () => {
   const invoiceId = route.params.id;
-  getInvoice(invoiceId);
+  invoice.value = await getInvoice(invoiceId);
 });
 
 const goBack = () => {
   router.push('/dashboard');
 };
 
-// Safely format dates
 const formatDate = (date) => {
-  if (date && typeof date.toDate === 'function') {
-    return format(date.toDate(), 'MMMM d, yyyy');
+  if (date instanceof Date && !isNaN(date)) {
+    return format(date, 'MMMM d, yyyy');
   }
   return 'No date provided';
 };
 
-// Computed property to safely prepare invoice data for display
+// This computed property is now more robust, ensuring all numbers are correctly handled.
 const safeInvoice = computed(() => {
   if (!invoice.value) return null;
 
-  const items = invoice.value.items || [];
-  const subtotal = items.reduce((acc, item) => acc + (item.quantity || 0) * (item.price || 0), 0);
-  const taxRate = invoice.value.taxRate || 0;
+  // Sanitize items to prevent rendering errors
+  const items = (invoice.value.items || []).map(item => ({
+    ...item,
+    description: item.description || 'No description',
+    quantity: Number(item.quantity) || 0,
+    price: Number(item.price) || 0,
+  }));
+
+  const subtotal = items.reduce((acc, item) => acc + item.quantity * item.price, 0);
+  const taxRate = Number(invoice.value.taxRate) || 0;
   const taxAmount = subtotal * (taxRate / 100);
   const total = subtotal + taxAmount;
 
   return {
     ...invoice.value,
     id: invoice.value.id || 'N/A',
+    invoiceNumber: invoice.value.invoiceNumber || invoice.value.id.substring(0, 6), // Fallback to old ID format
     status: invoice.value.status || 'pending',
     sender: invoice.value.sender || { name: 'N/A', address: '', email: '' },
     client: invoice.value.client || { name: 'N/A', address: '', email: '' },
@@ -54,7 +63,7 @@ const safeInvoice = computed(() => {
 
 <template>
   <div class="invoice-view-container">
-    <div v-if="loading" class="loading-container">
+    <div v-if="loading && !invoice" class="loading-container">
       <p>Loading invoice...</p>
     </div>
     <div v-else-if="error" class="error-container">
@@ -81,7 +90,8 @@ const safeInvoice = computed(() => {
       <div class="invoice-paper">
         <section class="invoice-main-header">
           <div class="invoice-brand">
-            <h1 class="invoice-title">Invoice #{{ safeInvoice.id.substring(0, 6) }}</h1>
+            <!-- Display the new, user-friendly invoice number -->
+            <h1 class="invoice-title">Invoice #{{ safeInvoice.invoiceNumber }}</h1>
             <p :class="['invoice-status', `status-${safeInvoice.status.toLowerCase()}`]">{{ safeInvoice.status }}</p>
           </div>
           <div class="sender-details">
@@ -115,6 +125,7 @@ const safeInvoice = computed(() => {
               </tr>
             </thead>
             <tbody>
+              <!-- This will now render correctly and safely -->
               <tr v-for="(item, index) in safeInvoice.items" :key="index">
                 <td>{{ item.description }}</td>
                 <td>{{ item.quantity }}</td>
@@ -154,7 +165,7 @@ const safeInvoice = computed(() => {
 <style scoped>
 .invoice-view-container {
   padding: 2rem;
-  background-color: var(--background-color);
+  background-color: var(--background-color, #F9FAFB);
   min-height: 100vh;
 }
 
@@ -170,7 +181,7 @@ const safeInvoice = computed(() => {
   border: none;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--primary-color);
+  color: var(--primary-color, #4F46E5);
   cursor: pointer;
   padding: 0.5rem 0;
   display: flex;
@@ -182,9 +193,9 @@ const safeInvoice = computed(() => {
 }
 
 .actions .action-btn {
-  border: 1px solid var(--primary-color);
-  background-color: var(--white-color);
-  color: var(--primary-color);
+  border: 1px solid var(--primary-color, #4F46E5);
+  background-color: var(--white-color, #fff);
+  color: var(--primary-color, #4F46E5);
   padding: 0.7rem 1.2rem;
   border-radius: 20px;
   font-weight: 600;
@@ -200,8 +211,8 @@ const safeInvoice = computed(() => {
 }
 
 .actions .action-btn.primary {
-  background-color: var(--primary-color);
-  color: var(--white-color);
+  background-color: var(--primary-color, #4F46E5);
+  color: var(--white-color, #fff);
 }
 
 .actions .action-btn:hover {
@@ -209,10 +220,10 @@ const safeInvoice = computed(() => {
 }
 
 .invoice-paper {
-  background: var(--white-color);
+  background: var(--white-color, #fff);
   border-radius: 15px;
   padding: 3rem;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
 }
 
 .invoice-main-header {
@@ -226,7 +237,7 @@ const safeInvoice = computed(() => {
 .invoice-title {
   font-size: 2.8rem;
   font-weight: 700;
-  color: var(--text-color);
+  color: var(--text-color, #111827);
   margin: 0;
   font-family: 'monospace';
 }
@@ -264,7 +275,7 @@ const safeInvoice = computed(() => {
 .client-details h2, .invoice-footer h2 {
   font-size: 1.2rem;
   font-weight: 600;
-  color: var(--text-color);
+  color: var(--text-color, #111827);
   margin-bottom: 1rem;
 }
 
@@ -331,7 +342,7 @@ const safeInvoice = computed(() => {
 .total-row.grand-total {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--primary-color);
+  color: var(--primary-color, #4F46E5);
   border-top: 2px solid #eee;
   margin-top: 0.5rem;
   padding-top: 1rem;
@@ -354,7 +365,7 @@ const safeInvoice = computed(() => {
   align-items: center;
   min-height: 80vh;
   font-size: 1.2rem;
-  color: var(--text-color);
+  color: var(--text-color, #111827);
 }
 
 .error-container {

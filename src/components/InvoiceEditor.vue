@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import useUserSettings from '../composables/useUserSettings';
 import useInvoices from '../composables/useInvoices';
+import { getAuthReady } from '../composables/useAuth'; // Import the new utility
 import InvoiceTemplate from './InvoiceTemplate.vue';
 
 const { settings, fetchUserSettings } = useUserSettings();
@@ -13,7 +14,7 @@ const route = useRoute();
 const invoiceId = ref(route.params.id);
 const invoice = ref({
   status: 'pending',
-  sender: { name: '', address: '', email: '' }, // Initialize with empty object
+  sender: { name: '', address: '', email: '' },
   client: { name: '', address: '', email: '' },
   items: [],
   issueDate: new Date(),
@@ -23,21 +24,30 @@ const invoice = ref({
 });
 
 onMounted(async () => {
-  await fetchUserSettings();
-  // Check if settings and companyInfo exist before assigning
-  if (settings.value && settings.value.companyInfo) {
-    invoice.value.sender = settings.value.companyInfo;
-  }
-  if (settings.value && settings.value.defaultTaxRate) {
-    invoice.value.taxRate = settings.value.defaultTaxRate;
-  }
+  // 1. Wait for Firebase to confirm the authentication state.
+  await getAuthReady();
 
-  if (invoiceId.value && invoiceId.value !== 'new') {
-    const fetchedInvoice = await getInvoice(invoiceId.value);
-    if(fetchedInvoice) invoice.value = fetchedInvoice;
+  // 2. Now that we know who the user is, fetch their settings.
+  await fetchUserSettings();
+
+  const id = route.params.id;
+  if (id && id !== 'new') {
+    // Editing an existing invoice
+    const existingInvoice = await getInvoice(id);
+    if (existingInvoice) {
+      invoice.value = existingInvoice;
+    }
+    invoiceId.value = id;
   } else {
-    invoice.value.issueDate = new Date();
-    invoice.value.dueDate = new Date();
+    // 3. For a new invoice, pre-populate with the now-guaranteed settings.
+    if (settings.value && settings.value.company) {
+      invoice.value.sender.name = settings.value.company.name || '';
+      invoice.value.sender.address = settings.value.company.address || '';
+      invoice.value.sender.email = settings.value.company.email || '';
+    }
+    if (settings.value && typeof settings.value.taxRate === 'number') {
+      invoice.value.taxRate = settings.value.taxRate;
+    }
   }
 });
 
@@ -52,7 +62,7 @@ const removeItem = (index) => {
 const saveAndExit = async (status) => {
   invoice.value.status = status;
   if (invoiceId.value && invoiceId.value !== 'new') {
-    await updateInvoice(invoice.value.id, invoice.value);
+    await updateInvoice(invoiceId.value, invoice.value);
   } else {
     await createInvoice(invoice.value);
   }
@@ -89,57 +99,55 @@ const saveAndExit = async (status) => {
         <!-- Dates -->
         <div class="form-section grid-2">
           <div>
-            <h3>Issue Date</h3>
-            <input type="date" v-model="invoice.issueDate">
+            <label for="issueDate">Issue Date</label>
+            <input type="date" id="issueDate" v-model="invoice.issueDate">
           </div>
           <div>
-            <h3>Due Date</h3>
-            <input type="date" v-model="invoice.dueDate">
+            <label for="dueDate">Due Date</label>
+            <input type="date" id="dueDate" v-model="invoice.dueDate">
           </div>
         </div>
 
-        <!-- Items -->
+        <!-- Line Items -->
         <div class="form-section">
           <h3>Items</h3>
-          <div v-for="(item, index) in invoice.items" :key="index" class="item-row">
-            <input type="text" class="item-desc" placeholder="Item Description" v-model="item.description">
-            <input type="number" class="item-qty" placeholder="Qty" v-model="item.quantity">
-            <input type="number" class="item-price" placeholder="Price" v-model="item.price">
-            <span class="item-total">${{ (item.quantity * item.price).toFixed(2) }}</span>
-            <button class="remove-item-btn" @click="removeItem(index)">
-              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#E74C3C"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
-            </button>
+          <div class="items-list">
+            <div v-for="(item, index) in invoice.items" :key="index" class="item-row">
+              <input type="text" placeholder="Description" v-model="item.description">
+              <input type="number" placeholder="Qty" v-model.number="item.quantity">
+              <input type="number" placeholder="Price" v-model.number="item.price">
+              <button class="delete-item-btn" @click="removeItem(index)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
+              </button>
+            </div>
           </div>
-          <button class="add-item-btn" @click="addItem">+ Add Item</button>
+          <button class="add-item-btn" @click="addItem">+ Add New Item</button>
         </div>
 
-        <!-- Tax & Notes -->
+        <!-- Notes and Tax -->
         <div class="form-section grid-2">
-          <div>
-            <h3>Tax Rate (%)</h3>
-            <input type="number" placeholder="Tax Rate" v-model="invoice.taxRate">
-          </div>
-          <div>
-            <h3>Notes</h3>
-            <textarea placeholder="Optional notes..." v-model="invoice.notes"></textarea>
-          </div>
+            <div>
+                <label for="notes">Notes</label>
+                <textarea id="notes" placeholder="Add any notes..." v-model="invoice.notes"></textarea>
+            </div>
+            <div>
+                <label for="taxRate">Tax Rate (%)</label>
+                <input type="number" id="taxRate" placeholder="0" v-model.number="invoice.taxRate">
+            </div>
         </div>
 
+        <!-- Actions -->
+        <footer class="editor-footer">
+          <button class="save-btn draft" @click="saveAndExit('draft')" :disabled="isSaving">
+            {{ isSaving ? 'Saving...' : 'Save as Draft' }}
+          </button>
+          <button class="save-btn" @click="saveAndExit('pending')" :disabled="isSaving">
+            {{ isSaving ? 'Saving...' : 'Save & Send' }}
+          </button>
+        </footer>
       </div>
-
-      <footer class="editor-footer">
-        <button class="save-btn" @click="saveAndExit('pending')" :disabled="isSaving">
-          <span v-if="isSaving">Saving...</span>
-          <span v-else>Save as Draft</span>
-        </button>
-        <button class="primary-btn" @click="saveAndExit('paid')" :disabled="isSaving">
-          <span v-if="isSaving">Saving...</span>
-          <span v-else>Save and Send</span>
-        </button>
-      </footer>
-
     </div>
-    <div class="preview-pane">
+    <div class="preview-card">
       <InvoiceTemplate :invoice="invoice" />
     </div>
   </div>
@@ -147,44 +155,45 @@ const saveAndExit = async (status) => {
 
 <style scoped>
 .editor-container {
-  display: flex;
-  min-height: 100vh;
-  background-color: var(--background-color, #F9FAFB);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  padding: 2rem;
+  background-color: var(--background-color, #f9fafb);
+  height: 100vh;
+  overflow: hidden;
 }
 
-.editor-form-card {
-  flex: 1;
-  background: var(--white-color, #fff);
-  padding: 2.5rem;
-  display: flex;
-  flex-direction: column;
+.editor-form-card, .preview-card {
+  background-color: var(--white-color, #fff);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  padding: 2rem;
+  overflow-y: auto;
 }
 
 .editor-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2.5rem;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .editor-header h1 {
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: 700;
   color: var(--text-color, #111827);
+  margin: 0;
 }
 
 .back-btn {
   background: none;
-  border: 1px solid #ccc;
-  padding: 0.6rem 1.2rem;
-  border-radius: 20px;
+  border: none;
+  color: var(--primary-color, #4F46E5);
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  color: var(--primary-color);
-}
-
-.back-btn:hover {
-  background: #f0f0f0;
 }
 
 .form-section {
@@ -195,157 +204,104 @@ const saveAndExit = async (status) => {
   font-size: 1.1rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: var(--primary-color, #4F46E5);
+  color: #333;
 }
 
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
-input[type="text"],
-input[type="email"],
-input[type="number"],
-input[type="date"],
-textarea {
+input[type="text"], input[type="email"], input[type="number"], input[type="date"], textarea {
   width: 100%;
-  padding: 0.8rem;
+  padding: 0.8rem 1rem;
   border: 1px solid #ddd;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 0.95rem;
   transition: border-color 0.3s ease;
 }
 
-input:focus,
-textarea:focus {
+input:focus, textarea:focus {
   outline: none;
   border-color: var(--primary-color, #4F46E5);
 }
 
-textarea {
-  min-height: 100px;
-  resize: vertical;
+input, textarea {
+    margin-bottom: 0.5rem;
 }
 
-.item-row {
-  display: flex;
-  align-items: center;
+label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.items-list .item-row {
+  display: grid;
+  grid-template-columns: 3fr 1fr 1fr auto;
   gap: 1rem;
+  align-items: center;
   margin-bottom: 1rem;
 }
 
-.item-desc { flex: 3; }
-.item-qty, .item-price { flex: 1; }
-.item-total { font-weight: 600; }
-
-.remove-item-btn {
+.delete-item-btn, .add-item-btn {
   background: none;
   border: none;
   cursor: pointer;
+  padding: 0.5rem;
+  color: #888;
+  transition: color 0.3s ease;
 }
 
-.add-item-btn {
-  background: none;
-  border: 1px dashed var(--primary-color, #4F46E5);
-  color: var(--primary-color, #4F46E5);
-  padding: 0.6rem 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.add-item-btn:hover {
-  background: var(--primary-color, #4F46E5);
-  color: var(--white-color, #fff);
+.delete-item-btn:hover { color: #E74C3C; }
+.add-item-btn { 
+    color: var(--primary-color, #4F46E5); 
+    font-weight: 600; 
+    margin-top: 1rem;
+    border: 1px dashed var(--primary-color, #4F46E5);
+    border-radius: 8px;
+    padding: 0.8rem;
+    width: 100%;
 }
 
 .editor-footer {
-  margin-top: auto;
-  padding-top: 2rem;
-  border-top: 1px solid #eee;
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
-}
-
-.save-btn,
-.primary-btn {
-  padding: 0.8rem 1.5rem;
-  border-radius: 20px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  margin-top: 2rem;
+  border-top: 2px solid #eee;
+  padding-top: 1.5rem;
 }
 
 .save-btn {
-  background: #eee;
-  color: #555;
-}
-.save-btn:hover { background: #ddd; }
-
-.primary-btn {
-  background: var(--primary-color, #4F46E5);
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  background-color: var(--primary-color, #4F46E5);
   color: var(--white-color, #fff);
 }
+.save-btn.draft {
+  background-color: #777;
+}
 
-.primary-btn:hover { opacity: 0.9; }
-
-.primary-btn:disabled,
 .save-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
-.preview-pane {
-  flex: 1;
-  padding: 2.5rem;
-}
-
-/* Responsive Styles */
-@media (max-width: 1200px) {
+@media (max-width: 1024px) {
   .editor-container {
-    flex-direction: column;
-  }
-}
-
-@media (max-width: 768px) {
-  .grid-2 {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    height: auto;
   }
-
-  .editor-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-
-  .editor-form-card, .preview-pane {
-    padding: 1.5rem;
-  }
-
-  .item-row {
-      flex-wrap: wrap;
-      gap: 0.75rem;
-  }
-
-  .item-desc {
-      flex-basis: 100%;
-  }
-
-  .item-qty, .item-price {
-      flex: 1;
-  }
-
-  .editor-footer {
-      flex-direction: column;
-  }
-
-  .save-btn, .primary-btn {
-      width: 100%;
-      justify-content: center;
+  .preview-card {
+      display: none; /* Hide preview on smaller screens */
   }
 }
 </style>

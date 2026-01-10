@@ -1,13 +1,7 @@
-# Firebase
-.firebase
-*.log
-
-# Dependencies
 /node_modules
-/functions/node_modules
+/dist
+.env*
+!/.env.example
 
-
-# Local Environment
-.env
-*.local
-/function/.env*
+# Firebase
+firebase.js
