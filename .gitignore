@@ -6,6 +6,8 @@
 /node_modules
 /functions/node_modules
 
+
 # Local Environment
 .env
 *.local
+/function/.env*
