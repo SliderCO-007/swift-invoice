@@ -1,14 +1,8 @@
-// src/plugins/vuetify.js
-import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
-import { aliases, mdi } from 'vuetify/iconsets/mdi'
-import '@mdi/font/css/materialdesignicons.css'
+import { createVuetify } from 'vuetify';
+import 'vuetify/styles';
+import { aliases, mdi } from 'vuetify/iconsets/mdi';
 
 const vuetify = createVuetify({
-  components,
-  directives,
   icons: {
     defaultSet: 'mdi',
     aliases,
@@ -16,6 +10,6 @@ const vuetify = createVuetify({
       mdi,
     },
   },
-})
+});
 
-export default vuetify
+export default vuetify;

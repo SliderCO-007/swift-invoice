@@ -24,10 +24,17 @@ const goToInvoiceDetails = (id) => router.push(`/invoice/${id}`);
 
 // Safely format dates
 const formatDate = (date) => {
-  if (date && typeof date.toDate === 'function') {
-    return format(date.toDate(), 'MMM d, yyyy');
+  if (!date) return 'No due date';
+
+  // Handle both Firebase Timestamps and JS Date objects
+  const dateObj = date.toDate ? date.toDate() : date;
+  
+  // Check if it's a valid date before formatting
+  if (dateObj instanceof Date && !isNaN(dateObj)) {
+    return format(dateObj, 'MMM d, yyyy');
   }
-  return 'No due date';
+  
+  return 'Invalid date';
 };
 
 // Computed property to safely prepare invoices for display
@@ -53,7 +60,7 @@ const safeInvoices = computed(() => {
       </div>
       <div class="header-actions">
         <button class="settings-btn" @click="goToSettings">
-          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69-.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69-.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
           Manage Settings
         </button>
         <button class="logout-btn" @click="handleLogout">
@@ -85,7 +92,7 @@ const safeInvoices = computed(() => {
       <div v-else class="invoice-list">
         <div v-for="invoice in safeInvoices" :key="invoice.id" class="invoice-card" @click="goToInvoiceDetails(invoice.id)">
           <div class="invoice-card-header">
-            <span class="invoice-id">#{{ invoice.id.substring(0, 6) }}</span>
+            <span class="invoice-id">#{{ invoice.invoiceNumber }}</span>
             <span :class="['invoice-status', `status-${invoice.status.toLowerCase()}`]">{{ invoice.status }}</span>
           </div>
           <div class="invoice-card-body">

@@ -1,10 +1,11 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import useUserSettings from '../composables/useUserSettings';
 import useInvoices from '../composables/useInvoices';
 import { getAuthReady } from '../composables/useAuth'; // Import the new utility
 import InvoiceTemplate from './InvoiceTemplate.vue';
+import { format, parseISO } from 'date-fns';
 
 const { settings, fetchUserSettings } = useUserSettings();
 const { createInvoice, getInvoice, updateInvoice, loading: isSaving } = useInvoices();
@@ -14,14 +15,26 @@ const route = useRoute();
 const invoiceId = ref(route.params.id);
 const invoice = ref({
   status: 'pending',
-  sender: { name: '', address: '', email: '' },
-  client: { name: '', address: '', email: '' },
+  sender: { name: '', address1: '', address2: '', city: '', state: '', zip: '', email: '' },
+  client: { name: '', address1: '', address2: '', city: '', state: '', zip: '', email: '' },
   items: [],
   issueDate: new Date(),
   dueDate: new Date(),
   notes: '',
   taxRate: 0,
 });
+
+// Computed properties to handle date formatting for input[type="date"]
+const formattedIssueDate = computed({
+  get: () => invoice.value.issueDate ? format(new Date(invoice.value.issueDate), 'yyyy-MM-dd') : '',
+  set: (val) => invoice.value.issueDate = new Date(val),
+});
+
+const formattedDueDate = computed({
+  get: () => invoice.value.dueDate ? format(new Date(invoice.value.dueDate), 'yyyy-MM-dd') : '',
+  set: (val) => invoice.value.dueDate = new Date(val),
+});
+
 
 onMounted(async () => {
   // 1. Wait for Firebase to confirm the authentication state.
@@ -42,7 +55,11 @@ onMounted(async () => {
     // 3. For a new invoice, pre-populate with the now-guaranteed settings.
     if (settings.value && settings.value.company) {
       invoice.value.sender.name = settings.value.company.name || '';
-      invoice.value.sender.address = settings.value.company.address || '';
+      invoice.value.sender.address1 = settings.value.company.address1 || '';
+      invoice.value.sender.address2 = settings.value.company.address2 || '';
+      invoice.value.sender.city = settings.value.company.city || '';
+      invoice.value.sender.state = settings.value.company.state || '';
+      invoice.value.sender.zip = settings.value.company.zip || '';
       invoice.value.sender.email = settings.value.company.email || '';
     }
     if (settings.value && typeof settings.value.taxRate === 'number') {
@@ -85,14 +102,26 @@ const saveAndExit = async (status) => {
           <div>
             <h3>From</h3>
             <input type="text" placeholder="Your Name/Company" v-model="invoice.sender.name">
-            <input type="text" placeholder="Your Address" v-model="invoice.sender.address">
             <input type="email" placeholder="Your Email" v-model="invoice.sender.email">
+            <input type="text" placeholder="Address Line 1" v-model="invoice.sender.address1">
+            <input type="text" placeholder="Address Line 2 (Optional)" v-model="invoice.sender.address2">
+            <div class="address-grid-city-state">
+              <input type="text" placeholder="City" v-model="invoice.sender.city">
+              <input type="text" placeholder="State" v-model="invoice.sender.state">
+            </div>
+            <input type="text" placeholder="Zip Code" v-model="invoice.sender.zip">
           </div>
           <div>
             <h3>To</h3>
             <input type="text" placeholder="Client's Name" v-model="invoice.client.name">
-            <input type="text" placeholder="Client's Address" v-model="invoice.client.address">
             <input type="email" placeholder="Client's Email" v-model="invoice.client.email">
+            <input type="text" placeholder="Address Line 1" v-model="invoice.client.address1">
+            <input type="text" placeholder="Address Line 2 (Optional)" v-model="invoice.client.address2">
+            <div class="address-grid-city-state">
+              <input type="text" placeholder="City" v-model="invoice.client.city">
+              <input type="text" placeholder="State" v-model="invoice.client.state">
+            </div>
+            <input type="text" placeholder="Zip Code" v-model="invoice.client.zip">
           </div>
         </div>
 
@@ -100,11 +129,11 @@ const saveAndExit = async (status) => {
         <div class="form-section grid-2">
           <div>
             <label for="issueDate">Issue Date</label>
-            <input type="date" id="issueDate" v-model="invoice.issueDate">
+            <input type="date" id="issueDate" v-model="formattedIssueDate">
           </div>
           <div>
             <label for="dueDate">Due Date</label>
-            <input type="date" id="dueDate" v-model="invoice.dueDate">
+            <input type="date" id="dueDate" v-model="formattedDueDate">
           </div>
         </div>
 
@@ -211,6 +240,12 @@ const saveAndExit = async (status) => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
+}
+
+.address-grid-city-state {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
 }
 
 input[type="text"], input[type="email"], input[type="number"], input[type="date"], textarea {

@@ -8,23 +8,36 @@ const logoFile = ref(null);
 const logoPreview = ref(null);
 const successMessage = ref('');
 
-// A local ref to handle form data, initialized with the shared settings structure
+// A local ref to handle form data, initialized with the new structure
 const localSettings = ref({
-  company: { name: '', address: '', email: '', logoUrl: '' },
+  company: {
+    name: '',
+    email: '',
+    address1: '',
+    address2: '',
+    city: '',
+    state: '',
+    zip: '',
+    logoUrl: ''
+  },
   taxRate: 0,
 });
 
 onMounted(async () => {
   await fetchUserSettings();
   // When settings are fetched, update localSettings to reflect the shared state
-  localSettings.value = JSON.parse(JSON.stringify(settings.value)); 
-  logoPreview.value = localSettings.value.company.logoUrl;
+  if (settings.value) {
+    localSettings.value = JSON.parse(JSON.stringify(settings.value));
+    logoPreview.value = localSettings.value.company.logoUrl;
+  }
 });
 
 // Watch for changes in the shared settings state and update the local form data
 watch(settings, (newSettings) => {
-  localSettings.value = JSON.parse(JSON.stringify(newSettings));
-  logoPreview.value = newSettings.company.logoUrl;
+  if (newSettings) {
+    localSettings.value = JSON.parse(JSON.stringify(newSettings));
+    logoPreview.value = newSettings.company.logoUrl;
+  }
 }, { deep: true });
 
 const onFileChange = (e) => {
@@ -85,8 +98,24 @@ const handleSave = async () => {
               <input id="companyEmail" type="email" v-model="localSettings.company.email" placeholder="e.g., contact@swift.com">
             </div>
             <div class="form-group full-width">
-              <label for="companyAddress">Address</label>
-              <input id="companyAddress" type="text" v-model="localSettings.company.address" placeholder="e.g., 123 Innovation Drive, Tech City">
+              <label for="companyAddress1">Address Line 1</label>
+              <input id="companyAddress1" type="text" v-model="localSettings.company.address1" placeholder="e.g., 123 Innovation Drive">
+            </div>
+            <div class="form-group full-width">
+              <label for="companyAddress2">Address Line 2 (Optional)</label>
+              <input id="companyAddress2" type="text" v-model="localSettings.company.address2" placeholder="e.g., Suite 500">
+            </div>
+            <div class="form-group">
+              <label for="companyCity">City</label>
+              <input id="companyCity" type="text" v-model="localSettings.company.city" placeholder="e.g., Tech City">
+            </div>
+            <div class="form-group">
+              <label for="companyState">State</label>
+              <input id="companyState" type="text" v-model="localSettings.company.state" placeholder="e.g., CA">
+            </div>
+            <div class="form-group full-width">
+              <label for="companyZip">Zip Code</label>
+              <input id="companyZip" type="text" v-model="localSettings.company.zip" placeholder="e.g., 94016">
             </div>
             <div class="form-group">
               <label for="taxRate">Default Tax Rate (%)</label>

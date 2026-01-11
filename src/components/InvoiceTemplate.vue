@@ -15,13 +15,13 @@
       <v-col cols="6">
         <h3 class="text-h6 font-weight-bold mb-2">Billed To:</h3>
         <p>{{ invoice.client.name }}</p>
-        <p>{{ invoice.client.address }}</p>
+        <p>{{ formatAddress(invoice.client) }}</p>
         <p>{{ invoice.client.email }}</p>
       </v-col>
       <v-col cols="6" class="text-right">
         <h3 class="text-h6 font-weight-bold mb-2">From:</h3>
         <p>{{ invoice.sender.companyName }}</p>
-        <p>{{ invoice.sender.address }}</p>
+        <p>{{ formatAddress(invoice.sender) }}</p>
         <p>{{ invoice.sender.phoneNumber }}</p>
       </v-col>
     </v-row>
@@ -85,13 +85,21 @@ import { ref, computed } from 'vue';
 const invoice = ref({
   sender: {
     companyName: 'Swift Invoice Inc.',
-    address: '123 Main Street, Anytown, USA 12345',
+    address1: '123 Main Street',
+    address2: 'Suite 100',
+    city: 'Anytown',
+    state: 'CA',
+    zip: '12345',
     phoneNumber: '555-123-4567',
     logoUrl: 'https://via.placeholder.com/150x50.png?text=Your+Logo'
   },
   client: {
     name: 'John Doe',
-    address: '456 Oak Avenue, Sometown, USA 54321',
+    address1: '456 Oak Avenue',
+    address2: '',
+    city: 'Sometown',
+    state: 'NY',
+    zip: '54321',
     email: 'john.doe@example.com'
   },
   invoiceNumber: 'INV-001',
@@ -120,6 +128,12 @@ const total = computed(() => {
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+};
+
+const formatAddress = (address) => {
+  if (!address) return '';
+  const parts = [address.address1, address.address2, `${address.city}, ${address.state} ${address.zip}`];
+  return parts.filter(Boolean).join(', ');
 };
 </script>
 

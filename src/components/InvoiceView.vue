@@ -6,7 +6,7 @@ import useInvoices from '../composables/useInvoices';
 
 const route = useRoute();
 const router = useRouter();
-const { getInvoice, loading, error } = useInvoices();
+const { getInvoice, markAsPaid, loading, error } = useInvoices();
 
 const invoice = ref(null);
 
@@ -17,6 +17,14 @@ onMounted(async () => {
 
 const goBack = () => {
   router.push('/dashboard');
+};
+
+const handleMarkAsPaid = async () => {
+  if (!invoice.value || invoice.value.status === 'Paid') return;
+
+  await markAsPaid(invoice.value.id);
+  // Refresh the invoice data to show the updated status
+  invoice.value = await getInvoice(invoice.value.id);
 };
 
 const formatDate = (date) => {
@@ -43,13 +51,15 @@ const safeInvoice = computed(() => {
   const taxAmount = subtotal * (taxRate / 100);
   const total = subtotal + taxAmount;
 
+  console.log(items)
+
   return {
     ...invoice.value,
     id: invoice.value.id || 'N/A',
     invoiceNumber: invoice.value.invoiceNumber || invoice.value.id.substring(0, 6), // Fallback to old ID format
     status: invoice.value.status || 'pending',
-    sender: invoice.value.sender || { name: 'N/A', address: '', email: '' },
-    client: invoice.value.client || { name: 'N/A', address: '', email: '' },
+    sender: invoice.value.sender || { name: 'N/A', address1: '', address2: '', city: '', state: '', zip: '', email: '' },
+    client: invoice.value.client || { name: 'N/A', address1: '', address2: '', city: '', state: '', zip: '', email: '' },
     items: items,
     taxRate: taxRate,
     notes: invoice.value.notes || '',
@@ -58,6 +68,12 @@ const safeInvoice = computed(() => {
     total: total
   };
 });
+
+const formatAddress = (address) => {
+  if (!address) return '';
+  const parts = [address.address1, address.address2, `${address.city}, ${address.state} ${address.zip}`];
+  return parts.filter(Boolean).join(', ');
+};
 
 </script>
 
@@ -80,9 +96,14 @@ const safeInvoice = computed(() => {
             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
             Download PDF
           </button>
-          <button class="action-btn primary">
+          <!-- Add the click handler and disable the button if the invoice is already paid -->
+          <button 
+            @click="handleMarkAsPaid"
+            :disabled="safeInvoice.status === 'Paid'"
+            class="action-btn primary"
+          >
             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-            Mark as Paid
+            {{ safeInvoice.status === 'Paid' ? 'Already Paid' : 'Mark as Paid' }}
           </button>
         </div>
       </header>
@@ -96,7 +117,7 @@ const safeInvoice = computed(() => {
           </div>
           <div class="sender-details">
             <p><strong>{{ safeInvoice.sender.name }}</strong></p>
-            <p>{{ safeInvoice.sender.address }}</p>
+            <p>{{ formatAddress(safeInvoice.sender) }}</p>
             <p>{{ safeInvoice.sender.email }}</p>
           </div>
         </section>
@@ -105,7 +126,7 @@ const safeInvoice = computed(() => {
           <div class="client-details">
             <h2>Bill To</h2>
             <p><strong>{{ safeInvoice.client.name }}</strong></p>
-            <p>{{ safeInvoice.client.address }}</p>
+            <p>{{ formatAddress(safeInvoice.client) }}</p>
             <p>{{ safeInvoice.client.email }}</p>
           </div>
           <div class="invoice-dates">
@@ -127,10 +148,10 @@ const safeInvoice = computed(() => {
             <tbody>
               <!-- This will now render correctly and safely -->
               <tr v-for="(item, index) in safeInvoice.items" :key="index">
-                <td>{{ item.description }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>${{ item.price.toFixed(2) }}</td>
-                <td>${{ (item.quantity * item.price).toFixed(2) }}</td>
+                <td data-label="Description">{{ item.description }}</td>
+                <td data-label="Qty">{{ item.quantity }}</td>
+                <td data-label="Unit Price">${{ item.price.toFixed(2) }}</td>
+                <td data-label="Total">${{ (item.quantity * item.price).toFixed(2) }}</td>
               </tr>
             </tbody>
           </table>
@@ -167,6 +188,7 @@ const safeInvoice = computed(() => {
   padding: 2rem;
   background-color: var(--background-color, #F9FAFB);
   min-height: 100vh;
+  color: #555;
 }
 
 .invoice-view-header {
@@ -217,6 +239,12 @@ const safeInvoice = computed(() => {
 
 .actions .action-btn:hover {
   opacity: 0.8;
+}
+
+.actions .action-btn:disabled {
+  background-color: #ccc;
+  border-color: #ccc;
+  cursor: not-allowed;
 }
 
 .invoice-paper {
@@ -281,7 +309,6 @@ const safeInvoice = computed(() => {
 
 .client-details p {
   margin: 0;
-  color: #555;
 }
 
 .invoice-dates {
@@ -308,7 +335,6 @@ const safeInvoice = computed(() => {
 .items-table th {
   background-color: #f9f9f9;
   font-weight: 600;
-  color: #555;
 }
 
 .items-table td:nth-child(2),
@@ -372,5 +398,134 @@ const safeInvoice = computed(() => {
     text-align: center;
     padding: 3rem;
     color: #E74C3C;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .invoice-view-container {
+    padding: 1rem;
+  }
+
+  .invoice-view-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.5rem;
+  }
+
+  .back-btn {
+    justify-content: center;
+  }
+  
+  .actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-left: 0;
+  }
+
+  .actions .action-btn {
+    margin-left: 0;
+    justify-content: center;
+  }
+
+  .invoice-paper {
+    padding: 1.5rem;
+  }
+
+  .invoice-main-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+
+  .sender-details {
+    text-align: left;
+  }
+
+  .invoice-title {
+    font-size: 2rem;
+  }
+
+  .invoice-meta-details {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .invoice-dates {
+    text-align: left;
+  }
+
+  .items-table thead {
+    display: none;
+  }
+
+  .items-table tr {
+    display: block;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 1rem;
+  }
+  
+  .items-table tr:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .items-table td {
+    display: flex;
+    justify-content: space-between;
+    text-align: right;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f9f9f9;
+  }
+  
+  .items-table td:last-of-type {
+      border-bottom: none;
+  }
+
+  .items-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    text-align: left;
+    margin-right: 1rem;
+    color: #333;
+  }
+  
+  .items-table td[data-label="Description"] {
+    justify-content: flex-start;
+  }
+  
+  .items-table td[data-label="Description"]::before {
+      display: none;
+  }
+
+  .invoice-summary {
+    justify-content: stretch;
+  }
+  
+  .totals {
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+    .invoice-view-container {
+        padding: 0.5rem;
+    }
+    
+    .invoice-paper {
+        padding: 1rem;
+        border-radius: 10px;
+    }
+    
+    .invoice-title {
+        font-size: 1.8rem;
+    }
+    
+    .actions .action-btn {
+        padding: 0.8rem 1rem;
+        font-size: 0.9rem;
+    }
 }
 </style>

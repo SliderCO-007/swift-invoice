@@ -6,13 +6,22 @@
           <Logo />
           <span>Swift Invoice</span>
         </div>
-        <nav class="nav">
+        <nav class="nav desktop-nav">
           <a href="#features">Features</a>
           <a href="#pricing">Pricing</a>
           <router-link to="/login">Login</router-link>
         </nav>
-        <v-btn to="/register" color="primary" large rounded>Get Started</v-btn>
+        <v-btn to="/register" color="primary" large rounded class="desktop-nav">Get Started</v-btn>
+        <button class="mobile-nav-toggle" @click="isMobileNavOpen = !isMobileNavOpen">
+          <IconMenu />
+        </button>
       </div>
+      <nav class="mobile-nav" :class="{ 'is-open': isMobileNavOpen }">
+        <a href="#features" @click="isMobileNavOpen = false">Features</a>
+        <a href="#pricing" @click="isMobileNavOpen = false">Pricing</a>
+        <router-link to="/login" @click="isMobileNavOpen = false">Login</router-link>
+        <v-btn to="/register" color="primary" large rounded>Get Started</v-btn>
+      </nav>
     </header>
 
     <main>
@@ -87,10 +96,14 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import Logo from './Logo.vue';
 import IconPDF from './IconPDF.vue';
 import IconEmail from './IconEmail.vue';
 import IconAnalytics from './IconAnalytics.vue';
+import IconMenu from './IconMenu.vue';
+
+const isMobileNavOpen = ref(false);
 </script>
 
 <style scoped>
@@ -146,6 +159,45 @@ import IconAnalytics from './IconAnalytics.vue';
 .nav a:hover {
   color: #007bff;
 }
+
+/* Mobile Navigation */
+.mobile-nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.mobile-nav {
+  display: none;
+  flex-direction: column;
+  background-color: #fff;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  padding: 1rem;
+}
+
+.mobile-nav.is-open {
+  display: flex;
+}
+
+.mobile-nav a {
+  padding: 1rem;
+  text-align: center;
+  text-decoration: none;
+  color: #333;
+  font-weight: 600;
+}
+
+.mobile-nav .v-btn {
+  margin-top: 1rem;
+}
+
 
 /* Hero Section */
 .hero {
@@ -294,5 +346,53 @@ import IconAnalytics from './IconAnalytics.vue';
   color: #fff;
   padding: 2rem 0;
   text-align: center;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .desktop-nav {
+    display: none;
+  }
+
+  .mobile-nav-toggle {
+    display: block;
+  }
+  
+  .container {
+      padding: 0 1rem;
+  }
+
+  .hero {
+    padding: 4rem 0;
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .features {
+    padding: 4rem 0;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-title {
+    font-size: 2rem;
+  }
+  
+  .section-subtitle {
+      font-size: 1rem;
+      margin-bottom: 2rem;
+  }
+  
+  .pricing {
+      padding: 4rem 0;
+  }
 }
 </style>

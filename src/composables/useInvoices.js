@@ -44,6 +44,7 @@ const useInvoices = () => {
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const data = docSnap.data();
+
         return {
           id: docSnap.id,
           ...data,
@@ -130,6 +131,19 @@ const useInvoices = () => {
     }
   };
 
+  const markAsPaid = async (id) => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const docRef = doc(db, 'invoices', id);
+      await updateDoc(docRef, { status: 'Paid' });
+    } catch (err) {
+      error.value = err.message;
+    } finally {
+      loading.value = false;
+    }
+  };
+
   return {
     invoices,
     loading,
@@ -138,6 +152,7 @@ const useInvoices = () => {
     getInvoice,
     createInvoice,
     updateInvoice,
+    markAsPaid,
   };
 };
 
