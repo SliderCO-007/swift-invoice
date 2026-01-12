@@ -45,22 +45,22 @@
               <div class="feature-icon">
                 <IconPDF />
               </div>
-              <h3 class="feature-title">Professional Templates</h3>
-              <p class="feature-description">A professional invoice template. Add your logo and branding in a few clicks.</p>
+              <h3 class="feature-title">Pay-per-Invoice</h3>
+              <p class="feature-description">No subscriptions or hidden fees. Only pay a small $1 fee for each new invoice you create. Perfect for freelancers and small businesses.</p>
             </div>
             <div class="feature-card">
               <div class="feature-icon">
                 <IconEmail />
               </div>
-              <h3 class="feature-title">Downloadable PDF Invoices</h3>
-              <p class="feature-description">Easily download invoices as PDFs to send to your clients.</p>
+              <h3 class="feature-title">Download & Share Instantly</h3>
+              <p class="feature-description">Generate and download a professional, high-resolution PDF of your invoice the moment you create it. Ready to send to your clients immediately.</p>
             </div>
             <div class="feature-card">
               <div class="feature-icon">
                 <IconAnalytics />
               </div>
-              <h3 class="feature-title">Invoice Status Tracking</h3>
-              <p class="feature-description">Keep track of your cash flow by viewing the status of all your invoices, whether they're pending or paid.</p>
+              <h3 class="feature-title">At-a-Glance Tracking</h3>
+              <p class="feature-description">The dashboard gives you a clear overview of all your invoices. See which invoices are paid, pending, or overdue in a single glance.</p>
             </div>
           </div>
         </div>
@@ -96,7 +96,7 @@
 
     <footer class="footer">
       <div class="container">
-        <p>&copy; 2024 Swift Invoice. All rights reserved.</p>
+        <p>&copy; 2026 Swift Invoice. All rights reserved.</p>
       </div>
     </footer>
   </div>
