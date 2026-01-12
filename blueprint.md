@@ -55,6 +55,12 @@ Swift Invoice is a web-based application designed to simplify the process of cre
     *   A light background (`#F9FAFB`) with white cards provides a clean and professional look.
     *   Scoped styles are used within Vue components to prevent style conflicts.
 
+### Meta Tags & SEO
+
+*   **Meta Title:** Swift Invoice | Effortless Invoicing for Freelancers & Small Businesses
+*   **Meta Description:** "Swift Invoice is a simple, pay-as-you-go invoicing solution for freelancers and small businesses. Create, customize, and download professional PDF invoices for just $1 per invoice. No subscriptions, no hidden fees. Track payments and manage your cash flow effortlessly. Get started today!"
+*   **Keywords:** small business invoicing, freelance invoicing, invoice generator, online invoicing software, create invoices online, pay-per-invoice, invoice tracking, professional invoices, Vue.js invoice app, Firebase invoicing.
+
 ## Current Task: Final Deployment
 
 ### Plan
