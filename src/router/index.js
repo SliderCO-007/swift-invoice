@@ -25,6 +25,12 @@ const routes = [
     component: () => import('../components/PaymentSuccess.vue')
   },
   {
+    path: '/create-invoice-success',
+    name: 'CreateInvoiceSuccess',
+    component: () => import('../components/CreateInvoiceSuccess.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/dashboard',
     name: 'Dashboard',
     component: () => import('../components/Dashboard.vue'),
@@ -39,6 +45,12 @@ const routes = [
   {
     path: '/invoice/new',
     name: 'InvoiceNew',
+    component: () => import('../components/InvoiceEditor.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/invoice/edit/:id',
+    name: 'InvoiceEdit',
     component: () => import('../components/InvoiceEditor.vue'),
     meta: { requiresAuth: true }
   },

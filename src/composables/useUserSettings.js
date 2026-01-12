@@ -7,12 +7,16 @@ import { auth, db, storage } from '../firebase';
 const settings = ref({
   company: {
     name: '',
-    address: '',
     email: '',
-    logoUrl: '',
+    address1: '',
+    address2: '',
+    city: '',
+    state: '',
+    zip: '',
+    logoUrl: ''
   },
   taxRate: 0,
-  invoiceCounter: 0, // Add the counter to the settings structure
+  invoiceCounter: 0,
 });
 
 const useUserSettings = () => {
@@ -28,6 +32,7 @@ const useUserSettings = () => {
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const data = docSnap.data();
+        // Deep merge fetched data, ensuring all fields are present
         settings.value = {
             ...settings.value,
             ...data,
@@ -73,7 +78,7 @@ const useUserSettings = () => {
 
     } catch (err) {
       console.error("Error saving user settings: ", err);
-      error.value = 'Failed to save settings.';
+      error.value = `Failed to save settings: ${err.message}`;
     } finally {
       loading.value = false;
     }

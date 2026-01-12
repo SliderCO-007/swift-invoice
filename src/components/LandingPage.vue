@@ -29,9 +29,9 @@
         <div class="container">
           <div class="hero-content">
             <h1 class="hero-title">Invoicing Made Effortless</h1>
-            <p class="hero-subtitle">Create, send, and track professional invoices in minutes. Focus on your work, not your paperwork.</p>
-            <v-btn to="/register" color="primary" x-large rounded class="mt-8">Try Swift Invoice Now</v-btn>
-            <p class="hero-caption">Free to get started. No credit card required.</p>
+            <p class="hero-subtitle">Create, download, and track professional invoices in minutes. Focus on your work, not your paperwork.</p>
+            <v-btn to="/register" color="primary" x-large rounded class="mt-8">Get Started with Swift Invoice</v-btn>
+            <p class="hero-caption">Transparent pricing. No subscriptions.</p>
           </div>
         </div>
       </section>
@@ -46,21 +46,21 @@
                 <IconPDF />
               </div>
               <h3 class="feature-title">Professional Templates</h3>
-              <p class="feature-description">Choose from a variety of professional invoice templates. Add your logo and branding in a few clicks.</p>
+              <p class="feature-description">A professional invoice template. Add your logo and branding in a few clicks.</p>
             </div>
             <div class="feature-card">
               <div class="feature-icon">
                 <IconEmail />
               </div>
-              <h3 class="feature-title">Email & PDF Invoices</h3>
-              <p class="feature-description">Send invoices directly to your clients' inboxes, or download as a PDF to send yourself.</p>
+              <h3 class="feature-title">Downloadable PDF Invoices</h3>
+              <p class="feature-description">Easily download invoices as PDFs to send to your clients.</p>
             </div>
             <div class="feature-card">
               <div class="feature-icon">
                 <IconAnalytics />
               </div>
-              <h3 class="feature-title">Payment Tracking</h3>
-              <p class="feature-description">Know when your invoices are viewed and paid. Get automatic reminders for overdue payments.</p>
+              <h3 class="feature-title">Invoice Status Tracking</h3>
+              <p class="feature-description">Keep track of your cash flow by viewing the status of all your invoices, whether they're pending or paid.</p>
             </div>
           </div>
         </div>
@@ -69,17 +69,24 @@
       <section id="pricing" class="pricing">
         <div class="container">
           <h2 class="section-title">Simple, transparent pricing.</h2>
-          <p class="section-subtitle">Choose the plan that's right for you.</p>
+          <p class="section-subtitle">One simple plan to cover all your invoicing needs.</p>
           <div class="pricing-card">
             <h3 class="pricing-plan">Pay-as-you-go</h3>
-            <p class="pricing-price">$1 <span class="pricing-period">/ invoice</span></p>
-            <p class="pricing-description">Perfect for freelancers and small businesses.</p>
+            <div class="pricing-cost">
+              <p class="pricing-price">$50</p>
+              <p class="pricing-period">One-time setup fee</p>
+            </div>
+            <div class="pricing-cost-secondary">
+              <p class="pricing-price">$1</p>
+              <p class="pricing-period">per invoice</p>
+            </div>
+            <p class="pricing-description">A one-time fee gives you lifetime access. Then, only pay for the invoices you create.</p>
             <ul class="pricing-features">
               <li>Unlimited clients</li>
               <li>Unlimited projects</li>
               <li>Professional invoice templates</li>
-              <li>Email and PDF invoices</li>
-              <li>Payment tracking</li>
+              <li>Downloadable PDF invoices</li>
+              <li>Invoice status tracking</li>
             </ul>
             <v-btn to="/register" color="primary" large rounded class="mt-8">Get Started</v-btn>
           </div>
@@ -108,6 +115,10 @@ const isMobileNavOpen = ref(false);
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+main section[id] {
+  scroll-margin-top: 100px; /* Adjust this value to match your header height */
+}
 
 .landing-page {
   font-family: 'Poppins', sans-serif;
@@ -313,11 +324,23 @@ const isMobileNavOpen = ref(false);
     color: #555;
 }
 
+.pricing-cost {
+    margin-bottom: 1rem;
+}
+
+.pricing-cost-secondary {
+    margin-bottom: 2rem;
+}
+
 .pricing-price {
     font-size: 3.5rem;
     font-weight: 700;
-    margin: 1rem 0;
     color: #007bff;
+    line-height: 1;
+}
+
+.pricing-cost-secondary .pricing-price {
+    font-size: 2.5rem;
 }
 
 .pricing-period {
@@ -327,6 +350,8 @@ const isMobileNavOpen = ref(false);
 
 .pricing-description {
     margin-bottom: 2rem;
+    font-size: 1.1rem;
+    color: #333;
 }
 
 .pricing-features {

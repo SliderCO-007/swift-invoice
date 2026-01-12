@@ -3,9 +3,10 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import useUserSettings from '../composables/useUserSettings';
 import useInvoices from '../composables/useInvoices';
-import { getAuthReady } from '../composables/useAuth'; // Import the new utility
+import { getAuthReady } from '../composables/useAuth';
 import InvoiceTemplate from './InvoiceTemplate.vue';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
+import { loadStripe } from '@stripe/stripe-js';
 
 const { settings, fetchUserSettings } = useUserSettings();
 const { createInvoice, getInvoice, updateInvoice, loading: isSaving } = useInvoices();
@@ -24,35 +25,44 @@ const invoice = ref({
   taxRate: 0,
 });
 
-// Computed properties to handle date formatting for input[type="date"]
+const showPreview = ref(false);
+
 const formattedIssueDate = computed({
   get: () => invoice.value.issueDate ? format(new Date(invoice.value.issueDate), 'yyyy-MM-dd') : '',
-  set: (val) => invoice.value.issueDate = new Date(val),
+  set: (val) => {
+    if (val) {
+      const [year, month, day] = val.split('-').map(Number);
+      invoice.value.issueDate = new Date(year, month - 1, day);
+    } else {
+      invoice.value.issueDate = null;
+    }
+  },
 });
 
 const formattedDueDate = computed({
   get: () => invoice.value.dueDate ? format(new Date(invoice.value.dueDate), 'yyyy-MM-dd') : '',
-  set: (val) => invoice.value.dueDate = new Date(val),
+  set: (val) => {
+    if (val) {
+      const [year, month, day] = val.split('-').map(Number);
+      invoice.value.dueDate = new Date(year, month - 1, day);
+    } else {
+      invoice.value.dueDate = null;
+    }
+  },
 });
 
-
 onMounted(async () => {
-  // 1. Wait for Firebase to confirm the authentication state.
   await getAuthReady();
-
-  // 2. Now that we know who the user is, fetch their settings.
   await fetchUserSettings();
 
   const id = route.params.id;
   if (id && id !== 'new') {
-    // Editing an existing invoice
     const existingInvoice = await getInvoice(id);
     if (existingInvoice) {
       invoice.value = existingInvoice;
     }
     invoiceId.value = id;
   } else {
-    // 3. For a new invoice, pre-populate with the now-guaranteed settings.
     if (settings.value && settings.value.company) {
       invoice.value.sender.name = settings.value.company.name || '';
       invoice.value.sender.address1 = settings.value.company.address1 || '';
@@ -78,12 +88,32 @@ const removeItem = (index) => {
 
 const saveAndExit = async (status) => {
   invoice.value.status = status;
-  if (invoiceId.value && invoiceId.value !== 'new') {
-    await updateInvoice(invoiceId.value, invoice.value);
-  } else {
-    await createInvoice(invoice.value);
+
+  // If it's an existing invoice or a new draft, save directly
+  if (invoiceId.value && invoiceId.value !== 'new' || status === 'draft') {
+    if (invoiceId.value && invoiceId.value !== 'new') {
+      await updateInvoice(invoiceId.value, invoice.value);
+    } else {
+      await createInvoice(invoice.value);
+    }
+    router.push('/dashboard');
+    return;
   }
-  router.push('/dashboard');
+
+  // If it's a new, finalized invoice, trigger payment flow
+  isSaving.value = true;
+  localStorage.setItem('pendingInvoice', JSON.stringify(invoice.value));
+
+  try {
+    const response = await fetch('https://createinvoicecheckoutsession-k3g7drjrcq-uc.a.run.app', { method: 'POST' });
+    const session = await response.json();
+
+    const stripe = await loadStripe('pk_test_51PbmSgRqc5J0s1E2mcuRqSfsYJzuZ0f2j4aexx9nZl8pSg7sC5AGN4gbfvgnnJ32pWk84nmUKLg5oj1uCUU2wXoN00i9Q5oJ79');
+    await stripe.redirectToCheckout({ sessionId: session.id });
+  } catch (error) {
+    console.error('Error creating checkout session:', error);
+    isSaving.value = false;
+  }
 };
 
 </script>
@@ -97,9 +127,8 @@ const saveAndExit = async (status) => {
       </header>
 
       <div v-if="invoice" class="invoice-form-content">
-        <!-- Sender & Client Details -->
         <div class="form-section grid-2">
-          <div>
+          <div class="from-fields">
             <h3>From</h3>
             <input type="text" placeholder="Your Name/Company" v-model="invoice.sender.name">
             <input type="email" placeholder="Your Email" v-model="invoice.sender.email">
@@ -125,7 +154,6 @@ const saveAndExit = async (status) => {
           </div>
         </div>
 
-        <!-- Dates -->
         <div class="form-section grid-2">
           <div>
             <label for="issueDate">Issue Date</label>
@@ -137,7 +165,6 @@ const saveAndExit = async (status) => {
           </div>
         </div>
 
-        <!-- Line Items -->
         <div class="form-section">
           <h3>Items</h3>
           <div class="items-list">
@@ -153,7 +180,6 @@ const saveAndExit = async (status) => {
           <button class="add-item-btn" @click="addItem">+ Add New Item</button>
         </div>
 
-        <!-- Notes and Tax -->
         <div class="form-section grid-2">
             <div>
                 <label for="notes">Notes</label>
@@ -165,19 +191,27 @@ const saveAndExit = async (status) => {
             </div>
         </div>
 
-        <!-- Actions -->
         <footer class="editor-footer">
+          <button class="preview-btn" @click="showPreview = true">Preview Invoice</button>
           <button class="save-btn draft" @click="saveAndExit('draft')" :disabled="isSaving">
             {{ isSaving ? 'Saving...' : 'Save as Draft' }}
           </button>
           <button class="save-btn" @click="saveAndExit('pending')" :disabled="isSaving">
-            {{ isSaving ? 'Saving...' : 'Save & Send' }}
+            {{ isSaving ? 'Saving...' : 'Save & Finalize' }}
           </button>
         </footer>
       </div>
     </div>
-    <div class="preview-card">
-      <InvoiceTemplate :invoice="invoice" />
+    
+    <!-- Mobile Preview Modal -->
+    <div v-if="showPreview" class="mobile-preview-modal">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2>Invoice Preview</h2>
+                <button @click="showPreview = false" class="close-modal-btn">&times;</button>
+            </header>
+            <InvoiceTemplate :invoice="invoice" />
+        </div>
     </div>
   </div>
 </template>
@@ -185,7 +219,7 @@ const saveAndExit = async (status) => {
 <style scoped>
 .editor-container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 2rem;
   padding: 2rem;
   background-color: var(--background-color, #f9fafb);
@@ -193,7 +227,7 @@ const saveAndExit = async (status) => {
   overflow: hidden;
 }
 
-.editor-form-card, .preview-card {
+.editor-form-card {
   background-color: var(--white-color, #fff);
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
@@ -213,8 +247,6 @@ const saveAndExit = async (status) => {
 .editor-header h1 {
   font-size: 1.8rem;
   font-weight: 700;
-  color: var(--text-color, #111827);
-  margin: 0;
 }
 
 .back-btn {
@@ -225,53 +257,21 @@ const saveAndExit = async (status) => {
   cursor: pointer;
 }
 
-.form-section {
-  margin-bottom: 2rem;
-}
-
 .form-section h3 {
   font-size: 1.1rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: #333;
 }
 
-.grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-}
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.address-grid-city-state { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
 
-.address-grid-city-state {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-}
-
-input[type="text"], input[type="email"], input[type="number"], input[type="date"], textarea {
-  width: 100%;
-  padding: 0.8rem 1rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: border-color 0.3s ease;
-}
-
-input:focus, textarea:focus {
-  outline: none;
-  border-color: var(--primary-color, #4F46E5);
-}
-
-input, textarea {
-    margin-bottom: 0.5rem;
-}
-
-label {
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: #555;
-    margin-bottom: 0.5rem;
-    display: block;
+input, textarea { 
+    width: 100%; 
+    padding: 0.8rem 1rem; 
+    border: 1px solid #ddd; 
+    border-radius: 8px; 
+    margin-bottom: 0.5rem; 
 }
 
 .items-list .item-row {
@@ -283,23 +283,15 @@ label {
 }
 
 .delete-item-btn, .add-item-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem;
-  color: #888;
-  transition: color 0.3s ease;
+  background: none; border: none; cursor: pointer; 
 }
 
-.delete-item-btn:hover { color: #E74C3C; }
 .add-item-btn { 
     color: var(--primary-color, #4F46E5); 
     font-weight: 600; 
     margin-top: 1rem;
     border: 1px dashed var(--primary-color, #4F46E5);
-    border-radius: 8px;
-    padding: 0.8rem;
-    width: 100%;
+    padding: 0.8rem; width: 100%;
 }
 
 .editor-footer {
@@ -311,32 +303,33 @@ label {
   padding-top: 1.5rem;
 }
 
-.save-btn {
+.save-btn, .preview-btn {
   padding: 0.8rem 1.5rem;
   border: none;
   border-radius: 20px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  background-color: var(--primary-color, #4F46E5);
-  color: var(--white-color, #fff);
-}
-.save-btn.draft {
-  background-color: #777;
 }
 
-.save-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+.save-btn.draft { background-color: #777; color: white; }
+.save-btn { background-color: var(--primary-color, #4F46E5); color: white; }
+.preview-btn { background-color: #6c757d; color: white; }
+
+
+/* Mobile Preview Modal */
+.mobile-preview-modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 1000;
 }
+.modal-content { background: white; padding: 1.5rem; border-radius: 12px; width: 95%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: 1px solid #eee; }
+.close-modal-btn { background: none; border: none; font-size: 1.8rem; cursor: pointer; }
 
 @media (max-width: 1024px) {
-  .editor-container {
-    grid-template-columns: 1fr;
-    height: auto;
-  }
-  .preview-card {
-      display: none; /* Hide preview on smaller screens */
-  }
+  .from-fields { display: none; }
+  .grid-2 { grid-template-columns: 1fr; }
 }
+
 </style>

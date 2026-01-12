@@ -19,8 +19,9 @@ const handleLogout = async () => {
 };
 
 const goToSettings = () => router.push('/settings');
-const goToInvoiceEditor = () => router.push('/invoice/new');
+const createNewInvoice = () => router.push('/invoice/new');
 const goToInvoiceDetails = (id) => router.push(`/invoice/${id}`);
+const goToInvoiceEdit = (id) => router.push(`/invoice/edit/${id}`);
 
 // Safely format dates
 const formatDate = (date) => {
@@ -37,16 +38,24 @@ const formatDate = (date) => {
   return 'Invalid date';
 };
 
-// Computed property to safely prepare invoices for display
+// Computed property to safely prepare and sort invoices for display
 const safeInvoices = computed(() => {
   if (!invoices.value) return [];
-  return invoices.value.map(inv => ({
-    ...inv,
-    status: inv.status || 'pending',
-    total: inv.total || 0,
-    client: inv.client || { name: 'N/A' },
-    dueDate: inv.dueDate // keep as is, formatDate will handle it
-  }));
+  
+  // Map invoices to a safe format and sort them by invoiceNumber in descending order
+  return invoices.value
+    .map(inv => ({
+      ...inv,
+      status: inv.status || 'pending',
+      total: inv.total || 0,
+      client: inv.client || { name: 'N/A' },
+      dueDate: inv.dueDate // keep as is, formatDate will handle it
+    }))
+    .sort((a, b) => {
+      const numA = String(a.invoiceNumber || '');
+      const numB = String(b.invoiceNumber || '');
+      return numB.localeCompare(numA); // Descending order
+    });
 });
 
 </script>
@@ -60,7 +69,7 @@ const safeInvoices = computed(() => {
       </div>
       <div class="header-actions">
         <button class="settings-btn" @click="goToSettings">
-          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69-.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69-.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69-.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69-.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
           Manage Settings
         </button>
         <button class="logout-btn" @click="handleLogout">
@@ -85,7 +94,7 @@ const safeInvoices = computed(() => {
       <div v-else-if="safeInvoices.length === 0" class="no-invoices-container">
         <img src="/no_invoices.svg" alt="No Invoices Illustration" class="no-invoices-illustration" />
         <p class="no-invoices-text">You haven't created any invoices yet.</p>
-        <button class="primary-btn" @click="goToInvoiceEditor">
+        <button class="primary-btn" @click="createNewInvoice">
           Create Your First Invoice
         </button>
       </div>
@@ -100,14 +109,17 @@ const safeInvoices = computed(() => {
             <p class="invoice-total">${{ invoice.total.toFixed(2) }}</p>
           </div>
           <div class="invoice-card-footer">
-            <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 0 24 24" width="16px" fill="#777"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
-            <span>Due: {{ formatDate(invoice.dueDate) }}</span>
+            <span>
+                <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 0 24 24" width="16px" fill="#777"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+                Due: {{ formatDate(invoice.dueDate) }}
+            </span>
+            <button class="edit-btn" @click.stop="goToInvoiceEdit(invoice.id)">Edit</button>
           </div>
         </div>
       </div>
     </main>
 
-    <button class="fab" @click="goToInvoiceEditor">
+    <button class="fab" @click="createNewInvoice">
       <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
     </button>
 
@@ -293,10 +305,33 @@ const safeInvoices = computed(() => {
   color: #777;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+}
+
+.invoice-card-footer span {
+  display: flex;
+  align-items: center;
 }
 
 .invoice-card-footer svg {
   margin-right: 0.5rem;
+}
+
+.edit-btn {
+    background-color: transparent;
+    border: 1px solid var(--primary-color, #4F46E5);
+    color: var(--primary-color, #4F46E5);
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.edit-btn:hover {
+    background-color: var(--primary-color, #4F46E5);
+    color: white;
 }
 
 .loading-container,

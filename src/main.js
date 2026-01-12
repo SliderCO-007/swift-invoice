@@ -1,8 +1,10 @@
-import './firebase'; // Import and initialize Firebase FIRST.
 import { createApp } from 'vue';
 import App from './App.vue';
-import router from './router/index.js';
+import router from './router';
 import vuetify from './plugins/vuetify';
+import './firebase';
+import './style.css';
+import '@mdi/font/css/materialdesignicons.css'; // Import MDI font
 
 const app = createApp(App);
 

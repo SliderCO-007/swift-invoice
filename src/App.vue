@@ -1,5 +1,6 @@
 <template>
   <v-app>
+    <AppBar v-if="route.name !== 'LandingPage'" />
     <v-main>
       <router-view />
     </v-main>
@@ -7,7 +8,11 @@
 </template>
 
 <script setup>
+import { useRoute } from 'vue-router';
+import AppBar from './components/AppBar.vue';
 import { useAuthListener } from './composables/useAuthListener';
+
+const route = useRoute();
 
 // Listen for authentication state changes
 useAuthListener();

@@ -1,14 +1,17 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { format } from 'date-fns';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 import useInvoices from '../composables/useInvoices';
+import InvoiceTemplate from './InvoiceTemplate.vue';
 
 const route = useRoute();
 const router = useRouter();
 const { getInvoice, markAsPaid, loading, error } = useInvoices();
 
 const invoice = ref(null);
+const invoicePaper = ref(null); 
 
 onMounted(async () => {
   const invoiceId = route.params.id;
@@ -21,24 +24,59 @@ const goBack = () => {
 
 const handleMarkAsPaid = async () => {
   if (!invoice.value || invoice.value.status === 'Paid') return;
-
   await markAsPaid(invoice.value.id);
-  // Refresh the invoice data to show the updated status
   invoice.value = await getInvoice(invoice.value.id);
 };
 
-const formatDate = (date) => {
-  if (date instanceof Date && !isNaN(date)) {
-    return format(date, 'MMMM d, yyyy');
+const downloadPDF = async () => {
+  // Access the DOM element of the InvoiceTemplate component
+  const templateEl = invoicePaper.value?.$el;
+  if (!templateEl) {
+    console.error("Invoice template element not found for PDF generation.");
+    return;
   }
-  return 'No date provided';
+
+  try {
+    const canvas = await html2canvas(templateEl, { 
+      scale: 2, // Higher scale for better quality
+      useCORS: true, // Needed for external images like the logo
+    });
+    
+    const imgData = canvas.toDataURL('image/png');
+
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'pt',
+      format: 'a4',
+    });
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const canvasAspectRatio = canvas.height / canvas.width;
+    
+    let imgWidth = pdfWidth - 40; // 20pt padding on each side
+    let imgHeight = imgWidth * canvasAspectRatio;
+
+    // If image is too tall for the page, scale it down and adjust width proportionally
+    if (imgHeight > pdfHeight - 40) {
+        imgHeight = pdfHeight - 40; // 20pt padding top/bottom
+        imgWidth = imgHeight / canvasAspectRatio;
+    }
+
+    const x = (pdfWidth - imgWidth) / 2; // Center horizontally
+    const y = 20; // Top margin
+
+    pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight, undefined, 'FAST');
+    pdf.save(`Invoice-${safeInvoice.value.invoiceNumber}.pdf`);
+
+  } catch (err) {
+    console.error("Error generating PDF:", err);
+  }
 };
 
-// This computed property is now more robust, ensuring all numbers are correctly handled.
 const safeInvoice = computed(() => {
   if (!invoice.value) return null;
 
-  // Sanitize items to prevent rendering errors
   const items = (invoice.value.items || []).map(item => ({
     ...item,
     description: item.description || 'No description',
@@ -51,134 +89,65 @@ const safeInvoice = computed(() => {
   const taxAmount = subtotal * (taxRate / 100);
   const total = subtotal + taxAmount;
 
-  console.log(items)
+  // Convert Firestore Timestamps to JS Date objects
+  const issueDate = invoice.value.issueDate?.toDate ? invoice.value.issueDate.toDate() : new Date(invoice.value.issueDate);
+  const dueDate = invoice.value.dueDate?.toDate ? invoice.value.dueDate.toDate() : new Date(invoice.value.dueDate);
 
   return {
     ...invoice.value,
     id: invoice.value.id || 'N/A',
-    invoiceNumber: invoice.value.invoiceNumber || invoice.value.id.substring(0, 6), // Fallback to old ID format
+    invoiceNumber: invoice.value.invoiceNumber || invoice.value.id?.substring(0, 6) || 'N/A',
     status: invoice.value.status || 'pending',
-    sender: invoice.value.sender || { name: 'N/A', address1: '', address2: '', city: '', state: '', zip: '', email: '' },
-    client: invoice.value.client || { name: 'N/A', address1: '', address2: '', city: '', state: '', zip: '', email: '' },
+    sender: invoice.value.sender || { name: 'N/A', email: '' },
+    client: invoice.value.client || { name: 'N/A', email: '' },
     items: items,
     taxRate: taxRate,
     notes: invoice.value.notes || '',
     subtotal: subtotal,
     taxAmount: taxAmount,
-    total: total
+    total: total,
+    issueDate: issueDate,
+    dueDate: dueDate,
   };
 });
-
-const formatAddress = (address) => {
-  if (!address) return '';
-  const parts = [address.address1, address.address2, `${address.city}, ${address.state} ${address.zip}`];
-  return parts.filter(Boolean).join(', ');
-};
 
 </script>
 
 <template>
   <div class="invoice-view-container">
     <div v-if="loading && !invoice" class="loading-container">
+      <v-progress-circular indeterminate color="primary"></v-progress-circular>
       <p>Loading invoice...</p>
     </div>
     <div v-else-if="error" class="error-container">
-      <p>Error: {{ error }}</p>
+      <v-alert type="error" dense outlined>{{ error }}</v-alert>
     </div>
     <div v-else-if="safeInvoice">
       <header class="invoice-view-header">
-        <button @click="goBack" class="back-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        <v-btn @click="goBack" text class="back-btn">
+          <v-icon left>mdi-arrow-left</v-icon>
           Back to Dashboard
-        </button>
+        </v-btn>
         <div class="actions">
-          <button class="action-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          <v-btn @click="downloadPDF" outlined color="primary">
+            <v-icon left>mdi-download</v-icon>
             Download PDF
-          </button>
-          <!-- Add the click handler and disable the button if the invoice is already paid -->
-          <button 
+          </v-btn>
+          <v-btn 
             @click="handleMarkAsPaid"
             :disabled="safeInvoice.status === 'Paid'"
-            class="action-btn primary"
+            color="primary"
+            class="ml-4"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-            {{ safeInvoice.status === 'Paid' ? 'Already Paid' : 'Mark as Paid' }}
-          </button>
+            <v-icon left>mdi-check-circle</v-icon>
+            {{ safeInvoice.status === 'Paid' ? 'Paid' : 'Mark as Paid' }}
+          </v-btn>
         </div>
       </header>
 
-      <div class="invoice-paper">
-        <section class="invoice-main-header">
-          <div class="invoice-brand">
-            <!-- Display the new, user-friendly invoice number -->
-            <h1 class="invoice-title">Invoice #{{ safeInvoice.invoiceNumber }}</h1>
-            <p :class="['invoice-status', `status-${safeInvoice.status.toLowerCase()}`]">{{ safeInvoice.status }}</p>
-          </div>
-          <div class="sender-details">
-            <p><strong>{{ safeInvoice.sender.name }}</strong></p>
-            <p>{{ formatAddress(safeInvoice.sender) }}</p>
-            <p>{{ safeInvoice.sender.email }}</p>
-          </div>
-        </section>
+      <!-- The InvoiceTemplate is now the single source of truth for presentation -->
+      <InvoiceTemplate ref="invoicePaper" :invoice="safeInvoice" />
 
-        <section class="invoice-meta-details">
-          <div class="client-details">
-            <h2>Bill To</h2>
-            <p><strong>{{ safeInvoice.client.name }}</strong></p>
-            <p>{{ formatAddress(safeInvoice.client) }}</p>
-            <p>{{ safeInvoice.client.email }}</p>
-          </div>
-          <div class="invoice-dates">
-            <p><strong>Issue Date:</strong> {{ formatDate(safeInvoice.issueDate) }}</p>
-            <p><strong>Due Date:</strong> {{ formatDate(safeInvoice.dueDate) }}</p>
-          </div>
-        </section>
-
-        <section class="invoice-items">
-          <table class="items-table">
-            <thead>
-              <tr>
-                <th>Description</th>
-                <th>Qty</th>
-                <th>Unit Price</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- This will now render correctly and safely -->
-              <tr v-for="(item, index) in safeInvoice.items" :key="index">
-                <td data-label="Description">{{ item.description }}</td>
-                <td data-label="Qty">{{ item.quantity }}</td>
-                <td data-label="Unit Price">${{ item.price.toFixed(2) }}</td>
-                <td data-label="Total">${{ (item.quantity * item.price).toFixed(2) }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </section>
-
-        <section class="invoice-summary">
-          <div class="totals">
-            <div class="total-row">
-              <span>Subtotal</span>
-              <span>${{ safeInvoice.subtotal.toFixed(2) }}</span>
-            </div>
-            <div class="total-row" v-if="safeInvoice.taxRate > 0">
-              <span>Tax ({{ safeInvoice.taxRate }}%)</span>
-              <span>${{ safeInvoice.taxAmount.toFixed(2) }}</span>
-            </div>
-            <div class="total-row grand-total">
-              <span>Total</span>
-              <span>${{ safeInvoice.total.toFixed(2) }}</span>
-            </div>
-          </div>
-        </section>
-
-        <footer class="invoice-footer">
-          <h2>Notes</h2>
-          <p>{{ safeInvoice.notes }}</p>
-        </footer>
-      </div>
     </div>
   </div>
 </template>
@@ -186,9 +155,8 @@ const formatAddress = (address) => {
 <style scoped>
 .invoice-view-container {
   padding: 2rem;
-  background-color: var(--background-color, #F9FAFB);
+  background-color: var(--background-color, #F4F7F9);
   min-height: 100vh;
-  color: #555;
 }
 
 .invoice-view-header {
@@ -199,205 +167,28 @@ const formatAddress = (address) => {
 }
 
 .back-btn {
-  background: none;
-  border: none;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--primary-color, #4F46E5);
-  cursor: pointer;
-  padding: 0.5rem 0;
-  display: flex;
-  align-items: center;
-}
-
-.back-btn svg {
-  margin-right: 0.5rem;
-}
-
-.actions .action-btn {
-  border: 1px solid var(--primary-color, #4F46E5);
-  background-color: var(--white-color, #fff);
-  color: var(--primary-color, #4F46E5);
-  padding: 0.7rem 1.2rem;
-  border-radius: 20px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-left: 1rem;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-}
-
-.actions .action-btn svg {
-  margin-right: 0.5rem;
-}
-
-.actions .action-btn.primary {
-  background-color: var(--primary-color, #4F46E5);
-  color: var(--white-color, #fff);
-}
-
-.actions .action-btn:hover {
-  opacity: 0.8;
-}
-
-.actions .action-btn:disabled {
-  background-color: #ccc;
-  border-color: #ccc;
-  cursor: not-allowed;
-}
-
-.invoice-paper {
-  background: var(--white-color, #fff);
-  border-radius: 15px;
-  padding: 3rem;
-  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-}
-
-.invoice-main-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  border-bottom: 2px solid #eee;
-  padding-bottom: 2rem;
-}
-
-.invoice-title {
-  font-size: 2.8rem;
-  font-weight: 700;
-  color: var(--text-color, #111827);
-  margin: 0;
-  font-family: 'monospace';
-}
-
-.invoice-status {
-  padding: 0.4rem 1rem;
-  border-radius: 15px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  margin-top: 1rem;
-  display: inline-block;
-  letter-spacing: 0.5px;
-}
-
-.status-paid { background-color: #D4EDDA; color: #155724; }
-.status-pending { background-color: #FFF3CD; color: #856404; }
-.status-overdue { background-color: #F8D7DA; color: #721C24; }
-
-.sender-details {
-  text-align: right;
-  color: #555;
-}
-.sender-details p {
-  margin: 0;
-  font-size: 0.95rem;
-}
-
-.invoice-meta-details {
-  display: flex;
-  justify-content: space-between;
-  margin: 2.5rem 0;
-}
-
-.client-details h2, .invoice-footer h2 {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: var(--text-color, #111827);
-  margin-bottom: 1rem;
-}
-
-.client-details p {
-  margin: 0;
-}
-
-.invoice-dates {
-  text-align: right;
-}
-.invoice-dates p {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0.5rem 0;
-}
-
-.items-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 2.5rem 0;
-}
-
-.items-table th, .items-table td {
-  padding: 1rem;
-  text-align: left;
-  border-bottom: 1px solid #eee;
-}
-
-.items-table th {
-  background-color: #f9f9f9;
+  text-transform: none;
   font-weight: 600;
 }
 
-.items-table td:nth-child(2),
-.items-table th:nth-child(2),
-.items-table td:nth-child(3),
-.items-table th:nth-child(3),
-.items-table td:nth-child(4),
-.items-table th:nth-child(4) {
-  text-align: right;
-}
-
-.invoice-summary {
+.actions {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 2rem;
-}
-
-.totals {
-  width: 100%;
-  max-width: 350px;
-}
-
-.total-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.8rem 0;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.total-row.grand-total {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--primary-color, #4F46E5);
-  border-top: 2px solid #eee;
-  margin-top: 0.5rem;
-  padding-top: 1rem;
-}
-
-.invoice-footer {
-  border-top: 2px solid #eee;
-  margin-top: 2.5rem;
-  padding-top: 2rem;
-  color: #555;
-}
-
-.invoice-footer p {
-  margin: 0;
 }
 
 .loading-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   min-height: 80vh;
+  gap: 1rem;
   font-size: 1.2rem;
-  color: var(--text-color, #111827);
+  color: var(--text-color);
 }
 
 .error-container {
-    text-align: center;
     padding: 3rem;
-    color: #E74C3C;
+    text-align: center;
 }
 
 /* Responsive Styles */
@@ -405,127 +196,17 @@ const formatAddress = (address) => {
   .invoice-view-container {
     padding: 1rem;
   }
-
   .invoice-view-header {
     flex-direction: column;
     align-items: stretch;
     gap: 1.5rem;
   }
-
-  .back-btn {
-    justify-content: center;
-  }
-  
   .actions {
-    display: flex;
     flex-direction: column;
     gap: 1rem;
-    margin-left: 0;
   }
-
-  .actions .action-btn {
-    margin-left: 0;
-    justify-content: center;
+  .actions .v-btn {
+      margin-left: 0 !important;
   }
-
-  .invoice-paper {
-    padding: 1.5rem;
-  }
-
-  .invoice-main-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1.5rem;
-  }
-
-  .sender-details {
-    text-align: left;
-  }
-
-  .invoice-title {
-    font-size: 2rem;
-  }
-
-  .invoice-meta-details {
-    flex-direction: column;
-    gap: 2rem;
-  }
-
-  .invoice-dates {
-    text-align: left;
-  }
-
-  .items-table thead {
-    display: none;
-  }
-
-  .items-table tr {
-    display: block;
-    margin-bottom: 1.5rem;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 1rem;
-  }
-  
-  .items-table tr:last-of-type {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
-  }
-
-  .items-table td {
-    display: flex;
-    justify-content: space-between;
-    text-align: right;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #f9f9f9;
-  }
-  
-  .items-table td:last-of-type {
-      border-bottom: none;
-  }
-
-  .items-table td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    text-align: left;
-    margin-right: 1rem;
-    color: #333;
-  }
-  
-  .items-table td[data-label="Description"] {
-    justify-content: flex-start;
-  }
-  
-  .items-table td[data-label="Description"]::before {
-      display: none;
-  }
-
-  .invoice-summary {
-    justify-content: stretch;
-  }
-  
-  .totals {
-    max-width: none;
-  }
-}
-
-@media (max-width: 480px) {
-    .invoice-view-container {
-        padding: 0.5rem;
-    }
-    
-    .invoice-paper {
-        padding: 1rem;
-        border-radius: 10px;
-    }
-    
-    .invoice-title {
-        font-size: 1.8rem;
-    }
-    
-    .actions .action-btn {
-        padding: 0.8rem 1rem;
-        font-size: 0.9rem;
-    }
 }
 </style>

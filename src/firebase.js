@@ -10,8 +10,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyDVX9BtDTBvoMCCPSnlvOuJn0pIVWgmY9E",
   authDomain: "swift-invoice-9124f.firebaseapp.com",
   projectId: "swift-invoice-9124f",
-  // storageBucket: "swift-invoice-9124f.appspot.com",
-  storageBucket: "swift-invoice-9124f.firebasestorage.com",
+  storageBucket: "swift-invoice-9124f.firebasestorage.app",
   messagingSenderId: "206350356892",
   appId: "1:206350356892:web:4be487199f9d17ef8f7859",
   measurementId: "G-NWJGDWMRW3"
