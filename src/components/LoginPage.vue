@@ -2,33 +2,26 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import useAuth from '../composables/useAuth';
-import Logo from './Logo.vue'; // Make sure to import the Logo component
+import Logo from './Logo.vue';
 
 const email = ref('');
 const password = ref('');
-const error = ref(null);
 
 const { login, signInWithGoogle, error: authError } = useAuth();
 const router = useRouter();
 
 const handleLogin = async () => {
-  error.value = null;
   await login(email.value, password.value);
-  if (authError.value) {
-    error.value = authError.value;
-    return;
+  if (!authError.value) {
+    router.push('/dashboard');
   }
-  router.push('/dashboard');
 };
 
 const handleGoogleSignIn = async () => {
-  error.value = null;
   await signInWithGoogle();
-  if (authError.value) {
-    error.value = authError.value;
-    return;
+  if (!authError.value) {
+    router.push('/dashboard');
   }
-  router.push('/dashboard');
 };
 </script>
 
@@ -52,7 +45,7 @@ const handleGoogleSignIn = async () => {
           <input type="password" id="password" v-model="password" required placeholder="••••••••" />
         </div>
         
-        <div v-if="error" class="error-message">{{ error }}</div>
+        <div v-if="authError" class="error-message">{{ authError }}</div>
 
         <button type="submit" class="login-btn">Login</button>
       </form>

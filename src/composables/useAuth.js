@@ -1,92 +1,81 @@
-import { ref } from 'vue'
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
+import { ref, onUnmounted, watch } from 'vue';
+import { 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged,
   GoogleAuthProvider,
-  signInWithPopup,
-  onAuthStateChanged
-} from 'firebase/auth'
-import { auth } from '../firebase'
+  signInWithPopup
+} from 'firebase/auth';
+import { auth } from '../firebase';
 
-const user = ref(auth.currentUser)
-const error = ref(null)
+// Shared state
+const user = ref(auth.currentUser);
+const isAuthReady = ref(false);
+const error = ref(null);
 
-// A promise that resolves when the initial auth state is loaded
-let authReadyResolver
-const authReadyPromise = new Promise(resolve => {
-  authReadyResolver = resolve
-})
+// Listener for auth state changes
+const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+  user.value = currentUser;
+  isAuthReady.value = true;
+});
 
-// The onAuthStateChanged listener is set up once and keeps the user ref in sync
-onAuthStateChanged(auth, (firebaseUser) => {
-  user.value = firebaseUser
-  // If the resolver exists, it means the promise hasn't resolved yet.
-  if (authReadyResolver) {
-    authReadyResolver()
-    authReadyResolver = null // Set to null to prevent it from being called again
-  }
-})
-
-// A new composable function that returns the promise.
-const getAuthReady = () => {
-    return authReadyPromise
-}
+onUnmounted(() => {
+  unsubscribe();
+});
 
 const useAuth = () => {
-  const signUp = async (email, password) => {
-    error.value = null
+  const signup = async (email, password) => {
+    error.value = null;
     try {
-      const res = await createUserWithEmailAndPassword(auth, email, password)
-      return res
-    } catch (err) {
-      error.value = err.message
-      throw err
+      await createUserWithEmailAndPassword(auth, email, password);
+    } catch (e) {
+      error.value = e.message;
     }
-  }
+  };
 
   const login = async (email, password) => {
-    error.value = null
+    error.value = null;
     try {
-      const res = await signInWithEmailAndPassword(auth, email, password)
-      return res
-    } catch (err) {
-      error.value = err.message
-      throw err
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (e) {
+      error.value = e.message;
     }
-  }
+  };
 
   const logout = async () => {
-    error.value = null
+    error.value = null;
     try {
-      await signOut(auth)
-    } catch (err) {
-      error.value = err.message
+      await signOut(auth);
+    } catch (e) {
+      error.value = e.message;
     }
-  }
+  };
 
   const signInWithGoogle = async () => {
-    const provider = new GoogleAuthProvider()
-    error.value = null
+    error.value = null;
+    const provider = new GoogleAuthProvider();
     try {
-      const res = await signInWithPopup(auth, provider)
-      return res
-    } catch (err) {
-      error.value = err.message
-      throw err
+      await signInWithPopup(auth, provider);
+    } catch (e) {
+      error.value = e.message;
     }
-  }
+  };
 
-  return {
-    user,
-    error,
-    signUp,
-    login,
-    logout,
-    signInWithGoogle,
-  }
-}
+  return { user, isAuthReady, error, signup, login, logout, signInWithGoogle };
+};
 
-// We export both the main composable and our new auth-ready utility.
-export { getAuthReady }
-export default useAuth
+export const getCurrentUser = () => user.value;
+export const getAuthReady = async () => {
+  if (isAuthReady.value) return;
+  return new Promise(resolve => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      user.value = currentUser;
+      isAuthReady.value = true;
+      unsubscribe();
+      resolve();
+    });
+  });
+};
+
+export default useAuth;

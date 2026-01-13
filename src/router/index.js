@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LandingPage from '../components/LandingPage.vue'
-import getAuthReady from '../composables/getAuthReady'
-import { getAuth } from 'firebase/auth'
+import { getAuthReady, getCurrentUser } from '../composables/useAuth'
 
 const routes = [
   {
@@ -77,15 +76,12 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
 
-  // Wait for Firebase to confirm the authentication state
   await getAuthReady()
-  const auth = getAuth()
+  const user = getCurrentUser()
 
-  if (requiresAuth && !auth.currentUser) {
-    // If the route requires auth and the user is not logged in, redirect to login.
+  if (requiresAuth && !user) {
     next({ name: 'Login' })
   } else {
-    // Otherwise, proceed as normal.
     next()
   }
 })

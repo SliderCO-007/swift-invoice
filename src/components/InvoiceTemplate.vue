@@ -63,7 +63,7 @@ const formatCurrency = (value) => {
             <p>{{ invoice.client.email }}</p>
         </div>
         <div class="invoice-dates">
-            <p><strong>Invoice #:</strong> {{ invoice.invoiceNumber }}</p>
+            <p><strong>Invoice #:</strong> {{ invoice.invoiceNumber || '(Generated upon save)' }}</p>
             <p><strong>Issue Date:</strong> {{ formatDate(invoice.issueDate) }}</p>
             <p><strong>Due Date:</strong> {{ formatDate(invoice.dueDate) }}</p>
         </div>
@@ -81,10 +81,10 @@ const formatCurrency = (value) => {
             </thead>
             <tbody>
                 <tr v-for="(item, index) in invoice.items" :key="index">
-                    <td data-label="Description">{{ item.description }}</td>
-                    <td data-label="Qty">{{ item.quantity }}</td>
-                    <td data-label="Unit Price">{{ formatCurrency(item.price) }}</td>
-                    <td data-label="Total">{{ formatCurrency(item.quantity * item.price) }}</td>
+                    <td data-label="Description"><span>{{ item.description }}</span></td>
+                    <td data-label="Qty"><span>{{ item.quantity }}</span></td>
+                    <td data-label="Unit Price"><span>{{ formatCurrency(item.price) }}</span></td>
+                    <td data-label="Total"><span>{{ formatCurrency(item.quantity * item.price) }}</span></td>
                 </tr>
             </tbody>
         </table>
@@ -118,17 +118,17 @@ const formatCurrency = (value) => {
 .invoice-paper {
   background: var(--white-color, #fff);
   border-radius: 15px;
-  padding: 4rem; /* Increased padding */
+  padding: 4rem;
   box-shadow: var(--shadow-md);
   font-family: 'Poppins', sans-serif;
-  color: #333; /* Darker text for readability */
-  font-size: 16px; /* Increased base font size */
-  line-height: 1.7; /* Increased line height */
+  color: #333;
+  font-size: 16px;
+  line-height: 1.7;
 }
 
 .company-logo {
-  max-height: 100px; /* Increased size */
-  max-width: 250px; /* Increased size */
+  max-height: 100px;
+  max-width: 250px;
   margin-bottom: 1.5rem;
 }
 
@@ -142,7 +142,7 @@ const formatCurrency = (value) => {
 }
 
 .invoice-title {
-  font-size: 3.5rem; /* Significantly larger */
+  font-size: 3.5rem;
   font-weight: 700;
   color: var(--text-color, #111827);
   margin: 0;
@@ -151,7 +151,7 @@ const formatCurrency = (value) => {
 .invoice-status {
   padding: 0.5rem 1.2rem;
   border-radius: 20px;
-  font-size: 1rem; /* Larger status */
+  font-size: 1rem;
   font-weight: 700;
   text-transform: uppercase;
   margin-top: 1.5rem;
@@ -165,7 +165,7 @@ const formatCurrency = (value) => {
 
 .sender-details {
   text-align: right;
-  font-size: 1.1rem; /* Larger sender details */
+  font-size: 1.1rem;
 }
 .sender-details p { margin: 0; }
 
@@ -173,11 +173,11 @@ const formatCurrency = (value) => {
   display: flex;
   justify-content: space-between;
   margin-bottom: 3rem;
-  font-size: 1.1rem; /* Increased font size */
+  font-size: 1.1rem;
 }
 
 .client-details h2, .invoice-footer h2 {
-  font-size: 1.8rem; /* Much larger section heads */
+  font-size: 1.8rem;
   font-weight: 600;
   color: var(--text-color, #111827);
   margin-bottom: 1rem;
@@ -189,7 +189,7 @@ const formatCurrency = (value) => {
   text-align: right;
 }
 .invoice-dates p {
-  font-size: 1.2rem; /* Larger dates */
+  font-size: 1.2rem;
   font-weight: 600;
   margin: 0.5rem 0;
 }
@@ -198,11 +198,11 @@ const formatCurrency = (value) => {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 3rem;
-  font-size: 1.2rem; /* Significantly larger item text */
+  font-size: 1.2rem;
 }
 
 .items-table th, .items-table td {
-  padding: 1.5rem; /* More padding for rows */
+  padding: 1.5rem;
   text-align: left;
   border-bottom: 1px solid #eee;
 }
@@ -210,7 +210,7 @@ const formatCurrency = (value) => {
 .items-table th {
   background-color: #f9f9f9;
   font-weight: 700;
-  font-size: 1rem; /* Bolder headers */
+  font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -231,19 +231,19 @@ const formatCurrency = (value) => {
 
 .totals {
   width: 100%;
-  max-width: 400px; /* Wider totals section */
+  max-width: 400px;
 }
 
 .total-row {
   display: flex;
   justify-content: space-between;
-  padding: 1rem 0; /* More padding */
-  font-size: 1.3rem; /* Larger totals text */
+  padding: 1rem 0;
+  font-size: 1.3rem;
   font-weight: 600;
 }
 
 .total-row.grand-total {
-  font-size: 2.2rem; /* Much larger grand total */
+  font-size: 2.2rem;
   font-weight: 700;
   color: var(--primary-color, #4A90E2);
   border-top: 3px solid #eee;
@@ -260,12 +260,12 @@ const formatCurrency = (value) => {
 
 .invoice-footer p {
   margin: 0;
-  font-size: 1.1rem; /* Larger notes */
+  font-size: 1.1rem;
 }
 
-/* Responsive Styles - Adjusted for better readability */
+/* Responsive Styles - Final Robust Fix */
 @media (max-width: 768px) {
-  .invoice-paper { padding: 2rem; }
+  .invoice-paper { padding: 1.5rem; }
   .invoice-main-header, .invoice-meta-details {
     flex-direction: column;
     gap: 2rem;
@@ -275,9 +275,34 @@ const formatCurrency = (value) => {
     width: 100%;
   }
   .items-table thead { display: none; }
-  .items-table tr { display: block; margin-bottom: 2rem; border-bottom: 3px solid #eee; padding-bottom: 1.5rem; }
-  .items-table td { display: flex; justify-content: space-between; text-align: right; padding: 0.8rem 0; border-bottom: 1px solid #f9f9f9; font-size: 1.1rem; }
-  .items-table td::before { content: attr(data-label); font-weight: 700; text-align: left; margin-right: 1rem; color: #333; }
+  .items-table tr { 
+    display: block; 
+    margin-bottom: 1.5rem; 
+    border-bottom: 2px solid #eee; 
+    padding-bottom: 1.5rem; 
+  }
+  .items-table tr:last-of-type { border-bottom: none; }
+
+  .items-table td {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 1rem;
+    align-items: start;
+    padding: 0.5rem 0;
+    font-size: 1rem;
+    border-bottom: none;
+  }
+  .items-table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    text-align: left;
+    grid-column: 1 / 2;
+  }
+  .items-table td span {
+    text-align: right;
+    word-break: break-all;
+    grid-column: 2 / 3;
+  }
   .totals { max-width: none; }
 }
 </style>

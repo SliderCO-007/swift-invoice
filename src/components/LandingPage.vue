@@ -73,14 +73,10 @@
           <div class="pricing-card">
             <h3 class="pricing-plan">Pay-as-you-go</h3>
             <div class="pricing-cost">
-              <p class="pricing-price">$50</p>
-              <p class="pricing-period">One-time setup fee</p>
-            </div>
-            <div class="pricing-cost-secondary">
               <p class="pricing-price">$1</p>
               <p class="pricing-period">per invoice</p>
             </div>
-            <p class="pricing-description">A one-time fee gives you lifetime access. Then, only pay for the invoices you create.</p>
+            <p class="pricing-description">No subscriptions, no setup fees. Only pay for the invoices you create.</p>
             <ul class="pricing-features">
               <li>Unlimited clients</li>
               <li>Unlimited projects</li>
@@ -325,10 +321,6 @@ main section[id] {
 }
 
 .pricing-cost {
-    margin-bottom: 1rem;
-}
-
-.pricing-cost-secondary {
     margin-bottom: 2rem;
 }
 
@@ -337,10 +329,6 @@ main section[id] {
     font-weight: 700;
     color: #007bff;
     line-height: 1;
-}
-
-.pricing-cost-secondary .pricing-price {
-    font-size: 2.5rem;
 }
 
 .pricing-period {

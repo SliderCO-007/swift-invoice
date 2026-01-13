@@ -1,14 +1,12 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import { getAnalytics } from "firebase/analytics";
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDVX9BtDTBvoMCCPSnlvOuJn0pIVWgmY9E",
+  apiKey: "AIzaSyBGn-daVD9p2TUnjiEaNTcT_Ec11lwBkbQ",
   authDomain: "swift-invoice-9124f.firebaseapp.com",
+  databaseURL: "https://swift-invoice-9124f-default-rtdb.firebaseio.com",
   projectId: "swift-invoice-9124f",
   storageBucket: "swift-invoice-9124f.firebasestorage.app",
   messagingSenderId: "206350356892",
@@ -16,13 +14,9 @@ const firebaseConfig = {
   measurementId: "G-NWJGDWMRW3"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-// Initialize Firebase services
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
-const analytics = getAnalytics(app);
 
-export { app, auth, db, storage, analytics };
+export { app, auth, db, storage };
