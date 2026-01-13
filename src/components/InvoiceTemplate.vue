@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted } from 'vue';
 import useUserSettings from '../composables/useUserSettings';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 
 const props = defineProps({
   invoice: {
@@ -19,13 +19,11 @@ const taxAmount = computed(() => props.invoice.taxAmount || 0);
 const total = computed(() => props.invoice.total || 0);
 
 const formatDate = (date) => {
-  if (!date) return 'N/A';
-  // Handle both Firebase Timestamps and JS Date objects
-  const dateObj = date.toDate ? date.toDate() : date;
-  if (dateObj instanceof Date && !isNaN(dateObj)) {
-    return format(dateObj, 'MMMM d, yyyy');
+  // The 'date' prop is now guaranteed to be a Date object or null by the useInvoices composable.
+  if (date && isValid(date)) {
+    return format(date, 'MMMM d, yyyy');
   }
-  return 'Invalid Date';
+  return 'N/A';
 };
 
 const formatAddress = (address) => {

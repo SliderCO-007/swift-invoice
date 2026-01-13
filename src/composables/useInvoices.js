@@ -9,12 +9,22 @@ const useInvoices = () => {
 
   const invoicesCollection = collection(db, 'invoices');
 
+  // Definitive date parsing helper.
+  const parseFirestoreDate = (date) => {
+    if (!date) return null;
+    if (date.toDate) return date.toDate(); // Firestore Timestamp
+    if (date instanceof Date) return date; // Already a Date object
+    const parsed = new Date(date); // Handle ISO strings or other date formats
+    return isNaN(parsed) ? null : parsed; // Return null if invalid, not an "Invalid Date" object
+  };
+
   const calculateTotal = (invoice) => {
-    const subtotal = invoice.items.reduce((acc, item) => acc + (item.quantity || 0) * (item.price || 0), 0);
+    const subtotal = (invoice.items || []).reduce((acc, item) => acc + (item.quantity || 0) * (item.price || 0), 0);
     const taxAmount = subtotal * ((invoice.taxRate || 0) / 100);
     return subtotal + taxAmount;
   };
 
+  // Re-written to ensure data integrity.
   const getInvoices = async () => {
     loading.value = true;
     error.value = null;
@@ -22,11 +32,12 @@ const useInvoices = () => {
       const querySnapshot = await getDocs(invoicesCollection);
       invoices.value = querySnapshot.docs.map(doc => {
         const data = doc.data();
+        // Structure is critical: Spread data first, then explicitly set the ID last to prevent overwrites.
         return {
-          id: doc.id,
           ...data,
-          issueDate: data.issueDate && data.issueDate.toDate ? data.issueDate.toDate() : null,
-          dueDate: data.dueDate && data.dueDate.toDate ? data.dueDate.toDate() : null,
+          issueDate: parseFirestoreDate(data.issueDate),
+          dueDate: parseFirestoreDate(data.dueDate),
+          id: doc.id, 
         };
       });
     } catch (err) {
@@ -36,6 +47,7 @@ const useInvoices = () => {
     }
   };
 
+  // Re-written to ensure data integrity.
   const getInvoice = async (id) => {
     loading.value = true;
     error.value = null;
@@ -44,20 +56,19 @@ const useInvoices = () => {
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const data = docSnap.data();
-
+        // Structure is critical: Spread data first, then explicitly set the ID last.
         return {
-          id: docSnap.id,
           ...data,
-          issueDate: data.issueDate && data.issueDate.toDate ? data.issueDate.toDate() : null,
-          dueDate: data.dueDate && data.dueDate.toDate ? data.dueDate.toDate() : null,
+          issueDate: parseFirestoreDate(data.issueDate),
+          dueDate: parseFirestoreDate(data.dueDate),
+          id: docSnap.id,
         };
       } else {
-        error.value = 'Invoice not found';
-        return null;
+        throw new Error('Invoice not found');
       }
     } catch (err) {
       error.value = err.message;
-      return null;
+      throw err; 
     } finally {
       loading.value = false;
     }
@@ -76,18 +87,11 @@ const useInvoices = () => {
     try {
       const userSettingsRef = doc(db, 'userSettings', auth.currentUser.uid);
 
-      // Use a transaction to safely increment the user-specific counter
       const newInvoiceNumber = await runTransaction(db, async (transaction) => {
         const userSettingsDoc = await transaction.get(userSettingsRef);
-        
-        let currentCounter = 0;
-        if (userSettingsDoc.exists() && userSettingsDoc.data().invoiceCounter) {
-          currentCounter = userSettingsDoc.data().invoiceCounter;
-        }
-
+        const currentCounter = userSettingsDoc.exists() && userSettingsDoc.data().invoiceCounter ? userSettingsDoc.data().invoiceCounter : 0;
         const newCounter = currentCounter + 1;
         transaction.set(userSettingsRef, { invoiceCounter: newCounter }, { merge: true });
-        
         return newCounter;
       });
 
@@ -95,12 +99,13 @@ const useInvoices = () => {
       
       const invoiceWithTotal = {
         ...newInvoice,
-        invoiceNumber, // Add the user-specific invoice number
+        invoiceNumber,
         total: calculateTotal(newInvoice),
         createdAt: serverTimestamp(),
         status: newInvoice.status || 'pending',
-        userId: auth.currentUser.uid, // Tag the invoice with the user's ID
+        userId: auth.currentUser.uid,
       };
+      delete invoiceWithTotal.id; // Ensure no phantom ID is saved in the document data.
 
       const docRef = await addDoc(invoicesCollection, invoiceWithTotal);
       return docRef.id;

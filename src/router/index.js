@@ -48,12 +48,6 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-    path: '/invoice/edit/:id',
-    name: 'InvoiceEdit',
-    component: () => import('../components/InvoiceEditor.vue'),
-    meta: { requiresAuth: true }
-  },
-  {
     path: '/invoice/:id',
     name: 'InvoiceView',
     component: () => import('../components/InvoiceView.vue'),

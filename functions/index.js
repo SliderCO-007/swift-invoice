@@ -19,6 +19,9 @@ const corsHandler = cors({
 // Function for the one-time $50 registration fee
 exports.createCheckoutSession = onRequest((req, res) => {
   corsHandler(req, res, async () => {
+    const origin = req.headers.origin;
+    const baseUrl = (origin && origin.includes('cloudworkstations.dev')) ? DEV_FRONTEND_URL : FRONTEND_URL;
+    
     const session = await stripe.checkout.sessions.create({
         line_items: [
         {
@@ -33,8 +36,8 @@ exports.createCheckoutSession = onRequest((req, res) => {
         },
         ],
         mode: 'payment',
-        success_url: `${FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${FRONTEND_URL}/register`,
+        success_url: `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${baseUrl}/register`,
     });
 
     res.send({ id: session.id });
@@ -44,6 +47,9 @@ exports.createCheckoutSession = onRequest((req, res) => {
 // New function for the $1 per-invoice fee
 exports.createInvoiceCheckoutSession = onRequest((req, res) => {
   corsHandler(req, res, async () => {
+    const origin = req.headers.origin;
+    const baseUrl = (origin && origin.includes('cloudworkstations.dev')) ? DEV_FRONTEND_URL : FRONTEND_URL;
+
     const session = await stripe.checkout.sessions.create({
         line_items: [
         {
@@ -58,8 +64,8 @@ exports.createInvoiceCheckoutSession = onRequest((req, res) => {
         },
         ],
         mode: 'payment',
-        success_url: `${FRONTEND_URL}/create-invoice-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${FRONTEND_URL}/dashboard`, // Redirect to dashboard on cancellation
+        success_url: `${baseUrl}/create-invoice-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${baseUrl}/dashboard`, // Redirect to dashboard on cancellation
     });
 
     res.send({ id: session.id });

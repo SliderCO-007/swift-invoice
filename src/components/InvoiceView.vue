@@ -11,11 +11,16 @@ const router = useRouter();
 const { getInvoice, markAsPaid, loading, error } = useInvoices();
 
 const invoice = ref(null);
-const invoicePaper = ref(null); 
+const invoicePaper = ref(null);
 
 onMounted(async () => {
   const invoiceId = route.params.id;
-  invoice.value = await getInvoice(invoiceId);
+  try {
+    // The getInvoice function now returns clean, reliable data.
+    invoice.value = await getInvoice(invoiceId);
+  } catch (err) {
+    console.error(`Failed to load invoice ${invoiceId}:`, err.message);
+  }
 });
 
 const goBack = () => {
@@ -25,11 +30,10 @@ const goBack = () => {
 const handleMarkAsPaid = async () => {
   if (!invoice.value || invoice.value.status === 'Paid') return;
   await markAsPaid(invoice.value.id);
-  invoice.value = await getInvoice(invoice.value.id);
+  invoice.value = await getInvoice(invoice.value.id); // Refresh data
 };
 
 const downloadPDF = async () => {
-  // Access the DOM element of the InvoiceTemplate component
   const templateEl = invoicePaper.value?.$el;
   if (!templateEl) {
     console.error("Invoice template element not found for PDF generation.");
@@ -37,77 +41,48 @@ const downloadPDF = async () => {
   }
 
   try {
-    const canvas = await html2canvas(templateEl, { 
-      scale: 2, // Higher scale for better quality
-      useCORS: true, // Needed for external images like the logo
-    });
-    
+    const canvas = await html2canvas(templateEl, { scale: 2, useCORS: true });
     const imgData = canvas.toDataURL('image/png');
-
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'pt',
-      format: 'a4',
-    });
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
 
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
     const canvasAspectRatio = canvas.height / canvas.width;
     
-    let imgWidth = pdfWidth - 40; // 20pt padding on each side
+    let imgWidth = pdfWidth - 40; // Padding
     let imgHeight = imgWidth * canvasAspectRatio;
 
-    // If image is too tall for the page, scale it down and adjust width proportionally
     if (imgHeight > pdfHeight - 40) {
-        imgHeight = pdfHeight - 40; // 20pt padding top/bottom
+        imgHeight = pdfHeight - 40;
         imgWidth = imgHeight / canvasAspectRatio;
     }
 
-    const x = (pdfWidth - imgWidth) / 2; // Center horizontally
-    const y = 20; // Top margin
+    const x = (pdfWidth - imgWidth) / 2;
+    const y = 20;
 
     pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight, undefined, 'FAST');
-    pdf.save(`Invoice-${safeInvoice.value.invoiceNumber}.pdf`);
+    pdf.save(`Invoice-${invoice.value?.invoiceNumber || 'details'}.pdf`);
 
   } catch (err) {
     console.error("Error generating PDF:", err);
   }
 };
 
+// The computed is now dramatically simplified, as it no longer needs to clean up the data.
 const safeInvoice = computed(() => {
   if (!invoice.value) return null;
 
-  const items = (invoice.value.items || []).map(item => ({
-    ...item,
-    description: item.description || 'No description',
-    quantity: Number(item.quantity) || 0,
-    price: Number(item.price) || 0,
-  }));
-
-  const subtotal = items.reduce((acc, item) => acc + item.quantity * item.price, 0);
+  // Basic calculations can remain, but data massaging is gone.
+  const subtotal = (invoice.value.items || []).reduce((acc, item) => acc + (item.quantity || 0) * (item.price || 0), 0);
   const taxRate = Number(invoice.value.taxRate) || 0;
   const taxAmount = subtotal * (taxRate / 100);
   const total = subtotal + taxAmount;
 
-  // Convert Firestore Timestamps to JS Date objects
-  const issueDate = invoice.value.issueDate?.toDate ? invoice.value.issueDate.toDate() : new Date(invoice.value.issueDate);
-  const dueDate = invoice.value.dueDate?.toDate ? invoice.value.dueDate.toDate() : new Date(invoice.value.dueDate);
-
   return {
     ...invoice.value,
-    id: invoice.value.id || 'N/A',
-    invoiceNumber: invoice.value.invoiceNumber || invoice.value.id?.substring(0, 6) || 'N/A',
-    status: invoice.value.status || 'pending',
-    sender: invoice.value.sender || { name: 'N/A', email: '' },
-    client: invoice.value.client || { name: 'N/A', email: '' },
-    items: items,
-    taxRate: taxRate,
-    notes: invoice.value.notes || '',
-    subtotal: subtotal,
-    taxAmount: taxAmount,
-    total: total,
-    issueDate: issueDate,
-    dueDate: dueDate,
+    subtotal, // Add calculated fields
+    taxAmount,
+    total
   };
 });
 
@@ -145,9 +120,14 @@ const safeInvoice = computed(() => {
         </div>
       </header>
 
-      <!-- The InvoiceTemplate is now the single source of truth for presentation -->
+      <!-- The InvoiceTemplate now receives the clean invoice data directly -->
       <InvoiceTemplate ref="invoicePaper" :invoice="safeInvoice" />
 
+    </div>
+     <div v-else class="error-container">
+      <v-alert type="warning" dense outlined>
+        Invoice not found. It might have been deleted or there was an issue retrieving it.
+      </v-alert>
     </div>
   </div>
 </template>
