@@ -2,6 +2,7 @@
 /dist
 .env*
 !/.env.example
+*.cache
 
 # Firebase
 firebase.js
