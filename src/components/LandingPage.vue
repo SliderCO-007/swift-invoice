@@ -45,8 +45,8 @@
               <div class="feature-icon">
                 <IconPDF />
               </div>
-              <h3 class="feature-title">Pay-per-Invoice</h3>
-              <p class="feature-description">No subscriptions or hidden fees. Only pay a small $1 fee for each new invoice you create. Perfect for freelancers and small businesses.</p>
+              <h3 class="feature-title">Simple Pricing</h3>
+              <p class="feature-description">A one-time $50 setup fee, then just $1 per invoice. No subscriptions or hidden costs. Ever.</p>
             </div>
             <div class="feature-card">
               <div class="feature-icon">
@@ -54,6 +54,7 @@
               </div>
               <h3 class="feature-title">Download & Share Instantly</h3>
               <p class="feature-description">Generate and download a professional, high-resolution PDF of your invoice the moment you create it. Ready to send to your clients immediately.</p>
+              <v-btn href="/Invoice-00000009.pdf" download color="secondary" rounded class="mt-4">Download Sample</v-btn>
             </div>
             <div class="feature-card">
               <div class="feature-icon">
@@ -61,6 +62,7 @@
               </div>
               <h3 class="feature-title">At-a-Glance Tracking</h3>
               <p class="feature-description">The dashboard gives you a clear overview of all your invoices. See which invoices are paid, pending, or overdue in a single glance.</p>
+              <v-btn @click="showDashboardPreview = true" color="secondary" rounded class="mt-4">Preview Dashboard</v-btn>
             </div>
           </div>
         </div>
@@ -69,22 +71,37 @@
       <section id="pricing" class="pricing">
         <div class="container">
           <h2 class="section-title">Simple, transparent pricing.</h2>
-          <p class="section-subtitle">One simple plan to cover all your invoicing needs.</p>
-          <div class="pricing-card">
-            <h3 class="pricing-plan">Pay-as-you-go</h3>
-            <div class="pricing-cost">
-              <p class="pricing-price">$1</p>
-              <p class="pricing-period">per invoice</p>
+          <p class="section-subtitle">No subscriptions, no monthly commitments. Just a simple pay-as-you-go model.</p>
+          <div class="pricing-card-container">
+            <div class="pricing-card">
+                <h3 class="pricing-plan">One-Time Setup</h3>
+                <div class="pricing-cost">
+                <p class="pricing-price">$50</p>
+                <p class="pricing-period">one-time fee</p>
+                </div>
+                <p class="pricing-description">A single payment to get your account set up and ready to go.</p>
+                <ul class="pricing-features">
+                    <li>Lifetime account access</li>
+                    <li>Unlimited clients & projects</li>
+                    <li>Secure cloud storage</li>
+                </ul>
             </div>
-            <p class="pricing-description">No subscriptions, no setup fees. Only pay for the invoices you create.</p>
-            <ul class="pricing-features">
-              <li>Unlimited clients</li>
-              <li>Unlimited projects</li>
-              <li>Professional invoice templates</li>
-              <li>Downloadable PDF invoices</li>
-              <li>Invoice status tracking</li>
-            </ul>
-            <v-btn to="/register" color="primary" large rounded class="mt-8">Get Started</v-btn>
+            <div class="pricing-card">
+                <h3 class="pricing-plan">Pay-per-Invoice</h3>
+                <div class="pricing-cost">
+                <p class="pricing-price">$1</p>
+                <p class="pricing-period">per invoice created</p>
+                </div>
+                <p class="pricing-description">Only pay for what you use. Perfect for businesses of all sizes.</p>
+                <ul class="pricing-features">
+                    <li>Professional invoice templates</li>
+                    <li>Downloadable PDF invoices</li>
+                    <li>Invoice status tracking</li>
+                </ul>
+            </div>
+          </div>
+          <div class="get-started-cta">
+             <v-btn to="/register" color="primary" x-large rounded class="mt-8">Get Started for $50</v-btn>
           </div>
         </div>
       </section>
@@ -95,6 +112,15 @@
         <p>&copy; 2026 Swift Invoice. All rights reserved.</p>
       </div>
     </footer>
+
+    <div v-if="showDashboardPreview" class="modal-overlay" @click.self="showDashboardPreview = false">
+      <div class="modal-content">
+        <img src="/dashboardPreview.png" alt="Dashboard Preview" />
+        <v-btn @click="showDashboardPreview = false" icon class="modal-close">
+           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"/></svg>
+        </v-btn>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -107,6 +133,7 @@ import IconAnalytics from './IconAnalytics.vue';
 import IconMenu from './IconMenu.vue';
 
 const isMobileNavOpen = ref(false);
+const showDashboardPreview = ref(false);
 </script>
 
 <style scoped>
@@ -242,7 +269,6 @@ main section[id] {
     margin-top: 1rem;
 }
 
-
 /* Features Section */
 .features {
   padding: 6rem 0;
@@ -275,6 +301,9 @@ main section[id] {
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
   text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .feature-card:hover {
@@ -296,6 +325,7 @@ main section[id] {
 
 .feature-description {
   color: #555;
+  margin-bottom: auto;
 }
 
 /* Pricing Section */
@@ -304,14 +334,22 @@ main section[id] {
     background-color: #fff;
 }
 
+.pricing-card-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    max-width: 900px;
+    margin: 0 auto 4rem auto;
+}
+
 .pricing-card {
     background-color: #fff;
     padding: 3rem;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    max-width: 400px;
-    margin: 0 auto;
     text-align: center;
+    display: flex;
+    flex-direction: column;
 }
 
 .pricing-plan {
@@ -340,6 +378,7 @@ main section[id] {
     margin-bottom: 2rem;
     font-size: 1.1rem;
     color: #333;
+    flex-grow: 1;
 }
 
 .pricing-features {
@@ -352,6 +391,10 @@ main section[id] {
     margin-bottom: 0.5rem;
 }
 
+.get-started-cta {
+    text-align: center;
+}
+
 
 /* Footer */
 .footer {
@@ -360,6 +403,46 @@ main section[id] {
   padding: 2rem 0;
   text-align: center;
 }
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+}
+
+.modal-content img {
+  max-width: 100%;
+  max-height: 80vh;
+  display: block;
+}
+
+.modal-close {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: #fff;
+    color: #555;
+    border-radius: 50%;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
 
 /* Responsive Styles */
 @media (max-width: 768px) {
@@ -406,6 +489,10 @@ main section[id] {
   
   .pricing {
       padding: 4rem 0;
+  }
+
+  .pricing-card-container {
+      grid-template-columns: 1fr;
   }
 }
 </style>
