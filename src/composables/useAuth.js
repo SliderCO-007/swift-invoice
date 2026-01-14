@@ -1,4 +1,4 @@
-import { ref, onUnmounted, watch } from 'vue';
+import { ref } from 'vue';
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
@@ -15,13 +15,9 @@ const isAuthReady = ref(false);
 const error = ref(null);
 
 // Listener for auth state changes
-const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+onAuthStateChanged(auth, (currentUser) => {
   user.value = currentUser;
   isAuthReady.value = true;
-});
-
-onUnmounted(() => {
-  unsubscribe();
 });
 
 const useAuth = () => {

@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, runTransaction, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, runTransaction, serverTimestamp, query, where } from 'firebase/firestore';
 import { auth, db } from '../firebase'; // Import auth to get the current user
 
 const useInvoices = () => {
@@ -28,8 +28,15 @@ const useInvoices = () => {
   const getInvoices = async () => {
     loading.value = true;
     error.value = null;
+    if (!auth.currentUser) {
+      invoices.value = [];
+      error.value = "User is not authenticated.";
+      loading.value = false;
+      return;
+    }
     try {
-      const querySnapshot = await getDocs(invoicesCollection);
+      const q = query(invoicesCollection, where("userId", "==", auth.currentUser.uid));
+      const querySnapshot = await getDocs(q);
       invoices.value = querySnapshot.docs.map(doc => {
         const data = doc.data();
         // Structure is critical: Spread data first, then explicitly set the ID last to prevent overwrites.
@@ -56,6 +63,10 @@ const useInvoices = () => {
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const data = docSnap.data();
+        // Add a security check to ensure the user can only access their own invoice
+        if (data.userId !== auth.currentUser.uid) {
+          throw new Error("You don't have permission to view this invoice.");
+        }
         // Structure is critical: Spread data first, then explicitly set the ID last.
         return {
           ...data,

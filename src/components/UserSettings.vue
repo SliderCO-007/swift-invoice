@@ -1,7 +1,9 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import useUserSettings from '../composables/useUserSettings';
 
+const router = useRouter();
 const { settings, loading, error, fetchUserSettings, saveUserSettings } = useUserSettings();
 
 const logoFile = ref(null);
@@ -66,8 +68,13 @@ const handleSave = async () => {
   <div class="settings-container">
     <div class="settings-card">
       <header class="settings-header">
-        <h1>User Settings</h1>
-        <p>Manage your company information, logo, and default tax rates.</p>
+        <div>
+          <h1>User Settings</h1>
+          <p>Manage your company information, logo, and default tax rates.</p>
+        </div>
+        <button @click="router.push({ name: 'Dashboard' })" class="back-btn">
+          &larr; Back to Dashboard
+        </button>
       </header>
 
       <form @submit.prevent="handleSave" class="settings-form">
@@ -139,7 +146,7 @@ const handleSave = async () => {
 
 <style scoped>
 .settings-container {
-  padding: 2rem;
+  padding: 1rem;
   background-color: var(--background-color, #F9FAFB);
   display: flex;
   justify-content: center;
@@ -157,7 +164,9 @@ const handleSave = async () => {
 }
 
 .settings-header {
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 2.5rem;
 }
 
@@ -169,6 +178,22 @@ const handleSave = async () => {
 .settings-header p {
   color: #666;
   font-size: 1.1rem;
+}
+
+.back-btn {
+    padding: 0.8rem 1.5rem;
+    border: 1px solid #ddd;
+    background-color: transparent;
+    color: #333;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.back-btn:hover {
+    background-color: #f7f7f7;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .settings-form h3 {
@@ -237,6 +262,7 @@ const handleSave = async () => {
     font-weight: 600;
     display: block;
     margin-bottom: 0.5rem;
+    color: #333;
 }
 
 .form-group input {
@@ -273,4 +299,44 @@ const handleSave = async () => {
 .success-notification { color: #28A745; }
 .error-notification { color: #DC3545; }
 
+@media (max-width: 768px) {
+    .settings-card {
+        padding: 1.5rem;
+    }
+
+    .settings-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .settings-header h1 {
+        font-size: 1.8rem;
+    }
+
+    .back-btn {
+        margin-top: 1rem;
+        width: 100%;
+        text-align: center;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .settings-footer {
+        flex-direction: column;
+    }
+
+    .save-btn {
+        width: 100%;
+    }
+
+    .success-notification,
+    .error-notification {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 1rem;
+        margin-right: 0;
+    }
+}
 </style>

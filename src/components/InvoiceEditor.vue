@@ -3,14 +3,15 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import useUserSettings from '../composables/useUserSettings';
 import useInvoices from '../composables/useInvoices';
+import { useStripe } from '../composables/useStripe';
 import { getAuthReady } from '../composables/useAuth';
 import InvoiceTemplate from './InvoiceTemplate.vue';
 import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
-import { loadStripe } from '@stripe/stripe-js';
 
 const { settings, fetchUserSettings } = useUserSettings();
-const { createInvoice, getInvoice, updateInvoice } = useInvoices();
+const { createInvoice, getInvoice } = useInvoices();
+const { redirectToCheckout, error: stripeError } = useStripe();
 const router = useRouter();
 const route = useRoute();
 
@@ -27,7 +28,7 @@ const invoice = ref({
 });
 
 const showPreview = ref(false);
-const isCreating = ref(false);
+const isProcessing = ref(false);
 
 const formattedIssueDate = computed({
   get: () => invoice.value.issueDate ? format(new Date(invoice.value.issueDate), 'yyyy-MM-dd', { locale: enUS }) : '',
@@ -51,6 +52,19 @@ const formattedDueDate = computed({
       invoice.value.dueDate = null;
     }
   },
+});
+
+const subtotal = computed(() => {
+  return (invoice.value.items || []).reduce((acc, item) => acc + (item.quantity || 0) * (item.price || 0), 0);
+});
+
+const taxAmount = computed(() => {
+  const rate = Number(invoice.value.taxRate) || 0;
+  return subtotal.value * (rate / 100);
+});
+
+const total = computed(() => {
+  return subtotal.value + taxAmount.value;
 });
 
 onMounted(async () => {
@@ -88,26 +102,31 @@ const removeItem = (index) => {
   invoice.value.items.splice(index, 1);
 };
 
-const createInvoiceAndPay = async () => {
-  isCreating.value = true;
-  invoice.value.status = 'pending';
+const createAndCheckout = async () => {
+  isProcessing.value = true;
 
-  const invoiceToPay = {
+  const invoiceToSave = {
     ...invoice.value,
-    id: (invoiceId.value && invoiceId.value !== 'new') ? invoiceId.value : null,
+    status: 'pending',
+    subtotal: subtotal.value,
+    taxAmount: taxAmount.value,
+    total: total.value,
   };
 
-  localStorage.setItem('pendingInvoice', JSON.stringify(invoiceToPay));
-
   try {
-    const response = await fetch('https://us-central1-swift-invoice-9124f.cloudfunctions.net/createInvoiceCheckoutSession', { method: 'POST' });
-    const session = await response.json();
+    const savedId = await createInvoice(invoiceToSave);
+    if (!savedId) {
+      throw new Error('Failed to create invoice.');
+    }
 
-    const stripe = await loadStripe('pk_test_51SnOHZPpf0h9E3zvVVALY8XidMxwieU2Wd6bRosG0hOWV29mHQAk41Fli67WtmbtlC6PXBCosvRQLDJz4J0nYFVh00n3HA1jNU');
-    await stripe.redirectToCheckout({ sessionId: session.id });
+    const finalInvoice = { ...invoiceToSave, id: savedId };
+    await redirectToCheckout(finalInvoice);
+
   } catch (error) {
-    console.error('Error creating checkout session:', error);
-    isCreating.value = false;
+    console.error("Checkout failed:", error);
+    alert(stripeError.value || 'An unexpected error occurred during checkout.');
+  } finally {
+    isProcessing.value = false;
   }
 };
 
@@ -118,8 +137,12 @@ const createInvoiceAndPay = async () => {
     <div class="editor-form-card">
       <header class="editor-header">
         <h1>{{ invoiceId === 'new' ? 'Create Invoice' : 'Edit Invoice' }}</h1>
-        <button class="back-btn" @click="router.push('/dashboard')">Back to Dashboard</button>
+        <button class="back-btn" @click="router.push({ name: 'Dashboard' })">Back to Dashboard</button>
       </header>
+
+      <div v-if="stripeError" class="error-container">
+        <v-alert type="error" dense outlined>{{ stripeError }}</v-alert>
+      </div>
 
       <div v-if="invoice" class="invoice-form-content">
         <div class="form-section responsive-grid">
@@ -183,28 +206,32 @@ const createInvoiceAndPay = async () => {
             <div>
                 <label for="taxRate">Tax Rate (%)</label>
                 <input type="number" id="taxRate" placeholder="0" v-model.number="invoice.taxRate">
+                <div class="totals-summary">
+                    <p>Subtotal: <span>${{ subtotal.toFixed(2) }}</span></p>
+                    <p>Tax: <span>${{ taxAmount.toFixed(2) }}</span></p>
+                    <p>Total: <span>${{ total.toFixed(2) }}</span></p>
+                </div>
             </div>
         </div>
 
         <footer class="editor-footer">
           <button class="preview-btn" @click="showPreview = true">Preview Invoice</button>
-          <button class="save-btn" @click="createInvoiceAndPay" :disabled="isCreating">
-            {{ isCreating ? 'Processing...' : 'Create Invoice' }}
+          <button class="save-btn" @click="createAndCheckout" :disabled="isProcessing">
+            {{ isProcessing ? 'Processing...' : 'Save & Continue to Payment' }}
           </button>
         </footer>
       </div>
     </div>
     
-    <!-- Preview Modal -->
-    <div v-if="showPreview" class="preview-modal">
-        <div class="modal-content">
-            <header class="modal-header">
-                <h2>Invoice Preview</h2>
-                <button @click="showPreview = false" class="close-modal-btn">&times;</button>
-            </header>
-            <InvoiceTemplate :invoice="invoice" />
-        </div>
-    </div>
+<div v-if="showPreview" class="preview-modal">
+  <div class="modal-content">
+    <header class="modal-header">
+      <h2>Invoice Preview</h2>
+      <button @click="showPreview = false" class="close-modal-btn">&times;</button>
+    </header>
+    <InvoiceTemplate :invoice="{...invoice, subtotal, taxAmount, total}" />
+  </div>
+</div>
   </div>
 </template>
 
@@ -212,7 +239,7 @@ const createInvoiceAndPay = async () => {
 .editor-container {
   padding: 2rem;
   background-color: var(--background-color, #f9fafb);
-  min-height: 100vh; /* Allow scrolling */
+  min-height: 100vh;
 }
 
 .editor-form-card {
@@ -220,7 +247,7 @@ const createInvoiceAndPay = async () => {
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   padding: 2rem;
-  max-width: 1200px; /* Widen card for two columns */
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -239,11 +266,19 @@ const createInvoiceAndPay = async () => {
 }
 
 .back-btn {
-  background: none;
-  border: none;
-  color: var(--primary-color, #4F46E5);
-  font-weight: 600;
-  cursor: pointer;
+    padding: 0.8rem 1.5rem;
+    border: 1px solid #ddd;
+    background-color: transparent;
+    color: #333;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.back-btn:hover {
+    background-color: #f7f7f7;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .form-section {
@@ -259,7 +294,7 @@ const createInvoiceAndPay = async () => {
 .responsive-grid { 
     display: grid; 
     grid-template-columns: 1fr 1fr; 
-    gap: 2rem; /* Increased gap */
+    gap: 2rem;
 }
 .address-grid-city-state { 
     display: grid; 
@@ -315,8 +350,6 @@ input, textarea {
 .save-btn { background-color: var(--primary-color, #4F46E5); color: white; }
 .preview-btn { background-color: #6c757d; color: white; }
 
-
-/* Preview Modal */
 .preview-modal {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.6);
@@ -348,17 +381,38 @@ input, textarea {
     color: #333; 
 }
 
+.totals-summary {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.totals-summary p {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    margin: 0.5rem 0;
+}
+
+.totals-summary span {
+    font-weight: normal;
+}
+
+.error-container {
+    padding: 1rem 0;
+}
+
 /* Responsive Adjustments */
 @media (min-width: 1024px) {
     .modal-content {
         width: 90%;
-        max-width: 900px; /* Wider modal for desktop */
+        max-width: 900px;
     }
 }
 
-@media (max-width: 1023px) { /* Adjusted breakpoint */
-  .from-fields { display: none; } /* Hide on mobile */
-  .responsive-grid { grid-template-columns: 1fr; } /* Stack on mobile */
+@media (max-width: 1023px) {
+  .from-fields { display: none; }
+  .responsive-grid { grid-template-columns: 1fr; }
   .items-list .item-row {
     grid-template-columns: 2fr 1fr 1fr auto;
   }

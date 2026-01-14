@@ -20,16 +20,22 @@ export function useStripe() {
     }
   });
 
-  const redirectToCheckout = async () => {
+  const redirectToCheckout = async (invoice) => {
     if (!stripe.value) {
       error.value = 'Stripe.js has not loaded yet.';
       return;
     }
 
+    if (!invoice) {
+      error.value = 'Invoice data is missing.';
+      return;
+    }
+
     try {
-      const functions = getFunctions(app); // Pass the app instance here
+      const functions = getFunctions(app);
       const createCheckoutSession = httpsCallable(functions, 'createCheckoutSession');
-      const response = await createCheckoutSession();
+      // Pass the entire invoice object to the Cloud Function
+      const response = await createCheckoutSession({ invoice });
       const sessionId = response.data.id;
 
       const { error: stripeError } = await stripe.value.redirectToCheckout({ sessionId });

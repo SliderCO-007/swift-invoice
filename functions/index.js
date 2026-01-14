@@ -16,13 +16,39 @@ const corsHandler = cors({
     origin: [FRONTEND_URL, DEV_FRONTEND_URL],
 });
 
-// Function for the one-time $50 registration fee
 exports.createCheckoutSession = onRequest((req, res) => {
   corsHandler(req, res, async () => {
     const origin = req.headers.origin;
     const baseUrl = (origin && origin.includes('cloudworkstations.dev')) ? DEV_FRONTEND_URL : FRONTEND_URL;
-    
-    const session = await stripe.checkout.sessions.create({
+    const { invoice } = req.body.data; // Access the invoice from the `data` object
+
+    let session;
+
+    if (invoice) {
+      // Create a checkout session for the $1 invoice fee
+      session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: [{
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'Swift Invoice - New Invoice Fee',
+              images: ['https://swift-invoice-9124f.web.app/Logo.png'], 
+            },
+            unit_amount: 100, // $1.00 in cents
+          },
+          quantity: 1,
+        }],
+        mode: 'payment',
+        success_url: `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}&invoice_id=${invoice.id}`,
+        cancel_url: `${baseUrl}/invoices/${invoice.id}`,
+        metadata: {
+          invoice_id: invoice.id,
+        },
+      });
+    } else {
+      // Default to the registration fee if no invoice is provided
+      session = await stripe.checkout.sessions.create({
         line_items: [
         {
             price_data: {
@@ -39,35 +65,8 @@ exports.createCheckoutSession = onRequest((req, res) => {
         success_url: `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${baseUrl}/register`,
     });
+    }
 
-    res.send({ id: session.id });
-  });
-});
-
-// New function for the $1 per-invoice fee
-exports.createInvoiceCheckoutSession = onRequest((req, res) => {
-  corsHandler(req, res, async () => {
-    const origin = req.headers.origin;
-    const baseUrl = (origin && origin.includes('cloudworkstations.dev')) ? DEV_FRONTEND_URL : FRONTEND_URL;
-
-    const session = await stripe.checkout.sessions.create({
-        line_items: [
-        {
-            price_data: {
-            currency: 'usd',
-            product_data: {
-                name: 'Swift Invoice - New Invoice Fee',
-            },
-            unit_amount: 100, // $1.00 in cents
-            },
-            quantity: 1,
-        },
-        ],
-        mode: 'payment',
-        success_url: `${baseUrl}/create-invoice-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${baseUrl}/dashboard`, // Redirect to dashboard on cancellation
-    });
-
-    res.send({ id: session.id });
+    res.send({ data: { id: session.id } });
   });
 });
