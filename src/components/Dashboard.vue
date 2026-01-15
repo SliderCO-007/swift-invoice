@@ -6,7 +6,7 @@ import useInvoices from '../composables/useInvoices';
 import { format, isValid } from 'date-fns';
 
 const { logout } = useAuth();
-const { invoices, getInvoices, loading, error } = useInvoices();
+const { invoices, getInvoices, loading, error, deleteInvoice } = useInvoices();
 const router = useRouter();
 
 const today = format(new Date(), 'MMMM d, yyyy');
@@ -27,6 +27,20 @@ const goToInvoiceDetails = (id) => {
     return; 
   }
   router.push(`/invoice/${id}`);
+};
+
+const handleDelete = async (event, invoiceId) => {
+  event.stopPropagation(); // Prevent navigation to invoice details
+  if (confirm('Are you sure you want to delete this invoice? This action cannot be undone.')) {
+    try {
+      await deleteInvoice(invoiceId);
+      // Refresh the invoice list after deletion
+      await getInvoices();
+    } catch (err) {
+      console.error("Failed to delete invoice:", err);
+      alert(`Error deleting invoice: ${error.value}`);
+    }
+  }
 };
 
 // Simplified and now reliable, as the date object from the composable is guaranteed to be correct.
@@ -103,6 +117,9 @@ const safeInvoices = computed(() => {
                 <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 0 24 24" width="16px" fill="#777"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
                 Due: {{ formatDate(invoice.dueDate) }}
             </span>
+            <button class="delete-btn" @click="handleDelete($event, invoice.id)">
+              <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" width="20px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5l-1-1h-5l-1 1H5v2h14V4h-3.5z"/></svg>
+            </button>
           </div>
         </div>
       </div>
@@ -112,6 +129,9 @@ const safeInvoices = computed(() => {
       <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
     </button>
 
+    <footer class="dashboard-footer">
+      <p>&copy; 2026 Swift Invoice. All rights reserved. | <a href="mailto:support@swiftinvoice.biz">support@swiftinvoice.biz</a></p>
+    </footer>
   </div>
 </template>
 
@@ -306,6 +326,24 @@ const safeInvoices = computed(() => {
   margin-right: 0.5rem;
 }
 
+.delete-btn {
+    background: none;
+    border: none;
+    color: #E74C3C;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.delete-btn:hover {
+    background-color: #F8D7DA; /* Light red background on hover */
+    color: #721C24; /* Darker red on hover */
+}
+
 .loading-container,
 .error-container {
     text-align: center;
@@ -350,5 +388,22 @@ const safeInvoices = computed(() => {
   background-color: #3A80D2; /* Darker blue on hover */
   box-shadow: 0 12px 25px rgba(74, 144, 226, 0.4);
   transform: scale(1.05);
+}
+
+.dashboard-footer {
+  text-align: center;
+  padding: 2rem 0 1rem;
+  font-size: 0.9rem;
+  color: #888;
+}
+
+.dashboard-footer a {
+  color: var(--primary-color, #4A90E2);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.dashboard-footer a:hover {
+  text-decoration: underline;
 }
 </style>

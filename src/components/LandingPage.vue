@@ -8,19 +8,19 @@
         </div>
         <nav class="nav desktop-nav">
           <a href="#features">Features</a>
-          <a href="#pricing">Pricing</a>
+          <a href="#how-it-works">How It Works</a>
           <router-link to="/login">Login</router-link>
         </nav>
-        <v-btn to="/register" color="primary" large rounded class="desktop-nav">Get Started</v-btn>
+        <v-btn to="/register" color="primary" large rounded class="desktop-nav">Get Started for Free</v-btn>
         <button class="mobile-nav-toggle" @click="isMobileNavOpen = !isMobileNavOpen">
           <IconMenu />
         </button>
       </div>
       <nav class="mobile-nav" :class="{ 'is-open': isMobileNavOpen }">
         <a href="#features" @click="isMobileNavOpen = false">Features</a>
-        <a href="#pricing" @click="isMobileNavOpen = false">Pricing</a>
+        <a href="#how-it-works" @click="isMobileNavOpen = false">How It Works</a>
         <router-link to="/login" @click="isMobileNavOpen = false">Login</router-link>
-        <v-btn to="/register" color="primary" large rounded>Get Started</v-btn>
+        <v-btn to="/register" color="primary" large rounded>Get Started for Free</v-btn>
       </nav>
     </header>
 
@@ -30,8 +30,8 @@
           <div class="hero-content">
             <h1 class="hero-title">Invoicing Made Effortless</h1>
             <p class="hero-subtitle">Create, download, and track professional invoices in minutes. Focus on your work, not your paperwork.</p>
-            <v-btn to="/register" color="primary" x-large rounded class="mt-8">Get Started with Swift Invoice</v-btn>
-            <p class="hero-caption">Transparent pricing. No subscriptions.</p>
+            <v-btn to="/register" color="primary" x-large rounded class="mt-8">Get Started for Free</v-btn>
+            <p class="hero-caption">No subscriptions. No hidden fees.</p>
           </div>
         </div>
       </section>
@@ -46,7 +46,7 @@
                 <IconPDF />
               </div>
               <h3 class="feature-title">Simple Pricing</h3>
-              <p class="feature-description">A one-time $50 setup fee, then just $1 per invoice. No subscriptions or hidden costs. Ever.</p>
+              <p class="feature-description">Just $1 per invoice. No subscriptions, no setup fees, and no hidden costs. Ever.</p>
             </div>
             <div class="feature-card">
               <div class="feature-icon">
@@ -68,40 +68,28 @@
         </div>
       </section>
 
-      <section id="pricing" class="pricing">
+      <section id="how-it-works" class="how-it-works">
         <div class="container">
-          <h2 class="section-title">Simple, transparent pricing.</h2>
-          <p class="section-subtitle">No subscriptions, no monthly commitments. Just a simple pay-as-you-go model.</p>
-          <div class="pricing-card-container">
-            <div class="pricing-card">
-                <h3 class="pricing-plan">One-Time Setup</h3>
-                <div class="pricing-cost">
-                <p class="pricing-price">$50</p>
-                <p class="pricing-period">one-time fee</p>
-                </div>
-                <p class="pricing-description">A single payment to get your account set up and ready to go.</p>
-                <ul class="pricing-features">
-                    <li>Lifetime account access</li>
-                    <li>Unlimited clients & projects</li>
-                    <li>Secure cloud storage</li>
-                </ul>
+          <h2 class="section-title">Get Started in 3 Easy Steps</h2>
+          <div class="steps-container">
+            <div class="step-card">
+              <div class="step-number">1</div>
+              <h3 class="step-title">Create Your Free Account</h3>
+              <p class="step-description">Sign up in seconds with just your email and password. No credit card required.</p>
             </div>
-            <div class="pricing-card">
-                <h3 class="pricing-plan">Pay-per-Invoice</h3>
-                <div class="pricing-cost">
-                <p class="pricing-price">$1</p>
-                <p class="pricing-period">per invoice created</p>
-                </div>
-                <p class="pricing-description">Only pay for what you use. Perfect for businesses of all sizes.</p>
-                <ul class="pricing-features">
-                    <li>Professional invoice templates</li>
-                    <li>Downloadable PDF invoices</li>
-                    <li>Invoice status tracking</li>
-                </ul>
+            <div class="step-card">
+              <div class="step-number">2</div>
+              <h3 class="step-title">Set Up Your Business</h3>
+              <p class="step-description">Enter your company details and upload your logo in the user settings to personalize your invoices.</p>
+            </div>
+            <div class="step-card">
+              <div class="step-number">3</div>
+              <h3 class="step-title">Create Your First Invoice</h3>
+              <p class="step-description">Build and send your first professional invoice for just $1. It's that simple.</p>
             </div>
           </div>
           <div class="get-started-cta">
-             <v-btn to="/register" color="primary" x-large rounded class="mt-8">Get Started for $50</v-btn>
+             <v-btn to="/register" color="primary" x-large rounded class="mt-8">Sign Up Now</v-btn>
           </div>
         </div>
       </section>
@@ -109,7 +97,7 @@
 
     <footer class="footer">
       <div class="container">
-        <p>&copy; 2026 Swift Invoice. All rights reserved.</p>
+        <p>&copy; 2026 Swift Invoice. All rights reserved. | <a href="mailto:support@swiftinvoice.biz">support@swiftinvoice.biz</a></p>
       </div>
     </footer>
 
@@ -328,67 +316,51 @@ main section[id] {
   margin-bottom: auto;
 }
 
-/* Pricing Section */
-.pricing {
+/* How It Works Section */
+.how-it-works {
     padding: 6rem 0;
     background-color: #fff;
 }
 
-.pricing-card-container {
+.steps-container {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    max-width: 900px;
-    margin: 0 auto 4rem auto;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3rem;
+    max-width: 1000px;
+    margin: 4rem auto;
+    text-align: center;
 }
 
-.pricing-card {
-    background-color: #fff;
-    padding: 3rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    text-align: center;
+.step-card {
     display: flex;
     flex-direction: column;
+    align-items: center;
 }
 
-.pricing-plan {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #555;
-}
-
-.pricing-cost {
-    margin-bottom: 2rem;
-}
-
-.pricing-price {
-    font-size: 3.5rem;
+.step-number {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: #fff;
+    font-size: 2rem;
     font-weight: 700;
-    color: #007bff;
-    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 10px rgba(74, 144, 226, 0.4);
 }
 
-.pricing-period {
-    font-size: 1rem;
+.step-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.step-description {
     color: #555;
-}
-
-.pricing-description {
-    margin-bottom: 2rem;
-    font-size: 1.1rem;
-    color: #333;
-    flex-grow: 1;
-}
-
-.pricing-features {
-    list-style: none;
-    padding: 0;
-    margin-bottom: 2rem;
-}
-
-.pricing-features li {
-    margin-bottom: 0.5rem;
+    max-width: 300px;
 }
 
 .get-started-cta {
@@ -402,6 +374,15 @@ main section[id] {
   color: #fff;
   padding: 2rem 0;
   text-align: center;
+}
+
+.footer a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
 }
 
 /* Modal */
@@ -470,11 +451,11 @@ main section[id] {
     font-size: 1rem;
   }
 
-  .features {
+  .features, .how-it-works {
     padding: 4rem 0;
   }
 
-  .features-grid {
+  .features-grid, .steps-container {
     grid-template-columns: 1fr;
   }
 
@@ -485,14 +466,6 @@ main section[id] {
   .section-subtitle {
       font-size: 1rem;
       margin-bottom: 2rem;
-  }
-  
-  .pricing {
-      padding: 4rem 0;
-  }
-
-  .pricing-card-container {
-      grid-template-columns: 1fr;
   }
 }
 </style>

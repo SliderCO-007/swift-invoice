@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, runTransaction, serverTimestamp, query, where } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, runTransaction, serverTimestamp, query, where, deleteDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase'; // Import auth to get the current user
 
 const useInvoices = () => {
@@ -160,6 +160,21 @@ const useInvoices = () => {
     }
   };
 
+  const deleteInvoice = async (id) => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const docRef = doc(db, 'invoices', id);
+      await deleteDoc(docRef);
+      invoices.value = invoices.value.filter(inv => inv.id !== id);
+    } catch (err) { 
+      error.value = err.message;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
   return {
     invoices,
     loading,
@@ -169,6 +184,7 @@ const useInvoices = () => {
     createInvoice,
     updateInvoice,
     markAsPaid,
+    deleteInvoice,
   };
 };
 

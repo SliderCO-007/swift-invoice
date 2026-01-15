@@ -109,6 +109,9 @@ const formatCurrency = (value) => {
         <h2>Notes</h2>
         <p>{{ invoice.notes }}</p>
     </footer>
+    <footer class="promo-footer">
+      <p>Create your own professional invoices at <a href="https://swiftinvoice.biz" target="_blank">swiftinvoice.biz</a></p>
+    </footer>
   </div>
 </template>
 
@@ -259,6 +262,25 @@ const formatCurrency = (value) => {
 .invoice-footer p {
   margin: 0;
   font-size: 1.1rem;
+}
+
+.promo-footer {
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
+  font-size: 0.9rem;
+  color: #888;
+}
+
+.promo-footer a {
+  color: var(--primary-color, #4A90E2);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.promo-footer a:hover {
+  text-decoration: underline;
 }
 
 /* Responsive Styles - Final Robust Fix */

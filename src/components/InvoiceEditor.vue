@@ -3,7 +3,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import useUserSettings from '../composables/useUserSettings';
 import useInvoices from '../composables/useInvoices';
-import { useStripe } from '../composables/useStripe';
+import useStripe from '../composables/useStripe';
 import { getAuthReady } from '../composables/useAuth';
 import InvoiceTemplate from './InvoiceTemplate.vue';
 import { format } from 'date-fns';
