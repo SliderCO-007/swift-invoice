@@ -16,6 +16,7 @@ Swift Invoice is a web application designed to simplify the invoicing process fo
 - **Dashboard**: A central dashboard to view and manage all invoices.
 - **User Settings**: A dedicated page for users to manage their company information and default settings.
 - **Support Link**: A support email is available in the footer of the landing page and dashboard for easy access.
+- **SEO-Friendly Meta Tags**: Dynamic meta tags for improved search engine visibility, managed with `@vueuse/head`.
 
 ## Onboarding and User Flow
 
@@ -31,20 +32,21 @@ The user journey is designed to be simple and straightforward:
 - **Color Scheme**: A professional color palette with a primary color of `#4F46E5` and a clean, white background.
 - **Typography**: Clear and legible typography with a focus on readability.
 - **Components**: Custom-styled components for buttons, forms, and modals to ensure a consistent user experience.
-
+	
 ## Technical Stack
 
 - **Frontend**: Vue.js with the Composition API
 - **Backend**: Firebase (Authentication, Firestore, Cloud Functions)
 - **Payment Processing**: Stripe
 - **PDF Generation**: jsPDF, html2canvas
+- **Meta Tag Management**: `@vueuse/head`
 
 ## Current Implementation Plan
 
-- **Objective**: Transition the business model from a $50 setup fee to a free registration model and improve the user experience.
+- **Objective**: Improve the application's SEO by adding dynamic meta tags.
 - **Key Changes**:
-    - **Landing Page Update**: The `LandingPage.vue` component was redesigned to remove the $50 setup fee and introduce a "How It Works" section explaining the new 3-step onboarding process.
-    - **Registration Flow**: The registration process was confirmed to be free of any payment steps, requiring only an email and password.
-    - **Payment Failure Logic**: Implemented a conditional in `useStripe.js` to call a `deleteInvoice` function if the Stripe checkout fails or is canceled. The `deleteInvoice` function in `useInvoices.js` was updated to handle the deletion from Firestore and the local state.
-    - **Footer Update**: Added the support email (`support@swiftinvoice.biz`) to the footer in both `LandingPage.vue` and `Dashboard.vue`.
+    - **Installed `@vueuse/head`**: Added the `@vueuse/head` library to manage the document head.
+    - **Configured `main.js`**: Updated the main application entry point to use the `createHead()` plugin.
+    - **Created `useMeta` Composable**: A new composable was created at `src/composables/useMeta.js` to provide a reusable function for setting the title and meta description.
+    - **Implemented in `LandingPage.vue`**: The `useMeta` composable was used in the `LandingPage.vue` component to set a unique title and description, making it more search-engine friendly.
 - **Status**: Completed.

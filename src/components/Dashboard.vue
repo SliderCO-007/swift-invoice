@@ -3,6 +3,7 @@ import { onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import useAuth from '../composables/useAuth';
 import useInvoices from '../composables/useInvoices';
+import { useMeta } from '../composables/useMeta';
 import { format, isValid } from 'date-fns';
 
 const { logout } = useAuth();
@@ -10,6 +11,11 @@ const { invoices, getInvoices, loading, error, deleteInvoice } = useInvoices();
 const router = useRouter();
 
 const today = format(new Date(), 'MMMM d, yyyy');
+
+useMeta(
+  'Dashboard | Swift Invoice',
+  'Manage your invoices, view payment statuses, and track your business finances with the Swift Invoice dashboard.'
+);
 
 onMounted(getInvoices);
 

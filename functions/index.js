@@ -5,21 +5,21 @@ const cors = require('cors');
 
 admin.initializeApp();
 
-// Define the Stripe secret key using Firebase's new parameter system.
-// This is the correct, secure way to handle secrets.
-const stripeSecretKey = defineString('STRIPE_SECRET_KEY');
+// Define the Stripe secret key using a NEW name to force a refresh.
+const stripeSecretKey = defineString('STRIPE_LIVE_SECRET_KEY');
 
-// Initialize Stripe lazily within the function call to ensure the secret key is resolved.
+// Initialize Stripe lazily within the function call.
 let stripe;
 
 // Define the allowed origins for CORS.
 const FRONTEND_URL = "https://swift-invoice-9124f.web.app";
+const PROD_DOMAIN = "https://swiftinvoice.biz";
 const DEV_FRONTEND_URL = "https://5173-firebase-swift-invoice-1767843866511.cluster-lqzyk3r5hzdcaqv6zwm7wv6pwa.cloudworkstations.dev";
+const ALLOWED_ORIGINS = [FRONTEND_URL, PROD_DOMAIN, DEV_FRONTEND_URL];
 
 const corsHandler = cors({ 
     origin: (origin, callback) => {
-        // Allow requests from the defined origins, and also allow undefined origins (for direct function calls, etc.)
-        if (!origin || [FRONTEND_URL, DEV_FRONTEND_URL].indexOf(origin) !== -1) {
+        if (!origin || ALLOWED_ORIGINS.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
@@ -29,17 +29,16 @@ const corsHandler = cors({
 
 exports.createCheckoutSession = onRequest((req, res) => {
   corsHandler(req, res, async () => {
-    // Initialize stripe here to ensure stripeSecretKey.value() is available
-    stripe = require('stripe')(stripeSecretKey.value());
+    const key = stripeSecretKey.value();
+    stripe = require('stripe')(key);
 
-    // Determine the base URL for success/cancel URLs based on the request origin
-    const origin = req.headers.origin;
-    const baseUrl = origin && origin.includes('cloudworkstations.dev') ? DEV_FRONTEND_URL : FRONTEND_URL;
+    const baseUrl = req.headers.origin || FRONTEND_URL;
     
-    // The request body from an HttpsCallable function is in req.body.data
-    const { invoice } = req.body.data;
+    const invoiceId = req.body.data && req.body.data.invoice ? req.body.data.invoice.id : 'new_user_fee';
+    const isNewUser = invoiceId === 'new_user_fee';
 
-    if (!invoice || !invoice.id) {
+    if (!invoiceId) {
+      console.error("Invalid data in request body:", req.body);
       res.status(400).send({error: {message: "Invalid invoice data provided."}});
       return;
     }
@@ -51,19 +50,18 @@ exports.createCheckoutSession = onRequest((req, res) => {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: 'Swift Invoice - New Invoice Fee',
-              images: [`${FRONTEND_URL}/Logo.png`], 
+              name: isNewUser ? 'Swift Invoice - Sign-up Fee' : 'Swift Invoice - New Invoice Fee',
+              images: [`${PROD_DOMAIN}/Logo.png`], 
             },
             unit_amount: 100, // $1.00 in cents
           },
           quantity: 1,
         }],
         mode: 'payment',
-        // The success_url now correctly includes the baseUrl
-        success_url: `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}&invoice_id=${invoice.id}`,
-        cancel_url: `${baseUrl}/invoice/${invoice.id}`,
+        success_url: `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}&invoice_id=${invoiceId}`,
+        cancel_url: isNewUser ? `${baseUrl}/register` : `${baseUrl}/invoice/${invoiceId}`,
         metadata: {
-          invoice_id: invoice.id,
+          invoice_id: invoiceId,
         },
       });
       

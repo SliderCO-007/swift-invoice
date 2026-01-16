@@ -114,6 +114,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useMeta } from '../composables/useMeta';
 import Logo from './Logo.vue';
 import IconPDF from './IconPDF.vue';
 import IconEmail from './IconEmail.vue';
@@ -122,6 +123,11 @@ import IconMenu from './IconMenu.vue';
 
 const isMobileNavOpen = ref(false);
 const showDashboardPreview = ref(false);
+
+useMeta(
+  'Swift Invoice | Invoicing Made Effortless',
+  'Create, download, and track professional invoices in minutes with Swift Invoice. No subscriptions, no hidden fees. Just simple, pay-per-invoice pricing.'
+);
 </script>
 
 <style scoped>

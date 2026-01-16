@@ -1,7 +1,7 @@
 
 [
   {
-    "origin": ["https://swift-invoice-9124f.web.app", "http://localhost:5173", "https://localhost:5173"],
+    "origin": ["https://swiftinvoice.biz", "https://swift-invoice-9124f.web.app", "https://5173-firebase-swift-invoice-1767843866511.cluster-lqzyk3r5hzdcaqv6zwm7wv6pwa.cloudworkstations.dev"],
     "method": ["GET"],
     "maxAgeSeconds": 3600
   }
