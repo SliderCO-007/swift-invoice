@@ -48,5 +48,3 @@ firebase-debug.log
 
 # Production environment variables
 .env.production
-
-# firebase cache files
