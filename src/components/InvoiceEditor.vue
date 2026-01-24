@@ -187,18 +187,9 @@ const createAndCheckout = async () => {
           <h3>Items</h3>
           <div class="items-list">
             <div v-for="(item, index) in invoice.items" :key="index" class="item-row">
-              <div class="item-field">
-                <label :for="`item-description-${index}`" class="item-label">Description</label>
-                <input :id="`item-description-${index}`" type="text" placeholder="Description" v-model="item.description">
-              </div>
-              <div class="item-field">
-                <label :for="`item-quantity-${index}`" class="item-label">Quantity</label>
-                <input :id="`item-quantity-${index}`" type="number" placeholder="Quantity" v-model.number="item.quantity">
-              </div>
-              <div class="item-field">
-                <label :for="`item-price-${index}`" class="item-label">Price</label>
-                <input :id="`item-price-${index}`" type="number" placeholder="Price" v-model.number="item.price">
-              </div>
+              <input type="text" placeholder="Description" v-model="item.description">
+              <input type="number" placeholder="Qty" v-model.number="item.quantity">
+              <input type="number" placeholder="Price" v-model.number="item.price">
               <button class="delete-item-btn" @click="removeItem(index)">
                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
               </button>
@@ -304,7 +295,6 @@ const createAndCheckout = async () => {
     display: grid; 
     grid-template-columns: 1fr 1fr; 
     gap: 2rem;
-    color: #555;
 }
 .address-grid-city-state { 
     display: grid; 
@@ -326,22 +316,6 @@ input, textarea {
   gap: 1rem;
   align-items: center;
   margin-bottom: 1rem;
-}
-.item-field {
-    display: contents;
-}
-
-/* By default, item labels are for screen readers only */
-.item-label {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
 }
 
 .delete-item-btn, .add-item-btn {
@@ -441,58 +415,6 @@ input, textarea {
   .responsive-grid { grid-template-columns: 1fr; }
   .items-list .item-row {
     grid-template-columns: 2fr 1fr 1fr auto;
-  }
-}
-
-@media (max-width: 768px) {
-  .item-field {
-    display: block;
-  }
-  
-  /* On mobile, make the labels visible */
-  .item-label {
-    position: static;
-    width: auto;
-    height: auto;
-    padding: 0;
-    margin: 0 0 0.25rem 0;
-    overflow: visible;
-    clip: auto;
-    white-space: normal;
-    display: block;
-    font-weight: 500;
-    font-size: 0.875rem;
-    color: #555;
-  }
-
-  .items-list .item-row {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #eee;
-    margin-bottom: 1rem;
-  }
-
-  .items-list .item-row:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-
-  .items-list .item-row input {
-    margin-bottom: 0;
-  }
-  
-  .delete-item-btn {
-    grid-row: 4;
-    justify-self: end;
-    background-color: #fce8e8;
-    color: #c53030;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-  }
-
-  .delete-item-btn svg {
-      color: #c53030;
   }
 }
 
