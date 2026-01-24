@@ -40,20 +40,46 @@ const downloadPDF = async () => {
     return;
   }
 
+  // Create a clone of the invoice template to be rendered off-screen
+  const clone = templateEl.cloneNode(true);
+  
+  // Create a container for the clone that will force it to a specific width
+  const pdfContainer = document.createElement('div');
+  
+  // Style the container to be off-screen and have a fixed width
+  pdfContainer.style.position = 'fixed';
+  pdfContainer.style.left = '-9999px';
+  pdfContainer.style.top = '0';
+  pdfContainer.style.width = '816px'; // 8.5 inches at 96 DPI
+  pdfContainer.style.height = 'auto';
+  pdfContainer.style.zIndex = '-1';
+  pdfContainer.style.backgroundColor = 'white'; // Ensure a white background for the canvas
+
+  // Append the cloned element to the container, and the container to the document body
+  pdfContainer.appendChild(clone);
+  document.body.appendChild(pdfContainer);
+
   try {
-    const canvas = await html2canvas(templateEl, { scale: 2, useCORS: true });
+    const canvas = await html2canvas(clone, { // Capture the clone, not the original element
+      scale: 2, 
+      useCORS: true,
+      windowWidth: pdfContainer.scrollWidth,
+      windowHeight: pdfContainer.scrollHeight
+    });
+
     const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
 
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
     const canvasAspectRatio = canvas.height / canvas.width;
     
-    let imgWidth = pdfWidth - 40; // Padding
+    let imgWidth = pdfWidth - 40; // 20pt padding on each side
     let imgHeight = imgWidth * canvasAspectRatio;
 
+    // If the image height exceeds the page height, scale it down
     if (imgHeight > pdfHeight - 40) {
-        imgHeight = pdfHeight - 40;
+        imgHeight = pdfHeight - 40; // 20pt padding on top/bottom
         imgWidth = imgHeight / canvasAspectRatio;
     }
 
@@ -65,6 +91,9 @@ const downloadPDF = async () => {
 
   } catch (err) {
     console.error("Error generating PDF:", err);
+  } finally {
+    // Clean up by removing the temporary container from the body
+    document.body.removeChild(pdfContainer);
   }
 };
 

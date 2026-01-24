@@ -11,7 +11,7 @@ Swift Invoice is a web application designed to simplify the invoicing process fo
 - **Delete Invoices**: Users can delete invoices from the dashboard with a confirmation step.
 - **Payment Failure Handling**: Invoices are automatically deleted from the database if the corresponding Stripe payment fails or is canceled, preventing unpaid invoices.
 - **Real-time Calculations**: The invoice editor provides real-time calculations for subtotals, taxes, and totals.
-- **PDF Generation**: Users can download PDF versions of their invoices for their records.
+- **PDF Generation**: Users can download PDF versions of their invoices for their records. The PDF generation is now fixed to always render in a letter-sized format.
 - **Stripe Integration**: A seamless payment flow that charges a $1 fee for creating a new invoice.
 - **Dashboard**: A central dashboard to view and manage all invoices.
 - **User Settings**: A dedicated page for users to manage their company information and default settings.
@@ -43,10 +43,9 @@ The user journey is designed to be simple and straightforward:
 
 ## Current Implementation Plan
 
-- **Objective**: Improve the application's SEO by adding dynamic meta tags.
+- **Objective**: Fix the PDF download issue where the PDF was being rendered in a mobile view on smaller devices.
 - **Key Changes**:
-    - **Installed `@vueuse/head`**: Added the `@vueuse/head` library to manage the document head.
-    - **Configured `main.js`**: Updated the main application entry point to use the `createHead()` plugin.
-    - **Created `useMeta` Composable**: A new composable was created at `src/composables/useMeta.js` to provide a reusable function for setting the title and meta description.
-    - **Implemented in `LandingPage.vue`**: The `useMeta` composable was used in the `LandingPage.vue` component to set a unique title and description, making it more search-engine friendly.
+    - **Updated `InvoiceView.vue`**: The `downloadPDF` function in `src/components/InvoiceView.vue` has been modified.
+    - **Off-Screen Rendering**: The new implementation creates a clone of the invoice template and renders it off-screen in a container with a fixed width of 816px (equivalent to 8.5 inches at 96 DPI).
+    - **Consistent PDF Layout**: This ensures that the PDF is always generated with a standard, letter-sized layout, regardless of the user's screen size.
 - **Status**: Completed.
