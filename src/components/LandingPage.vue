@@ -28,7 +28,8 @@
       <section class="hero">
         <div class="container">
           <div class="hero-content">
-            <h1 class="hero-title">Stop Chasing Payments. Start Getting Paid in Seconds.</h1>
+            <h1 class="hero-title">Stop Chasing Payments.</h1>
+            <h1 class="hero-title">Start Getting Paid in Seconds.</h1>
             <p class="hero-subtitle">Create, download, and track professional invoices in minutes. Focus on your work, not your paperwork.</p>
             <div><v-btn @click="openDemo">Try the tour</v-btn></div>
             <v-btn to="/register" color="primary" x-large rounded class="mt-8">Get Started for Free</v-btn>
