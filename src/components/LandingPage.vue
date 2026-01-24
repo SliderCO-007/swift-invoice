@@ -28,8 +28,9 @@
       <section class="hero">
         <div class="container">
           <div class="hero-content">
-            <h1 class="hero-title">Invoicing Made Effortless</h1>
+            <h1 class="hero-title">Stop Chasing Payments. Start Getting Paid in Seconds.</h1>
             <p class="hero-subtitle">Create, download, and track professional invoices in minutes. Focus on your work, not your paperwork.</p>
+            <div><v-btn @click="openDemo">Try the tour</v-btn></div>
             <v-btn to="/register" color="primary" x-large rounded class="mt-8">Get Started for Free</v-btn>
             <p class="hero-caption">No subscriptions. No hidden fees.</p>
           </div>
@@ -128,6 +129,11 @@ useMeta(
   'Swift Invoice | Invoicing Made Effortless',
   'Create, download, and track professional invoices in minutes with Swift Invoice. No subscriptions, no hidden fees. Just simple, pay-per-invoice pricing.'
 );
+
+const openDemo = () => {
+    Supademo.open('cmkrp6y3v0hcs12hh5ytkggnx');
+}
+
 </script>
 
 <style scoped>
