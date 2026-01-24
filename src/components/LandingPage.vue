@@ -239,37 +239,42 @@ main section[id] {
 /* Hero Section */
 .hero {
   padding: 6rem 0;
-  background-color: #fff;
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/hero_background.png') no-repeat center center;
+  background-size: cover;
+  color: #fff;
   text-align: center;
+  position: relative;
 }
 
 .hero .container {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  z-index: 2;
 }
 
 .hero-content {
-  max-width: 600px;
+  max-width: 800px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
 .hero-title {
-  font-size: 3.5rem;
+  font-size: 4rem;
   font-weight: 700;
   line-height: 1.2;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .hero-subtitle {
-  font-size: 1.2rem;
-  color: #555;
-  margin-bottom: 2rem;
+  font-size: 1.25rem;
+  margin-bottom: 2.5rem;
 }
 
 .hero-caption {
-    font-size: 0.9rem;
-    color: #777;
-    margin-top: 1rem;
+    font-size: 1rem;
+    margin-top: 1.5rem;
+    opacity: 0.9;
 }
 
 /* Features Section */
@@ -464,15 +469,15 @@ main section[id] {
   }
 
   .hero {
-    padding: 4rem 0;
+    padding: 4rem 1rem;
   }
 
   .hero-title {
-    font-size: 2.5rem;
+    font-size: 3rem;
   }
 
   .hero-subtitle {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
 
   .features, .how-it-works {
