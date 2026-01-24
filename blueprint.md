@@ -28,7 +28,7 @@ The user journey is designed to be simple and straightforward:
 ## Design and Styling
 
 - **Layout**: A clean and modern design with a responsive layout that works on both desktop and mobile devices.
-- **Landing Page**: The landing page has been updated to reflect the free registration model and includes a "How It Works" section to guide new users.
+- **Landing Page**: The landing page has been updated to reflect the free registration model and includes a "How It Works" section to guide new users. Animated GIFs have been added to each step of the "How It Works" section to visually demonstrate the process.
 - **Color Scheme**: A professional color palette with a primary color of `#4F46E5` and a clean, white background.
 - **Typography**: Clear and legible typography with a focus on readability.
 - **Components**: Custom-styled components for buttons, forms, and modals to ensure a consistent user experience.
@@ -43,9 +43,9 @@ The user journey is designed to be simple and straightforward:
 
 ## Current Implementation Plan
 
-- **Objective**: Fix the PDF download issue where the PDF was being rendered in a mobile view on smaller devices.
+- **Objective**: Add an animated GIF to each step of the "How It Works" section on the landing page to visually guide users.
 - **Key Changes**:
-    - **Updated `InvoiceView.vue`**: The `downloadPDF` function in `src/components/InvoiceView.vue` has been modified.
-    - **Off-Screen Rendering**: The new implementation creates a clone of the invoice template and renders it off-screen in a container with a fixed width of 816px (equivalent to 8.5 inches at 96 DPI).
-    - **Consistent PDF Layout**: This ensures that the PDF is always generated with a standard, letter-sized layout, regardless of the user's screen size.
+    - **Updated `LandingPage.vue`**: `<img>` tags were added to the `LandingPage.vue` component under the "Step 1", "Step 2", and "Step 3" cards.
+    - **Image Sources**: The GIFs are located at `/click_getStarted.gif` (for Step 1), `/click_manageSettings.gif` (for Step 2), and `/click_firstInvoice.gif` (for Step 3).
+    - **Styling**: The `.step-card` and `.step-description` classes were updated to ensure the GIFs are horizontally aligned at the bottom of each card.
 - **Status**: Completed.

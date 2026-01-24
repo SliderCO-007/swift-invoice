@@ -77,16 +77,19 @@
               <div class="step-number">1</div>
               <h3 class="step-title">Create Your Free Account</h3>
               <p class="step-description">Sign up in seconds with just your email and password. No credit card required.</p>
+              <img src="/click_getStarted.gif" alt="Get Started GIF" class="step-gif" />
             </div>
             <div class="step-card">
               <div class="step-number">2</div>
               <h3 class="step-title">Set Up Your Business</h3>
               <p class="step-description">Enter your company details and upload your logo in the user settings to personalize your invoices.</p>
+              <img src="/click_manageSettings.gif" alt="Manage Settings GIF" class="step-gif" />
             </div>
             <div class="step-card">
               <div class="step-number">3</div>
               <h3 class="step-title">Create Your First Invoice</h3>
               <p class="step-description">Build and send your first professional invoice for just $1. It's that simple.</p>
+              <img src="/click_firstInvoice.gif" alt="Create First Invoice GIF" class="step-gif" />
             </div>
           </div>
           <div class="get-started-cta">
@@ -347,6 +350,7 @@ main section[id] {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: space-between;
 }
 
 .step-number {
@@ -373,6 +377,14 @@ main section[id] {
 .step-description {
     color: #555;
     max-width: 300px;
+    margin-bottom: auto;
+}
+
+.step-gif {
+  margin-top: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  max-width: 100%;
 }
 
 .get-started-cta {
