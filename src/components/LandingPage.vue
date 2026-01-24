@@ -1,120 +1,92 @@
 <template>
-  <div class="landing-page">
-    <header class="header">
-      <div class="container">
-        <div class="logo">
-          <Logo />
-          <span>Swift Invoice</span>
-        </div>
-        <nav class="nav desktop-nav">
+  <div class="landing-container">
+    <header class="main-header">
+      <div class="header-content">
+        <Logo />
+        <nav class="desktop-nav">
           <a href="#features">Features</a>
-          <a href="#how-it-works">How It Works</a>
-          <router-link to="/login">Login</router-link>
+          <a href="#pricing">Pricing</a>
+          <a href="#" @click.prevent="openDemo">Watch Demo</a>
+          <router-link to="/dashboard" class="cta-button">Get Started</router-link>
         </nav>
-        <v-btn to="/register" color="primary" large rounded class="desktop-nav">Get Started for Free</v-btn>
         <button class="mobile-nav-toggle" @click="isMobileNavOpen = !isMobileNavOpen">
           <IconMenu />
         </button>
       </div>
-      <nav class="mobile-nav" :class="{ 'is-open': isMobileNavOpen }">
-        <a href="#features" @click="isMobileNavOpen = false">Features</a>
-        <a href="#how-it-works" @click="isMobileNavOpen = false">How It Works</a>
-        <router-link to="/login" @click="isMobileNavOpen = false">Login</router-link>
-        <v-btn to="/register" color="primary" large rounded>Get Started for Free</v-btn>
-      </nav>
     </header>
 
+    <div v-if="isMobileNavOpen" class="mobile-nav">
+      <a href="#features" @click="isMobileNavOpen = false">Features</a>
+      <a href="#pricing" @click="isMobileNavOpen = false">Pricing</a>
+      <a href="#" @click.prevent="openDemo(); isMobileNavOpen = false">Watch Demo</a>
+      <router-link to="/dashboard" class="cta-button" @click="isMobileNavOpen = false">Get Started</router-link>
+    </div>
+
     <main>
-      <section class="hero">
-        <div class="container">
-          <div class="hero-content">
-            <h1 class="hero-title">Stop Chasing Payments. Start Getting Paid in Seconds.</h1>
-            <p class="hero-subtitle">Create, download, and track professional invoices in minutes. Focus on your work, not your paperwork.</p>
-            <div><v-btn @click="openDemo">Try the tour</v-btn></div>
-            <v-btn to="/register" color="primary" x-large rounded class="mt-8">Get Started for Free</v-btn>
-            <p class="hero-caption">No subscriptions. No hidden fees.</p>
+      <section class="hero-section">
+        <div class="hero-content">
+          <h1 class="hero-title">Stop Chasing Payments.</h1>
+          <h1 class="hero-title">Start Getting Paid in Seconds.</h1>
+          <p class="hero-subtitle">Create, download, and track professional invoices in minutes. No subscriptions, no hidden fees. Just simple, pay-per-invoice pricing.</p>
+          <div class="hero-actions">
+            <router-link to="/dashboard" class="cta-button-large">Create First Invoice</router-link>
+          </div>
+        </div>
+
+      </section>
+      
+      <section id="features" class="features-section">
+        <h2 class="section-title">Everything You Need, Nothing You Don't</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <IconPDF />
+            <h3>PDF Invoices</h3>
+            <p>Generate professional, pixel-perfect PDF invoices that you can download or send directly to your clients.</p>
+          </div>
+          <div class="feature-card">
+            <IconEmail />
+            <h3>Email Tracking</h3>
+            <p>Know when your invoice has been viewed with our simple email tracking feature, helping you stay on top of payments.</p>
+          </div>
+          <div class="feature-card">
+            <IconAnalytics />
+            <h3>Simple Analytics</h3>
+            <p>Keep track of your income and paid invoices with a clean and simple dashboard. No complex accounting software needed.</p>
           </div>
         </div>
       </section>
 
-      <section id="features" class="features">
-        <div class="container">
-          <h2 class="section-title">Everything you need, nothing you don't.</h2>
-          <p class="section-subtitle">Swift Invoice is packed with features to help you get paid faster.</p>
-          <div class="features-grid">
-            <div class="feature-card">
-              <div class="feature-icon">
-                <IconPDF />
-              </div>
-              <h3 class="feature-title">Simple Pricing</h3>
-              <p class="feature-description">Just $1 per invoice. No subscriptions, no setup fees, and no hidden costs. Ever.</p>
-            </div>
-            <div class="feature-card">
-              <div class="feature-icon">
-                <IconEmail />
-              </div>
-              <h3 class="feature-title">Download & Share Instantly</h3>
-              <p class="feature-description">Generate and download a professional, high-resolution PDF of your invoice the moment you create it. Ready to send to your clients immediately.</p>
-              <v-btn href="/Invoice-00000009.pdf" download color="secondary" rounded class="mt-4">Download Sample</v-btn>
-            </div>
-            <div class="feature-card">
-              <div class="feature-icon">
-                <IconAnalytics />
-              </div>
-              <h3 class="feature-title">At-a-Glance Tracking</h3>
-              <p class="feature-description">The dashboard gives you a clear overview of all your invoices. See which invoices are paid, pending, or overdue in a single glance.</p>
-              <v-btn @click="showDashboardPreview = true" color="secondary" rounded class="mt-4">Preview Dashboard</v-btn>
-            </div>
+      <section id="pricing" class="pricing-section">
+        <div class="pricing-content">
+          <h2 class="section-title">Simple, Transparent Pricing</h2>
+          <p class="section-subtitle">Only pay for what you use. Perfect for freelancers and small businesses.</p>
+          <div class="price-card">
+            <span class="price-amount">$1</span>
+            <span class="price-description">per invoice sent</span>
           </div>
-        </div>
-      </section>
-
-      <section id="how-it-works" class="how-it-works">
-        <div class="container">
-          <h2 class="section-title">Get Started in 3 Easy Steps</h2>
-          <div class="steps-container">
-            <div class="step-card">
-              <div class="step-number">1</div>
-              <h3 class="step-title">Create Your Free Account</h3>
-              <p class="step-description">Sign up in seconds with just your email and password. No credit card required.</p>
-            </div>
-            <div class="step-card">
-              <div class="step-number">2</div>
-              <h3 class="step-title">Set Up Your Business</h3>
-              <p class="step-description">Enter your company details and upload your logo in the user settings to personalize your invoices.</p>
-            </div>
-            <div class="step-card">
-              <div class="step-number">3</div>
-              <h3 class="step-title">Create Your First Invoice</h3>
-              <p class="step-description">Build and send your first professional invoice for just $1. It's that simple.</p>
-            </div>
-          </div>
-          <div class="get-started-cta">
-             <v-btn to="/register" color="primary" x-large rounded class="mt-8">Sign Up Now</v-btn>
-          </div>
+          <router-link to="/dashboard" class="cta-button-large">Start Invoicing Now</router-link>
         </div>
       </section>
     </main>
 
-    <footer class="footer">
-      <div class="container">
-        <p>&copy; 2026 Swift Invoice. All rights reserved. | <a href="mailto:support@swiftinvoice.biz">support@swiftinvoice.biz</a></p>
-      </div>
+    <footer class="main-footer-bottom">
+      <p>&copy; {{ new Date().getFullYear() }} Swift Invoice. All Rights Reserved.</p>
     </footer>
-
-    <div v-if="showDashboardPreview" class="modal-overlay" @click.self="showDashboardPreview = false">
-      <div class="modal-content">
-        <img src="/dashboardPreview.png" alt="Dashboard Preview" />
-        <v-btn @click="showDashboardPreview = false" icon class="modal-close">
-           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"/></svg>
-        </v-btn>
+    
+    <div v-if="showDashboardPreview" class="preview-modal" @click="showDashboardPreview = false">
+      <div class="modal-content" @click.stop>
+        <header class="modal-header">
+          <h3>Dashboard Preview</h3>
+          <button @click="showDashboardPreview = false" class="close-modal-btn">&times;</button>
+        </header>
+        <img src="https://storage.googleapis.com/proud-booth-333423.appspot.com/static/invoice-hero-image.png" alt="Dashboard Preview" class="dashboard-preview-image"/>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useMeta } from '../composables/useMeta';
 import Logo from './Logo.vue';
 import IconPDF from './IconPDF.vue';
@@ -125,359 +97,405 @@ import IconMenu from './IconMenu.vue';
 const isMobileNavOpen = ref(false);
 const showDashboardPreview = ref(false);
 
+// --- Mobile detection logic ---
+const windowWidth = ref(window.innerWidth);
+
+const onResize = () => {
+  windowWidth.value = window.innerWidth;
+};
+
+onMounted(() => {
+  window.addEventListener('resize', onResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', onResize);
+});
+
+const isMobile = computed(() => windowWidth.value < 768);
+
 useMeta(
   'Swift Invoice | Invoicing Made Effortless',
   'Create, download, and track professional invoices in minutes with Swift Invoice. No subscriptions, no hidden fees. Just simple, pay-per-invoice pricing.'
 );
 
-const openDemo = () => {
-    Supademo.open('cmkrp6y3v0hcs12hh5ytkggnx');
-}
-
 </script>
 
+
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-
-main section[id] {
-  scroll-margin-top: 100px; /* Adjust this value to match your header height */
+/* General Styles */
+.landing-container {
+  font-family: 'Inter', sans-serif;
+  background-color: #ffffff;
+  color: #111827;
 }
 
-.landing-page {
-  font-family: 'Poppins', sans-serif;
-  background-color: #f8f9fa;
-  color: #333;
+a {
+  text-decoration: none;
+  color: #374151;
+  transition: color 0.2s ease;
 }
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
+a:hover {
+  color: #4F46E5;
 }
 
 /* Header */
-.header {
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  padding: 1rem 0;
+.main-header {
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #E5E7EB;
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 10;
+  padding: 1rem 2rem;
 }
 
-.header .container {
+.header-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  max-width: 1280px;
+  margin: 0 auto;
 }
 
-.logo {
-  display: flex;
-  align-items: center;
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.logo span {
-  margin-left: 0.5rem;
-}
-
-.nav a {
-  margin: 0 1rem;
-  text-decoration: none;
-  color: #555;
-  font-weight: 600;
-  transition: color 0.3s ease;
-}
-
-.nav a:hover {
-  color: #007bff;
-}
-
-/* Mobile Navigation */
-.mobile-nav-toggle {
+.desktop-nav {
   display: none;
+  align-items: center;
+  gap: 1.5rem;
+  font-weight: 500;
+}
+
+@media (min-width: 768px) {
+  .desktop-nav { display: flex; }
+}
+
+.cta-button {
+  background-color: #4F46E5;
+  color: #ffffff;
+  padding: 0.6rem 1.2rem;
+  border-radius: 20px;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.cta-button:hover {
+  background-color: #4338CA;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.mobile-nav-toggle {
+  display: block;
   background: none;
   border: none;
   cursor: pointer;
-  color: #333;
-  font-size: 1.5rem;
+  color: #111827;
+}
+
+@media (min-width: 768px) {
+  .mobile-nav-toggle { display: none; }
 }
 
 .mobile-nav {
-  display: none;
+  display: flex;
   flex-direction: column;
-  background-color: #fff;
+  gap: 1rem;
+  padding: 1rem 2rem 2rem;
+  border-bottom: 1px solid #E5E7EB;
+  background-color: #ffffff;
   position: absolute;
-  top: 100%;
+  top: 69px;
   left: 0;
   right: 0;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  padding: 1rem;
-}
-
-.mobile-nav.is-open {
-  display: flex;
+  z-index: 9;
 }
 
 .mobile-nav a {
-  padding: 1rem;
+  font-weight: 500;
+  padding: 0.5rem;
+  border-radius: 6px;
+}
+
+.mobile-nav .cta-button {
   text-align: center;
-  text-decoration: none;
-  color: #333;
-  font-weight: 600;
+  margin-top: 0.5rem;
 }
-
-.mobile-nav .v-btn {
-  margin-top: 1rem;
-}
-
 
 /* Hero Section */
-.hero {
-  padding: 6rem 0;
-  background-color: #fff;
-  text-align: center;
+.hero-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: center;
+  padding: 4rem 2rem;
+  max-width: 1280px;
+  margin: 0 auto;
 }
 
-.hero .container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+@media (min-width: 1024px) {
+  .hero-section {
+    grid-template-columns: 1fr 1fr;
+    padding: 6rem 2rem;
+  }
 }
 
 .hero-content {
-  max-width: 600px;
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .hero-content { text-align: left; }
 }
 
 .hero-title {
-  font-size: 3.5rem;
-  font-weight: 700;
+  font-size: 2.5rem;
+  font-weight: 800;
   line-height: 1.2;
   margin-bottom: 1rem;
+  color: #111827;
+}
+
+@media (min-width: 768px) {
+  .hero-title {
+    font-size: 3.5rem;
+  }
 }
 
 .hero-subtitle {
-  font-size: 1.2rem;
-  color: #555;
-  margin-bottom: 2rem;
+  font-size: 1.1rem;
+  color: #4B5563;
+  max-width: 600px;
+  margin: 0 auto 2rem;
 }
 
-.hero-caption {
-    font-size: 0.9rem;
-    color: #777;
-    margin-top: 1rem;
+@media (min-width: 1024px) {
+  .hero-subtitle { margin: 0 0 2rem; }
+}
+
+.hero-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .hero-actions { 
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-actions { justify-content: flex-start; }
+}
+
+.cta-button-large {
+  background-color: #4F46E5;
+  color: #ffffff;
+  padding: 1rem 2rem;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  width: 100%;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .cta-button-large { width: auto; }
+}
+
+.cta-button-large:hover {
+  background-color: #4338CA;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.secondary-button-large {
+  background-color: transparent;
+  color: #4F46E5;
+  border: 1px solid #E5E7EB;
+  padding: 1rem 2rem;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .secondary-button-large { width: auto; }
+}
+
+.secondary-button-large:hover {
+  background-color: #F3F4F6;
+  transform: translateY(-2px);
+}
+
+.hero-image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out;
+}
+
+.hero-image:hover {
+  transform: scale(1.03);
 }
 
 /* Features Section */
-.features {
-  padding: 6rem 0;
+.features-section {
+  padding: 4rem 2rem;
+  background-color: #F9FAFB;
+  text-align: center;
 }
 
 .section-title {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 700;
-  text-align: center;
-  margin-bottom: 1rem;
-}
-
-.section-subtitle {
-  font-size: 1.2rem;
-  color: #555;
-  text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: 2rem;
 }
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr;
   gap: 2rem;
+  max-width: 1024px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .features-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .feature-card {
-  background-color: #fff;
-  padding: 2.5rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-.feature-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-}
-
-.feature-icon {
-    font-size: 3rem;
-    margin-bottom: 1.5rem;
-    color: #007bff;
-}
-
-.feature-title {
-  font-size: 1.5rem;
-  font-weight: 600;
+.feature-card svg {
+  color: #4F46E5;
   margin-bottom: 1rem;
 }
 
-.feature-description {
-  color: #555;
-  margin-bottom: auto;
+.feature-card h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
 }
 
-/* How It Works Section */
-.how-it-works {
-    padding: 6rem 0;
-    background-color: #fff;
+.feature-card p {
+  color: #6B7280;
 }
 
-.steps-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 3rem;
-    max-width: 1000px;
-    margin: 4rem auto;
-    text-align: center;
-}
-
-.step-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.step-number {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background-color: var(--primary-color);
-    color: #fff;
-    font-size: 2rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 4px 10px rgba(74, 144, 226, 0.4);
-}
-
-.step-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-}
-
-.step-description {
-    color: #555;
-    max-width: 300px;
-}
-
-.get-started-cta {
-    text-align: center;
-}
-
-
-/* Footer */
-.footer {
-  background-color: #333;
-  color: #fff;
-  padding: 2rem 0;
+/* Pricing Section */
+.pricing-section {
+  padding: 4rem 2rem;
   text-align: center;
 }
 
-.footer a {
-  color: #fff;
-  text-decoration: none;
+.section-subtitle {
+  font-size: 1.1rem;
+  color: #6B7280;
+  margin-bottom: 2rem;
 }
 
-.footer a:hover {
-  text-decoration: underline;
+.price-card {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #F9FAFB;
+  padding: 2rem 4rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
 }
 
-/* Modal */
-.modal-overlay {
+.price-amount {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #4F46E5;
+}
+
+.price-description {
+  font-size: 1rem;
+  color: #6B7280;
+  font-weight: 500;
+}
+
+/* Footer */
+.main-footer-bottom {
+  padding: 2rem;
+  text-align: center;
+  background-color: #F9FAFB;
+  color: #6B7280;
+  border-top: 1px solid #E5E7EB;
+}
+
+/* Preview Modal */
+.preview-modal {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
+  width: 100%;
+  height: 100%;
   background: rgba(0, 0, 0, 0.7);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   z-index: 1000;
+  padding: 1rem;
 }
 
 .modal-content {
-  background: #fff;
-  padding: 20px;
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 1000px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.close-modal-btn {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #333;
+}
+
+.dashboard-preview-image {
+  width: 100%;
   border-radius: 8px;
-  position: relative;
-  max-width: 90%;
-  max-height: 90%;
 }
 
-.modal-content img {
-  max-width: 100%;
-  max-height: 80vh;
-  display: block;
-}
-
-.modal-close {
-    position: absolute;
-    top: -10px;
-    right: -10px;
-    background-color: #fff;
-    color: #555;
-    border-radius: 50%;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-}
-
-
-/* Responsive Styles */
-@media (max-width: 768px) {
-  .desktop-nav {
-    display: none;
-  }
-
-  .mobile-nav-toggle {
-    display: block;
-  }
-  
-  .container {
-      padding: 0 1rem;
-  }
-
-  .hero {
-    padding: 4rem 0;
-  }
-
-  .hero-title {
-    font-size: 2.5rem;
-  }
-
-  .hero-subtitle {
-    font-size: 1rem;
-  }
-
-  .features, .how-it-works {
-    padding: 4rem 0;
-  }
-
-  .features-grid, .steps-container {
-    grid-template-columns: 1fr;
-  }
-
-  .section-title {
-    font-size: 2rem;
-  }
-  
-  .section-subtitle {
-      font-size: 1rem;
-      margin-bottom: 2rem;
-  }
-}
 </style>
