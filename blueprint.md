@@ -7,6 +7,7 @@ Swift Invoice is a web application designed to simplify the invoicing process fo
 ## Core Features
 
 - **User Authentication**: Secure and free user registration and login functionality using Firebase Authentication.
+- **Google One-Click Sign-In**: Users can register and log in using their Google account for a faster and more convenient experience.
 - **Invoice Management**: Create, edit, and view invoices with a user-friendly interface.
 - **Delete Invoices**: Users can delete invoices from the dashboard with a confirmation step.
 - **Payment Failure Handling**: Invoices are automatically deleted from the database if the corresponding Stripe payment fails or is canceled, preventing unpaid invoices.
@@ -21,7 +22,7 @@ Swift Invoice is a web application designed to simplify the invoicing process fo
 ## Onboarding and User Flow
 
 The user journey is designed to be simple and straightforward:
-1.  **Create a Free Account**: Users sign up quickly with just an email and password. No credit card is required at sign-up.
+1.  **Create a Free Account**: Users sign up quickly with just their email and password or by using the one-click Google Sign-In option. No credit card is required at sign-up.
 2.  **Set Up Business Details**: After registering, users are guided to the user settings page to input their company information, which will be used to personalize invoices.
 3.  **Create First Invoice**: Users can then create their first professional invoice and pay the $1 fee upon creation.
 
@@ -45,8 +46,8 @@ The user journey is designed to be simple and straightforward:
 
 ## Current Implementation Plan
 
-- **Objective**: Adjust the hero text position for better visual balance.
+- **Objective**: Implement Google one-click sign-in for user registration.
 - **Key Changes**:
-    - **Updated `LandingPage.vue`**: Modified the padding of the `.hero` class.
-    - **Vertical Alignment**: Changed the top and bottom padding from `8rem` to `6rem` to move the hero text higher on the page.
+    - **Updated `RegisterPage.vue`**: Added a "Sign up with Google" button and the corresponding `handleGoogleSignIn` method. The new button is styled to match the existing one on the login page and includes a separator for visual clarity.
+    - **Updated `useAuth.js`**: Imported `signInWithGoogle` into the `RegisterPage.vue` component to handle the authentication flow.
 - **Status**: Completed.
