@@ -12,7 +12,7 @@ Swift Invoice is a web application designed to simplify the invoicing process fo
 - **Delete Invoices**: Users can delete invoices from the dashboard with a confirmation step.
 - **Payment Failure Handling**: Invoices are automatically deleted from the database if the corresponding Stripe payment fails or is canceled, preventing unpaid invoices.
 - **Real-time Calculations**: The invoice editor provides real-time calculations for subtotals, taxes, and totals.
-- **PDF Generation**: Users can download PDF versions of their invoices for their records. The PDF generation is now fixed to always render in a letter-sized format.
+- **High-Quality PDF Generation**: Users can download crystal-clear, professionally styled PDF versions of their invoices. The rendering process is fine-tuned for maximum resolution (4x scale) and sharpness, with compact font sizes to accommodate detailed descriptions.
 - **Stripe Integration**: A seamless payment flow that charges a $1 fee for creating a new invoice.
 - **Dashboard**: A central dashboard to view and manage all invoices.
 - **User Settings**: A dedicated page for users to manage their company information and default settings.
@@ -29,6 +29,7 @@ The user journey is designed to be simple and straightforward:
 ## Design and Styling
 
 - **Layout**: A clean and modern design with a responsive layout that works on both desktop and mobile devices.
+- **PDF Invoice Template**: The invoice PDF has been meticulously styled with reduced padding and compact font sizes for a polished, space-efficient layout. The rendering quality has been maximized for exceptionally sharp text.
 - **Landing Page**: 
     - The landing page has been updated to reflect the free registration model and includes a "How It Works" section to guide new users. Animated GIFs have been added to each step of the "How It Works" section to visually demonstrate the process.
     - The hero section now features a background image (`hero_background.png`) with a semi-transparent overlay to ensure text readability. The hero text is now white with a subtle shadow to make it stand out against the new background.
@@ -46,8 +47,8 @@ The user journey is designed to be simple and straightforward:
 
 ## Current Implementation Plan
 
-- **Objective**: Implement Google one-click sign-in for user registration.
+- **Objective**: Finalize PDF styling for maximum sharpness and space for content.
 - **Key Changes**:
-    - **Updated `RegisterPage.vue`**: Added a "Sign up with Google" button and the corresponding `handleGoogleSignIn` method. The new button is styled to match the existing one on the login page and includes a separator for visual clarity.
-    - **Updated `useAuth.js`**: Imported `signInWithGoogle` into the `RegisterPage.vue` component to handle the authentication flow.
+    - **Updated `InvoiceTemplate.vue`**: Applied a final reduction to font sizes across the component to ensure a highly compact and professional layout suitable for detailed line items.
+    - **Updated `InvoiceView.vue`**: Increased the `html2canvas` `scale` property from `3` to `4`. This produces the highest resolution canvas image, resulting in exceptionally sharp and clear text in the final PDF.
 - **Status**: Completed.

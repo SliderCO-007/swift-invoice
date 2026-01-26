@@ -19,7 +19,6 @@ const taxAmount = computed(() => props.invoice.taxAmount || 0);
 const total = computed(() => props.invoice.total || 0);
 
 const formatDate = (date) => {
-  // The 'date' prop is now guaranteed to be a Date object or null by the useInvoices composable.
   if (date && isValid(date)) {
     return format(date, 'MMMM d, yyyy');
   }
@@ -118,46 +117,46 @@ const formatCurrency = (value) => {
 <style scoped>
 .invoice-paper {
   background: var(--white-color, #fff);
-  border-radius: 15px;
-  padding: 4rem;
+  border-radius: 12px;
+  padding: 2.5rem; 
   box-shadow: var(--shadow-md);
   font-family: 'Poppins', sans-serif;
   color: #333;
-  font-size: 16px;
-  line-height: 1.7;
+  font-size: 10px; /* Final base font size reduction */
+  line-height: 1.6;
 }
 
 .company-logo {
-  max-height: 100px;
-  max-width: 250px;
-  margin-bottom: 1.5rem;
+  max-height: 60px; /* Final logo size reduction */
+  max-width: 180px;
+  margin-bottom: 1rem;
 }
 
 .invoice-main-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  border-bottom: 3px solid #eee;
-  padding-bottom: 2.5rem;
-  margin-bottom: 3rem;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 2rem;
+  margin-bottom: 2rem;
 }
 
 .invoice-title {
-  font-size: 3.5rem;
+  font-size: 2rem; /* Final font size reduction */
   font-weight: 700;
   color: var(--text-color, #111827);
   margin: 0;
 }
 
 .invoice-status {
-  padding: 0.5rem 1.2rem;
-  border-radius: 20px;
-  font-size: 1rem;
-  font-weight: 700;
+  padding: 0.3rem 0.8rem;
+  border-radius: 14px;
+  font-size: 0.75rem; /* Final font size reduction */
+  font-weight: 600;
   text-transform: uppercase;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   display: inline-block;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.5px;
 }
 
 .status-paid { background-color: #D4EDDA; color: #155724; }
@@ -166,22 +165,22 @@ const formatCurrency = (value) => {
 
 .sender-details {
   text-align: right;
-  font-size: 1.1rem;
+  font-size: 0.85rem; /* Final font size reduction */
 }
 .sender-details p { margin: 0; }
 
 .invoice-meta-details {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 3rem;
-  font-size: 1.1rem;
+  margin-bottom: 2.5rem;
+  font-size: 0.85rem; /* Final font size reduction */
 }
 
 .client-details h2, .invoice-footer h2 {
-  font-size: 1.8rem;
+  font-size: 1.1rem; /* Final font size reduction */
   font-weight: 600;
   color: var(--text-color, #111827);
-  margin-bottom: 1rem;
+  margin-bottom: 0.7rem;
 }
 
 .client-details p { margin: 0; }
@@ -190,30 +189,30 @@ const formatCurrency = (value) => {
   text-align: right;
 }
 .invoice-dates p {
-  font-size: 1.2rem;
+  font-size: 0.95rem; /* Final font size reduction */
   font-weight: 600;
-  margin: 0.5rem 0;
+  margin: 0.3rem 0;
 }
 
 .items-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 3rem;
-  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  font-size: 0.85rem; /* Final font size reduction */
 }
 
 .items-table th, .items-table td {
-  padding: 1.5rem;
+  padding: 0.8rem;
   text-align: left;
   border-bottom: 1px solid #eee;
 }
 
 .items-table th {
   background-color: #f9f9f9;
-  font-weight: 700;
-  font-size: 1rem;
+  font-weight: 600;
+  font-size: 0.75rem; /* Final font size reduction */
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
 }
 
 .items-table td:nth-child(2),
@@ -232,36 +231,36 @@ const formatCurrency = (value) => {
 
 .totals {
   width: 100%;
-  max-width: 400px;
+  max-width: 280px;
 }
 
 .total-row {
   display: flex;
   justify-content: space-between;
-  padding: 1rem 0;
-  font-size: 1.3rem;
+  padding: 0.6rem 0;
+  font-size: 0.9rem; /* Final font size reduction */
   font-weight: 600;
 }
 
 .total-row.grand-total {
-  font-size: 2.2rem;
+  font-size: 1.4rem; /* Final font size reduction */
   font-weight: 700;
   color: var(--primary-color, #4A90E2);
-  border-top: 3px solid #eee;
-  margin-top: 1rem;
-  padding-top: 1.5rem;
+  border-top: 2px solid #eee;
+  margin-top: 0.6rem;
+  padding-top: 0.8rem;
 }
 
 .invoice-footer {
-  border-top: 3px solid #eee;
-  margin-top: 3rem;
-  padding-top: 2.5rem;
+  border-top: 2px solid #eee;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
   color: #555;
 }
 
 .invoice-footer p {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 0.85rem; /* Final font size reduction */
 }
 
 .promo-footer {
@@ -269,7 +268,7 @@ const formatCurrency = (value) => {
   margin-top: 2rem;
   padding-top: 1.5rem;
   border-top: 1px solid #eee;
-  font-size: 0.9rem;
+  font-size: 0.7rem; /* Final font size reduction */
   color: #888;
 }
 
@@ -283,12 +282,12 @@ const formatCurrency = (value) => {
   text-decoration: underline;
 }
 
-/* Responsive Styles - Final Robust Fix */
+/* Responsive Styles */
 @media (max-width: 768px) {
   .invoice-paper { padding: 1.5rem; }
   .invoice-main-header, .invoice-meta-details {
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.5rem;
   }
   .sender-details, .invoice-dates {
     text-align: left;
@@ -297,19 +296,19 @@ const formatCurrency = (value) => {
   .items-table thead { display: none; }
   .items-table tr { 
     display: block; 
-    margin-bottom: 1.5rem; 
+    margin-bottom: 1rem; 
     border-bottom: 2px solid #eee; 
-    padding-bottom: 1.5rem; 
+    padding-bottom: 1rem; 
   }
   .items-table tr:last-of-type { border-bottom: none; }
 
   .items-table td {
     display: grid;
-    grid-template-columns: 110px 1fr;
+    grid-template-columns: 100px 1fr;
     gap: 1rem;
     align-items: start;
-    padding: 0.5rem 0;
-    font-size: 1rem;
+    padding: 0.4rem 0;
+    font-size: 0.9rem;
     border-bottom: none;
   }
   .items-table td::before {

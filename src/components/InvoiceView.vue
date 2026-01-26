@@ -61,7 +61,7 @@ const downloadPDF = async () => {
 
   try {
     const canvas = await html2canvas(clone, { // Capture the clone, not the original element
-      scale: 2, 
+      scale: 4, 
       useCORS: true,
       windowWidth: pdfContainer.scrollWidth,
       windowHeight: pdfContainer.scrollHeight
