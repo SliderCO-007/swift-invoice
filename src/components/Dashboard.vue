@@ -1,15 +1,17 @@
 <script setup>
-import { onMounted, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import useAuth from '../composables/useAuth';
 import useInvoices from '../composables/useInvoices';
 import { useMeta } from '../composables/useMeta';
 import { format, isValid } from 'date-fns';
+import InvoiceTable from './InvoiceTable.vue';
 
 const { logout } = useAuth();
 const { invoices, getInvoices, loading, error, deleteInvoice } = useInvoices();
 const router = useRouter();
 
+const viewMode = ref('card'); // 'card' or 'table'
 const today = format(new Date(), 'MMMM d, yyyy');
 
 useMeta(
@@ -27,7 +29,6 @@ const handleLogout = async () => {
 const goToSettings = () => router.push('/settings');
 const createNewInvoice = () => router.push('/invoice/new');
 const goToInvoiceDetails = (id) => {
-  // With the data layer fixed, this check is a safeguard, but the root cause of null IDs is resolved.
   if (!id) {
     console.error("Navigation failed: Invoice ID is null.");
     return; 
@@ -36,11 +37,10 @@ const goToInvoiceDetails = (id) => {
 };
 
 const handleDelete = async (event, invoiceId) => {
-  event.stopPropagation(); // Prevent navigation to invoice details
+  event.stopPropagation();
   if (confirm('Are you sure you want to delete this invoice? This action cannot be undone.')) {
     try {
       await deleteInvoice(invoiceId);
-      // Refresh the invoice list after deletion
       await getInvoices();
     } catch (err) {
       console.error("Failed to delete invoice:", err);
@@ -49,7 +49,6 @@ const handleDelete = async (event, invoiceId) => {
   }
 };
 
-// Simplified and now reliable, as the date object from the composable is guaranteed to be correct.
 const formatDate = (date) => {
   if (date && isValid(date)) {
     return format(date, 'MMM d, yyyy');
@@ -57,13 +56,12 @@ const formatDate = (date) => {
   return 'No due date';
 };
 
-// The computed property is now much simpler as the data from `useInvoices` is clean and reliable.
 const safeInvoices = computed(() => {
   if (!invoices.value) return [];
   return invoices.value.sort((a, b) => {
       const numA = String(a.invoiceNumber || '');
       const numB = String(b.invoiceNumber || '');
-      return numB.localeCompare(numA, undefined, { numeric: true }); // Descending, numeric sort
+      return numB.localeCompare(numA, undefined, { numeric: true });
     });
 });
 
@@ -90,8 +88,18 @@ const safeInvoices = computed(() => {
 
     <main class="dashboard-content">
       <div class="invoices-header">
-        <h2>Your Invoices</h2>
-        <p>A summary of your recent invoices.</p>
+        <div class="invoices-header-title">
+            <h2>Your Invoices</h2>
+            <p>A summary of your recent invoices.</p>
+        </div>
+        <v-btn-toggle v-model="viewMode" mandatory dense background-color="transparent">
+            <v-btn value="card">
+                <v-icon>mdi-view-grid</v-icon>
+            </v-btn>
+            <v-btn value="table">
+                <v-icon>mdi-view-list</v-icon>
+            </v-btn>
+        </v-btn-toggle>
       </div>
 
       <div v-if="loading" class="loading-container">
@@ -107,27 +115,29 @@ const safeInvoices = computed(() => {
           Create Your First Invoice
         </button>
       </div>
-      <div v-else class="invoice-list">
-        <!-- The key and click handler now use `invoice.id` which is guaranteed to be correct -->
-        <div v-for="invoice in safeInvoices" :key="invoice.id" class="invoice-card" @click="goToInvoiceDetails(invoice.id)">
-          <div class="invoice-card-header">
-            <span class="invoice-id">#{{ invoice.invoiceNumber || 'N/A' }}</span>
-            <span :class="['invoice-status', `status-${(invoice.status || 'pending').toLowerCase()}`]">{{ invoice.status || 'pending' }}</span>
-          </div>
-          <div class="invoice-card-body">
-            <p class="client-name">{{ invoice.client?.name || 'N/A' }}</p>
-            <p class="invoice-total">${{ (invoice.total || 0).toFixed(2) }}</p>
-          </div>
-          <div class="invoice-card-footer">
-            <span>
-                <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 0 24 24" width="16px" fill="#777"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
-                Due: {{ formatDate(invoice.dueDate) }}
-            </span>
-            <button class="delete-btn" @click="handleDelete($event, invoice.id)">
-              <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" width="20px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5l-1-1h-5l-1 1H5v2h14V4h-3.5z"/></svg>
-            </button>
+      <div v-else>
+        <div v-if="viewMode === 'card'" class="invoice-list">
+          <div v-for="invoice in safeInvoices" :key="invoice.id" class="invoice-card" @click="goToInvoiceDetails(invoice.id)">
+            <div class="invoice-card-header">
+              <span class="invoice-id">#{{ invoice.invoiceNumber || 'N/A' }}</span>
+              <span :class="['invoice-status', `status-${(invoice.status || 'pending').toLowerCase()}`]">{{ invoice.status || 'pending' }}</span>
+            </div>
+            <div class="invoice-card-body">
+              <p class="client-name">{{ invoice.client?.name || 'N/A' }}</p>
+              <p class="invoice-total">${{ (invoice.total || 0).toFixed(2) }}</p>
+            </div>
+            <div class="invoice-card-footer">
+              <span>
+                  <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 0 24 24" width="16px" fill="#777"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+                  Due: {{ formatDate(invoice.dueDate) }}
+              </span>
+              <button class="delete-btn" @click="handleDelete($event, invoice.id)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" width="20px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5l-1-1h-5l-1 1H5v2h14V4h-3.5z"/></svg>
+              </button>
+            </div>
           </div>
         </div>
+        <InvoiceTable v-else :invoices="safeInvoices" />
       </div>
     </main>
 
@@ -142,7 +152,6 @@ const safeInvoices = computed(() => {
 </template>
 
 <style scoped>
-/* ... existing styles ... */
 .dashboard-container {
   padding: 2rem;
   background-color: var(--background-color);
@@ -204,17 +213,22 @@ const safeInvoices = computed(() => {
 }
 
 .invoices-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 2rem;
 }
 
-.invoices-header h2 {
+.invoices-header-title h2 {
   font-size: 1.8rem;
   font-weight: 600;
   color: var(--text-color);
+  margin: 0;
 }
 
-.invoices-header p {
+.invoices-header-title p {
   color: #777;
+  margin: 0;
 }
 
 .no-invoices-container {
@@ -346,8 +360,8 @@ const safeInvoices = computed(() => {
 }
 
 .delete-btn:hover {
-    background-color: #F8D7DA; /* Light red background on hover */
-    color: #721C24; /* Darker red on hover */
+    background-color: #F8D7DA;
+    color: #721C24;
 }
 
 .loading-container,
@@ -391,7 +405,7 @@ const safeInvoices = computed(() => {
 }
 
 .fab:hover {
-  background-color: #3A80D2; /* Darker blue on hover */
+  background-color: #3A80D2;
   box-shadow: 0 12px 25px rgba(74, 144, 226, 0.4);
   transform: scale(1.05);
 }
