@@ -16,7 +16,8 @@ const today = format(new Date(), 'MMMM d, yyyy');
 
 useMeta(
   'Dashboard | Swift Invoice',
-  'Manage your invoices, view payment statuses, and track your business finances with the Swift Invoice dashboard.'
+  'Manage your invoices, view payment statuses, and track your business finances with the Swift Invoice dashboard.',
+  'Perfect for small businesses and individuals looking to streamline their invoice management.'
 );
 
 onMounted(getInvoices);
