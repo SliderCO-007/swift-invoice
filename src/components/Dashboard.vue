@@ -11,7 +11,7 @@ const { logout } = useAuth();
 const { invoices, getInvoices, loading, error, deleteInvoice } = useInvoices();
 const router = useRouter();
 
-const viewMode = ref('card'); // 'card' or 'table'
+const viewMode = ref('table'); // 'card' or 'table'
 const today = format(new Date(), 'MMMM d, yyyy');
 
 useMeta(
@@ -116,7 +116,8 @@ const safeInvoices = computed(() => {
         </button>
       </div>
       <div v-else>
-        <div v-if="viewMode === 'card'" class="invoice-list">
+        <InvoiceTable v-if="viewMode === 'table'" :invoices="safeInvoices" />
+        <div v-else class="invoice-list">
           <div v-for="invoice in safeInvoices" :key="invoice.id" class="invoice-card" @click="goToInvoiceDetails(invoice.id)">
             <div class="invoice-card-header">
               <span class="invoice-id">#{{ invoice.invoiceNumber || 'N/A' }}</span>
@@ -137,7 +138,6 @@ const safeInvoices = computed(() => {
             </div>
           </div>
         </div>
-        <InvoiceTable v-else :invoices="safeInvoices" />
       </div>
     </main>
 
