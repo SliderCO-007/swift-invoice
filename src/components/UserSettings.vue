@@ -58,7 +58,8 @@ const handleSave = async () => {
   await saveUserSettings(localSettings.value, logoFile.value);
   if (!error.value) {
     successMessage.value = 'Settings saved successfully!';
-    setTimeout(() => { successMessage.value = '' }, 3000);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => { successMessage.value = '' }, 5000);
   }
 };
 
@@ -76,7 +77,7 @@ const handleSave = async () => {
           &larr; Back to Dashboard
         </button>
       </header>
-
+      <div v-if="successMessage" class="success-notification">{{ successMessage }}</div>
       <form @submit.prevent="handleSave" class="settings-form">
         <!-- Logo Upload -->
         <div class="logo-uploader-section">
