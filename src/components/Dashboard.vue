@@ -3,12 +3,15 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import useAuth from '../composables/useAuth';
 import useInvoices from '../composables/useInvoices';
+import useUserSettings from '../composables/useUserSettings';
 import { useMeta } from '../composables/useMeta';
 import { format, isValid } from 'date-fns';
 import InvoiceTable from './InvoiceTable.vue';
+import CompanyInfoPrompt from './CompanyInfoPrompt.vue';
 
 const { logout } = useAuth();
 const { invoices, getInvoices, loading, error, deleteInvoice } = useInvoices();
+const { settings, fetchUserSettings } = useUserSettings();
 const router = useRouter();
 
 const viewMode = ref('table'); // 'card' or 'table'
@@ -20,7 +23,14 @@ useMeta(
   'Perfect for small businesses and individuals looking to streamline their invoice management.'
 );
 
-onMounted(getInvoices);
+onMounted(async () => {
+  await getInvoices();
+  await fetchUserSettings();
+});
+
+const showCompanyInfoPrompt = computed(() => {
+  return settings.value && !settings.value.company?.name;
+});
 
 const handleLogout = async () => {
   await logout();
@@ -28,7 +38,14 @@ const handleLogout = async () => {
 };
 
 const goToSettings = () => router.push('/settings');
-const createNewInvoice = () => router.push('/invoice/new');
+const createNewInvoice = () => {
+  if (showCompanyInfoPrompt.value) {
+    alert('Please complete your company profile in the settings before creating an invoice.');
+    router.push('/settings');
+  } else {
+    router.push('/invoice/new');
+  }
+};
 const goToInvoiceDetails = (id) => {
   if (!id) {
     console.error("Navigation failed: Invoice ID is null.");
@@ -77,7 +94,7 @@ const safeInvoices = computed(() => {
       </div>
       <div class="header-actions">
         <button class="settings-btn" @click="goToSettings">
-          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69-.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12-.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69-.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18-.49.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
+          <svg fill="currentColor" height="24px" viewBox="-1 0 24 24" width="24px" xmlns="http://www.w3.org/2000/svg" class="cf-icon-svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M16.014 8.86v1.44a.587.587 0 0 1-.468.556l-1.182.204a.463.463 0 0 1-.114.006 5.902 5.902 0 0 1-.634 1.528.455.455 0 0 1 .078.084l.691.98a.586.586 0 0 1-.062.725l-1.02 1.02a.586.586 0 0 1-.724.061l-.98-.69a.444.444 0 0 1-.085-.078 5.908 5.908 0 0 1-1.544.637.502.502 0 0 1 0 .175l-.182 1.053a.667.667 0 0 1-.633.532h-1.31a.667.667 0 0 1-.633-.532l-.182-1.053a.495.495 0 0 1 0-.175 5.908 5.908 0 0 1-1.544-.637.444.444 0 0 1-.085.077l-.98.691a.586.586 0 0 1-.725-.062l-1.02-1.02a.586.586 0 0 1-.061-.723l.691-.98a.454.454 0 0 1 .077-.085 5.901 5.901 0 0 1-.633-1.528.466.466 0 0 1-.114-.006l-1.182-.204a.586.586 0 0 1-.468-.556V8.86a.586.586 0 0 1 .468-.556L2.636 8.1a.437.437 0 0 1 .114-.005 5.912 5.912 0 0 1 .633-1.528.466.466 0 0 1-.077-.085l-.691-.98a.587.587 0 0 1 .061-.724l1.02-1.02a.587.587 0 0 1 .725-.062l.98.691a.444.444 0 0 1 .085.078 5.903 5.903 0 0 1 1.528-.634.433.433 0 0 1 .005-.114l.204-1.182a.586.586 0 0 1 .556-.468h1.442a.586.586 0 0 1 .556.468l.204 1.182a.448.448 0 0 1 .005.114 5.908 5.908 0 0 1 1.528.634.444.444 0 0 1 .085-.078l.98-.691a.586.586 0 0 1 .724.062l1.02 1.02a.586.586 0 0 1 .062.724l-.691.98a.467.467 0 0 1-.078.085 5.902 5.902 0 0 1 .634 1.528.434.434 0 0 1 .114.005l1.182.204a.587.587 0 0 1 .468.556zm-4.955.72a2.559 2.559 0 1 0-2.56 2.56 2.559 2.559 0 0 0 2.56-2.56z"></path></g></svg>
           Manage Settings
         </button>
         <button class="logout-btn" @click="handleLogout">
@@ -86,6 +103,8 @@ const safeInvoices = computed(() => {
         </button>
       </div>
     </header>
+
+    <CompanyInfoPrompt v-if="showCompanyInfoPrompt" />
 
     <main class="dashboard-content">
       <div class="invoices-header">

@@ -134,10 +134,6 @@ useMeta(
   'Perfect tool for small businesses and individuals looking to streamline their invoice management.'
 );
 
-const openDemo = () => {
-    Supademo.open('cmkrp6y3v0hcs12hh5ytkggnx');
-}
-
 </script>
 
 <style scoped>
