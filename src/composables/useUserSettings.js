@@ -3,8 +3,8 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage } from '../firebase';
 
-// This ref will be shared across the app, ensuring consistency
-const settings = ref({
+// Define the initial, empty state for user settings
+const getInitialSettings = () => ({
   company: {
     name: '',
     email: '',
@@ -14,11 +14,19 @@ const settings = ref({
     state: '',
     zip: '',
     logoUrl: '',
-    venmoQrUrl: '' // Add new field for Venmo QR code
+    venmoQrUrl: ''
   },
   taxRate: 0,
   invoiceCounter: 0,
 });
+
+// This ref will be shared across the app, ensuring consistency
+const settings = ref(getInitialSettings());
+
+// Function to reset the settings to their initial state
+export const resetUserSettings = () => {
+  settings.value = getInitialSettings();
+};
 
 const useUserSettings = () => {
   const loading = ref(false);
@@ -33,15 +41,18 @@ const useUserSettings = () => {
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const data = docSnap.data();
-        // Deep merge fetched data, ensuring all fields are present
+        // Deep merge fetched data with a clean initial state, not the existing one
         settings.value = {
-            ...settings.value,
+            ...getInitialSettings(),
             ...data,
             company: {
-                ...settings.value.company,
+                ...getInitialSettings().company,
                 ...(data.company || {}),
             }
         };
+      } else {
+        // If no settings exist in Firestore, reset to initial state
+        resetUserSettings();
       }
     } catch (err) {
       console.error("Error fetching user settings: ", err);

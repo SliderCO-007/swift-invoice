@@ -8,6 +8,7 @@ import {
   signInWithPopup
 } from 'firebase/auth';
 import { auth } from '../firebase';
+import { resetUserSettings } from './useUserSettings'; // Import the reset function
 
 // Shared state
 const user = ref(auth.currentUser);
@@ -18,6 +19,10 @@ const error = ref(null);
 onAuthStateChanged(auth, (currentUser) => {
   user.value = currentUser;
   isAuthReady.value = true;
+  // If user is null (logged out), reset settings
+  if (!currentUser) {
+    resetUserSettings();
+  }
 });
 
 const useAuth = () => {
@@ -43,6 +48,7 @@ const useAuth = () => {
     error.value = null;
     try {
       await signOut(auth);
+      // No need to call resetUserSettings here anymore, as the onAuthStateChanged listener handles it.
     } catch (e) {
       error.value = e.message;
     }
