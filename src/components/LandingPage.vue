@@ -55,6 +55,7 @@
                 </div>
                 <h3 class="feature-title">Instant Venmo Payments</h3>
                 <p class="feature-description">Add your Venmo QR code to invoices so clients can pay you in a snap. Faster payments, happier you.</p>
+                <v-btn href="https://help.venmo.com/cs/articles/how-to-sign-up-for-a-business-profile-vhel163" target="_blank" color="secondary" rounded class="mt-4">Create Venmo</v-btn>
             </div>
             <div class="feature-card">
               <div class="feature-icon">
