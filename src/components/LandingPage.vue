@@ -102,6 +102,9 @@
     <footer class="footer">
       <div class="container">
         <p>&copy; 2026 Swift Invoice. All rights reserved. | <a href="mailto:support@swiftinvoice.biz">support@swiftinvoice.biz</a></p>
+        <div class="saashub-badge">
+          <a href='https://www.saashub.com/swift-invoice?utm_source=badge&utm_campaign=badge&utm_content=swift-invoice&badge_variant=color&badge_kind=approved' target='_blank'><img src="https://cdn-b.saashub.com/img/badges/approved-color.png?v=1" alt="SwiftInvoice.biz badge" style="max-width: 150px;"/></a>
+        </div>
       </div>
     </footer>
 
@@ -409,6 +412,10 @@ main section[id] {
 
 .footer a:hover {
   text-decoration: underline;
+}
+
+.saashub-badge {
+  margin-top: 1rem;
 }
 
 /* Modal */
