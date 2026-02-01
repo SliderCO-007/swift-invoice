@@ -49,6 +49,13 @@
               <h3 class="feature-title">Simple Pricing</h3>
               <p class="feature-description">Just $1 per invoice. No subscriptions, no setup fees, and no hidden costs. Ever.</p>
             </div>
+             <div class="feature-card">
+                <div class="feature-icon">
+                  <IconVenmo />
+                </div>
+                <h3 class="feature-title">Instant Venmo Payments</h3>
+                <p class="feature-description">Add your Venmo QR code to invoices so clients can pay you in a snap. Faster payments, happier you.</p>
+            </div>
             <div class="feature-card">
               <div class="feature-icon">
                 <IconEmail />
@@ -128,6 +135,7 @@ import IconPDF from './IconPDF.vue';
 import IconEmail from './IconEmail.vue';
 import IconAnalytics from './IconAnalytics.vue';
 import IconMenu from './IconMenu.vue';
+import IconVenmo from './IconVenmo.vue';
 
 const isMobileNavOpen = ref(false);
 const showDashboardPreview = ref(false);
@@ -299,7 +307,7 @@ main section[id] {
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 2rem;
 }
 
@@ -324,6 +332,8 @@ main section[id] {
     font-size: 3rem;
     margin-bottom: 1.5rem;
     color: #007bff;
+    display: flex;
+    justify-content: center;
 }
 
 .feature-title {
@@ -470,6 +480,12 @@ main section[id] {
 
 
 /* Responsive Styles */
+@media (max-width: 1024px) {
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 @media (max-width: 768px) {
   .desktop-nav {
     display: none;

@@ -13,7 +13,8 @@ const settings = ref({
     city: '',
     state: '',
     zip: '',
-    logoUrl: ''
+    logoUrl: '',
+    venmoQrUrl: '' // Add new field for Venmo QR code
   },
   taxRate: 0,
   invoiceCounter: 0,
@@ -50,12 +51,13 @@ const useUserSettings = () => {
     }
   };
 
-  const saveUserSettings = async (newSettings, logoFile) => {
+  const saveUserSettings = async (newSettings, logoFile, venmoQrFile) => {
     if (!auth.currentUser) return;
     loading.value = true;
     error.value = null;
     try {
       let logoUrl = newSettings.company.logoUrl;
+      let venmoQrUrl = newSettings.company.venmoQrUrl;
 
       if (logoFile) {
         const logoStorageRef = storageRef(storage, `logos/${auth.currentUser.uid}/${logoFile.name}`);
@@ -63,11 +65,18 @@ const useUserSettings = () => {
         logoUrl = await getDownloadURL(logoStorageRef);
       }
 
+      if (venmoQrFile) {
+        const qrStorageRef = storageRef(storage, `qrcodes/${auth.currentUser.uid}/${venmoQrFile.name}`);
+        await uploadBytes(qrStorageRef, venmoQrFile);
+        venmoQrUrl = await getDownloadURL(qrStorageRef);
+      }
+
       const settingsToSave = {
         ...newSettings,
         company: {
             ...newSettings.company,
             logoUrl: logoUrl,
+            venmoQrUrl: venmoQrUrl,
         }
       };
 

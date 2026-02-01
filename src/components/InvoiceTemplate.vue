@@ -8,21 +8,21 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  settings: {
+    type: Object,
+    required: true,
+  },
 });
-
-const { settings, fetchUserSettings } = useUserSettings();
-
-onMounted(fetchUserSettings);
 
 const subtotal = computed(() => props.invoice.subtotal || 0);
 const taxAmount = computed(() => props.invoice.taxAmount || 0);
 const total = computed(() => props.invoice.total || 0);
 
 const formatDate = (date) => {
-  if (date && isValid(date)) {
-    return format(date, 'MMMM d, yyyy');
-  }
-  return 'N/A';
+  if (!date) return 'N/A';
+  // Check if date is a Firestore timestamp and convert it
+  const d = date.toDate ? date.toDate() : new Date(date);
+  return isValid(d) ? format(d, 'MMMM d, yyyy') : 'N/A';
 };
 
 const formatAddress = (address) => {
@@ -32,7 +32,7 @@ const formatAddress = (address) => {
 };
 
 const formatCurrency = (value) => {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0);
 };
 </script>
 
@@ -40,7 +40,6 @@ const formatCurrency = (value) => {
   <div class="invoice-paper">
     <section class="invoice-main-header">
         <div class="invoice-brand">
-            <!-- Company Logo and Name -->
             <img v-if="settings?.company?.logoUrl" :src="settings.company.logoUrl" alt="Company Logo" class="company-logo" />
             <h1 v-else class="invoice-title">{{ invoice.sender.name }}</h1>
             <p :class="['invoice-status', `status-${invoice.status.toLowerCase()}`]">{{ invoice.status }}</p>
@@ -87,7 +86,18 @@ const formatCurrency = (value) => {
         </table>
     </section>
 
-    <section class="invoice-summary">
+    <section class="invoice-summary-and-notes">
+        <div class="notes-and-qr">
+          <div v-if="invoice.notes" class="invoice-notes">
+              <h2>Notes</h2>
+              <p>{{ invoice.notes }}</p>
+          </div>
+          <div v-if="invoice.includeVenmoQr && settings.company.venmoQrUrl" class="venmo-qr-code">
+            <h2>Scan to Pay</h2>
+            <img :src="settings.company.venmoQrUrl" alt="Venmo QR Code" />
+            <p>Venmo</p>
+          </div>
+        </div>
         <div class="totals">
             <div class="total-row">
                 <span>Subtotal</span>
@@ -104,10 +114,6 @@ const formatCurrency = (value) => {
         </div>
     </section>
 
-    <footer v-if="invoice.notes" class="invoice-footer">
-        <h2>Notes</h2>
-        <p>{{ invoice.notes }}</p>
-    </footer>
     <footer class="promo-footer">
       <p>Create your own professional invoices at <a href="https://swiftinvoice.biz" target="_blank">swiftinvoice.biz</a></p>
     </footer>
@@ -122,12 +128,12 @@ const formatCurrency = (value) => {
   box-shadow: var(--shadow-md);
   font-family: 'Poppins', sans-serif;
   color: #333;
-  font-size: 10px; /* Final base font size reduction */
+  font-size: 10px;
   line-height: 1.6;
 }
 
 .company-logo {
-  max-height: 60px; /* Final logo size reduction */
+  max-height: 60px;
   max-width: 180px;
   margin-bottom: 1rem;
 }
@@ -142,7 +148,7 @@ const formatCurrency = (value) => {
 }
 
 .invoice-title {
-  font-size: 2rem; /* Final font size reduction */
+  font-size: 2rem;
   font-weight: 700;
   color: var(--text-color, #111827);
   margin: 0;
@@ -151,7 +157,7 @@ const formatCurrency = (value) => {
 .invoice-status {
   padding: 0.3rem 0.8rem;
   border-radius: 14px;
-  font-size: 0.75rem; /* Final font size reduction */
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   margin-top: 1rem;
@@ -165,7 +171,7 @@ const formatCurrency = (value) => {
 
 .sender-details {
   text-align: right;
-  font-size: 0.85rem; /* Final font size reduction */
+  font-size: 0.85rem;
 }
 .sender-details p { margin: 0; }
 
@@ -173,11 +179,11 @@ const formatCurrency = (value) => {
   display: flex;
   justify-content: space-between;
   margin-bottom: 2.5rem;
-  font-size: 0.85rem; /* Final font size reduction */
+  font-size: 0.85rem;
 }
 
-.client-details h2, .invoice-footer h2 {
-  font-size: 1.1rem; /* Final font size reduction */
+.client-details h2, .invoice-notes h2, .venmo-qr-code h2 {
+  font-size: 1.1rem;
   font-weight: 600;
   color: var(--text-color, #111827);
   margin-bottom: 0.7rem;
@@ -189,7 +195,7 @@ const formatCurrency = (value) => {
   text-align: right;
 }
 .invoice-dates p {
-  font-size: 0.95rem; /* Final font size reduction */
+  font-size: 0.95rem;
   font-weight: 600;
   margin: 0.3rem 0;
 }
@@ -198,7 +204,7 @@ const formatCurrency = (value) => {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 2rem;
-  font-size: 0.85rem; /* Final font size reduction */
+  font-size: 0.85rem;
 }
 
 .items-table th, .items-table td {
@@ -210,7 +216,7 @@ const formatCurrency = (value) => {
 .items-table th {
   background-color: #f9f9f9;
   font-weight: 600;
-  font-size: 0.75rem; /* Final font size reduction */
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
@@ -224,26 +230,59 @@ const formatCurrency = (value) => {
   text-align: right;
 }
 
-.invoice-summary {
-  display: flex;
-  justify-content: flex-end;
+.invoice-summary-and-notes {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-top: 2rem;
+    border-top: 2px solid #eee;
+    padding-top: 2rem;
+}
+
+.notes-and-qr {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.invoice-notes p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.venmo-qr-code {
+  text-align: center;
+}
+
+.venmo-qr-code img {
+  max-width: 120px; /* Adjust size as needed */
+  margin-bottom: 0.5rem;
+}
+
+.venmo-qr-code p {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #007bff; /* Venmo blue */
 }
 
 .totals {
   width: 100%;
   max-width: 280px;
+  align-self: flex-start;
 }
 
 .total-row {
   display: flex;
   justify-content: space-between;
   padding: 0.6rem 0;
-  font-size: 0.9rem; /* Final font size reduction */
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
 .total-row.grand-total {
-  font-size: 1.4rem; /* Final font size reduction */
+  font-size: 1.4rem;
   font-weight: 700;
   color: var(--primary-color, #4A90E2);
   border-top: 2px solid #eee;
@@ -251,24 +290,12 @@ const formatCurrency = (value) => {
   padding-top: 0.8rem;
 }
 
-.invoice-footer {
-  border-top: 2px solid #eee;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  color: #555;
-}
-
-.invoice-footer p {
-  margin: 0;
-  font-size: 0.85rem; /* Final font size reduction */
-}
-
 .promo-footer {
   text-align: center;
   margin-top: 2rem;
   padding-top: 1.5rem;
   border-top: 1px solid #eee;
-  font-size: 0.7rem; /* Final font size reduction */
+  font-size: 0.7rem;
   color: #888;
 }
 
@@ -282,7 +309,14 @@ const formatCurrency = (value) => {
   text-decoration: underline;
 }
 
-/* Responsive Styles */
+@media (max-width: 768px) {
+    .invoice-summary-and-notes {
+        flex-direction: column-reverse;
+    }
+    .totals { max-width: none; }
+}
+
+/* Responsive Styles for table */
 @media (max-width: 768px) {
   .invoice-paper { padding: 1.5rem; }
   .invoice-main-header, .invoice-meta-details {
@@ -322,6 +356,5 @@ const formatCurrency = (value) => {
     word-break: break-all;
     grid-column: 2 / 3;
   }
-  .totals { max-width: none; }
 }
 </style>

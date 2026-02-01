@@ -8,6 +8,8 @@ const { settings, loading, error, fetchUserSettings, saveUserSettings } = useUse
 
 const logoFile = ref(null);
 const logoPreview = ref(null);
+const venmoQrFile = ref(null);
+const venmoQrPreview = ref(null);
 const successMessage = ref('');
 
 // A local ref to handle form data, initialized with the new structure
@@ -20,42 +22,52 @@ const localSettings = ref({
     city: '',
     state: '',
     zip: '',
-    logoUrl: ''
+    logoUrl: '',
+    venmoQrUrl: ''
   },
   taxRate: 0,
 });
 
 onMounted(async () => {
   await fetchUserSettings();
-  // When settings are fetched, update localSettings to reflect the shared state
   if (settings.value) {
     localSettings.value = JSON.parse(JSON.stringify(settings.value));
     logoPreview.value = localSettings.value.company.logoUrl;
+    venmoQrPreview.value = localSettings.value.company.venmoQrUrl;
   }
 });
 
-// Watch for changes in the shared settings state and update the local form data
 watch(settings, (newSettings) => {
   if (newSettings) {
     localSettings.value = JSON.parse(JSON.stringify(newSettings));
     logoPreview.value = newSettings.company.logoUrl;
+    venmoQrPreview.value = newSettings.company.venmoQrUrl;
   }
 }, { deep: true });
 
-const onFileChange = (e) => {
+const onFileChange = (e, type) => {
   const file = e.target.files[0];
   if (file) {
-    logoFile.value = file;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      logoPreview.value = e.target.result;
-    };
-    reader.readAsDataURL(file);
+    if (type === 'logo') {
+      logoFile.value = file;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        logoPreview.value = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    } else if (type === 'venmo') {
+      venmoQrFile.value = file;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        venmoQrPreview.value = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 };
 
 const handleSave = async () => {
-  await saveUserSettings(localSettings.value, logoFile.value);
+  await saveUserSettings(localSettings.value, logoFile.value, venmoQrFile.value);
   if (!error.value) {
     successMessage.value = 'Settings saved successfully!';
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -71,7 +83,7 @@ const handleSave = async () => {
       <header class="settings-header">
         <div>
           <h1>User Settings</h1>
-          <p>Manage your company information, logo, and default tax rates.</p>
+          <p>Manage your company information, logo, and payment QR codes.</p>
         </div>
         <button @click="router.push({ name: 'Dashboard' })" class="back-btn">
           &larr; Back to Dashboard
@@ -79,18 +91,35 @@ const handleSave = async () => {
       </header>
       <div v-if="successMessage" class="success-notification">{{ successMessage }}</div>
       <form @submit.prevent="handleSave" class="settings-form">
-        <!-- Logo Upload -->
-        <div class="logo-uploader-section">
-            <h3>Company Logo</h3>
-            <div class="logo-uploader">
-                <label for="logoUpload" class="logo-preview-wrapper">
-                    <img :src="logoPreview || '/placeholder-logo.png'" alt="Company Logo" class="logo-img"/>
-                    <div class="upload-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
-                    </div>
-                </label>
-                <input id="logoUpload" type="file" @change="onFileChange" accept="image/*" hidden>
-            </div>
+        
+        <div class="uploaders-section">
+          <!-- Logo Upload -->
+          <div class="uploader-item">
+              <h3>Company Logo</h3>
+              <div class="logo-uploader">
+                  <label for="logoUpload" class="logo-preview-wrapper">
+                      <img :src="logoPreview || '/placeholder-logo.png'" alt="Company Logo" class="logo-img"/>
+                      <div class="upload-icon">
+                          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+                      </div>
+                  </label>
+                  <input id="logoUpload" type="file" @change="onFileChange($event, 'logo')" accept="image/*" hidden>
+              </div>
+          </div>
+
+          <!-- Venmo QR Code Upload -->
+          <div class="uploader-item">
+              <h3>Venmo QR Code</h3>
+              <div class="logo-uploader">
+                  <label for="venmoQrUpload" class="logo-preview-wrapper">
+                      <img :src="venmoQrPreview || '/placeholder-qr.png'" alt="Venmo QR Code" class="logo-img"/>
+                      <div class="upload-icon">
+                          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+                      </div>
+                  </label>
+                  <input id="venmoQrUpload" type="file" @change="onFileChange($event, 'venmo')" accept="image/*" hidden>
+              </div>
+          </div>
         </div>
 
         <!-- Company Info -->
@@ -134,7 +163,6 @@ const handleSave = async () => {
 
         <!-- Save Button -->
         <footer class="settings-footer">
-          <div v-if="successMessage" class="success-notification">{{ successMessage }}</div>
           <div v-if="error" class="error-notification">{{ error }}</div>
           <button type="submit" class="save-btn" :disabled="loading">
             {{ loading ? 'Saving...' : 'Save Settings' }}
@@ -206,8 +234,17 @@ const handleSave = async () => {
     border-bottom: 1px solid #eee;
 }
 
-.logo-uploader-section, .company-info-section {
+.uploaders-section {
+    display: flex;
+    gap: 3rem;
     margin-bottom: 2.5rem;
+    justify-content: center;
+    align-items: flex-start;
+    text-align: center;
+}
+
+.uploader-item h3 {
+    margin-bottom: 1.5rem;
 }
 
 .logo-uploader {
@@ -220,7 +257,7 @@ const handleSave = async () => {
     position: relative;
     width: 150px;
     height: 150px;
-    border-radius: 50%;
+    border-radius: 12px;
     cursor: pointer;
     overflow: hidden;
     border: 3px solid #eee;
@@ -247,6 +284,10 @@ const handleSave = async () => {
 
 .logo-preview-wrapper:hover .upload-icon {
     opacity: 1;
+}
+
+.company-info-section {
+    margin-top: 2.5rem;
 }
 
 .form-grid {
@@ -297,7 +338,12 @@ const handleSave = async () => {
     font-weight: 600;
 }
 
-.success-notification { color: #28A745; }
+.success-notification { 
+  width: 100%;
+  text-align: center;
+  color: #28A745; 
+  margin-bottom: 1.5rem;
+}
 .error-notification { color: #DC3545; }
 
 @media (max-width: 768px) {
@@ -318,6 +364,12 @@ const handleSave = async () => {
         margin-top: 1rem;
         width: 100%;
         text-align: center;
+    }
+
+    .uploaders-section {
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
     }
 
     .form-grid {

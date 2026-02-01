@@ -25,6 +25,7 @@ const invoice = ref({
   dueDate: new Date(),
   notes: '',
   taxRate: 0,
+  includeVenmoQr: false, // New property
 });
 
 const showPreview = ref(false);
@@ -111,6 +112,7 @@ const createAndCheckout = async () => {
     subtotal: subtotal.value,
     taxAmount: taxAmount.value,
     total: total.value,
+    includeVenmoQr: invoice.value.includeVenmoQr, // Ensure it's included
   };
 
   try {
@@ -207,6 +209,19 @@ const createAndCheckout = async () => {
           <button class="add-item-btn" @click="addItem">+ Add New Item</button>
         </div>
 
+        <div class="form-section">
+          <h3>Payment Options</h3>
+          <div class="payment-options-grid">
+            <div class="switch-container">
+              <label for="includeVenmoQr" class="switch-label">Include Venmo QR Code</label>
+              <label class="switch">
+                <input type="checkbox" id="includeVenmoQr" v-model="invoice.includeVenmoQr">
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
         <div class="form-section responsive-grid">
             <div>
                 <label for="notes">Notes</label>
@@ -238,7 +253,7 @@ const createAndCheckout = async () => {
       <h2>Invoice Preview</h2>
       <button @click="showPreview = false" class="close-modal-btn">&times;</button>
     </header>
-    <InvoiceTemplate :invoice="{...invoice, subtotal, taxAmount, total}" />
+    <InvoiceTemplate :invoice="{...invoice, subtotal, taxAmount, total}" :settings="settings" />
   </div>
 </div>
   </div>
@@ -427,6 +442,81 @@ input, textarea {
 .error-container {
     padding: 1rem 0;
 }
+
+.payment-options-grid {
+    display: flex;
+    gap: 2rem;
+}
+
+.switch-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.switch-label {
+    font-weight: 600;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: var(--primary-color, #4F46E5);
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px var(--primary-color, #4F46E5);
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
 
 /* Responsive Adjustments */
 @media (min-width: 1024px) {
