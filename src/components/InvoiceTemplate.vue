@@ -37,7 +37,7 @@ const formatCurrency = (value) => {
 </script>
 
 <template>
-  <div class="invoice-paper">
+  <div class="invoice-paper" v-if="invoice && settings">
     <section class="invoice-main-header">
         <div class="invoice-brand">
             <img v-if="settings?.company?.logoUrl" :src="settings.company.logoUrl" alt="Company Logo" class="company-logo" />
@@ -92,7 +92,7 @@ const formatCurrency = (value) => {
               <h2>Notes</h2>
               <p>{{ invoice.notes }}</p>
           </div>
-          <div v-if="invoice.includeVenmoQr && settings.company.venmoQrUrl" class="venmo-qr-code">
+          <div v-if="invoice.includeVenmoQr && settings?.company?.venmoQrUrl" class="venmo-qr-code">
             <h2>Scan to Pay</h2>
             <img :src="settings.company.venmoQrUrl" alt="Venmo QR Code" />
             <p>Venmo</p>

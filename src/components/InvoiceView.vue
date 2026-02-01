@@ -4,11 +4,13 @@ import { useRoute, useRouter } from 'vue-router';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import useInvoices from '../composables/useInvoices';
+import useUserSettings from '../composables/useUserSettings';
 import InvoiceTemplate from './InvoiceTemplate.vue';
 
 const route = useRoute();
 const router = useRouter();
 const { getInvoice, markAsPaid, loading, error } = useInvoices();
+const { settings, fetchUserSettings } = useUserSettings();
 
 const invoice = ref(null);
 const invoicePaper = ref(null);
@@ -18,6 +20,7 @@ onMounted(async () => {
   try {
     // The getInvoice function now returns clean, reliable data.
     invoice.value = await getInvoice(invoiceId);
+    await fetchUserSettings(); // Fetch settings when component mounts
   } catch (err) {
     console.error(`Failed to load invoice ${invoiceId}:`, err.message);
   }
@@ -150,7 +153,7 @@ const safeInvoice = computed(() => {
       </header>
 
       <!-- The InvoiceTemplate now receives the clean invoice data directly -->
-      <InvoiceTemplate ref="invoicePaper" :invoice="safeInvoice" />
+      <InvoiceTemplate ref="invoicePaper" :invoice="safeInvoice" :settings="settings" />
 
     </div>
      <div v-else class="error-container">
