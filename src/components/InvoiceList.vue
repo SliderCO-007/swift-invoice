@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import useInvoices from '../composables/useInvoices';
+import useInvoices from '@/composables/useInvoices';
 import { format } from 'date-fns';
 
 const router = useRouter();

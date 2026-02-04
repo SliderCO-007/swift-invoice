@@ -1,75 +1,134 @@
-const {onRequest} = require("firebase-functions/v2/https");
-const {defineString} = require('firebase-functions/params');
-const admin = require('firebase-admin');
-const cors = require('cors');
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
 
 admin.initializeApp();
 
-// Define the Stripe secret key using a NEW name to force a refresh.
-const stripeSecretKey = defineString('STRIPE_LIVE_SECRET_KEY');
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-// Initialize Stripe lazily within the function call.
-let stripe;
+/**
+ * Creates a Stripe checkout session for a specific invoice.
+ */
+exports.createCheckoutSession = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError('unauthenticated', 'You must be logged in to make a payment.');
+  }
 
-// Define the allowed origins for CORS.
-const FRONTEND_URL = "https://swift-invoice-9124f.web.app";
-const PROD_DOMAIN = "https://swiftinvoice.biz";
-const DEV_FRONTEND_URL = "https://5173-firebase-swift-invoice-1767843866511.cluster-lqzyk3r5hzdcaqv6zwm7wv6pwa.cloudworkstations.dev";
-const ALLOWED_ORIGINS = [FRONTEND_URL, PROD_DOMAIN, DEV_FRONTEND_URL];
+  const { invoiceId, isServiceFee } = data;
 
-const corsHandler = cors({ 
-    origin: (origin, callback) => {
-        if (!origin || ALLOWED_ORIGINS.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-});
+  if (!invoiceId) {
+    throw new functions.https.HttpsError('invalid-argument', 'An invoice ID is required.');
+  }
 
-exports.createCheckoutSession = onRequest((req, res) => {
-  corsHandler(req, res, async () => {
-    const key = stripeSecretKey.value();
-    stripe = require('stripe')(key);
+  let session;
 
-    const baseUrl = req.headers.origin || FRONTEND_URL;
-    
-    const invoiceId = req.body.data && req.body.data.invoice ? req.body.data.invoice.id : 'new_user_fee';
-    const isNewUser = invoiceId === 'new_user_fee';
-
-    if (!invoiceId) {
-      console.error("Invalid data in request body:", req.body);
-      res.status(400).send({error: {message: "Invalid invoice data provided."}});
-      return;
-    }
-
-    try {
-      const session = await stripe.checkout.sessions.create({
+  try {
+    if (isServiceFee) {
+      session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [{
           price_data: {
             currency: 'usd',
             product_data: {
-              name: isNewUser ? 'Swift Invoice - Sign-up Fee' : 'Swift Invoice - New Invoice Fee',
-              images: [`${PROD_DOMAIN}/Logo.png`], 
+              name: `Invoice Finalization Fee`,
+              description: `Service fee to activate invoice #${invoiceId}`,
             },
             unit_amount: 100, // $1.00 in cents
           },
           quantity: 1,
         }],
         mode: 'payment',
-        success_url: `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}&invoice_id=${invoiceId}`,
-        cancel_url: isNewUser ? `${baseUrl}/register` : `${baseUrl}/invoice/${invoiceId}`,
+        success_url: `https://swiftinvoice.biz/payment-success?invoice_id=${invoiceId}&finalize=true`,
+        cancel_url: `https://swiftinvoice.biz/invoice/${invoiceId}`,
         metadata: {
           invoice_id: invoiceId,
+          payment_type: 'service_fee',
         },
       });
-      
-      res.send({ data: { id: session.id } });
-
-    } catch (error) {
-      console.error("Stripe Error:", error.message);
-      res.status(500).send({error: {message: error.message}});
+    } else {
+      throw new functions.https.HttpsError('unimplemented', 'Full invoice payment is not yet supported.');
     }
-  });
+
+    return { id: session.id };
+
+  } catch (error) {
+    console.error("Error creating Stripe Checkout session:", error.message);
+    throw new functions.https.HttpsError('internal', 'An error occurred while creating the checkout session.');
+  }
+});
+
+/**
+ * Handles incoming webhooks from Stripe to update application state.
+ */
+exports.stripeWebhook = functions.https.onRequest(async (req, res) => {
+  const sig = req.headers["stripe-signature"];
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(req.rawBody, sig, webhookSecret);
+  } catch (err) {
+    console.error(`Webhook signature verification failed: ${err.message}`);
+    res.status(400).send(`Webhook Error: ${err.message}`);
+    return;
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    const { invoice_id, payment_type } = session.metadata;
+
+    if (!invoice_id) {
+      console.error("Webhook received completed session without invoice_id in metadata.");
+      return res.status(400).send("Error: Missing invoice_id in session metadata.");
+    }
+
+    try {
+      const invoiceRef = admin.firestore().collection('invoices').doc(invoice_id);
+
+      if (payment_type === 'service_fee') {
+        // --- CORRECT LOGIC: Generate invoice number AFTER payment ---
+        const invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
+        
+        await invoiceRef.update({ 
+            status: 'pending',
+            invoiceNumber: invoiceNumber 
+        });
+
+        console.log(`Successfully finalized invoice ${invoice_id}. Status updated to pending with number ${invoiceNumber}.`);
+
+      } else {
+        await invoiceRef.update({ status: 'Paid' });
+        console.log(`Successfully marked invoice ${invoice_id} as Paid.`);
+      }
+    } catch (dbError) {
+      console.error(`Database error updating invoice ${invoice_id}:`, dbError);
+      return res.status(500).send(`Database update failed: ${dbError.message}`);
+    }
+  }
+
+  res.status(200).json({ received: true });
+});
+
+/**
+ * Generic callable function to update an invoice's status.
+ * Used for manual actions, e.g., marking an invoice as "Paid" for an offline payment.
+ */
+exports.updateInvoiceStatusOnPayment = functions.https.onCall(async (data, context) => {
+  const { invoiceId, status } = data;
+
+  if (!context.auth) {
+    throw new functions.https.HttpsError('unauthenticated', 'You must be logged in.');
+  }
+
+  if (!invoiceId || !status) {
+    throw new functions.https.HttpsError('invalid-argument', 'The function must be called with "invoiceId" and "status".');
+  }
+
+  try {
+    const invoiceRef = admin.firestore().collection('invoices').doc(invoiceId);
+    await invoiceRef.update({ status: status });
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating invoice status:', error);
+    throw new functions.https.HttpsError('unknown', 'An error occurred while updating the invoice.', error);
+  }
 });

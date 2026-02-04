@@ -1,21 +1,25 @@
-import { ref } from 'vue';
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, runTransaction, serverTimestamp, query, where, deleteDoc } from 'firebase/firestore';
-import { auth, db } from '../firebase'; // Import auth to get the current user
+import { ref, watch } from 'vue';
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, serverTimestamp, query, where, deleteDoc, setDoc } from 'firebase/firestore';
+import { db, functions } from './useFirebase';
+import { useAuth } from './useAuth';
+import { httpsCallable } from 'firebase/functions';
+import useUserSettings from './useUserSettings';
 
 const useInvoices = () => {
   const invoices = ref([]);
   const loading = ref(false);
   const error = ref(null);
+  const { user } = useAuth();
+  const { settings, fetchUserSettings } = useUserSettings();
 
   const invoicesCollection = collection(db, 'invoices');
 
-  // Definitive date parsing helper.
   const parseFirestoreDate = (date) => {
     if (!date) return null;
-    if (date.toDate) return date.toDate(); // Firestore Timestamp
-    if (date instanceof Date) return date; // Already a Date object
-    const parsed = new Date(date); // Handle ISO strings or other date formats
-    return isNaN(parsed) ? null : parsed; // Return null if invalid, not an "Invalid Date" object
+    if (date.toDate) return date.toDate();
+    if (date instanceof Date) return date;
+    const parsed = new Date(date);
+    return isNaN(parsed) ? null : parsed;
   };
 
   const calculateTotal = (invoice) => {
@@ -24,37 +28,35 @@ const useInvoices = () => {
     return subtotal + taxAmount;
   };
 
-  // Re-written to ensure data integrity.
   const getInvoices = async () => {
-    loading.value = true;
-    error.value = null;
-    if (!auth.currentUser) {
+    if (!user.value?.uid) {
       invoices.value = [];
-      error.value = "User is not authenticated.";
-      loading.value = false;
       return;
     }
+
+    loading.value = true;
+    error.value = null;
     try {
-      const q = query(invoicesCollection, where("userId", "==", auth.currentUser.uid));
+      const q = query(invoicesCollection, where('userId', '==', user.value.uid));
       const querySnapshot = await getDocs(q);
       invoices.value = querySnapshot.docs.map(doc => {
         const data = doc.data();
-        // Structure is critical: Spread data first, then explicitly set the ID last to prevent overwrites.
         return {
+          id: doc.id,
           ...data,
           issueDate: parseFirestoreDate(data.issueDate),
           dueDate: parseFirestoreDate(data.dueDate),
-          id: doc.id, 
+          total: calculateTotal(data),
         };
       });
     } catch (err) {
-      error.value = err.message;
+      error.value = 'Failed to fetch invoices.';
+      console.error(err);
     } finally {
       loading.value = false;
     }
   };
 
-  // Re-written to ensure data integrity.
   const getInvoice = async (id) => {
     loading.value = true;
     error.value = null;
@@ -63,98 +65,77 @@ const useInvoices = () => {
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const data = docSnap.data();
-        // Add a security check to ensure the user can only access their own invoice
-        if (data.userId !== auth.currentUser.uid) {
-          throw new Error("You don't have permission to view this invoice.");
+        if (data.userId !== user.value?.uid) {
+          throw new Error('Permission denied');
         }
-        // Structure is critical: Spread data first, then explicitly set the ID last.
         return {
+          id: docSnap.id,
           ...data,
           issueDate: parseFirestoreDate(data.issueDate),
           dueDate: parseFirestoreDate(data.dueDate),
-          id: docSnap.id,
         };
       } else {
         throw new Error('Invoice not found');
       }
     } catch (err) {
-      error.value = err.message;
-      throw err; 
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const createInvoice = async (newInvoice) => {
-    loading.value = true;
-    error.value = null;
-
-    if (!auth.currentUser) {
-      error.value = "User is not authenticated.";
-      loading.value = false;
-      throw new Error(error.value);
-    }
-
-    try {
-      const userSettingsRef = doc(db, 'userSettings', auth.currentUser.uid);
-
-      const newInvoiceNumber = await runTransaction(db, async (transaction) => {
-        const userSettingsDoc = await transaction.get(userSettingsRef);
-        const currentCounter = userSettingsDoc.exists() && userSettingsDoc.data().invoiceCounter ? userSettingsDoc.data().invoiceCounter : 0;
-        const newCounter = currentCounter + 1;
-        transaction.set(userSettingsRef, { invoiceCounter: newCounter }, { merge: true });
-        return newCounter;
-      });
-
-      const invoiceNumber = String(newInvoiceNumber).padStart(8, '0');
-      
-      const invoiceWithTotal = {
-        ...newInvoice,
-        invoiceNumber,
-        total: calculateTotal(newInvoice),
-        createdAt: serverTimestamp(),
-        status: newInvoice.status || 'pending',
-        userId: auth.currentUser.uid,
-      };
-      delete invoiceWithTotal.id; // Ensure no phantom ID is saved in the document data.
-
-      const docRef = await addDoc(invoicesCollection, invoiceWithTotal);
-      return docRef.id;
-
-    } catch (err) {
-      console.error("Error creating invoice: ", err);
-      error.value = err.message;
+      error.value = 'Failed to fetch invoice.';
+      console.error(err);
       return null;
     } finally {
       loading.value = false;
     }
   };
 
-  const updateInvoice = async (id, updatedInvoice) => {
+  const createInvoice = async (invoiceData) => {
     loading.value = true;
     error.value = null;
     try {
-      const invoiceWithTotal = {
-        ...updatedInvoice,
-        total: calculateTotal(updatedInvoice),
+      await fetchUserSettings();
+      const newInvoiceNumber = (settings.value.invoiceCounter || 0) + 1;
+      const invoiceNumber = newInvoiceNumber.toString().padStart(8, '0');
+      
+      const newInvoice = {
+        ...invoiceData,
+        userId: user.value.uid,
+        createdAt: serverTimestamp(),
+        invoiceNumber,
       };
-      const docRef = doc(db, 'invoices', id);
-      await updateDoc(docRef, invoiceWithTotal);
+      const docRef = await addDoc(invoicesCollection, newInvoice);
+
+      const userSettingsDocRef = doc(db, 'userSettings', user.value.uid);
+      await setDoc(userSettingsDocRef, { invoiceCounter: newInvoiceNumber }, { merge: true });
+
+      return docRef.id;
     } catch (err) {
-      error.value = err.message;
+      error.value = 'Failed to create invoice.';
+      console.error(err);
+      return null;
     } finally {
       loading.value = false;
-    }
+    } 
   };
 
-  const markAsPaid = async (id) => {
+  const updateInvoice = async (id, invoiceData) => {
     loading.value = true;
     error.value = null;
     try {
       const docRef = doc(db, 'invoices', id);
-      await updateDoc(docRef, { status: 'Paid' });
+      await updateDoc(docRef, {
+        ...invoiceData,
+        updatedAt: serverTimestamp(),
+      });
+      const index = invoices.value.findIndex(inv => inv.id === id);
+      if (index !== -1) {
+        const updatedInvoice = await getInvoice(id); 
+        if (updatedInvoice) {
+          invoices.value.splice(index, 1, updatedInvoice);
+        }
+      }
+      return true;
     } catch (err) {
-      error.value = err.message;
+      error.value = 'Failed to update invoice.';
+      console.error(err);
+      return false;
     } finally {
       loading.value = false;
     }
@@ -166,26 +147,32 @@ const useInvoices = () => {
     try {
       const docRef = doc(db, 'invoices', id);
       await deleteDoc(docRef);
-      invoices.value = invoices.value.filter(inv => inv.id !== id);
-    } catch (err) { 
-      error.value = err.message;
-      throw err;
+
+      const index = invoices.value.findIndex(inv => inv.id === id);
+      if (index !== -1) {
+        invoices.value.splice(index, 1);
+      }
+
+    } catch (err) {
+      error.value = 'Failed to delete invoice.';
+      console.error(err);
+      throw err; 
     } finally {
       loading.value = false;
     }
   };
 
-  return {
-    invoices,
-    loading,
-    error,
-    getInvoices,
-    getInvoice,
-    createInvoice,
-    updateInvoice,
-    markAsPaid,
-    deleteInvoice,
-  };
+  const createCheckoutSession = httpsCallable(functions, 'createCheckoutSession');
+
+  watch(user, (newUser) => {
+    if (newUser) {
+      getInvoices();
+    } else {
+      invoices.value = []; 
+    }
+  });
+
+  return { invoices, loading, error, getInvoices, getInvoice, createInvoice, updateInvoice, deleteInvoice, createCheckoutSession };
 };
 
 export default useInvoices;

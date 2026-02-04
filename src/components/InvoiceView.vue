@@ -5,22 +5,28 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import useInvoices from '../composables/useInvoices';
 import useUserSettings from '../composables/useUserSettings';
+import useStripe from '../composables/useStripe';
 import InvoiceTemplate from './InvoiceTemplate.vue';
 
 const route = useRoute();
 const router = useRouter();
-const { getInvoice, markAsPaid, loading, error } = useInvoices();
+const { getInvoice, loading, error } = useInvoices();
 const { settings, fetchUserSettings } = useUserSettings();
+const { redirectToCheckout, error: stripeError } = useStripe();
 
 const invoice = ref(null);
 const invoicePaper = ref(null);
+const isPaying = ref(false);
+
+const formatCurrency = (value) => {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0);
+};
 
 onMounted(async () => {
   const invoiceId = route.params.id;
   try {
-    // The getInvoice function now returns clean, reliable data.
     invoice.value = await getInvoice(invoiceId);
-    await fetchUserSettings(); // Fetch settings when component mounts
+    await fetchUserSettings();
   } catch (err) {
     console.error(`Failed to load invoice ${invoiceId}:`, err.message);
   }
@@ -30,81 +36,58 @@ const goBack = () => {
   router.push('/dashboard');
 };
 
-const handleMarkAsPaid = async () => {
-  if (!invoice.value || invoice.value.status === 'Paid') return;
-  await markAsPaid(invoice.value.id);
-  invoice.value = await getInvoice(invoice.value.id); // Refresh data
+const handlePayment = async () => {
+    if (!invoice.value || isPaying.value) return;
+    isPaying.value = true;
+    try {
+        // We pass a special flag to the backend to indicate a service fee payment
+        await redirectToCheckout(invoice.value.id, true);
+    } catch (err) {
+        console.error("Stripe checkout failed:", err);
+    } finally {
+        isPaying.value = false;
+    }
 };
 
 const downloadPDF = async () => {
   const templateEl = invoicePaper.value?.$el;
-  if (!templateEl) {
-    console.error("Invoice template element not found for PDF generation.");
-    return;
-  }
+  if (!templateEl) return;
 
-  // Create a clone of the invoice template to be rendered off-screen
   const clone = templateEl.cloneNode(true);
-  
-  // Create a container for the clone that will force it to a specific width
   const pdfContainer = document.createElement('div');
-  
-  // Style the container to be off-screen and have a fixed width
   pdfContainer.style.position = 'fixed';
   pdfContainer.style.left = '-9999px';
   pdfContainer.style.top = '0';
-  pdfContainer.style.width = '816px'; // 8.5 inches at 96 DPI
-  pdfContainer.style.height = 'auto';
-  pdfContainer.style.zIndex = '-1';
-  pdfContainer.style.backgroundColor = 'white'; // Ensure a white background for the canvas
-
-  // Append the cloned element to the container, and the container to the document body
+  pdfContainer.style.width = '816px';
+  pdfContainer.style.backgroundColor = 'white';
   pdfContainer.appendChild(clone);
   document.body.appendChild(pdfContainer);
 
   try {
-    const canvas = await html2canvas(clone, { // Capture the clone, not the original element
-      scale: 4, 
-      useCORS: true,
-      windowWidth: pdfContainer.scrollWidth,
-      windowHeight: pdfContainer.scrollHeight
-    });
-
+    const canvas = await html2canvas(clone, { scale: 4, useCORS: true });
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
-
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
     const canvasAspectRatio = canvas.height / canvas.width;
-    
-    let imgWidth = pdfWidth - 40; // 20pt padding on each side
+    let imgWidth = pdfWidth - 40;
     let imgHeight = imgWidth * canvasAspectRatio;
-
-    // If the image height exceeds the page height, scale it down
     if (imgHeight > pdfHeight - 40) {
-        imgHeight = pdfHeight - 40; // 20pt padding on top/bottom
+        imgHeight = pdfHeight - 40;
         imgWidth = imgHeight / canvasAspectRatio;
     }
-
     const x = (pdfWidth - imgWidth) / 2;
     const y = 20;
-
     pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight, undefined, 'FAST');
-    pdf.save(`Invoice-${invoice.value?.invoiceNumber || 'details'}.pdf`);
-
-  } catch (err) {
-    console.error("Error generating PDF:", err);
+    pdf.save(`Invoice-${invoice.value?.invoiceNumber || invoice.value?.id}.pdf`);
   } finally {
-    // Clean up by removing the temporary container from the body
     document.body.removeChild(pdfContainer);
   }
 };
 
-// The computed is now dramatically simplified, as it no longer needs to clean up the data.
 const safeInvoice = computed(() => {
   if (!invoice.value) return null;
 
-  // Basic calculations can remain, but data massaging is gone.
   const subtotal = (invoice.value.items || []).reduce((acc, item) => acc + (item.quantity || 0) * (item.price || 0), 0);
   const taxRate = Number(invoice.value.taxRate) || 0;
   const taxAmount = subtotal * (taxRate / 100);
@@ -112,7 +95,7 @@ const safeInvoice = computed(() => {
 
   return {
     ...invoice.value,
-    subtotal, // Add calculated fields
+    subtotal,
     taxAmount,
     total
   };
@@ -126,33 +109,45 @@ const safeInvoice = computed(() => {
       <v-progress-circular indeterminate color="primary"></v-progress-circular>
       <p>Loading invoice...</p>
     </div>
-    <div v-else-if="error" class="error-container">
-      <v-alert type="error" dense outlined>{{ error }}</v-alert>
+    <div v-else-if="error || stripeError" class="error-container">
+      <v-alert type="error" dense outlined>{{ error || stripeError }}</v-alert>
     </div>
     <div v-else-if="safeInvoice">
       <header class="invoice-view-header">
-        <v-btn @click="goBack" text class="back-btn">
-          <v-icon left>mdi-arrow-left</v-icon>
-          Back to Dashboard
-        </v-btn>
+        <div class="header-left">
+          <v-btn @click="goBack" text class="back-btn">
+            <v-icon left>mdi-arrow-left</v-icon>
+            Back to Dashboard
+          </v-btn>
+          <h1 class="invoice-title">Invoice #{{ safeInvoice.invoiceNumber }}</h1>
+        </div>
         <div class="actions">
-          <v-btn @click="downloadPDF" outlined color="primary">
-            <v-icon left>mdi-download</v-icon>
-            Download PDF
+          <v-btn 
+            v-if="safeInvoice.status === 'draft'"
+            @click="handlePayment"
+            :loading="isPaying"
+            color="success"
+            large
+            class="mr-4"
+          >
+            <v-icon left>mdi-credit-card</v-icon>
+            Pay $1.00 to Finalize
           </v-btn>
           <v-btn 
-            @click="handleMarkAsPaid"
-            :disabled="safeInvoice.status === 'Paid'"
-            color="primary"
-            class="ml-4"
+            v-else
+            @click="downloadPDF" 
+            outlined color="primary"
           >
-            <v-icon left>mdi-check-circle</v-icon>
-            {{ safeInvoice.status === 'Paid' ? 'Paid' : 'Mark as Paid' }}
+            <v-icon left>mdi-download</v-icon>
+            Download PDF
           </v-btn>
         </div>
       </header>
 
-      <!-- The InvoiceTemplate now receives the clean invoice data directly -->
+      <div v-if="safeInvoice.status === 'Paid'" class="paid-watermark">
+        <h2>PAID</h2>
+      </div>
+
       <InvoiceTemplate ref="invoicePaper" :invoice="safeInvoice" :settings="settings" />
 
     </div>
@@ -169,6 +164,7 @@ const safeInvoice = computed(() => {
   padding: 2rem;
   background-color: var(--background-color, #F4F7F9);
   min-height: 100vh;
+  position: relative;
 }
 
 .invoice-view-header {
@@ -176,6 +172,17 @@ const safeInvoice = computed(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.invoice-title {
+  font-size: 1.75rem;
+  font-weight: 600;
 }
 
 .back-btn {
@@ -187,38 +194,42 @@ const safeInvoice = computed(() => {
   display: flex;
 }
 
-.loading-container {
+.loading-container, .error-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   min-height: 80vh;
   gap: 1rem;
-  font-size: 1.2rem;
-  color: var(--text-color);
 }
 
-.error-container {
-    padding: 3rem;
-    text-align: center;
+.paid-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-15deg);
+  text-align: center;
+  color: rgba(40, 167, 69, 0.1);
+  z-index: 10;
+  pointer-events: none;
 }
+.paid-watermark h2 {
+  font-size: 8rem;
+  font-weight: 900;
+}
+
 
 /* Responsive Styles */
 @media (max-width: 768px) {
-  .invoice-view-container {
-    padding: 1rem;
-  }
   .invoice-view-header {
     flex-direction: column;
     align-items: stretch;
     gap: 1.5rem;
   }
-  .actions {
+  .header-left {
     flex-direction: column;
+    align-items: flex-start;
     gap: 1rem;
-  }
-  .actions .v-btn {
-      margin-left: 0 !important;
   }
 }
 </style>

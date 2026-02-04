@@ -45,6 +45,7 @@ firebase-debug.log
 
 # dev environment variables
 .env
+.env.local
 
 # Production environment variables
 .env.production

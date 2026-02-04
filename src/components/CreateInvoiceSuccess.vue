@@ -17,20 +17,20 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { getAuthReady, getCurrentUser } from '../composables/useAuth';
-import useInvoices from '../composables/useInvoices';
+import { useAuth } from '@/composables/useAuth';
+import useInvoices from '@/composables/useInvoices';
 
 const router = useRouter();
 const { createInvoice, updateInvoice } = useInvoices();
+// Correctly import from the refactored useAuth composable
+const { user, isAuthReady } = useAuth();
 
-onMounted(async () => {
-  await getAuthReady(); // Wait for Firebase Auth to initialize
-  const user = getCurrentUser();
-
-  if (!user) {
-    // If no user is logged in after waiting, redirect to login
+const processInvoice = async () => {
+  // If no user is logged in after auth state is resolved, redirect to login.
+  if (!user.value) {
+    console.log('Auth ready, but no user found. Redirecting to login.');
     router.push('/login');
     return;
   }
@@ -41,28 +41,38 @@ onMounted(async () => {
     const pendingInvoice = JSON.parse(pendingInvoiceJSON);
     
     try {
+      // Ensure the invoice is associated with the logged-in user
+      pendingInvoice.userId = user.value.uid;
+
       if (pendingInvoice.id) {
-        // This was an existing draft, update it
         await updateInvoice(pendingInvoice.id, pendingInvoice);
       } else {
-        // This is a brand new invoice, create it
         await createInvoice(pendingInvoice);
       }
       
-      // Clean up local storage and redirect
       localStorage.removeItem('pendingInvoice');
       router.push('/dashboard');
 
     } catch (error) {
       console.error("Error finalizing invoice:", error);
-      // Optional: Redirect to an error page or show a message
-      router.push('/dashboard'); // Redirect anyway, so user is not stuck
+      router.push('/dashboard'); 
     }
   } else {
-    // No pending invoice found, just go to dashboard
+    console.log('No pending invoice found in local storage.');
     router.push('/dashboard');
   }
-});
+};
+
+// Watch for the isAuthReady state to become true.
+// This ensures we don't try to process the invoice until Firebase has confirmed the auth state.
+const unwatch = watch(isAuthReady, (ready) => {
+  if (ready) {
+    console.log('Authentication is ready. Processing invoice...');
+    processInvoice();
+    unwatch(); // Clean up the watcher once it has run.
+  }
+}, { immediate: true });
+
 </script>
 
 <style scoped>

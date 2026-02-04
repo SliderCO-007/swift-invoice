@@ -59,7 +59,7 @@ const formatCurrency = (value) => {
             <p>{{ invoice.client.email }}</p>
         </div>
         <div class="invoice-dates">
-            <p><strong>Invoice #:</strong> {{ invoice.invoiceNumber || '(Generated upon save)' }}</p>
+            <p><strong>Invoice #:</strong> {{ invoice.invoiceNumber }}</p>
             <p><strong>Issue Date:</strong> {{ formatDate(invoice.issueDate) }}</p>
             <p><strong>Due Date:</strong> {{ formatDate(invoice.dueDate) }}</p>
         </div>
@@ -115,7 +115,7 @@ const formatCurrency = (value) => {
     </section>
 
     <footer class="promo-footer">
-      <p>Create your own professional invoices at <a href="https://swiftinvoice.biz" target="_blank">swiftinvoice.biz</a></p>
+      <p>Create your own professional invoices at <span class="promo-link">swiftinvoice.biz</span></p>
     </footer>
   </div>
 </template>
@@ -299,14 +299,10 @@ const formatCurrency = (value) => {
   color: #888;
 }
 
-.promo-footer a {
+.promo-link {
   color: var(--primary-color, #4A90E2);
   text-decoration: none;
   font-weight: 600;
-}
-
-.promo-footer a:hover {
-  text-decoration: underline;
 }
 
 @media (max-width: 768px) {

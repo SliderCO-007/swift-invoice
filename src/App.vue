@@ -1,3 +1,4 @@
+
 <template>
   <v-app>
     <AppBar v-if="route.name !== 'LandingPage'" />
@@ -10,6 +11,9 @@
 <script setup>
 import { useRoute } from 'vue-router';
 import AppBar from './components/AppBar.vue';
+
+// CORRECTED: The global authentication listener has been removed from this component.
+// It is being moved to main.js to ensure authentication is resolved before the app mounts.
 
 const route = useRoute();
 </script>

@@ -1,31 +1,33 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import useUserSettings from '../composables/useUserSettings';
 import useInvoices from '../composables/useInvoices';
 import useStripe from '../composables/useStripe';
-import { getAuthReady } from '../composables/useAuth';
+import { useAuth } from '../composables/useAuth';
 import InvoiceTemplate from './InvoiceTemplate.vue';
 import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 
 const { settings, fetchUserSettings } = useUserSettings();
-const { createInvoice, getInvoice } = useInvoices();
+const { createInvoice, getInvoice, updateInvoice } = useInvoices();
 const { redirectToCheckout, error: stripeError } = useStripe();
+const { isAuthReady, user } = useAuth();
 const router = useRouter();
 const route = useRoute();
 
 const invoiceId = ref(route.params.id);
 const invoice = ref({
-  status: 'pending',
+  invoiceNumber: '',
+  status: 'draft',
   sender: { name: '', address1: '', address2: '', city: '', state: '', zip: '', email: '' },
   client: { name: '', address1: '', address2: '', city: '', state: '', zip: '', email: '' },
   items: [],
   issueDate: new Date(),
   dueDate: new Date(),
-  notes: '',
+  notes: 'Thank you for your business!',
   taxRate: 0,
-  includeVenmoQr: false, // New property
+  includeVenmoQr: false,
 });
 
 const showPreview = ref(false);
@@ -68,10 +70,18 @@ const total = computed(() => {
   return subtotal.value + taxAmount.value;
 });
 
-onMounted(async () => {
-  await getAuthReady();
-  await fetchUserSettings();
+const generateInvoiceNumber = () => {
+  const prefix = 'INV-';
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < 6; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return prefix + result;
+};
 
+const initializeInvoice = async () => {
+  await fetchUserSettings();
   const id = route.params.id;
   if (id && id !== 'new') {
     const existingInvoice = await getInvoice(id);
@@ -80,20 +90,26 @@ onMounted(async () => {
     }
     invoiceId.value = id;
   } else {
+    invoiceId.value = 'new';
     if (settings.value && settings.value.company) {
-      invoice.value.sender.name = settings.value.company.name || '';
-      invoice.value.sender.address1 = settings.value.company.address1 || '';
-      invoice.value.sender.address2 = settings.value.company.address2 || '';
-      invoice.value.sender.city = settings.value.company.city || '';
-      invoice.value.sender.state = settings.value.company.state || '';
-      invoice.value.sender.zip = settings.value.company.zip || '';
-      invoice.value.sender.email = settings.value.company.email || '';
+      invoice.value.sender = { ...settings.value.company };
     }
     if (settings.value && typeof settings.value.taxRate === 'number') {
       invoice.value.taxRate = settings.value.taxRate;
     }
+    invoice.value.items = [{ description: 'Sample Service', quantity: 1, price: 1 }];
   }
-});
+};
+
+let unwatch;
+unwatch = watch(isAuthReady, (ready) => {
+  if (ready) {
+    initializeInvoice();
+    if (unwatch) {
+      unwatch();
+    }
+  }
+}, { immediate: true });
 
 const addItem = () => {
   invoice.value.items.push({ description: '', quantity: 1, price: 0 });
@@ -103,42 +119,86 @@ const removeItem = (index) => {
   invoice.value.items.splice(index, 1);
 };
 
-const createAndCheckout = async () => {
+const saveDraft = async () => {
   isProcessing.value = true;
+  if (!user.value || !user.value.uid) {
+    console.error("User not authenticated.");
+    alert("Authentication error. Please log in and try again.");
+    isProcessing.value = false;
+    return;
+  }
 
-  const invoiceToSave = {
+  const invoiceData = {
     ...invoice.value,
-    status: 'pending',
+    status: 'draft',
     subtotal: subtotal.value,
     taxAmount: taxAmount.value,
     total: total.value,
-    includeVenmoQr: invoice.value.includeVenmoQr, // Ensure it's included
+    userId: user.value.uid,
   };
 
   try {
-    const savedId = await createInvoice(invoiceToSave);
-    if (!savedId) {
-      throw new Error('Failed to create invoice.');
+    if (invoiceId.value === 'new') {
+      const newId = await createInvoice(invoiceData);
+      if (newId) {
+        invoiceId.value = newId;
+        router.replace({ params: { id: newId } });
+        alert('Draft saved successfully!');
+      }
+    } else {
+      await updateInvoice(invoiceId.value, invoiceData);
+      alert('Draft updated successfully!');
     }
-
-    const finalInvoice = { ...invoiceToSave, id: savedId };
-    await redirectToCheckout(finalInvoice);
-
   } catch (error) {
-    console.error("Checkout failed:", error);
-    alert(stripeError.value || 'An unexpected error occurred during checkout.');
+    console.error("Failed to save draft:", error);
+    alert('Error saving draft.');
   } finally {
     isProcessing.value = false;
   }
 };
 
+const saveAndPay = async () => {
+  isProcessing.value = true;
+  if (!user.value || !user.value.uid) {
+    console.error("User not authenticated.");
+    alert("Authentication error. Please log in and try again.");
+    isProcessing.value = false;
+    return;
+  }
+
+  const invoiceData = {
+    ...invoice.value,
+    status: 'pending',
+    subtotal: subtotal.value,
+    taxAmount: taxAmount.value,
+    total: total.value,
+    userId: user.value.uid,
+  };
+
+  try {
+    let finalInvoiceId;
+    if (invoiceId.value === 'new') {
+      finalInvoiceId = await createInvoice(invoiceData);
+      if (!finalInvoiceId) throw new Error('Failed to create invoice.');
+    } else {
+      await updateInvoice(invoiceId.value, invoiceData);
+      finalInvoiceId = invoiceId.value;
+    }
+    await redirectToCheckout(finalInvoiceId);
+  } catch (error) {
+    console.error("Payment processing failed:", error);
+    alert(stripeError.value || 'An unexpected error occurred.');
+  } finally {
+    isProcessing.value = false;
+  }
+};
 </script>
 
 <template>
   <div class="editor-container">
     <div class="editor-form-card">
       <header class="editor-header">
-        <h1>{{ invoiceId === 'new' ? 'Create Invoice' : 'Edit Invoice' }}</h1>
+        <h1>{{ invoice.invoiceNumber ? `Invoice #${invoice.invoiceNumber}` : 'Create Invoice' }}</h1>
         <button class="back-btn" @click="router.push({ name: 'Dashboard' })">Back to Dashboard</button>
       </header>
 
@@ -239,8 +299,9 @@ const createAndCheckout = async () => {
         </div>
 
         <footer class="editor-footer">
+          <button class="draft-btn" @click="saveDraft">Save as Draft</button>
           <button class="preview-btn" @click="showPreview = true">Preview Invoice</button>
-          <button class="save-btn" @click="createAndCheckout" :disabled="isProcessing">
+          <button class="save-btn" @click="saveAndPay" :disabled="isProcessing">
             {{ isProcessing ? 'Processing...' : 'Save & Continue to Payment' }}
           </button>
         </footer>
@@ -346,7 +407,6 @@ input, textarea {
     display: contents;
 }
 
-/* By default, item labels are for screen readers only */
 .item-label {
   position: absolute;
   width: 1px;
@@ -380,7 +440,7 @@ input, textarea {
   padding-top: 1.5rem;
 }
 
-.save-btn, .preview-btn {
+.save-btn, .preview-btn, .draft-btn {
   padding: 0.8rem 1.5rem;
   border: none;
   border-radius: 20px;
@@ -390,6 +450,7 @@ input, textarea {
 
 .save-btn { background-color: var(--primary-color, #4F46E5); color: white; }
 .preview-btn { background-color: #6c757d; color: white; }
+.draft-btn { background-color: #f0f0f0; color: #333; border: 1px solid #ddd; }
 
 .preview-modal {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -517,8 +578,6 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
-
-/* Responsive Adjustments */
 @media (min-width: 1024px) {
     .modal-content {
         width: 90%;
@@ -539,7 +598,6 @@ input:checked + .slider:before {
     display: block;
   }
   
-  /* On mobile, make the labels visible */
   .item-label {
     position: static;
     width: auto;
@@ -585,5 +643,4 @@ input:checked + .slider:before {
       color: #c53030;
   }
 }
-
 </style>

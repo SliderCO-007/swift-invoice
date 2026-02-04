@@ -11,7 +11,7 @@
           <a href="#how-it-works">How It Works</a>
           <router-link to="/login">Login</router-link>
         </nav>
-        <v-btn to="/register" color="primary" large rounded class="desktop-nav">Get Started for Free</v-btn>
+        <v-btn to="/register" color="primary" size="large" rounded="pill" class="desktop-nav">Get Started for Free</v-btn>
         <button class="mobile-nav-toggle" @click="isMobileNavOpen = !isMobileNavOpen">
           <IconMenu />
         </button>
@@ -20,7 +20,7 @@
         <a href="#features" @click="isMobileNavOpen = false">Features</a>
         <a href="#how-it-works" @click="isMobileNavOpen = false">How It Works</a>
         <router-link to="/login" @click="isMobileNavOpen = false">Login</router-link>
-        <v-btn to="/register" color="primary" large rounded>Get Started for Free</v-btn>
+        <v-btn to="/register" color="primary" size="large" rounded="pill">Get Started for Free</v-btn>
       </nav>
     </header>
 
@@ -31,7 +31,7 @@
             <h1 class="hero-title">Stop Chasing Payments.</h1>
             <h1 class="hero-title">Start Getting Paid in Seconds.</h1>
             <p class="hero-subtitle">Create, download, and track professional invoices in minutes. Focus on your work, not your paperwork.</p>
-            <v-btn to="/register" color="primary" x-large rounded class="mt-8">Get Started for Free</v-btn>
+            <v-btn to="/register" color="primary" size="x-large" rounded="pill" class="mt-8">Get Started for Free</v-btn>
             <p class="hero-caption">No subscriptions. No hidden fees.</p>
           </div>
         </div>
@@ -55,7 +55,7 @@
                 </div>
                 <h3 class="feature-title">Instant Venmo Payments</h3>
                 <p class="feature-description">Add your Venmo QR code to invoices so clients can pay you in a snap. Faster payments, happier you.</p>
-                <v-btn href="https://help.venmo.com/cs/articles/how-to-sign-up-for-a-business-profile-vhel163" target="_blank" color="secondary" rounded class="mt-4">Create Venmo</v-btn>
+                <v-btn href="https://help.venmo.com/cs/articles/how-to-sign-up-for-a-business-profile-vhel163" target="_blank" color="secondary" rounded="pill" class="mt-4">Create Venmo</v-btn>
             </div>
             <div class="feature-card">
               <div class="feature-icon">
@@ -63,7 +63,7 @@
               </div>
               <h3 class="feature-title">Download & Share Instantly</h3>
               <p class="feature-description">Generate and download a professional, high-resolution PDF of your invoice the moment you create it. Ready to send to your clients immediately.</p>
-              <v-btn href="/Invoice-00000009.pdf" download color="secondary" rounded class="mt-4">Download Sample</v-btn>
+              <v-btn href="/Invoice-00000009.pdf" download color="secondary" rounded="pill" class="mt-4">Download Sample</v-btn>
             </div>
             <div class="feature-card">
               <div class="feature-icon">
@@ -71,7 +71,7 @@
               </div>
               <h3 class="feature-title">At-a-Glance Tracking</h3>
               <p class="feature-description">The dashboard gives you a clear overview of all your invoices. See which invoices are paid, pending, or overdue in a single glance.</p>
-              <v-btn @click="showDashboardPreview = true" color="secondary" rounded class="mt-4">Preview Dashboard</v-btn>
+              <v-btn @click="showDashboardPreview = true" color="secondary" rounded="pill" class="mt-4">Preview Dashboard</v-btn>
             </div>
           </div>
         </div>
@@ -101,7 +101,7 @@
             </div>
           </div>
           <div class="get-started-cta">
-             <v-btn to="/register" color="primary" x-large rounded class="mt-8">Sign Up Now</v-btn>
+             <v-btn to="/register" color="primary" size="x-large" rounded="pill" class="mt-8">Sign Up Now</v-btn>
           </div>
         </div>
       </section>

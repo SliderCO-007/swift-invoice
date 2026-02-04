@@ -1,58 +1,70 @@
 import { ref } from 'vue';
 import { loadStripe } from '@stripe/stripe-js';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { app } from '../firebase'; 
-import useInvoices from './useInvoices';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from './useFirebase';
+import { waitForAuth } from './useAuth';
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+const stripeApiKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+if (!stripeApiKey) {
+  const errorMsg = "Stripe API key is missing. Please add VITE_STRIPE_PUBLIC_KEY to your .env file.";
+  console.error(errorMsg);
+  throw new Error(errorMsg);
+}
+
+const stripePromise = loadStripe(stripeApiKey);
 
 export default function useStripe() {
-  const stripe = ref(null);
   const error = ref(null);
-  const { deleteInvoice } = useInvoices();
+  const loading = ref(false);
 
-  async function initializeStripe() {
-    stripe.value = await stripePromise;
-  }
-
-  initializeStripe();
-
-  async function redirectToCheckout(invoice) {
-    if (!stripe.value) {
-      error.value = 'Stripe.js has not loaded yet.';
-      return;
-    }
-    if (!invoice) {
-      error.value = 'Invoice data is missing.';
-      return;
-    }
+  async function redirectToCheckout(invoiceId, isServiceFee = true) {
+    loading.value = true;
+    error.value = null;
 
     try {
-      const functions = getFunctions(app);
+      const user = await waitForAuth();
+      if (!user) {
+        throw new Error('You must be logged in to make a payment.');
+      }
+
+      if (!invoiceId) {
+        throw new Error('A valid invoice ID is required.');
+      }
+
       const createCheckoutSession = httpsCallable(functions, 'createCheckoutSession');
-      const response = await createCheckoutSession({ invoice });
+
+      const response = await createCheckoutSession({
+        invoiceId: invoiceId,
+        isServiceFee: isServiceFee,
+      });
+
+      if (response.data.error) {
+        throw new Error(response.data.error.message || 'The cloud function returned an error.');
+      }
+
       const sessionId = response.data.id;
 
-      const { error: stripeError } = await stripe.value.redirectToCheckout({ sessionId });
+      if (!sessionId) {
+        throw new Error('Failed to retrieve a valid session ID from the server.');
+      }
+
+      const stripe = await stripePromise;
+      const { error: stripeError } = await stripe.redirectToCheckout({ sessionId });
 
       if (stripeError) {
-        error.value = stripeError.message;
-        // If payment fails or is canceled, delete the invoice.
-        await deleteInvoice(invoice.id);
+        throw new Error(stripeError.message);
       }
     } catch (e) {
-      if (e && e.message) {
-        error.value = e.message;
-      } else {
-        error.value = 'An unknown error occurred during checkout.';
-      }
-      // If any error occurs, delete the invoice.
-      await deleteInvoice(invoice.id);
+      console.error('Error redirecting to checkout:', e.message || e);
+      error.value = e.message || 'An unknown error occurred.';
+    } finally {
+      loading.value = false;
     }
   }
 
   return {
     redirectToCheckout,
-    error
+    loading,
+    error,
   };
 }

@@ -1,83 +1,110 @@
-import { ref } from 'vue';
-import { 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword, 
-  signOut, 
+
+import { ref, readonly, computed, watch } from 'vue';
+import { auth } from './useFirebase'; // CORRECT: Import from the single source of truth
+import {
   onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
   GoogleAuthProvider,
   signInWithPopup
 } from 'firebase/auth';
-import { auth } from '../firebase';
-import { resetUserSettings } from './useUserSettings'; // Import the reset function
 
-// Shared state
-const user = ref(auth.currentUser);
-const isAuthReady = ref(false);
-const error = ref(null);
+// --- This is the single source of truth for all authentication logic ---
 
-// Listener for auth state changes
-onAuthStateChanged(auth, (currentUser) => {
-  user.value = currentUser;
-  isAuthReady.value = true;
-  // If user is null (logged out), reset settings
-  if (!currentUser) {
-    resetUserSettings();
+// --- Global Reactive State ---
+const user = ref(null);
+const authError = ref(null);
+const isAuthReady = ref(false); // New state to track initial auth check
+
+// --- Global Listener ---
+let unsubscribe;
+export function initializeAuthListener() {
+  if (!unsubscribe) {
+    unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      console.log('Global auth state changed. User:', firebaseUser ? firebaseUser.uid : 'null');
+      user.value = firebaseUser;
+      authError.value = null;
+      if (!isAuthReady.value) {
+        isAuthReady.value = true; // Set to true only once
+      }
+    });
   }
-});
+}
 
-const useAuth = () => {
+// --- Utility for Router Guards ---
+// Returns a promise that resolves when the initial auth state is known.
+export const waitForAuth = () => {
+  return new Promise(resolve => {
+    if (isAuthReady.value) {
+      resolve(user.value);
+    } else {
+      const unwatch = watch(isAuthReady, (ready) => {
+        if (ready) {
+          unwatch();
+          resolve(user.value);
+        }
+      });
+    }
+  });
+};
+
+
+// --- The Composable API for Components ---
+export function useAuth() {
+
+  // --- Methods to change authentication state ---
   const signup = async (email, password) => {
-    error.value = null;
+    authError.value = null;
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const res = await createUserWithEmailAndPassword(auth, email, password);
+      if (!res.user) throw new Error('Could not complete signup.');
     } catch (e) {
-      error.value = e.message;
+      authError.value = e.message;
     }
   };
 
   const login = async (email, password) => {
-    error.value = null;
+    authError.value = null;
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const res = await signInWithEmailAndPassword(auth, email, password);
+      if (!res.user) throw new Error('Could not complete login.');
     } catch (e) {
-      error.value = e.message;
+      authError.value = e.message;
     }
   };
 
   const logout = async () => {
-    error.value = null;
+    authError.value = null;
     try {
       await signOut(auth);
-      // No need to call resetUserSettings here anymore, as the onAuthStateChanged listener handles it.
     } catch (e) {
-      error.value = e.message;
+      authError.value = e.message;
     }
   };
 
   const signInWithGoogle = async () => {
-    error.value = null;
+    authError.value = null;
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      const res = await signInWithPopup(auth, provider);
+      if (!res.user) throw new Error('Could not complete Google sign-in.');
     } catch (e) {
-      error.value = e.message;
+      authError.value = e.message;
     }
   };
 
-  return { user, isAuthReady, error, signup, login, logout, signInWithGoogle };
-};
+  return {
+    // Reactive State
+    user: readonly(user),
+    isLoggedIn: computed(() => !!user.value),
+    error: readonly(authError),
+    isAuthReady: readonly(isAuthReady), // Expose new state
 
-export const getCurrentUser = () => user.value;
-export const getAuthReady = async () => {
-  if (isAuthReady.value) return;
-  return new Promise(resolve => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      user.value = currentUser;
-      isAuthReady.value = true;
-      unsubscribe();
-      resolve();
-    });
-  });
-};
-
-export default useAuth;
+    // Methods
+    signup,
+    login,
+    logout,
+    signInWithGoogle
+  };
+}

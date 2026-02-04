@@ -1,13 +1,14 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import useAuth from '../composables/useAuth';
+import { useAuth } from '../composables/useAuth';
 import useInvoices from '../composables/useInvoices';
 import useUserSettings from '../composables/useUserSettings';
 import { useMeta } from '../composables/useMeta';
 import { format, isValid } from 'date-fns';
 import InvoiceTable from './InvoiceTable.vue';
 import CompanyInfoPrompt from './CompanyInfoPrompt.vue';
+import InvoiceStats from './InvoiceStats.vue';
 
 const { logout } = useAuth();
 const { invoices, getInvoices, loading, error, deleteInvoice } = useInvoices();
@@ -54,16 +55,19 @@ const goToInvoiceDetails = (id) => {
   router.push(`/invoice/${id}`);
 };
 
-const handleDelete = async (event, invoiceId) => {
+const handleDeleteInvoice = async (invoiceId) => {
+  try {
+    await deleteInvoice(invoiceId);
+  } catch (err) {
+    console.error("Failed to delete invoice:", err);
+    alert(`Error deleting invoice: ${err.message}`);
+  }
+};
+
+const handleDeleteFromCard = (event, invoiceId) => {
   event.stopPropagation();
-  if (confirm('Are you sure you want to delete this invoice? This action cannot be undone.')) {
-    try {
-      await deleteInvoice(invoiceId);
-      await getInvoices();
-    } catch (err) {
-      console.error("Failed to delete invoice:", err);
-      alert(`Error deleting invoice: ${error.value}`);
-    }
+  if (confirm(`Are you sure you want to delete this invoice? This action cannot be undone.`)) {
+    handleDeleteInvoice(invoiceId);
   }
 };
 
@@ -92,15 +96,8 @@ const safeInvoices = computed(() => {
         <h1 class="welcome-message">Welcome Back!</h1>
         <p class="date-display">Today is {{ today }}</p>
       </div>
-      <div class="header-actions">
-        <button class="settings-btn" @click="goToSettings">
-          <svg fill="currentColor" height="24px" viewBox="-1 0 24 24" width="24px" xmlns="http://www.w3.org/2000/svg" class="cf-icon-svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M16.014 8.86v1.44a.587.587 0 0 1-.468.556l-1.182.204a.463.463 0 0 1-.114.006 5.902 5.902 0 0 1-.634 1.528.455.455 0 0 1 .078.084l.691.98a.586.586 0 0 1-.062.725l-1.02 1.02a.586.586 0 0 1-.724.061l-.98-.69a.444.444 0 0 1-.085-.078 5.908 5.908 0 0 1-1.544.637.502.502 0 0 1 0 .175l-.182 1.053a.667.667 0 0 1-.633.532h-1.31a.667.667 0 0 1-.633-.532l-.182-1.053a.495.495 0 0 1 0-.175 5.908 5.908 0 0 1-1.544-.637.444.444 0 0 1-.085.077l-.98.691a.586.586 0 0 1-.725-.062l-1.02-1.02a.586.586 0 0 1-.061-.723l.691-.98a.454.454 0 0 1 .077-.085 5.901 5.901 0 0 1-.633-1.528.466.466 0 0 1-.114-.006l-1.182-.204a.586.586 0 0 1-.468-.556V8.86a.586.586 0 0 1 .468-.556L2.636 8.1a.437.437 0 0 1 .114-.005 5.912 5.912 0 0 1 .633-1.528.466.466 0 0 1-.077-.085l-.691-.98a.587.587 0 0 1 .061-.724l1.02-1.02a.587.587 0 0 1 .725-.062l.98.691a.444.444 0 0 1 .085.078 5.903 5.903 0 0 1 1.528-.634.433.433 0 0 1 .005-.114l.204-1.182a.586.586 0 0 1 .556-.468h1.442a.586.586 0 0 1 .556.468l.204 1.182a.448.448 0 0 1 .005.114 5.908 5.908 0 0 1 1.528.634.444.444 0 0 1 .085-.078l.98-.691a.586.586 0 0 1 .724.062l1.02 1.02a.586.586 0 0 1 .062.724l-.691.98a.467.467 0 0 1-.078.085 5.902 5.902 0 0 1 .634 1.528.434.434 0 0 1 .114.005l1.182.204a.587.587 0 0 1 .468.556zm-4.955.72a2.559 2.559 0 1 0-2.56 2.56 2.559 2.559 0 0 0 2.56-2.56z"></path></g></svg>
-          Manage Settings
-        </button>
-        <button class="logout-btn" @click="handleLogout">
-          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5-5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
-          Logout
-        </button>
+      <div class="header-stats">
+        <InvoiceStats :invoices="safeInvoices" />
       </div>
     </header>
 
@@ -136,7 +133,11 @@ const safeInvoices = computed(() => {
         </button>
       </div>
       <div v-else>
-        <InvoiceTable v-if="viewMode === 'table'" :invoices="safeInvoices" />
+        <InvoiceTable 
+          v-if="viewMode === 'table'" 
+          :invoices="safeInvoices"
+          @delete-invoice="handleDeleteInvoice"
+        />
         <div v-else class="invoice-list">
           <div v-for="invoice in safeInvoices" :key="invoice.id" class="invoice-card" @click="goToInvoiceDetails(invoice.id)">
             <div class="invoice-card-header">
@@ -152,7 +153,7 @@ const safeInvoices = computed(() => {
                   <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 0 24 24" width="16px" fill="#777"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
                   Due: {{ formatDate(invoice.dueDate) }}
               </span>
-              <button class="delete-btn" @click="handleDelete($event, invoice.id)">
+              <button class="delete-btn" @click="handleDeleteFromCard($event, invoice.id)">
                 <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" width="20px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5l-1-1h-5l-1 1H5v2h14V4h-3.5z"/></svg>
               </button>
             </div>
@@ -196,40 +197,8 @@ const safeInvoices = computed(() => {
   color: #777;
 }
 
-.header-actions button {
-  border: none;
-  padding: 0.8rem 1.5rem;
-  border-radius: 20px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-left: 1rem;
-  display: flex;
-  align-items: center;
-}
-
-.header-actions svg {
-  margin-right: 0.5rem;
-}
-
-.settings-btn {
-  background-color: var(--white-color);
-  color: var(--primary-color);
-  border: 1px solid var(--primary-color);
-}
-
-.settings-btn:hover {
-  background-color: var(--primary-color);
-  color: var(--white-color);
-}
-
-.logout-btn {
-  background-color: #E74C3C;
-  color: var(--white-color);
-}
-
-.logout-btn:hover {
-  opacity: 0.9;
+.header-stats {
+  width: 60%;
 }
 
 .invoices-header {
@@ -415,7 +384,7 @@ const safeInvoices = computed(() => {
   border-radius: 50%;
   background-color: var(--primary-color);
   color: white;
-  border: none;
+  border: ds-store none;
   box-shadow: var(--shadow-lg);
   display: flex;
   align-items: center;
@@ -426,7 +395,7 @@ const safeInvoices = computed(() => {
 
 .fab:hover {
   background-color: #3A80D2;
-  box-shadow: 0 12px 25px rgba(74, 144, 226, 0.4);
+  box-shadow: 0 12px 25px rgba(74, 144, 226,.4);
   transform: scale(1.05);
 }
 
@@ -445,5 +414,15 @@ const safeInvoices = computed(() => {
 
 .dashboard-footer a:hover {
   text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-wrap: wrap;
+  }
+  .header-stats {
+    width: 100%;
+    margin-top: 1rem;
+  }
 }
 </style>

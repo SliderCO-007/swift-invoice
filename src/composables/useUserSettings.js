@@ -1,7 +1,8 @@
 import { ref } from 'vue';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { auth, db, storage } from '../firebase';
+import { db, storage } from './useFirebase'; // CORRECT: Import from the single source of truth
+import { useAuth } from './useAuth'; // CORRECT: Use this for auth status
 
 // Define the initial, empty state for user settings
 const getInitialSettings = () => ({
@@ -20,10 +21,8 @@ const getInitialSettings = () => ({
   invoiceCounter: 0,
 });
 
-// This ref will be shared across the app, ensuring consistency
 const settings = ref(getInitialSettings());
 
-// Function to reset the settings to their initial state
 export const resetUserSettings = () => {
   settings.value = getInitialSettings();
 };
@@ -31,17 +30,19 @@ export const resetUserSettings = () => {
 const useUserSettings = () => {
   const loading = ref(false);
   const error = ref(null);
+  const { user } = useAuth(); // Get the reactive user object
 
   const fetchUserSettings = async () => {
-    if (!auth.currentUser) return;
+    // CORRECT: Check the reactive user ref
+    if (!user.value) return;
     loading.value = true;
     error.value = null;
     try {
-      const docRef = doc(db, 'userSettings', auth.currentUser.uid);
+      // CORRECT: Use the user ref's uid
+      const docRef = doc(db, 'userSettings', user.value.uid);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const data = docSnap.data();
-        // Deep merge fetched data with a clean initial state, not the existing one
         settings.value = {
             ...getInitialSettings(),
             ...data,
@@ -51,7 +52,6 @@ const useUserSettings = () => {
             }
         };
       } else {
-        // If no settings exist in Firestore, reset to initial state
         resetUserSettings();
       }
     } catch (err) {
@@ -63,7 +63,8 @@ const useUserSettings = () => {
   };
 
   const saveUserSettings = async (newSettings, logoFile, venmoQrFile) => {
-    if (!auth.currentUser) return;
+    // CORRECT: Check the reactive user ref
+    if (!user.value) return;
     loading.value = true;
     error.value = null;
     try {
@@ -71,13 +72,15 @@ const useUserSettings = () => {
       let venmoQrUrl = newSettings.company.venmoQrUrl;
 
       if (logoFile) {
-        const logoStorageRef = storageRef(storage, `logos/${auth.currentUser.uid}/${logoFile.name}`);
+        // CORRECT: Use the user ref's uid
+        const logoStorageRef = storageRef(storage, `logos/${user.value.uid}/${logoFile.name}`);
         await uploadBytes(logoStorageRef, logoFile);
         logoUrl = await getDownloadURL(logoStorageRef);
       }
 
       if (venmoQrFile) {
-        const qrStorageRef = storageRef(storage, `qrcodes/${auth.currentUser.uid}/${venmoQrFile.name}`);
+        // CORRECT: Use the user ref's uid
+        const qrStorageRef = storageRef(storage, `qrcodes/${user.value.uid}/${venmoQrFile.name}`);
         await uploadBytes(qrStorageRef, venmoQrFile);
         venmoQrUrl = await getDownloadURL(qrStorageRef);
       }
@@ -91,7 +94,8 @@ const useUserSettings = () => {
         }
       };
 
-      const docRef = doc(db, 'userSettings', auth.currentUser.uid);
+      // CORRECT: Use the user ref's uid
+      const docRef = doc(db, 'userSettings', user.value.uid);
       await setDoc(docRef, settingsToSave, { merge: true });
       
       settings.value = settingsToSave;

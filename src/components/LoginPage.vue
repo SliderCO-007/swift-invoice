@@ -1,25 +1,26 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import useAuth from '../composables/useAuth';
+import { useAuth } from '../composables/useAuth'; // Corrected: Named import
 import Logo from './Logo.vue';
 
 const email = ref('');
 const password = ref('');
 
-const { login, signInWithGoogle, error: authError } = useAuth();
+// Correctly destructuring the named export from the complete useAuth composable
+const { login, signInWithGoogle, error } = useAuth(); 
 const router = useRouter();
 
 const handleLogin = async () => {
   await login(email.value, password.value);
-  if (!authError.value) {
+  if (!error.value) { // Check the error state from the composable
     router.push('/dashboard');
   }
 };
 
 const handleGoogleSignIn = async () => {
   await signInWithGoogle();
-  if (!authError.value) {
+  if (!error.value) { // Check the error state from the composable
     router.push('/dashboard');
   }
 };
@@ -45,7 +46,8 @@ const handleGoogleSignIn = async () => {
           <input type="password" id="password" v-model="password" required placeholder="••••••••" />
         </div>
         
-        <div v-if="authError" class="error-message">{{ authError }}</div>
+        <!-- Correctly display the error from the composable -->
+        <div v-if="error" class="error-message">{{ error }}</div>
 
         <button type="submit" class="login-btn">Login</button>
       </form>
