@@ -1,7 +1,7 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuth } from '../composables/useAuth';
+import { useAuth, currentUser } from '../composables/useAuth.js';
 import useInvoices from '../composables/useInvoices';
 import useUserSettings from '../composables/useUserSettings';
 import { useMeta } from '../composables/useMeta';
@@ -10,35 +10,55 @@ import InvoiceTable from './InvoiceTable.vue';
 import CompanyInfoPrompt from './CompanyInfoPrompt.vue';
 import InvoiceStats from './InvoiceStats.vue';
 
-const { logout } = useAuth();
-const { invoices, getInvoices, loading, error, deleteInvoice } = useInvoices();
+// --- Composables ---
+const { loading: authLoading, logout } = useAuth();
+const { invoices, getInvoices, loading: invoicesLoading, error: invoicesError, deleteInvoice } = useInvoices();
 const { settings, fetchUserSettings } = useUserSettings();
 const router = useRouter();
 
+// Use the globally shared currentUser ref for reactivity
+const user = currentUser;
+
+// --- Local State ---
 const viewMode = ref('table'); // 'card' or 'table'
 const today = format(new Date(), 'MMMM d, yyyy');
 
+// --- Metadata ---
 useMeta(
   'Dashboard | Swift Invoice',
   'Manage your invoices, view payment statuses, and track your business finances with the Swift Invoice dashboard.',
   'Perfect for small businesses and individuals looking to streamline their invoice management.'
 );
 
-onMounted(async () => {
-  await getInvoices();
-  await fetchUserSettings();
-});
+// --- Data Fetching ---
+// Watch the globally shared user object. When it changes (on login), fetch data.
+watch(user, (newUser) => {
+  if (newUser) {
+    getInvoices();
+    fetchUserSettings();
+  }
+}, { immediate: true });
 
+// --- Computed Properties ---
 const showCompanyInfoPrompt = computed(() => {
   return settings.value && !settings.value.company?.name;
 });
 
+const safeInvoices = computed(() => {
+  if (!invoices.value) return [];
+  return invoices.value.slice().sort((a, b) => {
+      const numA = String(a.invoiceNumber || '');
+      const numB = String(b.invoiceNumber || '');
+      return numB.localeCompare(numA, undefined, { numeric: true });
+    });
+});
+
+// --- Methods ---
 const handleLogout = async () => {
   await logout();
   router.push('/login');
 };
 
-const goToSettings = () => router.push('/settings');
 const createNewInvoice = () => {
   if (showCompanyInfoPrompt.value) {
     alert('Please complete your company profile in the settings before creating an invoice.');
@@ -47,6 +67,7 @@ const createNewInvoice = () => {
     router.push('/invoice/new');
   }
 };
+
 const goToInvoiceDetails = (id) => {
   if (!id) {
     console.error("Navigation failed: Invoice ID is null.");
@@ -77,20 +98,17 @@ const formatDate = (date) => {
   }
   return 'No due date';
 };
-
-const safeInvoices = computed(() => {
-  if (!invoices.value) return [];
-  return invoices.value.sort((a, b) => {
-      const numA = String(a.invoiceNumber || '');
-      const numB = String(b.invoiceNumber || '');
-      return numB.localeCompare(numA, undefined, { numeric: true });
-    });
-});
-
 </script>
 
 <template>
-  <div class="dashboard-container">
+  <!-- Show a global loader while the initial authentication is happening -->
+  <div v-if="authLoading" class="page-loading-container">
+    <v-progress-circular indeterminate size="64" color="primary"></v-progress-circular>
+    <p>Authenticating...</p>
+  </div>
+
+  <!-- Show the main dashboard content once authentication is resolved -->
+  <div v-else class="dashboard-container">
     <header class="dashboard-header">
       <div>
         <h1 class="welcome-message">Welcome Back!</h1>
@@ -119,11 +137,13 @@ const safeInvoices = computed(() => {
         </v-btn-toggle>
       </div>
 
-      <div v-if="loading" class="loading-container">
+      <!-- Show loader specific to invoice data fetching -->
+      <div v-if="invoicesLoading" class="loading-container">
+        <v-progress-circular indeterminate size="48" color="primary"></v-progress-circular>
         <p>Loading invoices...</p>
       </div>
-      <div v-else-if="error" class="error-container">
-        <p>Error loading invoices: {{ error }}</p>
+      <div v-else-if="invoicesError" class="error-container">
+        <p>Error loading invoices: {{ invoicesError }}</p>
       </div>
       <div v-else-if="!safeInvoices || safeInvoices.length === 0" class="no-invoices-container">
         <img src="/no_invoices.svg" alt="No Invoices Illustration" class="no-invoices-illustration" />
@@ -173,6 +193,20 @@ const safeInvoices = computed(() => {
 </template>
 
 <style scoped>
+.page-loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  text-align: center;
+}
+.page-loading-container p {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  color: #555;
+}
+
 .dashboard-container {
   padding: 2rem;
   background-color: var(--background-color);
@@ -218,6 +252,17 @@ const safeInvoices = computed(() => {
 .invoices-header-title p {
   color: #777;
   margin: 0;
+}
+
+.loading-container,
+.error-container {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-color);
+}
+
+.loading-container p {
+  margin-top: 1rem;
 }
 
 .no-invoices-container {
@@ -353,13 +398,6 @@ const safeInvoices = computed(() => {
     color: #721C24;
 }
 
-.loading-container,
-.error-container {
-    text-align: center;
-    padding: 3rem;
-    color: var(--text-color);
-}
-
 .primary-btn {
     background-color: var(--primary-color);
     color: white;
@@ -384,7 +422,7 @@ const safeInvoices = computed(() => {
   border-radius: 50%;
   background-color: var(--primary-color);
   color: white;
-  border: ds-store none;
+  border: none;
   box-shadow: var(--shadow-lg);
   display: flex;
   align-items: center;

@@ -38,6 +38,7 @@ const formatCurrency = (value) => {
 
 <template>
   <div class="invoice-paper" v-if="invoice && settings">
+    <div v-if="!invoice.svcFeePaid" class="watermark">DRAFT ONLY</div>
     <section class="invoice-main-header">
         <div class="invoice-brand">
             <img v-if="settings?.company?.logoUrl" :src="settings.company.logoUrl" alt="Company Logo" class="company-logo" />
@@ -130,6 +131,21 @@ const formatCurrency = (value) => {
   color: #333;
   font-size: 10px;
   line-height: 1.6;
+  position: relative;
+  overflow: hidden;
+}
+
+.watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  font-size: 10rem;
+  color: rgba(255, 0, 0, 0.15);
+  font-weight: 900;
+  pointer-events: none;
+  text-transform: uppercase;
+  z-index: 1;
 }
 
 .company-logo {

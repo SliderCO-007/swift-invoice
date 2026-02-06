@@ -1,8 +1,10 @@
 import { ref } from 'vue';
 import { loadStripe } from '@stripe/stripe-js';
 import { httpsCallable } from 'firebase/functions';
-import { functions } from './useFirebase';
-import { waitForAuth } from './useAuth';
+import { functions, appCheck } from './useFirebase';
+// CORRECTED: Removed 'waitForAuth' and imported 'currentUser'
+import { currentUser } from './useAuth';
+import { getToken } from 'firebase/app-check';
 
 const stripeApiKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
 if (!stripeApiKey) {
@@ -22,20 +24,39 @@ export default function useStripe() {
     error.value = null;
 
     try {
-      const user = await waitForAuth();
+      // 1. Get the current user.
+      // No need to wait anymore, as main.js ensures auth is ready before the app mounts.
+      const user = currentUser.value;
       if (!user) {
         throw new Error('You must be logged in to make a payment.');
+      }
+
+      // 2. Wait for the App Check token
+      if (appCheck) {
+        try {
+          await getToken(appCheck, /* forceRefresh= */ false);
+          console.log('App Check token acquired successfully.');
+        } catch (appCheckError) {
+          console.error('App Check Error:', appCheckError);
+          throw new Error('Could not verify app integrity. Please try again later.');
+        }
       }
 
       if (!invoiceId) {
         throw new Error('A valid invoice ID is required.');
       }
 
+      // 3. Create the callable function reference
       const createCheckoutSession = httpsCallable(functions, 'createCheckoutSession');
 
+      // Construct the cancel URL to return the user to the invoice view
+      const cancelUrl = `${window.location.origin}/invoice/${invoiceId}`;
+
+      // 4. Call the function.
       const response = await createCheckoutSession({
         invoiceId: invoiceId,
         isServiceFee: isServiceFee,
+        cancelUrl: cancelUrl,
       });
 
       if (response.data.error) {

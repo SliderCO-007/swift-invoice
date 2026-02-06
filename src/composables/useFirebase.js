@@ -2,7 +2,8 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getFunctions } from 'firebase/functions';
-import { getStorage } from 'firebase/storage';
+import { getStorage } from 'firebase/storage'; // Import getStorage
+import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -13,16 +14,23 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-// --- The Single Source of Truth for all Firebase Services ---
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const functions = getFunctions(app);
+const storage = getStorage(app); // Initialize storage
 
-// Initialize and export the services
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const functions = getFunctions(app); 
-export const storage = getStorage(app);
-
-// A composable to provide these instances to any component that needs them.
-export function useFirebase() {
-  return { app, auth, db, functions, storage };
+// Initialize App Check
+let appCheck;
+if (import.meta.env.VITE_RECAPTCHA_SITE_KEY) {
+  appCheck = initializeAppCheck(app, {
+    provider: new ReCaptchaV3Provider(import.meta.env.VITE_RECAPTCHA_SITE_KEY),
+    isTokenAutoRefreshEnabled: true,
+  });
+  console.log("Firebase App Check initialized.");
+} else {
+  console.warn("VITE_RECAPTCHA_SITE_KEY is not set. App Check will not be enabled.");
 }
+
+export { app, auth, db, functions, storage, appCheck }; // Export storage

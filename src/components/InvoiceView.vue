@@ -123,20 +123,20 @@ const safeInvoice = computed(() => {
         </div>
         <div class="actions">
           <v-btn 
-            v-if="safeInvoice.status === 'draft'"
+            v-if="!safeInvoice.svcFeePaid"
             @click="handlePayment"
             :loading="isPaying"
             color="success"
             large
-            class="mr-4"
           >
             <v-icon left>mdi-credit-card</v-icon>
-            Pay $1.00 to Finalize
+            Pay Service Fee
           </v-btn>
           <v-btn 
             v-else
             @click="downloadPDF" 
             outlined color="primary"
+            large
           >
             <v-icon left>mdi-download</v-icon>
             Download PDF

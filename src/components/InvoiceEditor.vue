@@ -1,10 +1,11 @@
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import useUserSettings from '../composables/useUserSettings';
 import useInvoices from '../composables/useInvoices';
 import useStripe from '../composables/useStripe';
-import { useAuth } from '../composables/useAuth';
+// CORRECTED: Import `authReady` and alias `currentUser` to `user`
+import { authReady, currentUser as user } from '@/composables/useAuth';
 import InvoiceTemplate from './InvoiceTemplate.vue';
 import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
@@ -12,14 +13,13 @@ import { enUS } from 'date-fns/locale';
 const { settings, fetchUserSettings } = useUserSettings();
 const { createInvoice, getInvoice, updateInvoice } = useInvoices();
 const { redirectToCheckout, error: stripeError } = useStripe();
-const { isAuthReady, user } = useAuth();
 const router = useRouter();
 const route = useRoute();
 
 const invoiceId = ref(route.params.id);
 const invoice = ref({
   invoiceNumber: '',
-  status: 'draft',
+  status: 'pending',
   sender: { name: '', address1: '', address2: '', city: '', state: '', zip: '', email: '' },
   client: { name: '', address1: '', address2: '', city: '', state: '', zip: '', email: '' },
   items: [],
@@ -33,6 +33,7 @@ const invoice = ref({
 const showPreview = ref(false);
 const isProcessing = ref(false);
 
+// --- Computed Properties for Date Formatting & Totals ---
 const formattedIssueDate = computed({
   get: () => invoice.value.issueDate ? format(new Date(invoice.value.issueDate), 'yyyy-MM-dd', { locale: enUS }) : '',
   set: (val) => {
@@ -70,47 +71,40 @@ const total = computed(() => {
   return subtotal.value + taxAmount.value;
 });
 
-const generateInvoiceNumber = () => {
-  const prefix = 'INV-';
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = '';
-  for (let i = 0; i < 6; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return prefix + result;
-};
-
+// --- Initialization Logic ---
 const initializeInvoice = async () => {
-  await fetchUserSettings();
+  fetchUserSettings(); 
   const id = route.params.id;
+
   if (id && id !== 'new') {
+    invoiceId.value = id;
     const existingInvoice = await getInvoice(id);
     if (existingInvoice) {
       invoice.value = existingInvoice;
     }
-    invoiceId.value = id;
   } else {
     invoiceId.value = 'new';
-    if (settings.value && settings.value.company) {
-      invoice.value.sender = { ...settings.value.company };
+    if (!invoice.value.items || invoice.value.items.length === 0) {
+      invoice.value.items = [{ description: 'Sample Service', quantity: 1, price: 1 }];
     }
-    if (settings.value && typeof settings.value.taxRate === 'number') {
-      invoice.value.taxRate = settings.value.taxRate;
-    }
-    invoice.value.items = [{ description: 'Sample Service', quantity: 1, price: 1 }];
   }
 };
 
-let unwatch;
-unwatch = watch(isAuthReady, (ready) => {
-  if (ready) {
-    initializeInvoice();
-    if (unwatch) {
-      unwatch();
+watch(settings, (newSettings) => {
+  if (invoiceId.value === 'new' && newSettings && newSettings.company) {
+    invoice.value.sender = { ...newSettings.company };
+    if (typeof newSettings.taxRate === 'number') {
+      invoice.value.taxRate = newSettings.taxRate;
     }
   }
-}, { immediate: true });
+}, { deep: true });
 
+// CORRECTED: Use the `authReady` promise to ensure Firebase is initialized.
+authReady.then(() => {
+  initializeInvoice();
+});
+
+// --- Component Methods ---
 const addItem = () => {
   invoice.value.items.push({ description: '', quantity: 1, price: 0 });
 };
@@ -119,48 +113,9 @@ const removeItem = (index) => {
   invoice.value.items.splice(index, 1);
 };
 
-const saveDraft = async () => {
+const saveAndContinue = async () => {
   isProcessing.value = true;
   if (!user.value || !user.value.uid) {
-    console.error("User not authenticated.");
-    alert("Authentication error. Please log in and try again.");
-    isProcessing.value = false;
-    return;
-  }
-
-  const invoiceData = {
-    ...invoice.value,
-    status: 'draft',
-    subtotal: subtotal.value,
-    taxAmount: taxAmount.value,
-    total: total.value,
-    userId: user.value.uid,
-  };
-
-  try {
-    if (invoiceId.value === 'new') {
-      const newId = await createInvoice(invoiceData);
-      if (newId) {
-        invoiceId.value = newId;
-        router.replace({ params: { id: newId } });
-        alert('Draft saved successfully!');
-      }
-    } else {
-      await updateInvoice(invoiceId.value, invoiceData);
-      alert('Draft updated successfully!');
-    }
-  } catch (error) {
-    console.error("Failed to save draft:", error);
-    alert('Error saving draft.');
-  } finally {
-    isProcessing.value = false;
-  }
-};
-
-const saveAndPay = async () => {
-  isProcessing.value = true;
-  if (!user.value || !user.value.uid) {
-    console.error("User not authenticated.");
     alert("Authentication error. Please log in and try again.");
     isProcessing.value = false;
     return;
@@ -193,7 +148,6 @@ const saveAndPay = async () => {
   }
 };
 </script>
-
 <template>
   <div class="editor-container">
     <div class="editor-form-card">
@@ -299,9 +253,8 @@ const saveAndPay = async () => {
         </div>
 
         <footer class="editor-footer">
-          <button class="draft-btn" @click="saveDraft">Save as Draft</button>
           <button class="preview-btn" @click="showPreview = true">Preview Invoice</button>
-          <button class="save-btn" @click="saveAndPay" :disabled="isProcessing">
+          <button class="save-btn" @click="saveAndContinue" :disabled="isProcessing">
             {{ isProcessing ? 'Processing...' : 'Save & Continue to Payment' }}
           </button>
         </footer>
@@ -440,7 +393,7 @@ input, textarea {
   padding-top: 1.5rem;
 }
 
-.save-btn, .preview-btn, .draft-btn {
+.save-btn, .preview-btn {
   padding: 0.8rem 1.5rem;
   border: none;
   border-radius: 20px;
@@ -450,7 +403,6 @@ input, textarea {
 
 .save-btn { background-color: var(--primary-color, #4F46E5); color: white; }
 .preview-btn { background-color: #6c757d; color: white; }
-.draft-btn { background-color: #f0f0f0; color: #333; border: 1px solid #ddd; }
 
 .preview-modal {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -613,7 +565,7 @@ input:checked + .slider:before {
     color: #555;
   }
 
-  .items-list .item-row {
+  .items-list .item-.row {
     grid-template-columns: 1fr;
     gap: 0.75rem;
     padding-bottom: 1rem;

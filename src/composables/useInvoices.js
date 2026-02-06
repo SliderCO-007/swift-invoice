@@ -1,7 +1,7 @@
 import { ref, watch } from 'vue';
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, serverTimestamp, query, where, deleteDoc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, serverTimestamp, query, where, deleteDoc } from 'firebase/firestore';
 import { db, functions } from './useFirebase';
-import { useAuth } from './useAuth';
+import { currentUser } from './useAuth.js';
 import { httpsCallable } from 'firebase/functions';
 import useUserSettings from './useUserSettings';
 
@@ -9,8 +9,7 @@ const useInvoices = () => {
   const invoices = ref([]);
   const loading = ref(false);
   const error = ref(null);
-  const { user } = useAuth();
-  const { settings, fetchUserSettings } = useUserSettings();
+  const user = currentUser;
 
   const invoicesCollection = collection(db, 'invoices');
 
@@ -90,20 +89,22 @@ const useInvoices = () => {
     loading.value = true;
     error.value = null;
     try {
+      const { settings, fetchUserSettings, saveUserSettings } = useUserSettings();
       await fetchUserSettings();
-      const newInvoiceNumber = (settings.value.invoiceCounter || 0) + 1;
-      const invoiceNumber = newInvoiceNumber.toString().padStart(8, '0');
-      
+
+      const newInvoiceCounter = (settings.value.invoiceCounter || 0) + 1;
+      const invoiceNumber = String(newInvoiceCounter).padStart(6, '0');
+
       const newInvoice = {
         ...invoiceData,
+        invoiceNumber: invoiceNumber,
         userId: user.value.uid,
         createdAt: serverTimestamp(),
-        invoiceNumber,
+        svcFeePaid: false,
       };
       const docRef = await addDoc(invoicesCollection, newInvoice);
 
-      const userSettingsDocRef = doc(db, 'userSettings', user.value.uid);
-      await setDoc(userSettingsDocRef, { invoiceCounter: newInvoiceNumber }, { merge: true });
+      await saveUserSettings({ ...settings.value, invoiceCounter: newInvoiceCounter });
 
       return docRef.id;
     } catch (err) {
@@ -112,7 +113,7 @@ const useInvoices = () => {
       return null;
     } finally {
       loading.value = false;
-    } 
+    }
   };
 
   const updateInvoice = async (id, invoiceData) => {
@@ -170,7 +171,7 @@ const useInvoices = () => {
     } else {
       invoices.value = []; 
     }
-  });
+  }, { immediate: true });
 
   return { invoices, loading, error, getInvoices, getInvoice, createInvoice, updateInvoice, deleteInvoice, createCheckoutSession };
 };

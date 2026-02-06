@@ -1,8 +1,8 @@
 import { ref } from 'vue';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from './useFirebase'; // CORRECT: Import from the single source of truth
-import { useAuth } from './useAuth'; // CORRECT: Use this for auth status
+import { db, storage } from './useFirebase'; // Corrected: import storage
+import { currentUser } from './useAuth.js'; // Corrected: import the singleton user
 
 // Define the initial, empty state for user settings
 const getInitialSettings = () => ({
@@ -30,15 +30,13 @@ export const resetUserSettings = () => {
 const useUserSettings = () => {
   const loading = ref(false);
   const error = ref(null);
-  const { user } = useAuth(); // Get the reactive user object
+  const user = currentUser; // Correct: Use the globally shared user ref
 
   const fetchUserSettings = async () => {
-    // CORRECT: Check the reactive user ref
     if (!user.value) return;
     loading.value = true;
     error.value = null;
     try {
-      // CORRECT: Use the user ref's uid
       const docRef = doc(db, 'userSettings', user.value.uid);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
@@ -63,7 +61,6 @@ const useUserSettings = () => {
   };
 
   const saveUserSettings = async (newSettings, logoFile, venmoQrFile) => {
-    // CORRECT: Check the reactive user ref
     if (!user.value) return;
     loading.value = true;
     error.value = null;
@@ -72,14 +69,12 @@ const useUserSettings = () => {
       let venmoQrUrl = newSettings.company.venmoQrUrl;
 
       if (logoFile) {
-        // CORRECT: Use the user ref's uid
         const logoStorageRef = storageRef(storage, `logos/${user.value.uid}/${logoFile.name}`);
         await uploadBytes(logoStorageRef, logoFile);
         logoUrl = await getDownloadURL(logoStorageRef);
       }
 
       if (venmoQrFile) {
-        // CORRECT: Use the user ref's uid
         const qrStorageRef = storageRef(storage, `qrcodes/${user.value.uid}/${venmoQrFile.name}`);
         await uploadBytes(qrStorageRef, venmoQrFile);
         venmoQrUrl = await getDownloadURL(qrStorageRef);
@@ -94,7 +89,6 @@ const useUserSettings = () => {
         }
       };
 
-      // CORRECT: Use the user ref's uid
       const docRef = doc(db, 'userSettings', user.value.uid);
       await setDoc(docRef, settingsToSave, { merge: true });
       

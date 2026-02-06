@@ -1,7 +1,6 @@
-
 import { createRouter, createWebHistory } from 'vue-router';
-// Import the new utility function and the useAuth composable
-import { waitForAuth, useAuth } from '../composables/useAuth.js';
+// CORRECTED: Removed 'waitForAuth' and 'useAuth'. We only need the reactive 'currentUser'.
+import { currentUser } from '../composables/useAuth.js';
 import LandingPage from '../components/LandingPage.vue';
 
 const routes = [
@@ -26,7 +25,6 @@ const routes = [
     path: '/payment-success',
     name: 'PaymentSuccess',
     component: () => import('../components/PaymentSuccess.vue'),
-    meta: { requiresAuth: true }
   },
   {
     path: '/create-invoice-success',
@@ -76,25 +74,20 @@ const router = createRouter({
   routes
 });
 
-// --- Robust, Asynchronous Navigation Guard ---
-router.beforeEach(async (to, from, next) => {
-  // Wait for the initial Firebase auth check to complete.
-  await waitForAuth();
-  const { user } = useAuth(); // Now it's safe to get the user.
+// --- Simplified Navigation Guard ---
+router.beforeEach((to, from, next) => {
+  // No longer need to 'await waitForAuth()' here.
+  // main.js ensures this code only runs after the initial auth state is known.
+  const user = currentUser.value;
 
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   const requiresGuest = to.matched.some(record => record.meta.requiresGuest);
 
-  if (requiresAuth && !user.value) {
-    // If the route requires authentication and the user is not logged in, redirect to the login page.
-    console.log(`Navigation blocked: ${to.path} requires auth. User not found. Redirecting to /login.`);
+  if (requiresAuth && !user) {
     next({ name: 'Login' });
-  } else if (requiresGuest && user.value) {
-    // If the route is for guests (like login/register) and the user is already logged in, redirect to the dashboard.
-    console.log(`Navigation blocked: ${to.path} is for guests. User is logged in. Redirecting to /dashboard.`);
+  } else if (requiresGuest && user) {
     next({ name: 'Dashboard' });
   } else {
-    // In all other cases, allow the navigation.
     next();
   }
 });
