@@ -36,6 +36,12 @@ SwiftInvoice is a Vue.js-based invoicing application designed for freelancers an
     2.  **Deployment Fix:** Corrected a syntax error in `functions/index.js` that was preventing deployment.
     3.  **URL Correction:** Identified the correct webhook URL and updated it in the Stripe Dashboard, resolving the issue.
 
+### 3. **Invoice Editor Mobile Layout Fix**
+
+*   **Problem:** On mobile devices, the line item input fields (Description, Quantity, Price) in the `InvoiceEditor.vue` component were displayed in a single row, making them too small and difficult to use.
+*   **Root Cause:** A CSS typo (`.item-.row` instead of `.item-row`) in a media query prevented the mobile-specific styles for stacking the fields from being applied.
+*   **Solution:** Corrected the typo in the CSS selector within the `@media (max-width: 768px)` block in `src/components/InvoiceEditor.vue`. This enabled the intended responsive behavior, stacking the line item fields vertically on smaller screens.
+
 ## Next Steps
 
 *   **Improve Mobile Payment Reliability:** Address an issue where the Stripe payment window is blocked by mobile browsers due to popup-blocking behavior.

@@ -2,7 +2,6 @@ import { ref } from 'vue';
 import { loadStripe } from '@stripe/stripe-js';
 import { httpsCallable } from 'firebase/functions';
 import { functions, appCheck } from './useFirebase';
-// CORRECTED: Removed 'waitForAuth' and imported 'currentUser'
 import { currentUser } from './useAuth';
 import { getToken } from 'firebase/app-check';
 
@@ -19,19 +18,65 @@ export default function useStripe() {
   const error = ref(null);
   const loading = ref(false);
 
+  async function createPaymentIntent(invoiceId, isServiceFee = true) {
+    loading.value = true;
+    error.value = null;
+    try {
+      const user = currentUser.value;
+      if (!user) throw new Error('You must be logged in to make a payment.');
+
+      if (appCheck) {
+        try {
+          await getToken(appCheck, false);
+        } catch (appCheckError) {
+          console.error('App Check Error:', appCheckError);
+          throw new Error('Could not verify app integrity.');
+        }
+      }
+
+      if (!invoiceId) throw new Error('A valid invoice ID is required.');
+
+      const createPaymentIntentFunction = httpsCallable(functions, 'createPaymentIntent');
+      const response = await createPaymentIntentFunction({
+        invoiceId: invoiceId,
+        isServiceFee: isServiceFee,
+      });
+
+      if (response.data.error) {
+        throw new Error(response.data.error.message || 'The cloud function returned an error.');
+      }
+      
+      const { clientSecret, invoiceId: returnedInvoiceId } = response.data;
+
+      if (!clientSecret) {
+        throw new Error('Failed to retrieve a valid client secret from the server.');
+      }
+
+      return { clientSecret, invoiceId: returnedInvoiceId };
+
+    } catch (e) {
+      console.error('Error creating Payment Intent:', e.message || e);
+      if (e.message && e.message.toLowerCase().includes('internal')) {
+        error.value = 'A temporary issue occurred with our payment provider. Please try again in a few moments.';
+      } else {
+        error.value = e.message || 'An unknown error occurred while creating the payment intent.';
+      }
+      return null;
+    } finally {
+      loading.value = false;
+    }
+  }
+
   async function redirectToCheckout(invoiceId, isServiceFee = true) {
     loading.value = true;
     error.value = null;
 
     try {
-      // 1. Get the current user.
-      // No need to wait anymore, as main.js ensures auth is ready before the app mounts.
       const user = currentUser.value;
       if (!user) {
         throw new Error('You must be logged in to make a payment.');
       }
 
-      // 2. Wait for the App Check token
       if (appCheck) {
         try {
           await getToken(appCheck, /* forceRefresh= */ false);
@@ -46,13 +91,9 @@ export default function useStripe() {
         throw new Error('A valid invoice ID is required.');
       }
 
-      // 3. Create the callable function reference
       const createCheckoutSession = httpsCallable(functions, 'createCheckoutSession');
-
-      // Construct the cancel URL to return the user to the invoice view
       const cancelUrl = `${window.location.origin}/invoice/${invoiceId}`;
 
-      // 4. Call the function.
       const response = await createCheckoutSession({
         invoiceId: invoiceId,
         isServiceFee: isServiceFee,
@@ -77,13 +118,18 @@ export default function useStripe() {
       }
     } catch (e) {
       console.error('Error redirecting to checkout:', e.message || e);
-      error.value = e.message || 'An unknown error occurred.';
+      if (e.message && e.message.toLowerCase().includes('internal')) {
+          error.value = 'A temporary issue occurred with our payment provider. Please try again in a few moments.';
+      } else {
+          error.value = e.message || 'An unknown error occurred during checkout.';
+      }
     } finally {
       loading.value = false;
     }
   }
 
   return {
+    createPaymentIntent,
     redirectToCheckout,
     loading,
     error,

@@ -2,7 +2,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import useInvoices from '@/composables/useInvoices';
-import { format } from 'date-fns';
+import { format, isPast } from 'date-fns';
 
 const router = useRouter();
 const { invoices, loading, fetchInvoices, deleteInvoice: removeInvoice } = useInvoices();
@@ -19,14 +19,24 @@ const headers = [
   { title: 'Actions', key: 'actions' },
 ];
 
-const formattedInvoices = computed(() => invoices.value.map(invoice => ({
-  ...invoice,
-  dateIssued: format(new Date(invoice.dateIssued), 'MMM d, yyyy'),
-  dateDue: format(new Date(invoice.dateDue), 'MMM d, yyyy'),
-  total: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
-    (invoice.items || []).reduce((acc, item) => acc + (item.quantity * item.price), 0) * (1 + (invoice.taxRate || 0) / 100)
-  )
-})));
+const formattedInvoices = computed(() => invoices.value.map(invoice => {
+  const dueDate = new Date(invoice.dateDue);
+  let status = invoice.status;
+  if (status === 'Pending' && isPast(dueDate)) {
+    status = 'Overdue';
+  }
+
+  
+  return {
+    ...invoice,
+    dateIssued: format(new Date(invoice.dateIssued), 'MMM d, yyyy'),
+    dateDue: format(dueDate, 'MMM d, yyyy'),
+    total: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
+      (invoice.items || []).reduce((acc, item) => acc + (item.quantity * item.price), 0) * (1 + (invoice.taxRate || 0) / 100)
+    ),
+    status: status,
+  };
+}));
 
 const editInvoice = (id) => router.push(`/invoice/${id}/edit`);
 
@@ -174,7 +184,7 @@ const deleteInvoice = async (id) => {
   color: #155724;
 }
 
-.status-sent {
+.status-sent, .status-pending {
   background-color: #D1E7FD;
   color: #0C5460;
 }
@@ -182,6 +192,11 @@ const deleteInvoice = async (id) => {
 .status-draft {
   background-color: #E2E3E5;
   color: #383D41;
+}
+
+.status-overdue {
+  background-color: #F8D7DA;
+  color: #721C24;
 }
 
 .action-buttons button {

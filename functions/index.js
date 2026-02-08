@@ -9,6 +9,51 @@ admin.initializeApp();
 const stripeSecretKey = defineString("STRIPE_SECRET_KEY");
 const stripeWebhookSecret = defineString("STRIPE_WEBHOOK_SECRET");
 
+exports.createPaymentIntent = onCall({ enforceAppCheck: false }, async (request) => {
+  const { auth, data } = request;
+
+  if (!auth) {
+    throw new HttpsError('unauthenticated', 'The function must be called while authenticated.');
+  }
+
+  const stripe = require("stripe")(stripeSecretKey.value());
+
+  const { invoiceId, isServiceFee } = data;
+
+  if (!invoiceId) {
+    throw new HttpsError('invalid-argument', 'An invoice ID is required.');
+  }
+
+  if (isServiceFee !== true) {
+    // This function currently only supports service fee payments.
+    throw new HttpsError("invalid-argument", "This endpoint only supports service fee payments.");
+  }
+
+  const amount = 100; // $1.00 in cents for the service fee
+
+  try {
+    // Create a PaymentIntent with the order amount and currency
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount,
+      currency: "usd",
+      metadata: {
+        invoice_id: invoiceId,
+        payment_type: 'service_fee', // Hardcoded for this function's purpose
+      },
+      automatic_payment_methods: {
+        enabled: true,
+      },
+    });
+
+    return { clientSecret: paymentIntent.client_secret, invoiceId };
+
+  } catch (error) {
+    console.error("Error creating Stripe Payment Intent:", error.message);
+    throw new HttpsError('internal', 'An error occurred while creating the payment intent.');
+  }
+});
+
+
 exports.createCheckoutSession = onCall({ enforceAppCheck: false }, async (request) => {
   const { auth, data } = request;
 
@@ -75,21 +120,16 @@ exports.stripeWebhook = onRequest(async (req, res) => {
     res.status(400).send(`Webhook Error: ${err.message}`);
     return;
   }
-
-  // --- Start of Enhanced Logging ---
+  
   console.log(`Received Stripe event with type: ${event.type}`);
 
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object;
-    const metadata = session.metadata;
-    
-    console.log('Checkout session metadata:', JSON.stringify(metadata, null, 2));
-    
+  const handlePaymentSucceeded = async (metadata) => {
+    console.log('Payment metadata:', JSON.stringify(metadata, null, 2));
     const { invoice_id, payment_type } = metadata;
 
     if (!invoice_id) {
-      console.error("Webhook received completed session without invoice_id in metadata.");
-      return res.status(400).send("Error: Missing invoice_id in session metadata.");
+      console.error("Webhook received completed payment without invoice_id in metadata.");
+      return;
     }
 
     try {
@@ -101,18 +141,28 @@ exports.stripeWebhook = onRequest(async (req, res) => {
         await invoiceRef.update({ svcFeePaid: true });
 
         console.log(`Successfully marked service fee as paid for invoice ${invoice_id}.`);
-
       } else {
         console.log(`Webhook received for unhandled payment_type: \"${payment_type}\" for invoice ${invoice_id}.`);
       }
     } catch (dbError) {
       console.error(`Database error processing invoice ${invoice_id}:`, dbError.message || dbError);
-      return res.status(500).send(`Database update failed: ${dbError.message || dbError}`);
+      throw new Error(`Database update failed: ${dbError.message || dbError}`);
     }
-  } else {
-      console.log(`Ignoring event type: ${event.type}`);
-  }
-  // --- End of Enhanced Logging ---
+  };
 
-  res.status(200).json({ received: true });
+  try {
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+      await handlePaymentSucceeded(session.metadata);
+    } else if (event.type === 'payment_intent.succeeded') {
+      const paymentIntent = event.data.object;
+      await handlePaymentSucceeded(paymentIntent.metadata);
+    } else {
+      console.log(`Ignoring event type: ${event.type}`);
+    }
+    res.status(200).json({ received: true });
+  } catch(err) {
+      console.error('Error handling webhook event:', err);
+      res.status(500).send(`Webhook handler failed: ${err.message}`);
+  }
 });

@@ -4,15 +4,15 @@ import { useRouter, useRoute } from 'vue-router';
 import useUserSettings from '../composables/useUserSettings';
 import useInvoices from '../composables/useInvoices';
 import useStripe from '../composables/useStripe';
-// CORRECTED: Import `authReady` and alias `currentUser` to `user`
 import { authReady, currentUser as user } from '@/composables/useAuth';
 import InvoiceTemplate from './InvoiceTemplate.vue';
+import StripeCheckout from './StripeCheckout.vue'; // Added
 import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 
 const { settings, fetchUserSettings } = useUserSettings();
 const { createInvoice, getInvoice, updateInvoice } = useInvoices();
-const { redirectToCheckout, error: stripeError } = useStripe();
+const { createPaymentIntent, error: stripeError } = useStripe(); // Updated
 const router = useRouter();
 const route = useRoute();
 
@@ -32,6 +32,11 @@ const invoice = ref({
 
 const showPreview = ref(false);
 const isProcessing = ref(false);
+
+// Added: State for the payment modal
+const showPaymentModal = ref(false);
+const clientSecret = ref(null);
+const paymentInvoiceId = ref(null);
 
 // --- Computed Properties for Date Formatting & Totals ---
 const formattedIssueDate = computed({
@@ -73,7 +78,7 @@ const total = computed(() => {
 
 // --- Initialization Logic ---
 const initializeInvoice = async () => {
-  fetchUserSettings(); 
+  fetchUserSettings();
   const id = route.params.id;
 
   if (id && id !== 'new') {
@@ -99,7 +104,7 @@ watch(settings, (newSettings) => {
   }
 }, { deep: true });
 
-// CORRECTED: Use the `authReady` promise to ensure Firebase is initialized.
+
 authReady.then(() => {
   initializeInvoice();
 });
@@ -113,6 +118,7 @@ const removeItem = (index) => {
   invoice.value.items.splice(index, 1);
 };
 
+// Updated: saveAndContinue to open payment modal
 const saveAndContinue = async () => {
   isProcessing.value = true;
   if (!user.value || !user.value.uid) {
@@ -135,17 +141,33 @@ const saveAndContinue = async () => {
     if (invoiceId.value === 'new') {
       finalInvoiceId = await createInvoice(invoiceData);
       if (!finalInvoiceId) throw new Error('Failed to create invoice.');
+      invoiceId.value = finalInvoiceId; 
     } else {
       await updateInvoice(invoiceId.value, invoiceData);
       finalInvoiceId = invoiceId.value;
     }
-    await redirectToCheckout(finalInvoiceId);
+
+    const paymentDetails = await createPaymentIntent(finalInvoiceId, true);
+    if (paymentDetails && paymentDetails.clientSecret) {
+      clientSecret.value = paymentDetails.clientSecret;
+      paymentInvoiceId.value = paymentDetails.invoiceId;
+      showPaymentModal.value = true;
+    } else {
+        throw new Error(stripeError.value || 'Could not initiate payment.');
+    }
   } catch (error) {
-    console.error("Payment processing failed:", error);
-    alert(stripeError.value || 'An unexpected error occurred.');
+    console.error("Invoice processing or payment initiation failed:", error);
+    alert(error.message || 'An unexpected error occurred.');
   } finally {
     isProcessing.value = false;
   }
+};
+
+// Added: Function to close the payment modal
+const closePaymentModal = () => {
+  showPaymentModal.value = false;
+  clientSecret.value = null;
+  paymentInvoiceId.value = null;
 };
 </script>
 <template>
@@ -260,16 +282,28 @@ const saveAndContinue = async () => {
         </footer>
       </div>
     </div>
+
+    <div v-if="showPreview" class="preview-modal">
+      <div class="modal-content">
+        <header class="modal-header">
+          <h2>Invoice Preview</h2>
+          <button @click="showPreview = false" class="close-modal-btn">&times;</button>
+        </header>
+        <InvoiceTemplate :invoice="{...invoice, subtotal, taxAmount, total}" :settings="settings" />
+      </div>
+    </div>
     
-<div v-if="showPreview" class="preview-modal">
-  <div class="modal-content">
-    <header class="modal-header">
-      <h2>Invoice Preview</h2>
-      <button @click="showPreview = false" class="close-modal-btn">&times;</button>
-    </header>
-    <InvoiceTemplate :invoice="{...invoice, subtotal, taxAmount, total}" :settings="settings" />
-  </div>
-</div>
+    <!-- Added: Payment Modal -->
+    <div v-if="showPaymentModal" class="preview-modal">
+      <div class="modal-content payment-modal-content">
+        <StripeCheckout
+          v-if="clientSecret && paymentInvoiceId"
+          :client-secret="clientSecret"
+          :invoice-id="paymentInvoiceId"
+          @close="closePaymentModal"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -418,6 +452,12 @@ input, textarea {
     max-height: 90vh; 
     overflow-y: auto; 
 }
+/* Added */
+.payment-modal-content {
+  padding: 0;
+  max-width: 500px;
+}
+
 .modal-header { 
     display: flex; 
     justify-content: space-between; 
@@ -565,7 +605,7 @@ input:checked + .slider:before {
     color: #555;
   }
 
-  .items-list .item-.row {
+  .items-list .item-row {
     grid-template-columns: 1fr;
     gap: 0.75rem;
     padding-bottom: 1rem;

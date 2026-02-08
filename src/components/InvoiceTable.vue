@@ -61,10 +61,11 @@ const confirmDelete = () => {
 };
 
 const getStatusColor = (status) => {
-    switch (status) {
-        case 'Paid': return 'green';
-        case 'draft': return 'blue-grey';
-        case 'pending': return 'orange';
+    switch (status.toLowerCase()) {
+        case 'paid': return 'green-darken-2';
+        case 'draft': return 'blue-grey-darken-1';
+        case 'pending': return 'orange-darken-2';
+        case 'overdue': return 'red-darken-2';
         default: return 'grey';
     }
 };
@@ -89,7 +90,7 @@ const getStatusColor = (status) => {
         {{ formatCurrency(item.total) }}
       </template>
       <template v-slot:item.status="{ item }">
-        <v-chip :color="getStatusColor(item.status)" size="small">
+        <v-chip :color="getStatusColor(item.status)" size="small" text-color="white">
           {{ item.status }}
         </v-chip>
       </template>

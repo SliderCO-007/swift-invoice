@@ -5,7 +5,7 @@ import { useAuth, currentUser } from '../composables/useAuth.js';
 import useInvoices from '../composables/useInvoices';
 import useUserSettings from '../composables/useUserSettings';
 import { useMeta } from '../composables/useMeta';
-import { format, isValid } from 'date-fns';
+import { format, isValid, isBefore, startOfToday } from 'date-fns';
 import InvoiceTable from './InvoiceTable.vue';
 import CompanyInfoPrompt from './CompanyInfoPrompt.vue';
 import InvoiceStats from './InvoiceStats.vue';
@@ -31,7 +31,6 @@ useMeta(
 );
 
 // --- Data Fetching ---
-// Watch the globally shared user object. When it changes (on login), fetch data.
 watch(user, (newUser) => {
   if (newUser) {
     getInvoices();
@@ -46,12 +45,32 @@ const showCompanyInfoPrompt = computed(() => {
 
 const safeInvoices = computed(() => {
   if (!invoices.value) return [];
-  return invoices.value.slice().sort((a, b) => {
+  
+  return invoices.value.map(invoice => {
+    let status = invoice.status || 'pending';
+    // Handle Firestore Timestamps safely by checking for the toDate method
+    const dueDate = invoice.dueDate && typeof invoice.dueDate.toDate === 'function' 
+      ? invoice.dueDate.toDate() 
+      : new Date(invoice.dueDate);
+
+    if (status.toLowerCase() === 'pending' && isValid(dueDate) && isBefore(dueDate, startOfToday())) {
+      status = 'overdue'; // Use lowercase to match InvoiceStats
+    }
+
+    const total = (invoice.items || []).reduce((acc, item) => acc + (item.quantity * item.price), 0) * (1 + (invoice.taxRate || 0) / 100);
+
+    return {
+      ...invoice,
+      status,
+      total,
+    };
+  }).sort((a, b) => {
       const numA = String(a.invoiceNumber || '');
       const numB = String(b.invoiceNumber || '');
       return numB.localeCompare(numA, undefined, { numeric: true });
     });
 });
+
 
 // --- Methods ---
 const handleLogout = async () => {
@@ -93,10 +112,13 @@ const handleDeleteFromCard = (event, invoiceId) => {
 };
 
 const formatDate = (date) => {
-  if (date && isValid(date)) {
-    return format(date, 'MMM d, yyyy');
-  }
-  return 'No due date';
+    if (!date) return 'No due date';
+    // Handle Firestore Timestamps safely
+    const d = date && typeof date.toDate === 'function' ? date.toDate() : new Date(date);
+    if (isValid(d)) {
+        return format(d, 'MMM d, yyyy');
+    }
+    return 'Invalid Date';
 };
 </script>
 

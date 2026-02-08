@@ -2,9 +2,9 @@
   <div class="landing-page">
     <header class="header">
       <div class="container">
-        <div class="logo">
-          <Logo />
-          <span>Swift Invoice</span>
+        <div class="logo-container">
+          <Logo class="header-logo" />
+          <span class="font-weight-bold ml-2" style="font-size: 1.5rem;">Swift Invoice</span>
         </div>
         <nav class="nav desktop-nav">
           <a href="#features">Features</a>
@@ -184,14 +184,19 @@ main section[id] {
   align-items: center;
 }
 
-.logo {
+.logo-container {
   display: flex;
   align-items: center;
   font-size: 1.5rem;
   font-weight: 700;
 }
 
-.logo span {
+.header-logo {
+  height: 40px;
+  width: auto;
+}
+
+.logo-container span {
   margin-left: 0.5rem;
 }
 
