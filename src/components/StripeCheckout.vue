@@ -1,123 +1,93 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { loadStripe } from '@stripe/stripe-js';
+import { VCard, VCardTitle, VCardText, VCardActions, VBtn, VSpacer, VAlert } from 'vuetify/components';
 
 const props = defineProps({
   clientSecret: {
     type: String,
     required: true,
   },
-  invoiceId: {
+  returnUrl: {
     type: String,
     required: true,
-  }
+  },
 });
 
-const emits = defineEmits(['payment-success', 'close']);
+const emit = defineEmits(['payment-success', 'payment-error', 'close-dialog']);
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-const stripe = ref(null);
-const elements = ref(null);
-const message = ref(null);
-const isLoading = ref(false);
+let stripe = null;
+let elements = null;
 
-onMounted(async () => {
-  if (!props.clientSecret) {
-    message.value = "Stripe client secret is missing. Cannot initialize payment form.";
-    return;
-  }
+const paymentElementRef = ref(null);
+const isProcessing = ref(false);
+const errorMessage = ref(null);
 
-  stripe.value = await stripePromise;
-  elements.value = stripe.value.elements({
-    clientSecret: props.clientSecret,
-    appearance: {
-      theme: 'stripe',
-      variables: {
-        colorPrimary: '#4F46E5',
-        colorBackground: '#ffffff',
-        colorText: '#30313d',
-        colorDanger: '#df1b41',
-        fontFamily: 'Ideal Sans, system-ui, sans-serif',
-        spacingUnit: '2px',
-        borderRadius: '4px',
-      }
-    }
-  });
+const setupStripeElements = async () => {
+  if (!props.clientSecret || !paymentElementRef.value) return;
 
-  const paymentElement = elements.value.create("payment");
-  paymentElement.mount("#payment-element");
-});
+  stripe = await stripePromise;
+  elements = stripe.elements({ clientSecret: props.clientSecret });
+
+  const paymentElement = elements.create('payment');
+  paymentElement.mount(paymentElementRef.value);
+};
 
 const handleSubmit = async () => {
-  if (isLoading.value) {
-    return;
-  }
+  if (isProcessing.value || !stripe || !elements) return;
 
-  isLoading.value = true;
-  message.value = null;
+  isProcessing.value = true;
+  errorMessage.value = null;
 
-  const { error } = await stripe.value.confirmPayment({
-    elements: elements.value,
+  const { error } = await stripe.confirmPayment({
+    elements,
     confirmParams: {
-      return_url: `${window.location.origin}/payment-success?invoice_id=${props.invoiceId}`,
+      return_url: props.returnUrl,
     },
   });
 
-  if (error.type === "card_error" || error.type === "validation_error") {
-    message.value = error.message;
+  if (error) {
+    errorMessage.value = error.message || 'An unexpected error occurred.';
+    emit('payment-error', errorMessage.value);
+    isProcessing.value = false;
   } else {
-    message.value = "An unexpected error occurred.";
+    emit('payment-success');
   }
-
-  isLoading.value = false;
 };
+
+watch(() => props.clientSecret, (newSecret) => {
+  if (newSecret) {
+    setupStripeElements();
+  }
+}, { immediate: true });
+
+onMounted(setupStripeElements);
 
 </script>
 
 <template>
   <v-card class="stripe-checkout-card">
-    <v-card-title>
-      <span class="headline">Complete Your Payment</span>
-    </v-card-title>
+    <v-card-title class="text-h5 font-weight-bold">Complete Your Payment</v-card-title>
     <v-card-text>
-      <form id="payment-form" @submit.prevent="handleSubmit">
-        <div id="payment-element">
-          <!-- A Stripe Element will be inserted here. -->
-        </div>
-        <v-btn
-          :loading="isLoading"
-          :disabled="isLoading || !stripe"
-          type="submit"
-          color="primary"
-          block
-          class="mt-4"
-        >
-          Pay Now
-        </v-btn>
-        <div v-if="message" id="payment-message" class="error-message">
-          {{ message }}
-        </div>
-      </form>
+      <div ref="paymentElementRef" class="payment-element"></div>
+      <v-alert v-if="errorMessage" type="error" dense class="mt-4">{{ errorMessage }}</v-alert>
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn text @click="$emit('close')">Cancel</v-btn>
+      <v-btn text @click="emit('close-dialog')">Cancel</v-btn>
+      <v-btn :loading="isProcessing" color="primary" @click="handleSubmit" large>
+        Pay Now
+      </v-btn>
     </v-card-actions>
   </v-card>
 </template>
 
 <style scoped>
 .stripe-checkout-card {
-    border-radius: 12px;
+  padding: 1rem;
 }
-#payment-element {
-  margin-bottom: 24px;
-}
-
-.error-message {
-  margin-top: 1rem;
-  color: #df1b41;
-  text-align: center;
-  font-size: 0.875rem;
+.payment-element {
+  margin-bottom: 1.5rem;
 }
 </style>

@@ -1,6 +1,8 @@
 {
+  "storage": {
+    "rules": "storage.rules"
+  },
   "hosting": {
-    // This comment is added to force a configuration refresh on deployment.
     "public": "dist",
     "ignore": [
       "firebase.json",
@@ -34,7 +36,25 @@
       }
     ]
   },
-  "functions": {
-    "source": "functions"
-  }
+  "functions": [
+    {
+      "codebase": "default",
+      "source": "functions"
+    },
+    {
+      "source": "sendmail",
+      "codebase": "sendmail",
+      "disallowLegacyRuntimeConfig": true,
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint"
+      ]
+    }
+  ]
 }

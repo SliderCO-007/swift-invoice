@@ -254,7 +254,7 @@ main section[id] {
 /* Hero Section */
 .hero {
   padding: 6rem 0;
-  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/hero_background.png') no-repeat center center;
+  background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/hero_background.png') no-repeat center center;
   background-size: cover;
   color: #fff;
   text-align: center;
