@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
-// CORRECTED: Removed 'waitForAuth' and 'useAuth'. We only need the reactive 'currentUser'.
 import { currentUser } from '../composables/useAuth.js';
 import LandingPage from '../components/LandingPage.vue';
+import CustomersView from '../components/CustomersView.vue';
 
 const routes = [
   {
@@ -13,13 +13,13 @@ const routes = [
     path: '/register',
     name: 'Register',
     component: () => import('../components/RegisterPage.vue'),
-    meta: { requiresGuest: true } // For routes that should not be seen by logged-in users
+    meta: { requiresGuest: true }
   },
   {
     path: '/login',
     name: 'Login',
     component: () => import('../components/LoginPage.vue'),
-    meta: { requiresGuest: true } // For routes that should not be seen by logged-in users
+    meta: { requiresGuest: true }
   },
   {
     path: '/payment-success',
@@ -36,6 +36,18 @@ const routes = [
     path: '/dashboard',
     name: 'Dashboard',
     component: () => import('../components/Dashboard.vue'),
+    meta: { requiresAuth: true }
+  },
+    {
+    path: '/customers',
+    name: 'Customers',
+    component: CustomersView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/items',
+    name: 'Items',
+    component: () => import('../components/ItemsView.vue'),
     meta: { requiresAuth: true }
   },
   {
@@ -74,12 +86,8 @@ const router = createRouter({
   routes
 });
 
-// --- Simplified Navigation Guard ---
 router.beforeEach((to, from, next) => {
-  // No longer need to 'await waitForAuth()' here.
-  // main.js ensures this code only runs after the initial auth state is known.
   const user = currentUser.value;
-
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   const requiresGuest = to.matched.some(record => record.meta.requiresGuest);
 

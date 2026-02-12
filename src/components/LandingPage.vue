@@ -143,8 +143,8 @@ const showDashboardPreview = ref(false);
 
 useMeta(
   'Swift Invoice | Invoicing Made Effortless',
-  'Create, download, and track professional invoices in minutes with Swift Invoice. No subscriptions, no hidden fees. Just simple, pay-per-invoice pricing.',
-  'Perfect tool for small businesses and individuals looking to streamline their invoice management.'
+  'Create, download, and track professional invoices in minutes with Swift Invoice. No subscriptions, no hidden fees. Just simple, pay-per-invoice pricing. ' +
+  'Swift Invoice is packed with features to help you get paid faster. Perfect tool for small businesses and individuals looking to streamline their invoice management.',
 );
 
 </script>

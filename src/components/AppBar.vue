@@ -60,6 +60,12 @@ const handleLogout = async () => {
               <v-list-item to="/dashboard">
                 <v-list-item-title>Dashboard</v-list-item-title>
               </v-list-item>
+              <v-list-item to="/customers">
+                <v-list-item-title>Customers</v-list-item-title>
+              </v-list-item>
+              <v-list-item to="/items">
+                <v-list-item-title>Items</v-list-item-title>
+              </v-list-item>
               <v-list-item to="/settings">
                 <v-list-item-title>Settings</v-list-item-title>
               </v-list-item>

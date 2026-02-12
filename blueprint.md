@@ -1,16 +1,14 @@
-
 # Blueprint: SwiftInvoice
 
 ## Overview
 
 SwiftInvoice is a Vue.js-based invoicing application designed for freelancers and small businesses. It simplifies the process of creating and managing invoices. The application leverages Firebase for backend services (Authentication, Firestore, Storage) and Cloud Functions. It integrates with Stripe to charge a one-time **service fee** to enable PDF generation and email delivery of the invoices.
 
-**Note:** This application is not a Customer Relationship Management (CRM) tool. Customer data is entered on a per-invoice basis and is not stored or managed separately.
-
 ## Core Features
 
 *   **User Authentication:** Secure user registration and login using Firebase Authentication.
 *   **Invoice Management:** Create, view, update, and delete invoices.
+*   **Customer Management:** A dedicated section to add, edit, and delete customer information, which can be quickly selected when creating new invoices.
 *   **Service Fee Payments:** Integrates with Stripe to securely process a one-time service fee that unlocks the PDF and email features for an invoice.
 *   **PDF Generation & Download:** Generate and download professional PDF invoices for clients once the service fee is paid.
 *   **Email Invoicing:** Send generated PDF invoices to clients directly from the application.
@@ -59,10 +57,23 @@ SwiftInvoice is a Vue.js-based invoicing application designed for freelancers an
 *   **Root Cause:** The component was using a deprecated `left` prop on the `<v-icon>` element, which is no longer supported in Vuetify 3.
 *   **Solution:** Refactored the buttons in `src/components/InvoiceView.vue` to use the correct `prepend-icon` prop directly on the `<v-btn>` component. Also updated the send email icon to `mdi-email` per user request.
 
+### 6. **Customer Management Feature**
+
+*   **Goal:** Implement the ability to save and manage customer data, and to select customers when creating an invoice.
+*   **Implementation:**
+    1.  **`CustomersView.vue` Component:** Created a new page with a data table and dialog for adding, editing, and deleting customer information.
+    2.  **`useCustomers.js` Composable:** Developed a composable to handle all Firestore interactions for the `customers` collection, including fetching, adding, updating, and deleting customer data.
+    3.  **Routing and Navigation:** Added a `/customers` route in `src/router/index.js` and a "Customers" link in the `AppBar.vue` component for easy access.
+    4.  **Integration with `InvoiceEditor.vue`:** Modified the `InvoiceEditor.vue` component to include a customer selection dropdown. Selecting a customer from the dropdown automatically populates the client information fields in the invoice, streamlining the invoice creation process.
+
 ## Next Steps
 
-*   **Improve Mobile Payment Reliability:** Address an issue where the Stripe payment window is blocked by mobile browsers due to popup-blocking behavior when paying the service fee.
-    *   **Plan:**
-        1.  **Create `StripeCheckout.vue` Component:** Develop a new component to render an embedded Stripe payment form within a modal dialog.
-        2.  **Modify Cloud Function (`createCheckoutSession` to `createPaymentIntent`):** Update the cloud function responsible for initiating a payment to create a Stripe `PaymentIntent` instead of a `CheckoutSession`. This provides a `clientSecret` that can be used on the frontend.
-        3.  **Update `InvoiceView.vue`:** Modify the payment flow. When a user clicks "Pay Service Fee," the app will call the updated cloud function to get a `clientSecret`. This secret will then be passed as a prop to the new `StripeCheckout.vue` component, which will render the secure, embedded payment form inside a dialog, avoiding popup blockers.
+### Item Management Feature
+
+*   **Goal:** To allow users to save and manage a library of reusable items (products or services) that can be quickly added to invoices.
+*   **Plan:**
+    1.  **Create `ItemsView.vue`:** A new view for users to add, edit, and delete their frequently used items. Each item will have a `description` and a `price`.
+    2.  **Create `useItems.js`:** A new composable to manage all Firestore interactions for a user's `items` collection (a sub-collection under their user document).
+    3.  **Update `firestore.rules`:** Add security rules to ensure users can only access their own items.
+    4.  **Update `AppBar.vue` and `router/index.js`:** Add navigation to the new "Items" page.
+    5.  **Integrate with `InvoiceEditor.vue`:** Update the invoice line items to be selectable from the user's saved items, which will auto-fill the description and price.

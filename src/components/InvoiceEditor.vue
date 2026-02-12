@@ -1,18 +1,22 @@
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import useUserSettings from '../composables/useUserSettings';
 import useInvoices from '../composables/useInvoices';
 import useStripe from '../composables/useStripe';
+import { useCustomers } from '../composables/useCustomers';
+import { useItems } from '../composables/useItems';
 import { authReady, currentUser as user } from '@/composables/useAuth';
 import InvoiceTemplate from './InvoiceTemplate.vue';
-import StripeCheckout from './StripeCheckout.vue'; // Added
+import StripeCheckout from './StripeCheckout.vue';
 import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 
 const { settings, fetchUserSettings } = useUserSettings();
 const { createInvoice, getInvoice, updateInvoice } = useInvoices();
-const { createPaymentIntent, error: stripeError } = useStripe(); // Updated
+const { createPaymentIntent, error: stripeError } = useStripe();
+const { customers, fetchCustomers, stopFetching: stopFetchingCustomers } = useCustomers();
+const { items, fetchItems, stopFetching: stopFetchingItems } = useItems();
 const router = useRouter();
 const route = useRoute();
 
@@ -21,7 +25,7 @@ const invoice = ref({
   invoiceNumber: '',
   status: 'pending',
   sender: { name: '', address1: '', address2: '', city: '', state: '', zip: '', email: '' },
-  client: { name: '', address1: '', address2: '', city: '', state: '', zip: '', email: '' },
+  client: { name: '', address1: '', address2: '', city: '', state: '', zip: '', email: '', phone: '' }, // Added phone
   items: [],
   issueDate: new Date(),
   dueDate: new Date(),
@@ -30,10 +34,9 @@ const invoice = ref({
   includeVenmoQr: false,
 });
 
+const selectedCustomer = ref(null); // Ref for the selected customer
 const showPreview = ref(false);
 const isProcessing = ref(false);
-
-// Added: State for the payment modal
 const showPaymentModal = ref(false);
 const clientSecret = ref(null);
 const paymentInvoiceId = ref(null);
@@ -76,6 +79,32 @@ const total = computed(() => {
   return subtotal.value + taxAmount.value;
 });
 
+// Watch for changes in the selected customer to auto-fill client info
+watch(selectedCustomer, (newCustomer) => {
+  if (newCustomer) {
+    invoice.value.client = {
+      name: newCustomer.name || '',
+      email: newCustomer.email || '',
+      phone: newCustomer.phone || '',
+      address1: newCustomer.address1 || '',
+      address2: newCustomer.address2 || '',
+      city: newCustomer.city || '',
+      state: newCustomer.state || '',
+      zip: newCustomer.zip || '',
+    };
+  } else {
+    // Clear client fields if customer is deselected
+    invoice.value.client = { name: '', email: '', phone: '', address1: '', address2: '', city: '', state: '', zip: '' };
+  }
+});
+
+const handleItemSelection = (item, selectedItem) => {
+  if (selectedItem) {
+    item.description = selectedItem.description;
+    item.price = selectedItem.price;
+  }
+};
+
 // --- Initialization Logic ---
 const initializeInvoice = async () => {
   fetchUserSettings();
@@ -90,7 +119,7 @@ const initializeInvoice = async () => {
   } else {
     invoiceId.value = 'new';
     if (!invoice.value.items || invoice.value.items.length === 0) {
-      invoice.value.items = [{ description: 'Sample Service', quantity: 1, price: 1 }];
+      invoice.value.items = [{ description: 'Sample Service', quantity: 1, price: 1, selectedItem: null }];
     }
   }
 };
@@ -104,21 +133,26 @@ watch(settings, (newSettings) => {
   }
 }, { deep: true });
 
-
 authReady.then(() => {
   initializeInvoice();
+  fetchCustomers();
+  fetchItems();
+});
+
+onUnmounted(() => {
+  stopFetchingCustomers();
+  stopFetchingItems();
 });
 
 // --- Component Methods ---
 const addItem = () => {
-  invoice.value.items.push({ description: '', quantity: 1, price: 0 });
+  invoice.value.items.push({ description: '', quantity: 1, price: 0, selectedItem: null });
 };
 
 const removeItem = (index) => {
   invoice.value.items.splice(index, 1);
 };
 
-// Updated: saveAndContinue to open payment modal
 const saveAndContinue = async () => {
   isProcessing.value = true;
   if (!user.value || !user.value.uid) {
@@ -163,7 +197,6 @@ const saveAndContinue = async () => {
   }
 };
 
-// Added: Function to close the payment modal
 const closePaymentModal = () => {
   showPaymentModal.value = false;
   clientSecret.value = null;
@@ -185,7 +218,7 @@ const closePaymentModal = () => {
       <div v-if="invoice" class="invoice-form-content">
         <div class="form-section responsive-grid">
           <div class="from-fields">
-            <h3>From</h3>
+            <h3 class="mb-2">From</h3>
             <input type="text" placeholder="Your Name/Company" v-model="invoice.sender.name">
             <input type="email" placeholder="Your Email" v-model="invoice.sender.email">
             <input type="text" placeholder="Address Line 1" v-model="invoice.sender.address1">
@@ -197,9 +230,31 @@ const closePaymentModal = () => {
             <input type="text" placeholder="Zip Code" v-model="invoice.sender.zip">
           </div>
           <div>
-            <h3>To</h3>
-            <input type="text" placeholder="Client's Name" v-model="invoice.client.name">
-            <input type="email" placeholder="Client's Email" v-model="invoice.client.email">
+            <h3 class="mb-2">To</h3>
+            <v-autocomplete
+              v-model="selectedCustomer"
+              :items="customers"
+              item-title="name"
+              item-value="id"
+              :item-props="(item) => ({ title: item.name, subtitle: item.email })"
+              return-object
+              label="Select a Customer"
+              variant="outlined"
+              class="mb-4"
+              clearable
+            >
+              <template v-slot:no-data>
+                <v-list-item>
+                  <v-list-item-title>
+                    No customers found. <router-link to="/customers">Add one?</router-link>
+                  </v-list-item-title>
+                </v-list-item>
+              </template>
+            </v-autocomplete>
+            
+            <v-text-field density="comfortable" class="mb-2" label="Client's Name" v-model="invoice.client.name" variant="outlined" required></v-text-field>
+            <v-text-field density="comfortable" class="mb-2" label="Client's Email" v-model="invoice.client.email" variant="outlined" required type="email"></v-text-field>
+            <v-text-field density="comfortable" class="mb-2" label="Client's Phone" v-model="invoice.client.phone" variant="outlined"></v-text-field>
             <input type="text" placeholder="Address Line 1" v-model="invoice.client.address1">
             <input type="text" placeholder="Address Line 2 (Optional)" v-model="invoice.client.address2">
             <div class="address-grid-city-state">
@@ -224,22 +279,57 @@ const closePaymentModal = () => {
         <div class="form-section">
           <h3>Items</h3>
           <div class="items-list">
-            <div v-for="(item, index) in invoice.items" :key="index" class="item-row">
-              <div class="item-field">
-                <label :for="`item-description-${index}`" class="item-label">Description</label>
-                <input :id="`item-description-${index}`" type="text" placeholder="Description" v-model="item.description">
-              </div>
-              <div class="item-field">
-                <label :for="`item-quantity-${index}`" class="item-label">Quantity</label>
-                <input :id="`item-quantity-${index}`" type="number" placeholder="Quantity" v-model.number="item.quantity">
-              </div>
-              <div class="item-field">
-                <label :for="`item-price-${index}`" class="item-label">Price</label>
-                <input :id="`item-price-${index}`" type="number" placeholder="Price" v-model.number="item.price">
-              </div>
-              <button class="delete-item-btn" @click="removeItem(index)">
-                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
-              </button>
+            <div v-for="(item, index) in invoice.items" :key="index" class="item-row align-center">
+              <v-row>
+                <v-col cols="12" md="6">
+                  <v-autocomplete
+                    v-model="item.selectedItem"
+                    :items="items"
+                    item-title="description"
+                    item-value="id"
+                    :item-props="(item) => ({ title: item.description, subtitle: `$${item.price}` })"
+                    return-object
+                    label="Select or type to add an item"
+                    variant="outlined"
+                    @update:modelValue="(value) => handleItemSelection(item, value)"
+                    clearable
+                    density="comfortable"
+                  >
+                    <template v-slot:no-data>
+                      <v-list-item>
+                        <v-list-item-title>
+                          No items found. <router-link to="/items">Add one?</router-link>
+                        </v-list-item-title>
+                      </v-list-item>
+                    </template>
+                  </v-autocomplete>
+                </v-col>
+                <v-col cols="6" md="2">
+                  <v-text-field
+                    :id="`item-quantity-${index}`"
+                    type="number"
+                    label="Quantity"
+                    v-model.number="item.quantity"
+                    density="comfortable"
+                    variant="outlined"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="6" md="2">
+                  <v-text-field
+                    :id="`item-price-${index}`"
+                    type="number"
+                    label="Price"
+                    v-model.number="item.price"
+                    density="comfortable"
+                    variant="outlined"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" md="2" class="text-center">
+                  <button class="delete-item-btn" @click="removeItem(index)">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
+                  </button>
+                </v-col>
+              </v-row>
             </div>
           </div>
           <button class="add-item-btn" @click="addItem">+ Add New Item</button>
@@ -293,7 +383,6 @@ const closePaymentModal = () => {
       </div>
     </div>
     
-    <!-- Added: Payment Modal -->
     <div v-if="showPaymentModal" class="preview-modal">
       <div class="modal-content payment-modal-content">
         <StripeCheckout
@@ -375,35 +464,20 @@ const closePaymentModal = () => {
     gap: 0.5rem; 
 }
 
-input, textarea { 
-    width: 100%; 
-    padding: 0.8rem 1rem; 
-    border: 1px solid #ddd; 
-    border-radius: 8px; 
-    margin-bottom: 0.5rem; 
+input, textarea,
+.v-text-field, .v-textarea {
+    width: 100%;
+    margin-bottom: 0.5rem;
 }
 
-.items-list .item-row {
-  display: grid;
-  grid-template-columns: 3fr 1fr 1fr auto;
-  gap: 1rem;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-.item-field {
-    display: contents;
+input, textarea {
+    padding: 0.8rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
 }
 
-.item-label {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
+.item-row {
+    margin-bottom: 1rem;
 }
 
 .delete-item-btn, .add-item-btn {
@@ -452,7 +526,7 @@ input, textarea {
     max-height: 90vh; 
     overflow-y: auto; 
 }
-/* Added */
+
 .payment-modal-content {
   padding: 0;
   max-width: 500px;
@@ -580,51 +654,10 @@ input:checked + .slider:before {
 @media (max-width: 1023px) {
   .from-fields { display: none; }
   .responsive-grid { grid-template-columns: 1fr; }
-  .items-list .item-row {
-    grid-template-columns: 2fr 1fr 1fr auto;
-  }
 }
 
 @media (max-width: 768px) {
-  .item-field {
-    display: block;
-  }
-  
-  .item-label {
-    position: static;
-    width: auto;
-    height: auto;
-    padding: 0;
-    margin: 0 0 0.25rem 0;
-    overflow: visible;
-    clip: auto;
-    white-space: normal;
-    display: block;
-    font-weight: 500;
-    font-size: 0.875rem;
-    color: #555;
-  }
-
-  .items-list .item-row {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #eee;
-    margin-bottom: 1rem;
-  }
-
-  .items-list .item-row:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-
-  .items-list .item-row input {
-    margin-bottom: 0;
-  }
-  
   .delete-item-btn {
-    grid-row: 4;
-    justify-self: end;
     background-color: #fce8e8;
     color: #c53030;
     padding: 0.5rem 1rem;

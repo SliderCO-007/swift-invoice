@@ -11,5 +11,19 @@ service cloud.firestore {
       // Allow users to read, write, and create their own settings
       allow read, write, create: if request.auth != null && request.auth.uid == userId;
     }
+    match /users/{userId} {
+      // Allow users to manage their own document and subcollections
+      allow read, write, create: if request.auth != null && request.auth.uid == userId;
+
+      match /customers/{customerId} {
+        // Allow users to manage their own customers
+        allow read, write, create, delete: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /items/{itemId} {
+        // Allow users to manage their own items
+        allow read, write, create, delete: if request.auth != null && request.auth.uid == userId;
+      }
+    }
   }
 }
