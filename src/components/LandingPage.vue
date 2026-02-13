@@ -8,7 +8,6 @@
         </div>
         <nav class="nav desktop-nav">
           <a href="#features">Features</a>
-          <a href="#how-it-works">How It Works</a>
           <router-link to="/login">Login</router-link>
         </nav>
         <v-btn to="/register" color="primary" size="large" rounded="pill" class="desktop-nav">Get Started for Free</v-btn>
@@ -18,7 +17,6 @@
       </div>
       <nav class="mobile-nav" :class="{ 'is-open': isMobileNavOpen }">
         <a href="#features" @click="isMobileNavOpen = false">Features</a>
-        <a href="#how-it-works" @click="isMobileNavOpen = false">How It Works</a>
         <router-link to="/login" @click="isMobileNavOpen = false">Login</router-link>
         <v-btn to="/register" color="primary" size="large" rounded="pill">Get Started for Free</v-btn>
       </nav>
@@ -76,44 +74,16 @@
           </div>
         </div>
       </section>
-
-      <section id="how-it-works" class="how-it-works">
-        <div class="container">
-          <h2 class="section-title">Get Started in 3 Easy Steps</h2>
-          <div class="steps-container">
-            <div class="step-card">
-              <div class="step-number">1</div>
-              <h3 class="step-title">Create Your Free Account</h3>
-              <p class="step-description">Sign up in seconds with just your email and password. No credit card required.</p>
-              <img src="/click_getStarted.gif" alt="Get Started GIF" class="step-gif" />
-            </div>
-            <div class="step-card">
-              <div class="step-number">2</div>
-              <h3 class="step-title">Set Up Your Business</h3>
-              <p class="step-description">Enter your company details and upload your logo in the user settings to personalize your invoices.</p>
-              <img src="/click_manageSettings.gif" alt="Manage Settings GIF" class="step-gif" />
-            </div>
-            <div class="step-card">
-              <div class="step-number">3</div>
-              <h3 class="step-title">Create Your First Invoice</h3>
-              <p class="step-description">Build and send your first professional invoice for just $1. It's that simple.</p>
-              <img src="/click_firstInvoice.gif" alt="Create First Invoice GIF" class="step-gif" />
-            </div>
-          </div>
-          <div class="get-started-cta">
-             <v-btn to="/register" color="primary" size="x-large" rounded="pill" class="mt-8">Sign Up Now</v-btn>
-          </div>
-        </div>
-      </section>
     </main>
-
+    
     <footer class="footer">
-        <div class="container">
-            <p>&copy; 2026 Swift Invoice. All rights reserved. | <a href="mailto:support@swiftinvoice.biz">support@swiftinvoice.biz</a></p>
-            <div class="badge-container">
-            <a href='https://www.saashub.com/swift-invoice?utm_source=badge&utm_campaign=badge&utm_content=swift-invoice&badge_variant=color&badge_kind=approved' target='_blank'><img src="https://cdn-b.saashub.com/img/badges/approved-color.png?v=1" alt="SwiftInvoice.biz badge"/></a>
-            <a href="https://www.producthunt.com/products/swift-invoice-2?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-swift-invoice-2" target="_blank" rel="noopener noreferrer"><img alt="Swift Invoice - Stop Chasing Payments. Start Getting Paid in Seconds. | Product Hunt" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1070834&amp;theme=neutral&amp;t=1769917049866"></a>
-            </div>
+      <div class="container">
+        <p>&copy; 2026 Swift Invoice. All rights reserved. | <a href="mailto:support@swiftinvoice.biz">support@swiftinvoice.biz</a></p>
+        <div class="badge-container">
+          <a href='https://www.saashub.com/swift-invoice?utm_source=badge&utm_campaign=badge&utm_content=swift-invoice&badge_variant=color&badge_kind=approved' target='_blank'><img src="https://cdn-b.saashub.com/img/badges/approved-color.png?v=1" alt="SwiftInvoice.biz badge"/></a>
+          <TrustpilotWidget />
+          <a href="https://www.producthunt.com/products/swift-invoice-2?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-swift-invoice-2" target="_blank" rel="noopener noreferrer"><img alt="Swift Invoice - Stop Chasing Payments. Start Getting Paid in Seconds. | Product Hunt" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1070834&amp;theme=neutral&amp;t=1769917049866"></a>
+        </div>
         </div>
     </footer>
 
@@ -137,6 +107,7 @@ import IconEmail from './IconEmail.vue';
 import IconAnalytics from './IconAnalytics.vue';
 import IconMenu from './IconMenu.vue';
 import IconVenmo from './IconVenmo.vue';
+import TrustpilotWidget from './TrustpilotWidget.vue'
 
 const isMobileNavOpen = ref(false);
 const showDashboardPreview = ref(false);
@@ -353,67 +324,6 @@ main section[id] {
   margin-bottom: auto;
 }
 
-/* How It Works Section */
-.how-it-works {
-    padding: 6rem 0;
-    background-color: #fff;
-}
-
-.steps-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 3rem;
-    max-width: 1000px;
-    margin: 4rem auto;
-    text-align: center;
-}
-
-.step-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.step-number {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background-color: var(--primary-color);
-    color: #fff;
-    font-size: 2rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 4px 10px rgba(74, 144, 226, 0.4);
-}
-
-.step-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-}
-
-.step-description {
-    color: #555;
-    max-width: 300px;
-    margin-bottom: auto;
-}
-
-.step-gif {
-  margin-top: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  max-width: 100%;
-}
-
-.get-started-cta {
-    text-align: center;
-}
-
-
 /* Footer */
 .footer {
   background-color: #333;
@@ -517,11 +427,11 @@ main section[id] {
     font-size: 1.1rem;
   }
 
-  .features, .how-it-works {
+  .features {
     padding: 4rem 0;
   }
 
-  .features-grid, .steps-container {
+  .features-grid {
     grid-template-columns: 1fr;
   }
 
