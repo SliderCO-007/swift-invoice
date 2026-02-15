@@ -10,6 +10,11 @@ const routes = [
     component: LandingPage,
   },
   {
+    path: '/pricing',
+    name: 'Pricing',
+    component: () => import('../components/PricingPage.vue'),
+  },
+  {
     path: '/register',
     name: 'Register',
     component: () => import('../components/RegisterPage.vue'),

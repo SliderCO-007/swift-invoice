@@ -1,6 +1,9 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useDisplay } from 'vuetify';
 import { useCustomers } from '../composables/useCustomers';
+
+const { mobile } = useDisplay();
 
 const { customers, loading, addCustomer, updateCustomer, deleteCustomer, fetchCustomers, stopFetching } = useCustomers();
 
@@ -95,8 +98,8 @@ async function save() {
 
 <template>
   <div class="customers-view pa-4 pa-md-6">
-    <header class="d-flex justify-space-between align-center mb-4">
-      <h1 class="text-h4 font-weight-bold">Manage Your Customers</h1>
+    <header class="d-flex justify-space-between align-center mb-4 flex-wrap">
+      <h1 class="text-h4 font-weight-bold mb-2 mb-sm-0">Manage Your Customers</h1>
       <v-btn color="primary" @click="openDialog" size="large" class="elevation-2">
         <v-icon start>mdi-plus</v-icon>
         Add Customer
@@ -105,7 +108,8 @@ async function save() {
 
      <p class="text-subtitle-1 mb-6">Keep all your client information organized in one place for faster invoicing.</p>
 
-    <v-card class="elevation-2">
+    <!-- Desktop View: Data Table -->
+    <v-card class="elevation-2" v-if="!mobile">
       <v-data-table
         :headers="headers"
         :items="customers"
@@ -141,6 +145,50 @@ async function save() {
         </template>
       </v-data-table>
     </v-card>
+
+    <!-- Mobile View: Card List -->
+    <div v-else>
+      <v-card v-for="item in customers" :key="item.id" class="mb-4 elevation-2">
+        <v-card-title class="d-flex justify-space-between align-center">
+          <span class="text-h6 font-weight-bold">{{ item.name }}</span>
+          <div>
+            <v-tooltip location="top">
+              <template v-slot:activator="{ props }">
+                <v-icon v-bind="props" class="me-2" @click="editItem(item)" color="grey-darken-1">mdi-pencil</v-icon>
+              </template>
+              <span>Edit Customer</span>
+            </v-tooltip>
+            <v-tooltip location="top">
+              <template v-slot:activator="{ props }">
+                <v-icon v-bind="props" @click="confirmDelete(item)" color="grey-darken-1">mdi-delete</v-icon>
+              </template>
+              <span>Delete Customer</span>
+            </v-tooltip>
+          </div>
+        </v-card-title>
+        <v-card-text>
+          <div v-if="item.email" class="d-flex align-center mb-2">
+            <v-icon color="grey-darken-1" class="me-3">mdi-email-outline</v-icon>
+            <a :href="'mailto:' + item.email" class="text-decoration-none text-body-1">{{ item.email }}</a>
+          </div>
+          <div v-if="item.phone" class="d-flex align-center mb-2">
+            <v-icon color="grey-darken-1" class="me-3">mdi-phone-outline</v-icon>
+            <a :href="'tel:' + item.phone" class="text-decoration-none text-body-1">{{ item.phone }}</a>
+          </div>
+          <div v-if="getFormattedAddress(item)" class="d-flex align-start">
+            <v-icon color="grey-darken-1" class="me-3 mt-1">mdi-map-marker-outline</v-icon>
+            <span class="text-body-1">{{ getFormattedAddress(item) }}</span>
+          </div>
+        </v-card-text>
+      </v-card>
+      <div v-if="!customers.length && !loading" class="text-center pa-10">
+        <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-account-group-outline</v-icon>
+        <h3 class="text-h6 mb-2">No Customers Yet</h3>
+        <p class="text-body-1 text-medium-emphasis mb-4">Click the button below to add your first client.</p>
+        <v-btn color="primary" @click="openDialog">Add First Customer</v-btn>
+      </div>
+    </div>
+
 
     <!-- Edit/Add Dialog -->
     <v-dialog v-model="dialog" max-width="600px" persistent>

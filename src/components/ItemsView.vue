@@ -1,26 +1,41 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useDisplay } from 'vuetify';
 import { useItems } from '../composables/useItems';
 
+const { mobile } = useDisplay();
 const { items, loading, error, fetchItems, addItem, updateItem, deleteItem, stopFetching } = useItems();
 
 const dialog = ref(false);
+const deleting = ref(false);
 const isEditing = ref(false);
-const editedItem = ref({
+const itemToDelete = ref(null);
+
+const defaultItem = {
   id: null,
   description: '',
   price: null,
-});
+};
+const editedItem = ref({ ...defaultItem });
+
+const formTitle = computed(() => (isEditing.value ? 'Edit Item' : 'New Item'));
 
 const headers = [
-  { title: 'Description', value: 'description', sortable: true },
-  { title: 'Price', value: 'price', sortable: true },
-  { title: 'Actions', value: 'actions', sortable: false },
+  { title: 'Description', key: 'description' },
+  { title: 'Price', key: 'price' },
+  { title: 'Actions', key: 'actions', sortable: false, align: 'end' },
 ];
+
+const formattedPrice = (price) => {
+  if (typeof price !== 'number') {
+    return '-';
+  }
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
+};
 
 const openNewItemDialog = () => {
   isEditing.value = false;
-  editedItem.value = { id: null, description: '', price: 0 };
+  editedItem.value = { ...defaultItem };
   dialog.value = true;
 };
 
@@ -30,32 +45,38 @@ const openEditItemDialog = (item) => {
   dialog.value = true;
 };
 
-const confirmDeleteItem = (item) => {
-  if (confirm(`Are you sure you want to delete "${item.description}"?`)) {
-    deleteItem(item.id);
+const confirmDelete = (item) => {
+  itemToDelete.value = item;
+  deleting.value = true;
+};
+
+const deleteItemConfirm = async () => {
+  if (itemToDelete.value) {
+    await deleteItem(itemToDelete.value.id);
   }
+  closeDelete();
+};
+
+const closeDelete = () => {
+  deleting.value = false;
+  itemToDelete.value = null;
 };
 
 const saveItem = async () => {
+  if (!editedItem.value.description || editedItem.value.price === null) {
+      return;
+  }
+  const dataToSave = { 
+      description: editedItem.value.description, 
+      price: Number(editedItem.value.price) 
+  };
+
   if (isEditing.value) {
-    await updateItem(editedItem.value.id, { 
-      description: editedItem.value.description, 
-      price: Number(editedItem.value.price) 
-    });
+    await updateItem(editedItem.value.id, dataToSave);
   } else {
-    await addItem({ 
-      description: editedItem.value.description, 
-      price: Number(editedItem.value.price) 
-    });
+    await addItem(dataToSave);
   }
   dialog.value = false;
-};
-
-const formattedPrice = (price) => {
-    if (typeof price !== 'number') {
-        return '-';
-    }
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
 };
 
 onMounted(() => {
@@ -68,117 +89,139 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="items-view-container">
-    <v-container fluid>
-      <v-card class="items-card">
-        <v-card-title class="items-card-title">
-          <h1 class="headline">Manage Items</h1>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" dark @click="openNewItemDialog">
-            <v-icon left>mdi-plus</v-icon>
-            Add New Item
-          </v-btn>
+  <div class="items-view pa-4 pa-md-6">
+    <header class="d-flex justify-space-between align-center mb-4 flex-wrap">
+      <h1 class="text-h4 font-weight-bold mb-2 mb-sm-0">Manage Your Items</h1>
+      <v-btn color="primary" @click="openNewItemDialog" size="large" class="elevation-2">
+        <v-icon start>mdi-plus</v-icon>
+        Add Item
+      </v-btn>
+    </header>
+
+    <p class="text-subtitle-1 mb-6">Create and manage reusable items to build invoices even faster.</p>
+
+    <!-- Desktop View: Data Table -->
+    <v-card class="elevation-2" v-if="!mobile">
+      <v-data-table
+        :headers="headers"
+        :items="items"
+        :loading="loading"
+        item-value="id"
+        class="elevation-0"
+        :items-per-page="10"
+      >
+        <template v-slot:item.price="{ item }">
+          <span>{{ formattedPrice(item.price) }}</span>
+        </template>
+        <template v-slot:item.actions="{ item }">
+          <v-tooltip location="top">
+            <template v-slot:activator="{ props }">
+              <v-icon v-bind="props" class="me-2" @click="openEditItemDialog(item)" color="grey-darken-1">mdi-pencil</v-icon>
+            </template>
+            <span>Edit Item</span>
+          </v-tooltip>
+          <v-tooltip location="top">
+            <template v-slot:activator="{ props }">
+              <v-icon v-bind="props" @click="confirmDelete(item)" color="grey-darken-1">mdi-delete</v-icon>
+            </template>
+            <span>Delete Item</span>
+          </v-tooltip>
+        </template>
+        <template v-slot:no-data>
+          <div class="d-flex flex-column align-center justify-center pa-10 text-center">
+            <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-list-box-outline</v-icon>
+            <h3 class="text-h6 mb-2">No Items Yet</h3>
+            <p class="text-body-1 text-medium-emphasis mb-4">Click the button below to add your first item.</p>
+            <v-btn color="primary" @click="openNewItemDialog">Add First Item</v-btn>
+          </div>
+        </template>
+      </v-data-table>
+    </v-card>
+
+    <!-- Mobile View: Card List -->
+    <div v-else>
+        <v-card v-for="item in items" :key="item.id" class="mb-4 elevation-2">
+            <v-card-text>
+                <div class="d-flex justify-space-between align-center">
+                    <span class="text-h6 font-weight-bold">{{ item.description }}</span>
+                    <div>
+                        <v-tooltip location="top">
+                            <template v-slot:activator="{ props }">
+                                <v-icon v-bind="props" class="me-2" @click="openEditItemDialog(item)" color="grey-darken-1">mdi-pencil</v-icon>
+                            </template>
+                            <span>Edit Item</span>
+                        </v-tooltip>
+                        <v-tooltip location="top">
+                            <template v-slot:activator="{ props }">
+                                <v-icon v-bind="props" @click="confirmDelete(item)" color="grey-darken-1">mdi-delete</v-icon>
+                            </template>
+                            <span>Delete Item</span>
+                        </v-tooltip>
+                    </div>
+                </div>
+                <div class="d-flex align-center mt-2">
+                    <v-icon color="grey-darken-1" class="me-3">mdi-currency-usd</v-icon>
+                    <span class="text-body-1 font-weight-medium">{{ formattedPrice(item.price) }}</span>
+                </div>
+            </v-card-text>
+        </v-card>
+        <div v-if="!items.length && !loading" class="text-center pa-10">
+             <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-list-box-outline</v-icon>
+            <h3 class="text-h6 mb-2">No Items Yet</h3>
+            <p class="text-body-1 text-medium-emphasis mb-4">Click the button below to add your first item.</p>
+            <v-btn color="primary" @click="openNewItemDialog">Add First Item</v-btn>
+        </div>
+    </div>
+
+    <!-- Edit/Add Dialog -->
+    <v-dialog v-model="dialog" max-width="600px" persistent>
+      <v-card>
+        <v-card-title class="pa-4 bg-primary">
+          <span class="text-h5">{{ formTitle }}</span>
         </v-card-title>
-
-        <v-card-text>
-          <div v-if="loading" class="loading-container"> 
-            <v-progress-circular indeterminate color="primary"></v-progress-circular>
-          </div>
-          <div v-if="error" class="error-message">
-             <v-alert type="error" dense outlined>{{ error.message }}</v-alert>
-          </div>
-
-          <v-data-table
-            v-if="!loading && items.length > 0"
-            :headers="headers"
-            :items="items"
-            class="elevation-1 items-table"
-            item-key="id"
-          >
-            <template v-slot:item.price="{ item }">
-                {{ formattedPrice(item.price) }}
-            </template>
-            <template v-slot:item.actions="{ item }">
-                <v-icon small class="mr-2 action-icon" @click="openEditItemDialog(item)">mdi-pencil</v-icon>
-                <v-icon small class="action-icon" @click="confirmDeleteItem(item)">mdi-delete</v-icon>
-            </template>
-          </v-data-table>
-          <div v-else-if="!loading" class="no-items-message">
-              <p>No items found. Get started by adding a new item!</p>
-          </div>
-        </v-card-text>
-      </v-card>
-
-      <v-dialog v-model="dialog" max-width="600px">
-        <v-card>
-          <v-card-title>
-            <span class="text-h5">{{ isEditing ? 'Edit Item' : 'New Item' }}</span>
-          </v-card-title>
-          <v-card-text>
-            <v-container>
+        <v-card-text class="pt-4">
+          <v-container>
+            <v-form @submit.prevent="saveItem">
               <v-text-field
                 v-model="editedItem.description"
                 label="Description"
-                required
                 variant="outlined"
-                density="comfortable"
+                required
               ></v-text-field>
               <v-text-field
                 v-model.number="editedItem.price"
                 label="Price"
-                required
                 type="number"
                 prefix="$"
                 variant="outlined"
-                density="comfortable"
+                required
               ></v-text-field>
-            </v-container>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" text @click="dialog = false">Cancel</v-btn>
-            <v-btn color="blue darken-1" :disabled="!editedItem.description || editedItem.price === null" @click="saveItem">Save</v-btn>
-          </v-card-actions>
+            </v-form>
+          </v-container>
+        </v-card-text>
+        <v-card-actions class="pa-4">
+          <v-spacer></v-spacer>
+          <v-btn color="grey-darken-1" variant="text" @click="dialog = false">Cancel</v-btn>
+          <v-btn color="primary" variant="flat" @click="saveItem">Save Item</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Delete Confirmation Dialog -->
+    <v-dialog v-model="deleting" max-width="500px" persistent>
+        <v-card>
+            <v-card-title class="text-h5 text-center pt-6">Are you sure?</v-card-title>
+            <v-card-text class="text-center">
+                This action will permanently delete the item. Do you want to proceed?
+            </v-card-text>
+            <v-card-actions class="pb-4">
+                <v-spacer></v-spacer>
+                <v-btn color="grey-darken-1" variant="text" @click="closeDelete">Cancel</v-btn>
+                <v-btn color="red-darken-1" variant="flat" @click="deleteItemConfirm">Delete</v-btn>
+                <v-spacer></v-spacer>
+            </v-card-actions>
         </v-card>
-      </v-dialog>
-    </v-container>
+    </v-dialog>
+
   </div>
 </template>
-
-<style scoped>
-.items-view-container {
-  padding: 2rem;
-  background-color: #f9fafb;
-}
-.items-card {
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-}
-.items-card-title {
-  display: flex;
-  align-items: center;
-  padding-bottom: 1rem;
-}
-.headline {
-  font-weight: 700;
-  color: #333;
-}
-.loading-container, .no-items-message, .error-message {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 200px;
-    text-align: center;
-    color: #666;
-}
-.items-table .v-icon {
-  color: #757575;
-  transition: color 0.2s ease;
-}
-.items-table .v-icon:hover {
-  color: var(--v-primary-base, #1976D2);
-}
-.action-icon {
-    cursor: pointer;
-}
-</style>
