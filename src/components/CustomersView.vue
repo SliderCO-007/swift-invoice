@@ -4,12 +4,12 @@ import { useDisplay } from 'vuetify';
 import { useCustomers } from '../composables/useCustomers';
 
 const { mobile } = useDisplay();
-
 const { customers, loading, addCustomer, updateCustomer, deleteCustomer, fetchCustomers, stopFetching } = useCustomers();
 
 const dialog = ref(false);
 const deleting = ref(false);
 const itemToDelete = ref(null);
+const searchQuery = ref('');
 
 const defaultItem = {
   id: null,
@@ -26,6 +26,17 @@ const editedItem = ref({ ...defaultItem });
 const editedIndex = ref(-1);
 
 const formTitle = computed(() => (editedIndex.value === -1 ? 'New Customer' : 'Edit Customer'));
+
+const filteredCustomers = computed(() => {
+  if (!searchQuery.value) {
+    return customers.value;
+  }
+  const lowerCaseQuery = searchQuery.value.toLowerCase();
+  return customers.value.filter(customer =>
+    customer.name.toLowerCase().includes(lowerCaseQuery) ||
+    customer.email.toLowerCase().includes(lowerCaseQuery)
+  );
+});
 
 const headers = [
   { title: 'Name', key: 'name' },
@@ -86,10 +97,8 @@ async function save() {
   delete dataToSave.id;
 
   if (editedIndex.value > -1 && editedItem.value.id) {
-    // Update existing customer
     await updateCustomer(editedItem.value.id, dataToSave);
   } else {
-    // Add new customer
     await addCustomer(dataToSave);
   }
   close();
@@ -108,15 +117,28 @@ async function save() {
 
      <p class="text-subtitle-1 mb-6">Keep all your client information organized in one place for faster invoicing.</p>
 
+    <v-card class="elevation-2 mb-6">
+        <v-text-field
+            v-model="searchQuery"
+            label="Search Customers by name or email..."
+            prepend-inner-icon="mdi-magnify"
+            variant="solo-filled"
+            flat
+            hide-details
+            clearable
+        ></v-text-field>
+    </v-card>
+
     <!-- Desktop View: Data Table -->
     <v-card class="elevation-2" v-if="!mobile">
       <v-data-table
         :headers="headers"
-        :items="customers"
+        :items="filteredCustomers"
         :loading="loading"
         item-value="id"
         class="elevation-0"
         :items-per-page="10"
+        :search="searchQuery"
       >
         <template v-slot:item.address="{ item }">
             <span>{{ getFormattedAddress(item) }}</span>
@@ -143,12 +165,19 @@ async function save() {
                 <v-btn color="primary" @click="openDialog">Add First Customer</v-btn>
             </div>
         </template>
+         <template v-slot:no-results>
+            <div class="d-flex flex-column align-center justify-center pa-10 text-center">
+                <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-magnify-close</v-icon>
+                <h3 class="text-h6 mb-2">No Customers Found</h3>
+                <p class="text-body-1 text-medium-emphasis">Your search for "{{ searchQuery }}" found no results.</p>
+            </div>
+        </template>
       </v-data-table>
     </v-card>
 
     <!-- Mobile View: Card List -->
     <div v-else>
-      <v-card v-for="item in customers" :key="item.id" class="mb-4 elevation-2">
+      <v-card v-for="item in filteredCustomers" :key="item.id" class="mb-4 elevation-2">
         <v-card-title class="d-flex justify-space-between align-center">
           <span class="text-h6 font-weight-bold">{{ item.name }}</span>
           <div>
@@ -186,6 +215,11 @@ async function save() {
         <h3 class="text-h6 mb-2">No Customers Yet</h3>
         <p class="text-body-1 text-medium-emphasis mb-4">Click the button below to add your first client.</p>
         <v-btn color="primary" @click="openDialog">Add First Customer</v-btn>
+      </div>
+       <div v-else-if="!filteredCustomers.length && !loading" class="text-center pa-10">
+        <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-magnify-close</v-icon>
+        <h3 class="text-h6 mb-2">No Customers Found</h3>
+        <p class="text-body-1 text-medium-emphasis">Your search for "{{ searchQuery }}" found no results.</p>
       </div>
     </div>
 

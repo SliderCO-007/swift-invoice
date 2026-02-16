@@ -21,9 +21,9 @@
               <div class="feature-icon">
                 <IconPricing />
               </div>
-              <h3 class="feature-title">Simple Pricing</h3>
-              <p class="feature-description">Unlimited invoices for a simple monthly or yearly price. No hidden fees. Ever.</p>
-              <v-btn to="/pricing" color="secondary" rounded="pill" class="mt-4">View Plans</v-btn>
+              <h3 class="feature-title">Start for Free</h3>
+              <p class="feature-description">Get started with a generous free plan, including 2 invoices and unlimited customers. Scale up when you're ready.</p>
+              <v-btn to="/register" color="secondary" rounded="pill" class="mt-4">Start for Free</v-btn>
             </div>
              <div class="feature-card">
                 <div class="feature-icon">
