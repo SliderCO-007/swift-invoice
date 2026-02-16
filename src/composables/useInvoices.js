@@ -1,5 +1,8 @@
 import { ref, watch } from 'vue';
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, serverTimestamp, query, where, deleteDoc } from 'firebase/firestore';
+import { 
+  collection, getDocs, doc, getDoc, updateDoc, serverTimestamp, 
+  query, where, deleteDoc, runTransaction, increment 
+} from 'firebase/firestore';
 import { db, functions } from './useFirebase';
 import { currentUser } from './useAuth.js';
 import { httpsCallable } from 'firebase/functions';
@@ -88,27 +91,63 @@ const useInvoices = () => {
   const createInvoice = async (invoiceData) => {
     loading.value = true;
     error.value = null;
+    
+    if (!user.value) {
+      error.value = "You must be logged in to create an invoice.";
+      loading.value = false;
+      return null;
+    }
+
     try {
-      const { settings, fetchUserSettings, saveUserSettings } = useUserSettings();
-      await fetchUserSettings();
+      const { settings, fetchUserSettings } = useUserSettings();
+      await fetchUserSettings(); // Fetch settings to get invoiceCounter
 
-      const newInvoiceCounter = (settings.value.invoiceCounter || 0) + 1;
-      const invoiceNumber = String(newInvoiceCounter).padStart(6, '0');
+      const newInvoiceId = await runTransaction(db, async (transaction) => {
+        const userRef = doc(db, 'users', user.value.uid);
+        const userDoc = await transaction.get(userRef);
 
-      const newInvoice = {
-        ...invoiceData,
-        invoiceNumber: invoiceNumber,
-        userId: user.value.uid,
-        createdAt: serverTimestamp(),
-        svcFeePaid: false,
-      };
-      const docRef = await addDoc(invoicesCollection, newInvoice);
+        if (!userDoc.exists()) {
+          throw new Error("User profile not found.");
+        }
 
-      await saveUserSettings({ ...settings.value, invoiceCounter: newInvoiceCounter });
+        const userData = userDoc.data();
+        const { plan, invoiceCount } = userData;
 
-      return docRef.id;
+        // Enforce the limit for the free plan
+        if (plan === 'free' && invoiceCount >= 2) {
+          throw new Error("You have reached your invoice limit. Please upgrade to a paid plan to create more invoices.");
+        }
+
+        const newInvoiceCounter = (settings.value.invoiceCounter || 0) + 1;
+        const invoiceNumber = String(newInvoiceCounter).padStart(6, '0');
+
+        // 1. Create the new invoice document
+        const newInvoiceRef = doc(collection(db, 'invoices'));
+        const newInvoice = {
+          ...invoiceData,
+          invoiceNumber: invoiceNumber,
+          userId: user.value.uid,
+          createdAt: serverTimestamp(),
+          svcFeePaid: false,
+        };
+        transaction.set(newInvoiceRef, newInvoice);
+
+        // 2. Increment the user's invoice count
+        transaction.update(userRef, { invoiceCount: increment(1) });
+        
+        // 3. Increment the global invoice counter (from userSettings)
+        const settingsRef = doc(db, 'settings', user.value.uid);
+        transaction.update(settingsRef, { invoiceCounter: increment(1) });
+
+        return newInvoiceRef.id;
+      });
+
+      // After transaction is successful, refresh local data
+      await getInvoices();
+      return newInvoiceId;
+
     } catch (err) {
-      error.value = 'Failed to create invoice.';
+      error.value = err.message;
       console.error(err);
       return null;
     } finally {
@@ -145,9 +184,29 @@ const useInvoices = () => {
   const deleteInvoice = async (id) => {
     loading.value = true;
     error.value = null;
+
+    if (!user.value) {
+      error.value = "You must be logged in to delete an invoice.";
+      loading.value = false;
+      return;
+    }
+
     try {
-      const docRef = doc(db, 'invoices', id);
-      await deleteDoc(docRef);
+      await runTransaction(db, async (transaction) => {
+        const invoiceRef = doc(db, 'invoices', id);
+        const userRef = doc(db, 'users', user.value.uid);
+
+        const invoiceDoc = await transaction.get(invoiceRef);
+        if (!invoiceDoc.exists() || invoiceDoc.data().userId !== user.value.uid) {
+            throw new Error("Invoice not found or you don't have permission to delete it.");
+        }
+        
+        // 1. Delete the invoice
+        transaction.delete(invoiceRef);
+
+        // 2. Decrement the user's invoice count
+        transaction.update(userRef, { invoiceCount: increment(-1) });
+      });
 
       const index = invoices.value.findIndex(inv => inv.id === id);
       if (index !== -1) {

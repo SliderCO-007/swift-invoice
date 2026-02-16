@@ -1,25 +1,18 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuth, authReady, currentUser } from '@/composables/useAuth';
+import { useAuth, currentUser } from '../composables/useAuth';
 import Logo from './Logo.vue';
 
-const { logout } = useAuth();
+const { loading, logout } = useAuth();
 const router = useRouter();
-const loading = ref(true);
-const user = currentUser;
 
-const isAuthenticated = computed(() => !!user.value);
-
-onMounted(() => {
-  authReady.then(() => {
-    loading.value = false;
-  });
-});
+const isAuthenticated = computed(() => !!currentUser.value);
+const user = computed(() => currentUser.value);
 
 const handleLogout = async () => {
   await logout();
-  router.push({ name: 'Login' });
+  router.push('/login');
 };
 </script>
 
@@ -27,9 +20,9 @@ const handleLogout = async () => {
   <v-app-bar app color="white" elevation="1">
     <v-container class="app-bar-container d-flex align-center">
       <v-toolbar-title>
-        <router-link to="/" class="d-flex align-center text-decoration-none primary--text">
+        <router-link to="/" class="d-flex align-center text-decoration-none text--primary">
           <Logo class="app-bar-logo" />
-          <span class="font-weight-bold ml-2 d-none d-md-inline" style="font-size: 1.25rem;">SwiftInvoice</span>
+          <span class="font-weight-bold ml-2 d-none d-md-inline" style="font-size: 1.25rem;">Swift Invoice</span>
         </router-link>
       </v-toolbar-title>
 
@@ -41,6 +34,8 @@ const handleLogout = async () => {
 
       <div v-else>
         <div v-if="!isAuthenticated">
+          <v-btn text to="/#features" class="font-weight-bold d-none d-sm-inline-flex">Features</v-btn>
+          <v-btn text to="/pricing" class="font-weight-bold d-none d-sm-inline-flex">Pricing</v-btn>
           <v-btn text to="/login" class="font-weight-bold d-none d-sm-inline-flex">Login</v-btn>
           <v-btn outlined color="primary" to="/register" class="font-weight-bold ml-2">Register</v-btn>
         </div>
@@ -81,16 +76,25 @@ const handleLogout = async () => {
 </template>
 
 <style scoped>
+.app-bar-container {
+  max-width: 1200px;
+}
+
 .app-bar-logo {
-  height: 32px;
+  height: 40px;
   width: auto;
 }
 
-.v-toolbar__title a {
-  color: var(--v-primary-base);
+.v-btn {
+  text-transform: none;
+  font-weight: 600;
 }
 
-.app-bar-container {
-  padding: 0 1rem;
+.white--text {
+  color: #fff !important;
+}
+
+.text-h6 {
+    font-size: 1.25rem;
 }
 </style>

@@ -10,6 +10,11 @@ const routes = [
     component: LandingPage,
   },
   {
+    path: '/pricing',
+    name: 'Pricing',
+    component: () => import('../components/PricingPage.vue'),
+  },
+  {
     path: '/register',
     name: 'Register',
     component: () => import('../components/RegisterPage.vue'),
@@ -83,7 +88,20 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition;
+    }
+    if (to.hash) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({ el: to.hash, behavior: 'smooth' });
+        }, 300); // A short delay to allow the page to render
+      });
+    }
+    return { top: 0 };
+  },
 });
 
 router.beforeEach((to, from, next) => {

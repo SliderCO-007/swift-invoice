@@ -1,36 +1,13 @@
 <template>
   <div class="landing-page">
-    <header class="header">
-      <div class="container">
-        <div class="logo-container">
-          <Logo class="header-logo" />
-          <span class="font-weight-bold ml-2" style="font-size: 1.5rem;">Swift Invoice</span>
-        </div>
-        <nav class="nav desktop-nav">
-          <a href="#features">Features</a>
-          <router-link to="/login">Login</router-link>
-        </nav>
-        <v-btn to="/register" color="primary" size="large" rounded="pill" class="desktop-nav">Get Started for Free</v-btn>
-        <button class="mobile-nav-toggle" @click="isMobileNavOpen = !isMobileNavOpen">
-          <IconMenu />
-        </button>
-      </div>
-      <nav class="mobile-nav" :class="{ 'is-open': isMobileNavOpen }">
-        <a href="#features" @click="isMobileNavOpen = false">Features</a>
-        <router-link to="/login" @click="isMobileNavOpen = false">Login</router-link>
-        <v-btn to="/register" color="primary" size="large" rounded="pill">Get Started for Free</v-btn>
-      </nav>
-    </header>
-
     <main>
       <section class="hero">
         <div class="container">
           <div class="hero-content">
             <h1 class="hero-title">Stop Chasing Payments.</h1>
             <h1 class="hero-title">Start Getting Paid in Seconds.</h1>
-            <p class="hero-subtitle">Create, download, and track professional invoices in minutes. Focus on your work, not your paperwork.</p>
-            <v-btn to="/register" color="primary" size="x-large" rounded="pill" class="mt-8">Get Started for Free</v-btn>
-            <p class="hero-caption">No subscriptions. No hidden fees.</p>
+            <p class="hero-subtitle">Create, send, and track professional invoices in minutes. Focus on your work, not your paperwork.</p>
+            <v-btn to="/register" color="primary" size="x-large" rounded="pill" class="mt-8">Get Started</v-btn>
           </div>
         </div>
       </section>
@@ -42,10 +19,11 @@
           <div class="features-grid">
             <div class="feature-card">
               <div class="feature-icon">
-                <IconPDF />
+                <IconPricing />
               </div>
-              <h3 class="feature-title">Simple Pricing</h3>
-              <p class="feature-description">Just $1 per invoice. No subscriptions, no setup fees, and no hidden costs. Ever.</p>
+              <h3 class="feature-title">Start for Free</h3>
+              <p class="feature-description">Get started with a generous free plan, including 2 invoices and unlimited customers. Scale up when you're ready.</p>
+              <v-btn to="/register" color="secondary" rounded="pill" class="mt-4">Start for Free</v-btn>
             </div>
              <div class="feature-card">
                 <div class="feature-icon">
@@ -59,9 +37,9 @@
               <div class="feature-icon">
                 <IconEmail />
               </div>
-              <h3 class="feature-title">Download & Share Instantly</h3>
-              <p class="feature-description">Generate and download a professional, high-resolution PDF of your invoice the moment you create it. Ready to send to your clients immediately.</p>
-              <v-btn href="/Invoice-00000009.pdf" download color="secondary" rounded="pill" class="mt-4">Download Sample</v-btn>
+              <h3 class="feature-title">Create & Send Instantly</h3>
+              <p class="feature-description">Generate a professional invoice and email it to your client in seconds. No need to download, attach, or switch apps.</p>
+              <v-btn @click="showInvoicePreview = true" color="secondary" rounded="pill" class="mt-4">Preview Invoice</v-btn>
             </div>
             <div class="feature-card">
               <div class="feature-icon">
@@ -87,11 +65,22 @@
         </div>
     </footer>
 
+    <!-- Dashboard Preview Modal -->
     <div v-if="showDashboardPreview" class="modal-overlay" @click.self="showDashboardPreview = false">
       <div class="modal-content">
         <img src="/dashboardPreview.png" alt="Dashboard Preview" />
         <v-btn @click="showDashboardPreview = false" icon class="modal-close">
            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"/></svg>
+        </v-btn>
+      </div>
+    </div>
+
+    <!-- Invoice Preview Modal -->
+    <div v-if="showInvoicePreview" class="modal-overlay" @click.self="showInvoicePreview = false">
+      <div class="modal-content pdf-modal">
+        <embed src="/Invoice-00000009.pdf" type="application/pdf" width="100%" height="100%">
+        <v-btn @click="showInvoicePreview = false" icon class="modal-close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"/></svg>
         </v-btn>
       </div>
     </div>
@@ -101,21 +90,18 @@
 <script setup>
 import { ref } from 'vue';
 import { useMeta } from '../composables/useMeta';
-import Logo from './Logo.vue';
-import IconPDF from './IconPDF.vue';
+import IconPricing from './IconPricing.vue';
 import IconEmail from './IconEmail.vue';
 import IconAnalytics from './IconAnalytics.vue';
-import IconMenu from './IconMenu.vue';
 import IconVenmo from './IconVenmo.vue';
 import TrustpilotWidget from './TrustpilotWidget.vue'
 
-const isMobileNavOpen = ref(false);
 const showDashboardPreview = ref(false);
+const showInvoicePreview = ref(false);
 
 useMeta(
-  'Swift Invoice | Invoicing Made Effortless',
-  'Create, download, and track professional invoices in minutes with Swift Invoice. No subscriptions, no hidden fees. Just simple, pay-per-invoice pricing. ' +
-  'Swift Invoice is packed with features to help you get paid faster. Perfect tool for small businesses and individuals looking to streamline their invoice management.',
+  'Swift Invoice | Simple Subscription Invoicing',
+  'Create, download, and track professional invoices for a simple monthly or yearly price. Swift Invoice is packed with features to help you get paid faster. Perfect tool for small businesses and individuals looking to streamline their invoice management.',
 );
 
 </script>
@@ -139,92 +125,9 @@ main section[id] {
   padding: 0 2rem;
 }
 
-/* Header */
-.header {
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  padding: 1rem 0;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.header .container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.logo-container {
-  display: flex;
-  align-items: center;
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.header-logo {
-  height: 40px;
-  width: auto;
-}
-
-.logo-container span {
-  margin-left: 0.5rem;
-}
-
-.nav a {
-  margin: 0 1rem;
-  text-decoration: none;
-  color: #555;
-  font-weight: 600;
-  transition: color 0.3s ease;
-}
-
-.nav a:hover {
-  color: #007bff;
-}
-
-/* Mobile Navigation */
-.mobile-nav-toggle {
-  display: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #333;
-  font-size: 1.5rem;
-}
-
-.mobile-nav {
-  display: none;
-  flex-direction: column;
-  background-color: #fff;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  padding: 1rem;
-}
-
-.mobile-nav.is-open {
-  display: flex;
-}
-
-.mobile-nav a {
-  padding: 1rem;
-  text-align: center;
-  text-decoration: none;
-  color: #333;
-  font-weight: 600;
-}
-
-.mobile-nav .v-btn {
-  margin-top: 1rem;
-}
-
-
 /* Hero Section */
 .hero {
-  padding: 6rem 0;
+  padding: 4rem 0;
   background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/hero_background.png') no-repeat center center;
   background-size: cover;
   color: #fff;
@@ -384,6 +287,17 @@ main section[id] {
   display: block;
 }
 
+.pdf-modal {
+  width: 80vw;
+  height: 90vh;
+  padding: 0;
+  overflow: hidden;
+}
+
+.pdf-modal embed {
+  border: none;
+}
+
 .modal-close {
     position: absolute;
     top: -10px;
@@ -392,6 +306,7 @@ main section[id] {
     color: #555;
     border-radius: 50%;
     box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    z-index: 10;
 }
 
 
@@ -403,14 +318,6 @@ main section[id] {
 }
 
 @media (max-width: 768px) {
-  .desktop-nav {
-    display: none;
-  }
-
-  .mobile-nav-toggle {
-    display: block;
-  }
-  
   .container {
       padding: 0 1rem;
   }
@@ -442,6 +349,11 @@ main section[id] {
   .section-subtitle {
       font-size: 1rem;
       margin-bottom: 2rem;
+  }
+
+  .pdf-modal {
+    width: 95vw;
+    height: 85vh;
   }
 }
 </style>

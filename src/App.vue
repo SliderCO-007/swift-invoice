@@ -1,7 +1,6 @@
-
 <template>
   <v-app>
-    <AppBar v-if="route.name !== 'LandingPage'" />
+    <AppBar />
     <v-main>
       <router-view />
     </v-main>
@@ -39,21 +38,53 @@ body {
   font-family: 'Poppins', sans-serif;
   background-color: var(--background-color);
   color: var(--text-color);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  /* Adding a subtle noise texture for a premium feel */
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='10' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
 }
 
-/* Custom scrollbar for a more modern look */
-::-webkit-scrollbar {
-  width: 8px;
+.v-application {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--background-color) !important;
 }
-::-webkit-scrollbar-thumb {
-  background: var(--primary-color);
-  border-radius: 10px;
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
 }
-::-webkit-scrollbar-track {
-  background: var(--background-color);
+
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: var(--text-color);
 }
+
+.section-subtitle {
+    font-size: 1.2rem;
+    color: #555;
+    text-align: center;
+    margin-bottom: 4rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.v-btn {
+  text-transform: none !important; /* Keep button text case as defined */
+  font-weight: 600 !important;
+}
+
+.v-card {
+    border: none !important; /* Remove borders from cards */
+    border-radius: 12px !important;
+    box-shadow: var(--shadow-md) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.v-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg) !important;
+}
+
+
 </style>
