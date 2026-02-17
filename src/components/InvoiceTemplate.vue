@@ -38,7 +38,6 @@ const formatCurrency = (value) => {
 
 <template>
   <div class="invoice-paper" v-if="invoice && settings">
-    <div v-if="!invoice.svcFeePaid" class="watermark">DRAFT ONLY</div>
     <section class="invoice-main-header">
         <div class="invoice-brand">
             <img v-if="settings?.company?.logoUrl" :src="settings.company.logoUrl" alt="Company Logo" class="company-logo" />
@@ -129,23 +128,10 @@ const formatCurrency = (value) => {
   box-shadow: var(--shadow-md);
   font-family: 'Poppins', sans-serif;
   color: #333;
-  font-size: 10px;
+  font-size: 16px;
   line-height: 1.6;
   position: relative;
   overflow: hidden;
-}
-
-.watermark {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(-45deg);
-  font-size: 10rem;
-  color: rgba(255, 0, 0, 0.15);
-  font-weight: 900;
-  pointer-events: none;
-  text-transform: uppercase;
-  z-index: 1;
 }
 
 .company-logo {
@@ -173,7 +159,7 @@ const formatCurrency = (value) => {
 .invoice-status {
   padding: 0.3rem 0.8rem;
   border-radius: 14px;
-  font-size: 0.75rem;
+  font-size: 0.75em;
   font-weight: 600;
   text-transform: uppercase;
   margin-top: 1rem;
@@ -187,7 +173,7 @@ const formatCurrency = (value) => {
 
 .sender-details {
   text-align: right;
-  font-size: 0.85rem;
+  font-size: 0.85em;
 }
 .sender-details p { margin: 0; }
 
@@ -195,11 +181,11 @@ const formatCurrency = (value) => {
   display: flex;
   justify-content: space-between;
   margin-bottom: 2.5rem;
-  font-size: 0.85rem;
+  font-size: 0.85em;
 }
 
 .client-details h2, .invoice-notes h2, .venmo-qr-code h2 {
-  font-size: 1.1rem;
+  font-size: 1.1em;
   font-weight: 600;
   color: var(--text-color, #111827);
   margin-bottom: 0.7rem;
@@ -211,7 +197,7 @@ const formatCurrency = (value) => {
   text-align: right;
 }
 .invoice-dates p {
-  font-size: 0.95rem;
+  font-size: 0.95em;
   font-weight: 600;
   margin: 0.3rem 0;
 }
@@ -220,7 +206,7 @@ const formatCurrency = (value) => {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 2rem;
-  font-size: 0.85rem;
+  font-size: 0.85em;
 }
 
 .items-table th, .items-table td {
@@ -232,7 +218,7 @@ const formatCurrency = (value) => {
 .items-table th {
   background-color: #f9f9f9;
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 0.75em;
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
@@ -264,7 +250,7 @@ const formatCurrency = (value) => {
 
 .invoice-notes p {
   margin: 0;
-  font-size: 0.85rem;
+  font-size: 0.85em;
   color: #555;
 }
 
@@ -279,7 +265,7 @@ const formatCurrency = (value) => {
 
 .venmo-qr-code p {
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.9em;
     color: #007bff; /* Venmo blue */
 }
 
@@ -293,12 +279,12 @@ const formatCurrency = (value) => {
   display: flex;
   justify-content: space-between;
   padding: 0.6rem 0;
-  font-size: 0.9rem;
+  font-size: 0.9em;
   font-weight: 600;
 }
 
 .total-row.grand-total {
-  font-size: 1.4rem;
+  font-size: 1.4em;
   font-weight: 700;
   color: var(--primary-color, #4A90E2);
   border-top: 2px solid #eee;
@@ -311,7 +297,7 @@ const formatCurrency = (value) => {
   margin-top: 2rem;
   padding-top: 1.5rem;
   border-top: 1px solid #eee;
-  font-size: 0.7rem;
+  font-size: 0.7em;
   color: #888;
 }
 
@@ -354,7 +340,7 @@ const formatCurrency = (value) => {
     gap: 1rem;
     align-items: start;
     padding: 0.4rem 0;
-    font-size: 0.9rem;
+    font-size: 0.9em;
     border-bottom: none;
   }
   .items-table td::before {

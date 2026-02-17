@@ -1,27 +1,104 @@
 <template>
   <v-container class="fill-height d-flex justify-center align-center text-center">
     <v-card class="pa-8" max-width="600" elevation="12" style="border-radius: 16px;">
-      <v-icon color="success" size="80" class="mb-4">mdi-check-decagram</v-icon>
-      <h1 class="text-h4 font-weight-bold mb-3">Payment Successful!</h1>
-      <p class="text-body-1 text-medium-emphasis mb-6">
-        Welcome aboard! Your subscription is now active. You have full access to all features.
-      </p>
-      <v-btn
-        color="primary"
-        size="large"
-        to="/dashboard"
-        class="font-weight-bold"
-      >
-        Go to My Dashboard
-      </v-btn>
+      
+      <!-- Loading/Verifying State -->
+      <div v-if="isLoading">
+        <v-progress-circular indeterminate color="primary" size="64" class="mb-4"></v-progress-circular>
+        <h1 class="text-h5 font-weight-bold mt-4">Verifying Your Payment</h1>
+        <p class="text-body-1 text-medium-emphasis mt-2">
+          Please wait a moment while we confirm your subscription...
+        </p>
+      </div>
+
+      <!-- Success State -->
+      <div v-if="isSuccess">
+        <v-icon color="success" size="80" class="mb-4">mdi-check-decagram</v-icon>
+        <h1 class="text-h4 font-weight-bold mb-3">Payment Successful!</h1>
+        <p class="text-body-1 text-medium-emphasis mb-6">
+          Welcome aboard! Your subscription is now active. You have full access to all features.
+        </p>
+        <v-btn color="primary" size="large" to="/dashboard" class="font-weight-bold">
+          Go to My Dashboard
+        </v-btn>
+      </div>
+
+      <!-- Error/Timeout State -->
+      <div v-if="isError">
+        <v-icon color="error" size="80" class="mb-4">mdi-alert-circle-outline</v-icon>
+        <h1 class="text-h5 font-weight-bold mb-3">Verification Timed Out</h1>
+        <p class="text-body-1 text-medium-emphasis mb-6">
+          We could not confirm your subscription status in time. Please check your email for a confirmation or contact our support team if the issue persists.
+        </p>
+        <v-btn color="primary" size="large" to="/dashboard" class="font-weight-bold">
+          Go to My Dashboard
+        </v-btn>
+      </div>
+
     </v-card>
   </v-container>
 </template>
 
 <script setup>
-// This component is for display and navigation, so no complex logic is needed here.
-// In a more advanced scenario, you might fetch the session details to show
-// more specific information, but for now, a clear confirmation is sufficient.
+import { ref, onMounted, onUnmounted } from 'vue';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '../composables/useFirebase.js';
+import { currentUser } from '../composables/useAuth.js';
+
+const user = currentUser;
+
+const isLoading = ref(true);
+const isSuccess = ref(false);
+const isError = ref(false);
+
+let unsubscribe = null;
+let timeout = null;
+
+onMounted(() => {
+  if (!user.value) {
+    // This shouldn't happen if routing is correct, but as a fallback:
+    isLoading.value = false;
+    isError.value = true;
+    return;
+  }
+
+  // Set a timeout to prevent users from getting stuck indefinitely.
+  timeout = setTimeout(() => {
+    isLoading.value = false;
+    if (!isSuccess.value) {
+      isError.value = true;
+    }
+    if (unsubscribe) {
+      unsubscribe(); // Stop listening after timeout.
+    }
+  }, 30000); // 30 seconds
+
+  // Listen to real-time changes on the user's document.
+  const userRef = doc(db, 'users', user.value.uid);
+  unsubscribe = onSnapshot(userRef, (doc) => {
+    const userData = doc.data();
+    if (userData && userData.subscriptionStatus === 'active') {
+      // The moment we confirm the active subscription:
+      isLoading.value = false;
+      isSuccess.value = true;
+      isError.value = false;
+      clearTimeout(timeout); // Clear the timeout
+      if (unsubscribe) {
+        unsubscribe(); // Stop listening once we get the success state.
+      }
+    }
+  });
+});
+
+// Clean up the listener and timeout when the component is unmounted.
+onUnmounted(() => {
+  if (unsubscribe) {
+    unsubscribe();
+  }
+  if (timeout) {
+    clearTimeout(timeout);
+  }
+});
 </script>
 
 <style scoped>

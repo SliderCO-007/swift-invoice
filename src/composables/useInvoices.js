@@ -1,12 +1,10 @@
 import { ref, watch } from 'vue';
 import { 
   collection, getDocs, doc, getDoc, updateDoc, serverTimestamp, 
-  query, where, deleteDoc, runTransaction, increment 
+  query, where, deleteDoc, runTransaction, setDoc
 } from 'firebase/firestore';
-import { db, functions } from './useFirebase';
-import { currentUser } from './useAuth.js';
-import { httpsCallable } from 'firebase/functions';
-import useUserSettings from './useUserSettings';
+import { db } from './useFirebase';
+import { currentUser, isAuthReady } from './useAuth.js';
 
 const useInvoices = () => {
   const invoices = ref([]);
@@ -93,15 +91,13 @@ const useInvoices = () => {
     error.value = null;
     
     if (!user.value) {
-      error.value = "You must be logged in to create an invoice.";
-      loading.value = false;
-      return null;
+        const authError = new Error("You must be logged in to create an invoice.");
+        error.value = authError.message;
+        loading.value = false;
+        throw authError;
     }
 
     try {
-      const { settings, fetchUserSettings } = useUserSettings();
-      await fetchUserSettings(); // Fetch settings to get invoiceCounter
-
       const newInvoiceId = await runTransaction(db, async (transaction) => {
         const userRef = doc(db, 'users', user.value.uid);
         const userDoc = await transaction.get(userRef);
@@ -111,17 +107,19 @@ const useInvoices = () => {
         }
 
         const userData = userDoc.data();
-        const { plan, invoiceCount } = userData;
+        const { subscriptionStatus, invoiceCount = 0 } = userData;
 
-        // Enforce the limit for the free plan
-        if (plan === 'free' && invoiceCount >= 2) {
-          throw new Error("You have reached your invoice limit. Please upgrade to a paid plan to create more invoices.");
+        if (subscriptionStatus !== 'active' && invoiceCount >= 2) {
+          throw new Error("You have reached your invoice limit. Please upgrade to create more invoices.");
         }
 
-        const newInvoiceCounter = (settings.value.invoiceCounter || 0) + 1;
+        const settingsRef = doc(db, 'userSettings', user.value.uid);
+        const settingsDoc = await transaction.get(settingsRef);
+        const currentCounter = settingsDoc.exists() ? settingsDoc.data().invoiceCounter : 0;
+        const newInvoiceCounter = (currentCounter || 0) + 1;
+
         const invoiceNumber = String(newInvoiceCounter).padStart(6, '0');
 
-        // 1. Create the new invoice document
         const newInvoiceRef = doc(collection(db, 'invoices'));
         const newInvoice = {
           ...invoiceData,
@@ -132,24 +130,21 @@ const useInvoices = () => {
         };
         transaction.set(newInvoiceRef, newInvoice);
 
-        // 2. Increment the user's invoice count
-        transaction.update(userRef, { invoiceCount: increment(1) });
+        const newInvoiceCount = invoiceCount + 1;
+        transaction.update(userRef, { invoiceCount: newInvoiceCount });
         
-        // 3. Increment the global invoice counter (from userSettings)
-        const settingsRef = doc(db, 'settings', user.value.uid);
-        transaction.update(settingsRef, { invoiceCounter: increment(1) });
+        transaction.set(settingsRef, { invoiceCounter: newInvoiceCounter }, { merge: true });
 
         return newInvoiceRef.id;
       });
 
-      // After transaction is successful, refresh local data
       await getInvoices();
       return newInvoiceId;
 
     } catch (err) {
-      error.value = err.message;
-      console.error(err);
-      return null;
+      error.value = `Failed to save invoice: ${err.message}`;
+      console.error("Error during invoice creation transaction:", err);
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -181,14 +176,40 @@ const useInvoices = () => {
     }
   };
 
+    const updateInvoiceStatus = async (id, status) => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const docRef = doc(db, 'invoices', id);
+      await updateDoc(docRef, {
+        status: status,
+        updatedAt: serverTimestamp(),
+      });
+      
+      const index = invoices.value.findIndex(inv => inv.id === id);
+      if (index !== -1) {
+        invoices.value[index].status = status;
+      }
+      
+      return true;
+    } catch (err) {
+      error.value = 'Failed to update invoice status.';
+      console.error(err);
+      return false;
+    } finally {
+      loading.value = false;
+    }
+  };
+
   const deleteInvoice = async (id) => {
     loading.value = true;
     error.value = null;
 
     if (!user.value) {
-      error.value = "You must be logged in to delete an invoice.";
+      const authError = new Error("You must be logged in to delete an invoice.");
+      error.value = authError.message;
       loading.value = false;
-      return;
+      throw authError;
     }
 
     try {
@@ -198,14 +219,18 @@ const useInvoices = () => {
 
         const invoiceDoc = await transaction.get(invoiceRef);
         if (!invoiceDoc.exists() || invoiceDoc.data().userId !== user.value.uid) {
-            throw new Error("Invoice not found or you don't have permission to delete it.");
+            throw new Error("Invoice not found or you don\'t have permission to delete it.");
         }
         
-        // 1. Delete the invoice
+        const userDoc = await transaction.get(userRef);
+        if (!userDoc.exists()) {
+          throw new Error("User not found.");
+        }
+        const currentCount = userDoc.data().invoiceCount || 0;
+
         transaction.delete(invoiceRef);
 
-        // 2. Decrement the user's invoice count
-        transaction.update(userRef, { invoiceCount: increment(-1) });
+        transaction.update(userRef, { invoiceCount: Math.max(0, currentCount - 1) });
       });
 
       const index = invoices.value.findIndex(inv => inv.id === id);
@@ -222,17 +247,16 @@ const useInvoices = () => {
     }
   };
 
-  const createCheckoutSession = httpsCallable(functions, 'createCheckoutSession');
-
-  watch(user, (newUser) => {
-    if (newUser) {
-      getInvoices();
-    } else {
-      invoices.value = []; 
-    }
+  // Watch for authentication readiness before fetching data
+  watch(isAuthReady, (ready) => {
+      if (ready && currentUser.value) {
+          getInvoices();
+      } else {
+          invoices.value = []; // Clear invoices if user logs out
+      }
   }, { immediate: true });
 
-  return { invoices, loading, error, getInvoices, getInvoice, createInvoice, updateInvoice, deleteInvoice, createCheckoutSession };
+  return { invoices, loading, error, getInvoices, getInvoice, createInvoice, updateInvoice, deleteInvoice, updateInvoiceStatus };
 };
 
 export default useInvoices;

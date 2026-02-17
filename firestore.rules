@@ -3,45 +3,39 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // --- Helper Functions ---
-    // Checks if the requesting user is the owner of the document.
     function isOwner(userId) {
       return request.auth != null && request.auth.uid == userId;
     }
-    // Retrieves the user's profile document data from the 'users' collection.
     function getUserData(userId) {
       return get(/databases/$(database)/documents/users/$(userId)).data;
     }
     
     // --- Collections ---
     match /users/{userId} {
-      // Users can READ their own profile.
       allow read: if isOwner(userId);
         
-      // Users can CREATE their own profile during signup.
-      // This enforces that the profile starts with the free plan and zero invoices.
+      // On create, a user is set to the free plan with 0 invoices.
       allow create: if isOwner(userId)
-                    && request.resource.data.plan == 'free'
+                    && request.resource.data.subscriptionStatus == 'free'
                     && request.resource.data.invoiceCount == 0;
       
-      // Users can UPDATE their own profile but with strict conditions.
+      // Allow updates for profile changes, and for invoice creation/deletion transactions.
       allow update: if isOwner(userId) && (
-                      // Case 1: An invoice is being created or deleted (transactional update).
-                      // The invoiceCount must only change by +1 or -1, and no other fields can be changed.
-                      (
-                        (request.resource.data.invoiceCount == resource.data.invoiceCount + 1 ||
-                         request.resource.data.invoiceCount == resource.data.invoiceCount - 1) &&
-                         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['invoiceCount'])
-                      )
-                      ||
-                      // Case 2: A user is updating general info (e.g., from Google Sign-In).
-                      // This rule ensures the plan and invoiceCount are NOT changed during this type of update.
-                      (
-                        request.resource.data.plan == resource.data.plan &&
-                        request.resource.data.invoiceCount == resource.data.invoiceCount
-                      )
-                  );
+          // Scenario 1: Standard profile update (cannot change subscription or count)
+          (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'email', 'address1', 'address2', 'city', 'state', 'zip', 'logoUrl', 'venmoQrUrl']) &&
+           request.resource.data.invoiceCount == resource.data.invoiceCount &&
+           request.resource.data.subscriptionStatus == resource.data.subscriptionStatus) ||
+
+          // Scenario 2: Invoice creation transaction
+          (request.resource.data.diff(resource.data).affectedKeys().size() == 1 &&
+           request.resource.data.invoiceCount == resource.data.invoiceCount + 1) ||
+
+          // Scenario 3: Invoice deletion transaction
+          (request.resource.data.diff(resource.data).affectedKeys().size() == 1 &&
+           request.resource.data.invoiceCount == resource.data.invoiceCount - 1)
+      );
       
-      // Subcollections: A user owns their own customers and items.
+      // A user owns their own customers and items.
       match /customers/{customerId} {
         allow read, write, create, delete: if isOwner(userId);
       }
@@ -51,24 +45,22 @@ service cloud.firestore {
     }
     
     match /invoices/{invoiceId} {
-      // READ, UPDATE, DELETE: Only the user who owns the invoice can perform these actions.
-      // It checks the `userId` field on the *existing* document in the database.
+      // An invoice can be read, updated, or deleted only by its owner.
       allow read, update, delete: if isOwner(resource.data.userId);
         
-      // CREATE: A user can create an invoice only if they meet the plan limits.
+      // An invoice can be created only if the user meets the plan limits.
       allow create: if isOwner(request.resource.data.userId) && (
-                      // Allow if the user's plan is NOT 'free' (i.e., they are a paid customer).
-                      getUserData(request.auth.uid).plan != 'free'
+                      // Rule 1: Allow creation if the user has an active subscription.
+                      getUserData(request.auth.uid).subscriptionStatus == 'active'
                       ||
-                      // OR, allow if the user's plan IS 'free' AND they have less than 2 invoices.
-                      // This check uses the invoiceCount from the database BEFORE the transaction starts.
-                      (getUserData(request.auth.uid).plan == 'free' && getUserData(request.auth.uid).invoiceCount < 2)
+                      // Rule 2: OR, allow if the user is on the free plan and has created less than 2 invoices.
+                      (getUserData(request.auth.uid).subscriptionStatus == 'free' && getUserData(request.auth.uid).invoiceCount < 2)
                     );
     }
     
     match /userSettings/{userId} {
-      // Allow users to manage their own settings document.
-      allow read, write, create: if isOwner(userId);
+        // The user must be the owner of the settings.
+        allow read, create, update: if isOwner(userId);
     }
   }
 }

@@ -32,6 +32,11 @@ const routes = [
     component: () => import('../components/PaymentSuccess.vue'),
   },
   {
+    path: '/payment-cancel',
+    name: 'PaymentCancel',
+    component: () => import('../components/PaymentCancel.vue'),
+  },
+  {
     path: '/create-invoice-success',
     name: 'CreateInvoiceSuccess',
     component: () => import('../components/CreateInvoiceSuccess.vue'),

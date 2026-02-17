@@ -18,94 +18,31 @@ export default function useStripe() {
   const error = ref(null);
   const loading = ref(false);
 
-  async function createPaymentIntent(invoiceId, isServiceFee = true) {
+  /**
+   * Creates a Stripe Checkout session for subscriptions and redirects the user to the Stripe Checkout page.
+   * This is used on the Pricing Page.
+   */
+  async function createCheckoutSession(checkoutData) {
     loading.value = true;
     error.value = null;
     try {
       const user = currentUser.value;
-      if (!user) throw new Error('You must be logged in to make a payment.');
+      if (!user) throw new Error('You must be logged in to subscribe.');
 
       if (appCheck) {
-        try {
-          await getToken(appCheck, false);
-        } catch (appCheckError) {
-          console.error('App Check Error:', appCheckError);
-          throw new Error('Could not verify app integrity.');
-        }
+        await getToken(appCheck, false);
       }
 
-      if (!invoiceId) throw new Error('A valid invoice ID is required.');
-
-      const createPaymentIntentFunction = httpsCallable(functions, 'createPaymentIntent');
-      const response = await createPaymentIntentFunction({
-        invoiceId: invoiceId,
-        isServiceFee: isServiceFee,
-      });
-
-      if (response.data.error) {
-        throw new Error(response.data.error.message || 'The cloud function returned an error.');
-      }
+      const createSessionFunction = httpsCallable(functions, 'createCheckoutSession');
       
-      const { clientSecret, invoiceId: returnedInvoiceId } = response.data;
-
-      if (!clientSecret) {
-        throw new Error('Failed to retrieve a valid client secret from the server.');
-      }
-
-      return { clientSecret, invoiceId: returnedInvoiceId };
-
-    } catch (e) {
-      console.error('Error creating Payment Intent:', e.message || e);
-      if (e.message && e.message.toLowerCase().includes('internal')) {
-        error.value = 'A temporary issue occurred with our payment provider. Please try again in a few moments.';
-      } else {
-        error.value = e.message || 'An unknown error occurred while creating the payment intent.';
-      }
-      return null;
-    } finally {
-      loading.value = false;
-    }
-  }
-
-  async function redirectToCheckout(invoiceId, isServiceFee = true) {
-    loading.value = true;
-    error.value = null;
-
-    try {
-      const user = currentUser.value;
-      if (!user) {
-        throw new Error('You must be logged in to make a payment.');
-      }
-
-      if (appCheck) {
-        try {
-          await getToken(appCheck, /* forceRefresh= */ false);
-          console.log('App Check token acquired successfully.');
-        } catch (appCheckError) {
-          console.error('App Check Error:', appCheckError);
-          throw new Error('Could not verify app integrity. Please try again later.');
-        }
-      }
-
-      if (!invoiceId) {
-        throw new Error('A valid invoice ID is required.');
-      }
-
-      const createCheckoutSession = httpsCallable(functions, 'createCheckoutSession');
-      const cancelUrl = `${window.location.origin}/invoice/${invoiceId}`;
-
-      const response = await createCheckoutSession({
-        invoiceId: invoiceId,
-        isServiceFee: isServiceFee,
-        cancelUrl: cancelUrl,
-      });
+      // The `checkoutData` object from PricingPage.vue contains priceId, successUrl, and cancelUrl
+      const response = await createSessionFunction(checkoutData);
 
       if (response.data.error) {
         throw new Error(response.data.error.message || 'The cloud function returned an error.');
       }
 
       const sessionId = response.data.id;
-
       if (!sessionId) {
         throw new Error('Failed to retrieve a valid session ID from the server.');
       }
@@ -117,11 +54,11 @@ export default function useStripe() {
         throw new Error(stripeError.message);
       }
     } catch (e) {
-      console.error('Error redirecting to checkout:', e.message || e);
+      console.error('Error creating checkout session:', e.message || e);
       if (e.message && e.message.toLowerCase().includes('internal')) {
-          error.value = 'A temporary issue occurred with our payment provider. Please try again in a few moments.';
+        error.value = 'A temporary issue occurred with our payment provider. Please try again in a few moments.';
       } else {
-          error.value = e.message || 'An unknown error occurred during checkout.';
+        error.value = e.message || 'An unknown error occurred during checkout.';
       }
     } finally {
       loading.value = false;
@@ -129,8 +66,7 @@ export default function useStripe() {
   }
 
   return {
-    createPaymentIntent,
-    redirectToCheckout,
+    createCheckoutSession,
     loading,
     error,
   };

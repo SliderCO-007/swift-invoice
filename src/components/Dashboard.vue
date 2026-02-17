@@ -1,6 +1,8 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../composables/useFirebase';
 import { useAuth, currentUser } from '../composables/useAuth.js';
 import useInvoices from '../composables/useInvoices';
 import useUserSettings from '../composables/useUserSettings';
@@ -22,6 +24,7 @@ const user = currentUser;
 // --- Local State ---
 const viewMode = ref('table'); // 'card' or 'table'
 const today = format(new Date(), 'MMMM d, yyyy');
+const userProfile = ref(null);
 
 // --- Metadata ---
 useMeta(
@@ -31,10 +34,17 @@ useMeta(
 );
 
 // --- Data Fetching ---
-watch(user, (newUser) => {
+watch(user, async (newUser) => {
   if (newUser) {
     getInvoices();
     fetchUserSettings();
+    const userDocRef = doc(db, 'users', newUser.uid);
+    const userDocSnap = await getDoc(userDocRef);
+    if (userDocSnap.exists()) {
+      userProfile.value = userDocSnap.data();
+    }
+  } else {
+    userProfile.value = null;
   }
 }, { immediate: true });
 
@@ -43,39 +53,32 @@ const showCompanyInfoPrompt = computed(() => {
   return settings.value && !settings.value.company?.name;
 });
 
-const safeInvoices = computed(() => {
-  if (!invoices.value) return [];
-  
-  return invoices.value.map(invoice => {
-    let status = invoice.status || 'pending';
-    // Handle Firestore Timestamps safely by checking for the toDate method
-    const dueDate = invoice.dueDate && typeof invoice.dueDate.toDate === 'function' 
-      ? invoice.dueDate.toDate() 
-      : new Date(invoice.dueDate);
-
-    if (status.toLowerCase() === 'pending' && isValid(dueDate) && isBefore(dueDate, startOfToday())) {
-      status = 'overdue'; // Use lowercase to match InvoiceStats
-    }
-
-    const total = (invoice.items || []).reduce((acc, item) => acc + (item.quantity * item.price), 0) * (1 + (invoice.taxRate || 0) / 100);
-
-    return {
-      ...invoice,
-      status,
-      total,
-    };
-  }).sort((a, b) => {
-      const numA = String(a.invoiceNumber || '');
-      const numB = String(b.invoiceNumber || '');
-      return numB.localeCompare(numA, undefined, { numeric: true });
-    });
+const showUpgradePrompt = computed(() => {
+  if (!userProfile.value) return false;
+  return userProfile.value.subscriptionStatus === 'free' && userProfile.value.invoiceCount >= 2;
 });
+
+const getInvoiceStatus = (invoice) => {
+  let status = invoice.status || 'pending';
+  const dueDate = invoice.dueDate && typeof invoice.dueDate.toDate === 'function' 
+    ? invoice.dueDate.toDate() 
+    : new Date(invoice.dueDate);
+
+  if (status.toLowerCase() === 'pending' && isValid(dueDate) && isBefore(dueDate, startOfToday())) {
+    return 'overdue';
+  }
+  return status;
+};
 
 
 // --- Methods ---
 const handleLogout = async () => {
   await logout();
   router.push('/login');
+};
+
+const goToPricing = () => {
+  router.push('/pricing');
 };
 
 const createNewInvoice = () => {
@@ -137,9 +140,18 @@ const formatDate = (date) => {
         <p class="date-display">Today is {{ today }}</p>
       </div>
       <div class="header-stats">
-        <InvoiceStats :invoices="safeInvoices" />
+        <InvoiceStats />
       </div>
     </header>
+
+    <!-- Upgrade Prompt -->
+    <div v-if="showUpgradePrompt" class="upgrade-prompt-card">
+      <div class="upgrade-prompt-content">
+        <h3>You've Reached Your Invoice Limit</h3>
+        <p>Your free plan includes up to 2 invoices. Please upgrade to a paid plan to create unlimited invoices and unlock more features.</p>
+      </div>
+      <button class="primary-btn" @click="goToPricing">Upgrade Now</button>
+    </div>
 
     <CompanyInfoPrompt v-if="showCompanyInfoPrompt" />
 
@@ -167,7 +179,7 @@ const formatDate = (date) => {
       <div v-else-if="invoicesError" class="error-container">
         <p>Error loading invoices: {{ invoicesError }}</p>
       </div>
-      <div v-else-if="!safeInvoices || safeInvoices.length === 0" class="no-invoices-container">
+      <div v-else-if="!invoices || invoices.length === 0" class="no-invoices-container">
         <img src="/no_invoices.svg" alt="No Invoices Illustration" class="no-invoices-illustration" />
         <p class="no-invoices-text">You haven't created any invoices yet.</p>
         <button class="primary-btn" @click="createNewInvoice">
@@ -177,14 +189,14 @@ const formatDate = (date) => {
       <div v-else>
         <InvoiceTable 
           v-if="viewMode === 'table'" 
-          :invoices="safeInvoices"
-          @delete-invoice="handleDeleteInvoice"
+          :invoices="invoices"
+           @delete-invoice="handleDeleteInvoice"
         />
         <div v-else class="invoice-list">
-          <div v-for="invoice in safeInvoices" :key="invoice.id" class="invoice-card" @click="goToInvoiceDetails(invoice.id)">
+          <div v-for="invoice in invoices" :key="invoice.id" class="invoice-card" @click="goToInvoiceDetails(invoice.id)">
             <div class="invoice-card-header">
               <span class="invoice-id">#{{ invoice.invoiceNumber || 'N/A' }}</span>
-              <span :class="['invoice-status', `status-${(invoice.status || 'pending').toLowerCase()}`]">{{ invoice.status || 'pending' }}</span>
+              <span :class="['invoice-status', `status-${getInvoiceStatus(invoice).toLowerCase()}`]">{{ getInvoiceStatus(invoice) }}</span>
             </div>
             <div class="invoice-card-body">
               <p class="client-name">{{ invoice.client?.name || 'N/A' }}</p>
@@ -255,6 +267,36 @@ const formatDate = (date) => {
 
 .header-stats {
   width: 60%;
+}
+
+.upgrade-prompt-card {
+  background-color: var(--secondary-color);
+  color: white;
+  padding: 1.5rem 2rem;
+  border-radius: 15px;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow-lg);
+}
+.upgrade-prompt-content h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.upgrade-prompt-content p {
+  margin: 0;
+  max-width: 600px;
+}
+.upgrade-prompt-card .primary-btn {
+    background-color: white;
+    color: var(--primary-color);
+    flex-shrink: 0;
+    margin-left: 2rem;
+}
+.upgrade-prompt-card .primary-btn:hover {
+    background-color: #f0f0f0;
 }
 
 .invoices-header {
@@ -483,6 +525,14 @@ const formatDate = (date) => {
   .header-stats {
     width: 100%;
     margin-top: 1rem;
+  }
+  .upgrade-prompt-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  .upgrade-prompt-card .primary-btn {
+    margin-top: 1.5rem;
+    margin-left: 0;
   }
 }
 </style>

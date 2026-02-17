@@ -1,20 +1,17 @@
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import useUserSettings from '../composables/useUserSettings';
 import useInvoices from '../composables/useInvoices';
-import useStripe from '../composables/useStripe';
 import { useCustomers } from '../composables/useCustomers';
 import { useItems } from '../composables/useItems';
-import { authReady, currentUser as user } from '@/composables/useAuth';
+import { currentUser as user } from '../composables/useAuth.js';
 import InvoiceTemplate from './InvoiceTemplate.vue';
-import StripeCheckout from './StripeCheckout.vue';
 import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 
 const { settings, fetchUserSettings } = useUserSettings();
 const { createInvoice, getInvoice, updateInvoice } = useInvoices();
-const { createPaymentIntent, error: stripeError } = useStripe();
 const { customers, fetchCustomers, stopFetching: stopFetchingCustomers } = useCustomers();
 const { items, fetchItems, stopFetching: stopFetchingItems } = useItems();
 const router = useRouter();
@@ -25,7 +22,7 @@ const invoice = ref({
   invoiceNumber: '',
   status: 'pending',
   sender: { name: '', address1: '', address2: '', city: '', state: '', zip: '', email: '' },
-  client: { name: '', address1: '', address2: '', city: '', state: '', zip: '', email: '', phone: '' }, // Added phone
+  client: { name: '', address1: '', address2: '', city: '', state: '', zip: '', email: '', phone: '' },
   items: [],
   issueDate: new Date(),
   dueDate: new Date(),
@@ -34,12 +31,10 @@ const invoice = ref({
   includeVenmoQr: false,
 });
 
-const selectedCustomer = ref(null); // Ref for the selected customer
+const selectedCustomer = ref(null);
 const showPreview = ref(false);
 const isProcessing = ref(false);
-const showPaymentModal = ref(false);
-const clientSecret = ref(null);
-const paymentInvoiceId = ref(null);
+const saveError = ref(null);
 
 // --- Computed Properties for Date Formatting & Totals ---
 const formattedIssueDate = computed({
@@ -93,7 +88,6 @@ watch(selectedCustomer, (newCustomer) => {
       zip: newCustomer.zip || '',
     };
   } else {
-    // Clear client fields if customer is deselected
     invoice.value.client = { name: '', email: '', phone: '', address1: '', address2: '', city: '', state: '', zip: '' };
   }
 });
@@ -133,11 +127,13 @@ watch(settings, (newSettings) => {
   }
 }, { deep: true });
 
-authReady.then(() => {
-  initializeInvoice();
-  fetchCustomers();
-  fetchItems();
-});
+watch(user, (newUser) => {
+  if (newUser) {
+    initializeInvoice();
+    fetchCustomers();
+    fetchItems();
+  }
+}, { immediate: true });
 
 onUnmounted(() => {
   stopFetchingCustomers();
@@ -153,10 +149,12 @@ const removeItem = (index) => {
   invoice.value.items.splice(index, 1);
 };
 
-const saveAndContinue = async () => {
+const saveInvoice = async () => {
   isProcessing.value = true;
+  saveError.value = null;
+
   if (!user.value || !user.value.uid) {
-    alert("Authentication error. Please log in and try again.");
+    saveError.value = "Authentication error. Please log in and try again.";
     isProcessing.value = false;
     return;
   }
@@ -174,33 +172,19 @@ const saveAndContinue = async () => {
     let finalInvoiceId;
     if (invoiceId.value === 'new') {
       finalInvoiceId = await createInvoice(invoiceData);
-      if (!finalInvoiceId) throw new Error('Failed to create invoice.');
-      invoiceId.value = finalInvoiceId; 
     } else {
       await updateInvoice(invoiceId.value, invoiceData);
       finalInvoiceId = invoiceId.value;
     }
+    
+    router.push({ name: 'InvoiceView', params: { id: finalInvoiceId } });
 
-    const paymentDetails = await createPaymentIntent(finalInvoiceId, true);
-    if (paymentDetails && paymentDetails.clientSecret) {
-      clientSecret.value = paymentDetails.clientSecret;
-      paymentInvoiceId.value = paymentDetails.invoiceId;
-      showPaymentModal.value = true;
-    } else {
-        throw new Error(stripeError.value || 'Could not initiate payment.');
-    }
   } catch (error) {
-    console.error("Invoice processing or payment initiation failed:", error);
-    alert(error.message || 'An unexpected error occurred.');
+    console.error("Failed to save invoice:", error);
+    saveError.value = error.message || 'An unexpected error occurred while saving.';
   } finally {
     isProcessing.value = false;
   }
-};
-
-const closePaymentModal = () => {
-  showPaymentModal.value = false;
-  clientSecret.value = null;
-  paymentInvoiceId.value = null;
 };
 </script>
 <template>
@@ -211,8 +195,10 @@ const closePaymentModal = () => {
         <button class="back-btn" @click="router.push({ name: 'Dashboard' })">Back to Dashboard</button>
       </header>
 
-      <div v-if="stripeError" class="error-container">
-        <v-alert type="error" dense outlined>{{ stripeError }}</v-alert>
+      <div v-if="saveError" class="error-container">
+        <v-alert type="error" dense outlined closable @click:close="saveError = null">
+          {{ saveError }}
+        </v-alert>
       </div>
 
       <div v-if="invoice" class="invoice-form-content">
@@ -366,8 +352,8 @@ const closePaymentModal = () => {
 
         <footer class="editor-footer">
           <button class="preview-btn" @click="showPreview = true">Preview Invoice</button>
-          <button class="save-btn" @click="saveAndContinue" :disabled="isProcessing">
-            {{ isProcessing ? 'Processing...' : 'Save & Continue to Payment' }}
+          <button class="save-btn" @click="saveInvoice" :disabled="isProcessing">
+            {{ isProcessing ? 'Saving...' : 'Save and Send' }}
           </button>
         </footer>
       </div>
@@ -380,17 +366,6 @@ const closePaymentModal = () => {
           <button @click="showPreview = false" class="close-modal-btn">&times;</button>
         </header>
         <InvoiceTemplate :invoice="{...invoice, subtotal, taxAmount, total}" :settings="settings" />
-      </div>
-    </div>
-    
-    <div v-if="showPaymentModal" class="preview-modal">
-      <div class="modal-content payment-modal-content">
-        <StripeCheckout
-          v-if="clientSecret && paymentInvoiceId"
-          :client-secret="clientSecret"
-          :invoice-id="paymentInvoiceId"
-          @close="closePaymentModal"
-        />
       </div>
     </div>
   </div>

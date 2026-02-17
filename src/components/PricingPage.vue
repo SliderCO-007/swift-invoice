@@ -1,53 +1,41 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import useInvoices from '../composables/useInvoices.js';
-import { useAuth } from '../composables/useAuth.js';
+import { useAuth, currentUser } from '../composables/useAuth';
+import useStripe from '../composables/useStripe'; // Corrected import
 
 const router = useRouter();
-const { currentUser } = useAuth();
-const { createCheckoutSession } = useInvoices();
+const user = currentUser;
 
-const loading = ref(false);
-const error = ref(null);
+// Correctly uses the new useStripe composable
+const { createCheckoutSession, loading, error } = useStripe();
+
 const selectedPlan = ref(null);
 
-const selectPlan = async (plan, priceId) => {
+// This function now correctly handles the subscription flow.
+const handleSubscribe = async (plan, priceId) => {
   error.value = null;
   selectedPlan.value = plan;
 
-  // 1. Check if user is logged in
-  if (!currentUser.value) {
-    // Redirect to login, but pass along the intended plan so we can come back
+  if (!user.value) {
     router.push({ path: '/login', query: { redirect: `/pricing?plan=${plan}` } });
     return;
   }
   
-  loading.value = true;
-
   try {
-    // 2. Define success and cancel URLs
     const successUrl = `${window.location.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${window.location.origin}/pricing`;
 
-    // 3. Call the Cloud Function to create a checkout session
-    const result = await createCheckoutSession({ 
+    await createCheckoutSession({
       priceId: priceId,
       successUrl: successUrl,
       cancelUrl: cancelUrl
     });
-
-    // 4. Redirect to Stripe Checkout
-    if (result.data && result.data.url) {
-      window.location.href = result.data.url;
-    } else {
-      throw new Error('Could not create a checkout session.');
-    }
+    // The createCheckoutSession function will handle the redirect to Stripe.
   } catch (err) {
-    console.error(err);
-    error.value = 'An unexpected error occurred. Please try again.';
+    console.error('Subscription error:', err);
+    error.value = err.message || 'An unexpected error occurred. Please try again.';
   } finally {
-    loading.value = false;
     selectedPlan.value = null;
   }
 };
@@ -144,7 +132,7 @@ const selectPlan = async (plan, priceId) => {
                 size="large"
                 :loading="loading && selectedPlan === 'monthly'"
                 :disabled="loading"
-                @click="selectPlan('monthly', 'price_1T0Zf0AuWeuwQet6AHC0Owwn')"
+                @click="handleSubscribe('monthly', 'price_1T0Zf0AuWeuwQet6AHC0Owwn')"
               >
                 Get Started
               </v-btn>
@@ -184,7 +172,7 @@ const selectPlan = async (plan, priceId) => {
                 size="large"
                 :loading="loading && selectedPlan === 'yearly'"
                 :disabled="loading"
-                @click="selectPlan('yearly', 'price_1Spgg9AuWeuwQet65ynWRtb7')"
+                @click="handleSubscribe('yearly', 'price_1Spgg9AuWeuwQet65ynWRtb7')"
               >
                 Choose Yearly
               </v-btn>

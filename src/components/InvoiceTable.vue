@@ -1,8 +1,7 @@
-
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { format, isValid } from 'date-fns';
+import { format, isValid, isBefore, startOfToday } from 'date-fns';
 
 const props = defineProps({
   invoices: {
@@ -27,6 +26,21 @@ const headers = ref([
 
 const dialogDelete = ref(false);
 const itemToDelete = ref(null);
+
+const getInvoiceStatus = (invoice) => {
+  const status = invoice.status || 'pending';
+  if (status.toLowerCase() !== 'pending') {
+    return status;
+  }
+  const dueDate = invoice.dueDate && typeof invoice.dueDate.toDate === 'function'
+    ? invoice.dueDate.toDate()
+    : new Date(invoice.dueDate);
+
+  if (isValid(dueDate) && isBefore(dueDate, startOfToday())) {
+    return 'Overdue';
+  }
+  return status;
+};
 
 const formatDate = (date) => {
   if (date && isValid(new Date(date))) {
@@ -63,7 +77,6 @@ const confirmDelete = () => {
 const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
         case 'paid': return 'green-darken-2';
-        case 'draft': return 'blue-grey-darken-1';
         case 'pending': return 'orange-darken-2';
         case 'overdue': return 'red-darken-2';
         default: return 'grey';
@@ -90,8 +103,8 @@ const getStatusColor = (status) => {
         {{ formatCurrency(item.total) }}
       </template>
       <template v-slot:item.status="{ item }">
-        <v-chip :color="getStatusColor(item.status)" size="small" text-color="white">
-          {{ item.status }}
+        <v-chip :color="getStatusColor(getInvoiceStatus(item))" size="small" text-color="white">
+          {{ getInvoiceStatus(item) }}
         </v-chip>
       </template>
       <template v-slot:item.actions="{ item }">

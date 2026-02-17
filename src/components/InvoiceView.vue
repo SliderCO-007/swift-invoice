@@ -3,30 +3,25 @@ import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import axios from 'axios';
-import { getStorage, ref as storageRef, uploadBytes } from "firebase/storage";
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { currentUser, userProfile } from '../composables/useAuth.js';
 import useInvoices from '../composables/useInvoices';
 import useUserSettings from '../composables/useUserSettings';
-import useStripe from '../composables/useStripe';
 import InvoiceTemplate from './InvoiceTemplate.vue';
-import StripeCheckout from './StripeCheckout.vue';
 
 const route = useRoute();
 const router = useRouter();
-const { getInvoice, loading, error } = useInvoices();
+const { getInvoice, updateInvoiceStatus, loading, error } = useInvoices();
 const { settings, fetchUserSettings } = useUserSettings();
-const { createPaymentIntent, error: stripeError } = useStripe();
 
 const invoice = ref(null);
 const invoicePaper = ref(null);
-const isPaying = ref(false);
 const isSendingEmail = ref(false);
 const snackbar = ref(false);
 const snackbarText = ref('');
-const isCheckoutVisible = ref(false);
-const clientSecret = ref(null);
+const confirmDialog = ref(false);
 
-const storage = getStorage();
+const functions = getFunctions();
 
 onMounted(async () => {
   const invoiceId = route.params.id;
@@ -34,140 +29,52 @@ onMounted(async () => {
     invoice.value = await getInvoice(invoiceId);
     await fetchUserSettings();
   } catch (err) {
-    console.error(`Failed to load invoice ${invoiceId}:`, err.message);
+    error.value = `Failed to load invoice: ${err.message}`;
+    console.error(err);
   }
 });
 
-const goBack = () => {
-  router.push('/dashboard');
-};
+const isOwner = computed(() => {
+  if (!invoice.value || !currentUser.value) return false;
+  return invoice.value.userId === currentUser.value.uid;
+});
 
-const handlePayment = async () => {
-  if (!invoice.value || isPaying.value) return;
-  isPaying.value = true;
+const isFreePlan = computed(() => userProfile.value?.subscriptionStatus === 'free');
 
+const goBack = () => router.push('/dashboard');
+const goToPricing = () => router.push('/pricing');
+
+const markAsPaid = async () => {
+  if (!invoice.value) return;
   try {
-    const result = await createPaymentIntent(invoice.value.id);
-    if (result && result.clientSecret) {
-      clientSecret.value = result.clientSecret;
-      isCheckoutVisible.value = true;
-    } else {
-      throw new Error('Could not initiate payment. Please try again.');
-    }
-  } catch (err) {
-    console.error("Payment initiation failed:", err);
-    snackbarText.value = err.message;
+    await updateInvoiceStatus(invoice.value.id, 'Paid');
+    invoice.value.status = 'Paid'; // Immediately update local state
+    snackbarText.value = 'Invoice marked as Paid';
     snackbar.value = true;
-  } finally {
-    isPaying.value = false;
+  } catch (err) {
+    snackbarText.value = 'Error updating invoice status.';
+    snackbar.value = true;
   }
+  confirmDialog.value = false;
 };
 
-const onPaymentSuccess = () => {
-  isCheckoutVisible.value = false;
-  snackbarText.value = 'Service fee paid successfully!';
-  snackbar.value = true;
-  if(invoice.value) {
-      invoice.value.svcFeePaid = true;
-  }
-};
-
-const onPaymentError = (errorMsg) => {
-  isCheckoutVisible.value = false;
-  snackbarText.value = `Payment failed: ${errorMsg}`;
-  snackbar.value = true;
-};
-
-const generateAndUploadPDF = async () => {
-  if (!invoice.value) throw new Error("Invoice data is not available.");
+// Reusable PDF generation function
+const generatePDF = async (outputType = 'save') => {
   const templateEl = invoicePaper.value?.$el;
-  if (!templateEl) throw new Error("Invoice template is not rendered.");
+  if (!templateEl) return null;
 
+  // Clone the element to avoid side effects
   const clone = templateEl.cloneNode(true);
   const pdfContainer = document.createElement('div');
   pdfContainer.style.position = 'fixed';
   pdfContainer.style.left = '-9999px';
   pdfContainer.style.top = '0';
-  pdfContainer.style.width = '816px';
+  pdfContainer.style.width = '816px'; 
   pdfContainer.style.backgroundColor = 'white';
   pdfContainer.appendChild(clone);
   document.body.appendChild(pdfContainer);
 
-  let pdfBlob;
-  try {
-    const canvas = await html2canvas(clone, { scale: 4, useCORS: true });
-    pdfBlob = await new Promise(resolve => {
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        const canvasAspectRatio = canvas.height / canvas.width;
-        let imgWidth = pdfWidth - 40;
-        let imgHeight = imgWidth * canvasAspectRatio;
-        if (imgHeight > pdfHeight - 40) {
-            imgHeight = pdfHeight - 40;
-            imgWidth = imgHeight / canvasAspectRatio;
-        }
-        const x = (pdfWidth - imgWidth) / 2;
-        const y = 20;
-        pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight, undefined, 'FAST');
-        resolve(pdf.output('blob'));
-    });
-  } finally {
-    document.body.removeChild(pdfContainer);
-  }
-
-  if (!pdfBlob) throw new Error("Failed to generate PDF blob.");
-
-  const pdfRef = storageRef(storage, `invoice_pdfs/${invoice.value.id}.pdf`);
-  await uploadBytes(pdfRef, pdfBlob);
-};
-
-const sendInvoiceEmail = async () => {
-  if (!invoice.value || isSendingEmail.value) return;
-
-  isSendingEmail.value = true;
-  snackbarText.value = 'Generating PDF and preparing email...';
-  snackbar.value = true;
-
-  try {
-    const companyName = settings.value?.company?.name;
-    if (!invoice.value.client?.email || !invoice.value.client?.name || !companyName) {
-      throw new Error('Client details or company name are missing.');
-    }
-
-    await generateAndUploadPDF();
-
-    await axios.post('https://us-central1-swift-invoice-9124f.cloudfunctions.net/sendInvoiceEmail', {
-      invoiceId: invoice.value.id,
-      clientEmail: invoice.value.client.email,
-      clientName: invoice.value.client.name,
-      companyName: companyName,
-    });
-
-    snackbarText.value = 'Invoice sent successfully!';
-  } catch (error) {
-    console.error('Error sending email:', error);
-    snackbarText.value = `Error: ${error.response?.data || error.message}`;
-  } finally {
-    isSendingEmail.value = false;
-  }
-};
-
-
-const downloadPDF = async () => {
-  const templateEl = invoicePaper.value?.$el;
-  if (!templateEl) return;
-
-  const clone = templateEl.cloneNode(true);
-  const pdfContainer = document.createElement('div');
-  pdfContainer.style.position = 'fixed';
-  pdfContainer.style.left = '-9999px';
-  pdfContainer.style.top = '0';
-  pdfContainer.style.width = '816px';
-  pdfContainer.style.backgroundColor = 'white';
-  pdfContainer.appendChild(clone);
-  document.body.appendChild(pdfContainer);
+  let pdfOutput = null;
 
   try {
     const canvas = await html2canvas(clone, { scale: 4, useCORS: true });
@@ -176,18 +83,78 @@ const downloadPDF = async () => {
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
     const canvasAspectRatio = canvas.height / canvas.width;
-    let imgWidth = pdfWidth - 40;
+    let imgWidth = pdfWidth - 40; // Margin
     let imgHeight = imgWidth * canvasAspectRatio;
+
     if (imgHeight > pdfHeight - 40) {
         imgHeight = pdfHeight - 40;
         imgWidth = imgHeight / canvasAspectRatio;
     }
+
     const x = (pdfWidth - imgWidth) / 2;
     const y = 20;
+
     pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight, undefined, 'FAST');
-    pdf.save(`Invoice-${invoice.value?.invoiceNumber || invoice.value?.id}.pdf`);
+
+    if (outputType === 'save') {
+      pdf.save(`Invoice-${invoice.value?.invoiceNumber || invoice.value?.id}.pdf`);
+    } else if (outputType === 'datauristring') {
+      pdfOutput = pdf.output('datauristring');
+    }
   } finally {
     document.body.removeChild(pdfContainer);
+  }
+
+  return pdfOutput;
+};
+
+const downloadPDF = () => {
+  generatePDF('save');
+};
+
+const sendInvoiceEmail = async () => {
+  if (!invoice.value || isSendingEmail.value || isFreePlan.value) return;
+
+  isSendingEmail.value = true;
+  snackbarText.value = 'Generating PDF and sending email...';
+  snackbar.value = true;
+
+  try {
+    const pdfDataUri = await generatePDF('datauristring');
+    if (!pdfDataUri) {
+      throw new Error("Failed to generate PDF for email.");
+    }
+
+    const pdfBase64 = pdfDataUri.substring(pdfDataUri.indexOf(',') + 1);
+    
+    const companyName = settings.value?.company?.name || 'Your Company';
+    const clientName = invoice.value.client?.name || 'Valued Client';
+
+    const emailBody = `
+      <p><b>Invoice from ${companyName}</b></p>
+      <p>Dear ${clientName},</p>
+      <p>Thank you for your business! Your invoice #${invoice.value.invoiceNumber} is attached to this email.</p>
+      <p>Please review the attached PDF for payment details, including available payment options.</p>
+      <br>
+      <p><i>This is an automated email. Please do not reply.</i></p>
+    `;
+
+    const sendEmailFunction = httpsCallable(functions, 'sendInvoiceEmail');
+    const result = await sendEmailFunction({
+      invoiceId: invoice.value.id,
+      recipientEmail: invoice.value.client?.email,
+      subject: `Invoice #${invoice.value.invoiceNumber} from ${companyName}`,
+      message: emailBody, 
+      pdfBase64: pdfBase64,
+    });
+
+    snackbarText.value = result.data.message;
+  } catch (error) {
+    console.error('Error sending email:', error);
+    snackbarText.value = `Error: ${error.message}`;
+  } finally {
+    isSendingEmail.value = false;
+    snackbar.value = true;
   }
 };
 
@@ -206,10 +173,8 @@ const safeInvoice = computed(() => {
     total
   };
 });
-
-const paymentReturnUrl = computed(() => `${window.location.origin}/invoice/${invoice.value?.id}`);
-
 </script>
+
 
 <template>
   <div class="invoice-view-container">
@@ -217,48 +182,58 @@ const paymentReturnUrl = computed(() => `${window.location.origin}/invoice/${inv
       <v-progress-circular indeterminate color="primary"></v-progress-circular>
       <p>Loading invoice...</p>
     </div>
-    <div v-else-if="error || stripeError" class="error-container">
-      <v-alert type="error" dense outlined>{{ error || stripeError }}</v-alert>
+    <div v-else-if="error" class="error-container">
+      <v-alert type="error" dense outlined>{{ error }}</v-alert>
     </div>
     <div v-else-if="safeInvoice">
       <header class="invoice-view-header">
         <div class="header-left">
-          <v-btn @click="goBack" text class="back-btn" prepend-icon="mdi-arrow-left">
-            Back to Dashboard
+          <v-btn v-if="isOwner" @click="goBack" text class="back-btn" prepend-icon="mdi-arrow-left">
+            Dashboard
           </v-btn>
           <h1 class="invoice-title">Invoice #{{ safeInvoice.invoiceNumber }}</h1>
         </div>
-        <div class="actions">
-          <v-btn 
-            v-if="!safeInvoice.svcFeePaid"
-            @click="handlePayment"
-            :loading="isPaying"
-            color="success"
-            large
-            prepend-icon="mdi-credit-card"
-          >
-            Pay Service Fee
-          </v-btn>
-          <div v-else class="d-flex">
-            <v-btn 
-              @click="downloadPDF" 
-              outlined color="primary"
-              large
-              prepend-icon="mdi-download"
+        <!-- Actions for Invoice Owner -->
+        <div v-if="isOwner" class="actions">
+            <v-btn
+                v-if="isFreePlan"
+                @click="goToPricing"
+                color="secondary"
+                large
+                class="mr-4"
+                prepend-icon="mdi-arrow-up-bold-circle"
             >
-              Download PDF
+                Upgrade to Send Emails
             </v-btn>
              <v-btn
-              @click="sendInvoiceEmail"
-              :loading="isSendingEmail"
-              color="primary"
+              v-if="safeInvoice.status !== 'Paid'"
+              @click="confirmDialog = true"
+              color="green"
               large
-              class="ml-4"
-              prepend-icon="mdi-email"
+              class="mr-4"
+              prepend-icon="mdi-check-circle"
             >
-              Send Email
+              Mark as Paid
             </v-btn>
-          </div>
+            <v-btn 
+                @click="downloadPDF" 
+                outlined color="primary"
+                large
+                class="mr-4"
+                prepend-icon="mdi-download"
+            >
+                Download PDF
+            </v-btn>
+            <v-btn
+                @click="sendInvoiceEmail"
+                :loading="isSendingEmail"
+                :disabled="isFreePlan"
+                color="primary"
+                large
+                prepend-icon="mdi-email"
+            >
+                Send Email
+            </v-btn>
         </div>
       </header>
 
@@ -279,16 +254,18 @@ const paymentReturnUrl = computed(() => `${window.location.origin}/invoice/${inv
       {{ snackbarText }}
     </v-snackbar>
 
-    <v-dialog v-model="isCheckoutVisible" max-width="500px">
-      <StripeCheckout 
-        v-if="clientSecret"
-        :client-secret="clientSecret" 
-        :return-url="paymentReturnUrl"
-        @payment-success="onPaymentSuccess"
-        @payment-error="onPaymentError"
-        @close-dialog="isCheckoutVisible = false"
-      />
+     <v-dialog v-model="confirmDialog" max-width="500px">
+      <v-card>
+        <v-card-title class="text-h5">Confirm</v-card-title>
+        <v-card-text>Are you sure you want to mark this invoice as paid?</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="confirmDialog = false">Cancel</v-btn>
+          <v-btn color="blue darken-1" text @click="markAsPaid">OK</v-btn>
+        </v-card-actions>
+      </v-card>
     </v-dialog>
+
   </div>
 </template>
 
@@ -305,12 +282,15 @@ const paymentReturnUrl = computed(() => `${window.location.origin}/invoice/${inv
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .header-left {
   display: flex;
   align-items: center;
   gap: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .invoice-title {
@@ -325,6 +305,10 @@ const paymentReturnUrl = computed(() => `${window.location.origin}/invoice/${inv
 
 .actions {
   display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: flex-end;
+  flex-grow: 1;
 }
 
 .loading-container, .error-container {
@@ -353,16 +337,14 @@ const paymentReturnUrl = computed(() => `${window.location.origin}/invoice/${inv
 
 
 /* Responsive Styles */
-@media (max-width: 768px) {
+@media (max-width: 960px) {
   .invoice-view-header {
     flex-direction: column;
     align-items: stretch;
     gap: 1.5rem;
   }
-  .header-left {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+  .actions {
+    justify-content: flex-start;
   }
 }
 </style>

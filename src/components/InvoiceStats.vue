@@ -41,31 +41,34 @@
 
 <script setup>
 import { computed } from 'vue';
+import useInvoices from '../composables/useInvoices';
+import { isBefore, startOfToday, isValid } from 'date-fns';
 
-const props = defineProps({
-  invoices: {
-    type: Array,
-    required: true,
-    default: () => []
-  }
-});
+const { invoices } = useInvoices();
 
-const calculateTotalByStatus = (status) => {
-  return props.invoices
-    .filter(inv => inv.status === status)
+const overdueTotal = computed(() => {
+  return invoices.value
+    .filter(inv => {
+      const dueDate = inv.dueDate && typeof inv.dueDate.toDate === 'function' 
+        ? inv.dueDate.toDate() 
+        : new Date(inv.dueDate);
+      return inv.status === 'pending' && isValid(dueDate) && isBefore(dueDate, startOfToday());
+    })
     .reduce((sum, inv) => sum + (inv.total || 0), 0);
-};
+});
 
 const outstandingTotal = computed(() => {
-    return props.invoices
-        .filter(inv => inv.status === 'pending' || inv.status === 'draft' || inv.status === 'overdue')
-        .reduce((sum, inv) => sum + (inv.total || 0), 0);
+  const pendingTotal = invoices.value
+    .filter(inv => inv.status === 'pending')
+    .reduce((sum, inv) => sum + (inv.total || 0), 0);
+  return pendingTotal;
 });
 
-const overdueTotal = computed(() => calculateTotalByStatus('overdue'));
-
-const paidTotal = computed(() => calculateTotalByStatus('paid'));
-
+const paidTotal = computed(() => {
+  return invoices.value
+    .filter(inv => inv.status === 'Paid')
+    .reduce((sum, inv) => sum + (inv.total || 0), 0);
+});
 </script>
 
 <style scoped>
