@@ -28,6 +28,12 @@ Swift Invoice is a modern, web-based invoicing application designed for freelanc
 *   **Stripe Integration:** Stripe Checkout is used to handle subscription payments.
 *   **Webhook Handling:** A cloud function handles Stripe webhooks to update user subscription status in Firestore.
 
+### Analytics & Privacy
+
+*   **Google Consent Mode v2:** The application correctly implements Google's consent mode. Consent is set to 'denied' by default, and tracking is only enabled after the user explicitly accepts.
+*   **Cookie Consent Banner:** A banner is displayed to new users to obtain consent. The choice is stored in `localStorage` to persist the setting across sessions.
+*   **Cookie Policy Modal:** A detailed Cookie Policy is available to users directly from the consent banner via a modal dialog, ensuring easy access without navigating away from the page.
+
 ### Design and Styling
 
 *   **Component-Based:** The UI is built with Vue.js Single File Components.
@@ -35,29 +41,42 @@ Swift Invoice is a modern, web-based invoicing application designed for freelanc
 *   **Modern Design:** The application features a clean, modern design with a focus on user experience.
 *   **Consistent Styling:** The delete button for line items has a consistent, prominent style across all screen sizes for clear user affordance.
 
-## Current Task: Responsive Landing Page Adjustments
+## Current Task: Implement Cookie Policy Modal
 
-### Problem
+### Goal
 
-The "Take a tour" button on the `LandingPage.vue` component needed to be hidden on mobile devices.
+Provide users with clear, accessible information about the website's cookie usage.
 
-### Solution
+### Implementation
 
-Applied Vuetify's responsive display classes (`d-none` and `d-md-block`) to the `div` element containing the button. This hides the element on mobile screens (`xs` and `sm`) and displays it on medium screens and larger (`md`, `lg`, `xl`), effectively making it visible only on desktops.
+1.  **Create `CookiePolicy.vue` Component:** A new, static component was created at `src/components/CookiePolicy.vue` to house the detailed text of the cookie policy.
+
+2.  **Integrate as a Modal:** Instead of creating a separate page and route, the decision was made to present the policy in a modal dialog for a better user experience.
+
+3.  **Update `TheCookieBanner.vue`:**
+    *   The `CookiePolicy.vue` component was imported into the banner.
+    *   A Vuetify `v-dialog` component was added to act as the modal container.
+    *   The "View our Cookie Policy" text was converted from a `<router-link>` to a standard `<a>` tag with a click handler that toggles the visibility of the modal.
+    *   This approach keeps the user in the same context while allowing them to view detailed policy information.
 
 ## Previous Tasks
 
-### Final UI Polish for Invoice Editor
+### Fix Cookie Consent Banner
 
-*   **Problem:** The delete icon for each line item was not vertically centered, and its styling was inconsistent across devices.
-*   **Solution:** The `align="center"` prop was added to the `<v-row>` for vertical alignment, and the button's styling was made globally consistent by moving it out of a mobile-only media query.
+*   **Problem:** The effort to implement a cookie consent banner was beset by a series of cascading errors, including `useGtag is not a function` and failures to access the `gtag` object.
+*   **Solution:** The user correctly identified that the `vue-gtag` composable was `useConsent`, not `useGtag`. The final, correct solution also involved addressing an incorrect plugin initialization in `src/main.js`.
 
-### Fix Line Item Input Bug in Invoice Editor
+### Refactor Privacy Policy Component Location
 
-*   **Problem:** The line item `<v-combobox>` was not correctly retaining user input.
-*   **Solution:** The component's logic was refactored to use a simpler data model, binding directly to the `item.description` string.
+*   **Problem:** The `PrivacyPolicy.vue` component was located in the `src/views` directory but was better suited for `src/components`.
+*   **Solution:** The component was moved, and the router was updated to reflect the new path.
 
-### Fix Real-Time Update for Invoice Deletion
+### Add Privacy Policy Link to Footer
 
-*   **Problem:** `InvoiceStats.vue` was not updating in real time when an invoice was deleted.
-*   **Solution:** Manually removed the deleted invoice from the local `invoices` array in `Dashboard.vue`.
+*   **Problem:** The privacy policy page needed to be easily accessible.
+*   **Solution:** A `<router-link>` was added to the footer in `LandingPage.vue`.
+
+### Create Privacy Policy Page
+
+*   **Problem:** The application needed a dedicated page for its privacy policy.
+*   **Solution:** A new component, `src/components/PrivacyPolicy.vue`, was created and a route was added.
