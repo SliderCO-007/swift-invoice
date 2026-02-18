@@ -101,6 +101,12 @@ const goToInvoiceDetails = (id) => {
 const handleDeleteInvoice = async (invoiceId) => {
   try {
     await deleteInvoice(invoiceId);
+    // After successful deletion from Firestore, update the local state
+    // to ensure the UI, including InvoiceStats, updates reactively.
+    const index = invoices.value.findIndex(inv => inv.id === invoiceId);
+    if (index !== -1) {
+      invoices.value.splice(index, 1);
+    }
   } catch (err) {
     console.error("Failed to delete invoice:", err);
     alert(`Error deleting invoice: ${err.message}`);

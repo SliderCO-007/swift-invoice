@@ -74,75 +74,9 @@ const total = computed(() => {
   return subtotal.value + taxAmount.value;
 });
 
-// Watch for changes in the selected customer to auto-fill client info
-watch(selectedCustomer, (newCustomer) => {
-  if (newCustomer) {
-    invoice.value.client = {
-      name: newCustomer.name || '',
-      email: newCustomer.email || '',
-      phone: newCustomer.phone || '',
-      address1: newCustomer.address1 || '',
-      address2: newCustomer.address2 || '',
-      city: newCustomer.city || '',
-      state: newCustomer.state || '',
-      zip: newCustomer.zip || '',
-    };
-  } else {
-    invoice.value.client = { name: '', email: '', phone: '', address1: '', address2: '', city: '', state: '', zip: '' };
-  }
-});
-
-const handleItemSelection = (item, selectedItem) => {
-  if (selectedItem) {
-    item.description = selectedItem.description;
-    item.price = selectedItem.price;
-  }
-};
-
-// --- Initialization Logic ---
-const initializeInvoice = async () => {
-  fetchUserSettings();
-  const id = route.params.id;
-
-  if (id && id !== 'new') {
-    invoiceId.value = id;
-    const existingInvoice = await getInvoice(id);
-    if (existingInvoice) {
-      invoice.value = existingInvoice;
-    }
-  } else {
-    invoiceId.value = 'new';
-    if (!invoice.value.items || invoice.value.items.length === 0) {
-      invoice.value.items = [{ description: 'Sample Service', quantity: 1, price: 1, selectedItem: null }];
-    }
-  }
-};
-
-watch(settings, (newSettings) => {
-  if (invoiceId.value === 'new' && newSettings && newSettings.company) {
-    invoice.value.sender = { ...newSettings.company };
-    if (typeof newSettings.taxRate === 'number') {
-      invoice.value.taxRate = newSettings.taxRate;
-    }
-  }
-}, { deep: true });
-
-watch(user, (newUser) => {
-  if (newUser) {
-    initializeInvoice();
-    fetchCustomers();
-    fetchItems();
-  }
-}, { immediate: true });
-
-onUnmounted(() => {
-  stopFetchingCustomers();
-  stopFetchingItems();
-});
-
 // --- Component Methods ---
 const addItem = () => {
-  invoice.value.items.push({ description: '', quantity: 1, price: 0, selectedItem: null });
+  invoice.value.items.push({ description: '', quantity: 1, price: 0 });
 };
 
 const removeItem = (index) => {
@@ -158,6 +92,8 @@ const saveInvoice = async () => {
     isProcessing.value = false;
     return;
   }
+
+  // No more normalization needed, the model is simple.
 
   const invoiceData = {
     ...invoice.value,
@@ -186,6 +122,80 @@ const saveInvoice = async () => {
     isProcessing.value = false;
   }
 };
+
+// Watch for changes in the selected customer to auto-fill client info
+watch(selectedCustomer, (newCustomer) => {
+  if (newCustomer) {
+    invoice.value.client = {
+      name: newCustomer.name || '',
+      email: newCustomer.email || '',
+      phone: newCustomer.phone || '',
+      address1: newCustomer.address1 || '',
+      address2: newCustomer.address2 || '',
+      city: newCustomer.city || '',
+      state: newCustomer.state || '',
+      zip: newCustomer.zip || '',
+    };
+  } else {
+    invoice.value.client = { name: '', email: '', phone: '', address1: '', address2: '', city: '', state: '', zip: '' };
+  }
+});
+
+const handleDescriptionUpdate = (item, newDescription) => {
+  item.description = newDescription || '';
+  const foundItem = items.value.find(i => i.description === newDescription);
+  if (foundItem) {
+    item.price = foundItem.price;
+  }
+};
+
+const itemDescriptions = computed(() => items.value.map(i => i.description));
+
+// --- Initialization Logic ---
+const initializeInvoice = async () => {
+  fetchUserSettings();
+  
+  const id = route.params.id;
+
+  if (id && id !== 'new') {
+    invoiceId.value = id;
+    const existingInvoice = await getInvoice(id);
+    if (existingInvoice) {
+      invoice.value = existingInvoice;
+      // No special item initialization needed anymore.
+    }
+  } else {
+    invoiceId.value = 'new';
+    if (!invoice.value.items || invoice.value.items.length === 0) {
+        addItem();
+    }
+    fetchCustomers();
+    fetchItems();
+  }
+};
+
+watch(settings, (newSettings) => {
+  if (invoiceId.value === 'new' && newSettings && newSettings.company) {
+    invoice.value.sender = { ...newSettings.company };
+    if (typeof newSettings.taxRate === 'number') {
+      invoice.value.taxRate = newSettings.taxRate;
+    }
+  }
+}, { deep: true });
+
+watch(user, (newUser) => {
+  if (newUser) {
+    initializeInvoice();
+  } else {
+    invoice.value = { items: [], sender: {}, client: {}, issueDate: new Date(), dueDate: new Date(), notes: 'Thank you for your business!', taxRate: 0 };
+  }
+}, { immediate: true, deep: true });
+
+onUnmounted(() => {
+  stopFetchingCustomers();
+  stopFetchingItems();
+});
+
 </script>
 <template>
   <div class="editor-container">
@@ -265,21 +275,17 @@ const saveInvoice = async () => {
         <div class="form-section">
           <h3>Items</h3>
           <div class="items-list">
-            <div v-for="(item, index) in invoice.items" :key="index" class="item-row align-center">
-              <v-row>
+            <div v-for="(item, index) in invoice.items" :key="index" class="item-row">
+              <v-row align="center">
                 <v-col cols="12" md="6">
-                  <v-autocomplete
-                    v-model="item.selectedItem"
-                    :items="items"
-                    item-title="description"
-                    item-value="id"
-                    :item-props="(item) => ({ title: item.description, subtitle: `$${item.price}` })"
-                    return-object
+                  <v-combobox
+                    v-model="item.description"
+                    :items="itemDescriptions"
                     label="Select or type to add an item"
                     variant="outlined"
-                    @update:modelValue="(value) => handleItemSelection(item, value)"
-                    clearable
                     density="comfortable"
+                    @update:model-value="(newDescription) => handleDescriptionUpdate(item, newDescription)"
+                    clearable
                   >
                     <template v-slot:no-data>
                       <v-list-item>
@@ -288,7 +294,7 @@ const saveInvoice = async () => {
                         </v-list-item-title>
                       </v-list-item>
                     </template>
-                  </v-autocomplete>
+                  </v-combobox>
                 </v-col>
                 <v-col cols="6" md="2">
                   <v-text-field
@@ -310,7 +316,7 @@ const saveInvoice = async () => {
                     variant="outlined"
                   ></v-text-field>
                 </v-col>
-                <v-col cols="12" md="2" class="text-center">
+                <v-col cols="12" md="2" class="d-flex align-center justify-center">
                   <button class="delete-item-btn" @click="removeItem(index)">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
                   </button>
@@ -325,7 +331,7 @@ const saveInvoice = async () => {
           <h3>Payment Options</h3>
           <div class="payment-options-grid">
             <div class="switch-container">
-              <label for="includeVenmoQr" class="switch-label">Include Venmo QR Code</label>
+              <label for="includeVenmoQr" class="switch-label">Include QR Code</label>
               <label class="switch">
                 <input type="checkbox" id="includeVenmoQr" v-model="invoice.includeVenmoQr">
                 <span class="slider round"></span>
@@ -353,7 +359,7 @@ const saveInvoice = async () => {
         <footer class="editor-footer">
           <button class="preview-btn" @click="showPreview = true">Preview Invoice</button>
           <button class="save-btn" @click="saveInvoice" :disabled="isProcessing">
-            {{ isProcessing ? 'Saving...' : 'Save and Send' }}
+            {{ isProcessing ? 'Saving...' : 'Save Invoice' }}
           </button>
         </footer>
       </div>
@@ -455,8 +461,17 @@ input, textarea {
     margin-bottom: 1rem;
 }
 
-.delete-item-btn, .add-item-btn {
-  background: none; border: none; cursor: pointer; color: #555;
+.delete-item-btn {
+  background-color: #fce8e8;
+  color: #c53030;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.delete-item-btn svg {
+  color: #c53030;
 }
 
 .add-item-btn { 
@@ -465,6 +480,8 @@ input, textarea {
     margin-top: 1rem;
     border: 1px dashed var(--primary-color, #4F46E5);
     padding: 0.8rem; width: 100%;
+    background: none;
+    cursor: pointer;
 }
 
 .editor-footer {
@@ -629,18 +646,5 @@ input:checked + .slider:before {
 @media (max-width: 1023px) {
   .from-fields { display: none; }
   .responsive-grid { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 768px) {
-  .delete-item-btn {
-    background-color: #fce8e8;
-    color: #c53030;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-  }
-
-  .delete-item-btn svg {
-      color: #c53030;
-  }
 }
 </style>
