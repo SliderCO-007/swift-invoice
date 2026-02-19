@@ -39,44 +39,41 @@ Swift Invoice is a modern, web-based invoicing application designed for freelanc
 *   **Component-Based:** The UI is built with Vue.js Single File Components.
 *   **Scoped Styles:** Each component has its own scoped styles to prevent CSS conflicts.
 *   **Modern Design:** The application features a clean, modern design with a focus on user experience.
-*   **Consistent Styling:** The delete button for line items has a consistent, prominent style across all screen sizes for clear user affordance.
+*   **Responsive Navigation:** A fully responsive app bar that provides a consistent and intuitive user experience across all devices.
 
-## Current Task: Implement Cookie Policy Modal
+## Current Task: Enhance Navigation Menus
 
 ### Goal
 
-Provide users with clear, accessible information about the website's cookie usage.
+Improve the navigation menus to be more intuitive and visually appealing across all screen sizes.
 
 ### Implementation
 
-1.  **Create `CookiePolicy.vue` Component:** A new, static component was created at `src/components/CookiePolicy.vue` to house the detailed text of the cookie policy.
+1.  **Refine Mobile Menu:**
+    *   **Replace Drawer with Menu:** The initial `v-navigation-drawer` was replaced with a `v-menu` component to provide a more direct, dropdown-style interaction on mobile.
+    *   **Anchor to Icon:** The new `v-menu` is anchored to the `v-app-bar-nav-icon` (the hamburger icon), making the menu appear to drop down directly from the icon.
+    *   **Right-Aligned Position:** The hamburger icon is positioned on the far right of the app bar on mobile screens, following modern mobile UI conventions.
 
-2.  **Integrate as a Modal:** Instead of creating a separate page and route, the decision was made to present the policy in a modal dialog for a better user experience.
+2.  **Add Icons to Menus:**
+    *   **Data-Driven Icons:** An `icon` property was added to the `guestNav` and `authNav` data arrays in `AppBar.vue`.
+    *   **Visual Enhancement:** `v-icon` components were added to the `v-list-item`s in both the mobile dropdown and the desktop user menu, providing clear visual cues for each navigation link.
+    *   **Consistent Logout Icon:** An icon was also added to the "Logout" action for consistency.
 
-3.  **Update `TheCookieBanner.vue`:**
-    *   The `CookiePolicy.vue` component was imported into the banner.
-    *   A Vuetify `v-dialog` component was added to act as the modal container.
-    *   The "View our Cookie Policy" text was converted from a `<router-link>` to a standard `<a>` tag with a click handler that toggles the visibility of the modal.
-    *   This approach keeps the user in the same context while allowing them to view detailed policy information.
+3.  **Conditional Content:** The menu content remains dynamic, showing appropriate links and icons for both guest and authenticated users.
 
 ## Previous Tasks
 
+### Implement Cookie Policy Modal
+
+*   **Problem:** The application needed to display a cookie policy.
+*   **Solution:** A `CookiePolicy.vue` component was created and displayed in a `v-dialog` modal from the cookie consent banner, avoiding the need for a separate route.
+
 ### Fix Cookie Consent Banner
 
-*   **Problem:** The effort to implement a cookie consent banner was beset by a series of cascading errors, including `useGtag is not a function` and failures to access the `gtag` object.
-*   **Solution:** The user correctly identified that the `vue-gtag` composable was `useConsent`, not `useGtag`. The final, correct solution also involved addressing an incorrect plugin initialization in `src/main.js`.
+*   **Problem:** The cookie consent banner was not functioning due to errors with the `vue-gtag` library.
+*   **Solution:** Corrected the composable used to `useConsent` and fixed the plugin initialization in `main.js`.
 
 ### Refactor Privacy Policy Component Location
 
-*   **Problem:** The `PrivacyPolicy.vue` component was located in the `src/views` directory but was better suited for `src/components`.
-*   **Solution:** The component was moved, and the router was updated to reflect the new path.
-
-### Add Privacy Policy Link to Footer
-
-*   **Problem:** The privacy policy page needed to be easily accessible.
-*   **Solution:** A `<router-link>` was added to the footer in `LandingPage.vue`.
-
-### Create Privacy Policy Page
-
-*   **Problem:** The application needed a dedicated page for its privacy policy.
-*   **Solution:** A new component, `src/components/PrivacyPolicy.vue`, was created and a route was added.
+*   **Problem:** The `PrivacyPolicy.vue` component was in an incorrect directory.
+*   **Solution:** The component was moved from `src/views` to `src/components` and the router was updated.
