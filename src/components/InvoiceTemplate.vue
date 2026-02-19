@@ -1,7 +1,7 @@
 <script setup>
-import { computed, onMounted } from 'vue';
-import useUserSettings from '../composables/useUserSettings';
-import { format, isValid } from 'date-fns';
+import { computed, onMounted } from 'vue'
+import useUserSettings from '../composables/useUserSettings'
+import { format, isValid } from 'date-fns'
 
 const props = defineProps({
   invoice: {
@@ -12,110 +12,140 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-});
+})
 
-const subtotal = computed(() => props.invoice.subtotal || 0);
-const taxAmount = computed(() => props.invoice.taxAmount || 0);
-const total = computed(() => props.invoice.total || 0);
+const subtotal = computed(() => props.invoice.subtotal || 0)
+const taxAmount = computed(() => props.invoice.taxAmount || 0)
+const total = computed(() => props.invoice.total || 0)
 
 const formatDate = (date) => {
-  if (!date) return 'N/A';
+  if (!date) return 'N/A'
   // Check if date is a Firestore timestamp and convert it
-  const d = date.toDate ? date.toDate() : new Date(date);
-  return isValid(d) ? format(d, 'MMMM d, yyyy') : 'N/A';
-};
+  const d = date.toDate ? date.toDate() : new Date(date)
+  return isValid(d) ? format(d, 'MMMM d, yyyy') : 'N/A'
+}
 
 const formatAddress = (address) => {
-  if (!address) return '';
-  const parts = [address.address1, address.address2, `${address.city}, ${address.state} ${address.zip}`];
-  return parts.filter(Boolean).join(', ');
-};
+  if (!address) return ''
+  const parts = [
+    address.address1,
+    address.address2,
+    `${address.city}, ${address.state} ${address.zip}`,
+  ]
+  return parts.filter(Boolean).join(', ')
+}
 
 const formatCurrency = (value) => {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0);
-};
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
+    value || 0
+  )
+}
 </script>
 
 <template>
   <div class="invoice-paper" v-if="invoice && settings">
     <section class="invoice-main-header">
-        <div class="invoice-brand">
-            <img v-if="settings?.company?.logoUrl" :src="settings.company.logoUrl" alt="Company Logo" class="company-logo" />
-            <h1 v-else class="invoice-title">{{ invoice.sender.name }}</h1>
-            <p :class="['invoice-status', `status-${invoice.status.toLowerCase()}`]">{{ invoice.status }}</p>
-        </div>
-        <div class="sender-details">
-            <p><strong>{{ invoice.sender.name }}</strong></p>
-            <p>{{ formatAddress(invoice.sender) }}</p>
-            <p>{{ invoice.sender.email }}</p>
-        </div>
+      <div class="invoice-brand">
+        <img
+          v-if="settings?.company?.logoUrl"
+          :src="settings.company.logoUrl"
+          alt="Company Logo"
+          class="company-logo"
+        />
+        <h1 v-else class="invoice-title">{{ invoice.sender.name }}</h1>
+        <p :class="['invoice-status', `status-${invoice.status.toLowerCase()}`]">
+          {{ invoice.status }}
+        </p>
+      </div>
+      <div class="sender-details">
+        <p>
+          <strong>{{ invoice.sender.name }}</strong>
+        </p>
+        <p>{{ formatAddress(invoice.sender) }}</p>
+        <p>{{ invoice.sender.email }}</p>
+      </div>
     </section>
 
     <section class="invoice-meta-details">
-        <div class="client-details">
-            <h2>Bill To</h2>
-            <p><strong>{{ invoice.client.name }}</strong></p>
-            <p>{{ formatAddress(invoice.client) }}</p>
-            <p>{{ invoice.client.email }}</p>
-        </div>
-        <div class="invoice-dates">
-            <p><strong>Invoice #:</strong> {{ invoice.invoiceNumber }}</p>
-            <p><strong>Issue Date:</strong> {{ formatDate(invoice.issueDate) }}</p>
-            <p><strong>Due Date:</strong> {{ formatDate(invoice.dueDate) }}</p>
-        </div>
+      <div class="client-details">
+        <h2>Bill To</h2>
+        <p>
+          <strong>{{ invoice.client.name }}</strong>
+        </p>
+        <p>{{ formatAddress(invoice.client) }}</p>
+        <p>{{ invoice.client.email }}</p>
+      </div>
+      <div class="invoice-dates">
+        <p><strong>Invoice #:</strong> {{ invoice.invoiceNumber }}</p>
+        <p><strong>Issue Date:</strong> {{ formatDate(invoice.issueDate) }}</p>
+        <p><strong>Due Date:</strong> {{ formatDate(invoice.dueDate) }}</p>
+      </div>
     </section>
 
     <section class="invoice-items">
-        <table class="items-table">
-            <thead>
-                <tr>
-                    <th>Description</th>
-                    <th>Qty</th>
-                    <th>Unit Price</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="(item, index) in invoice.items" :key="index">
-                    <td data-label="Description"><span>{{ item.description }}</span></td>
-                    <td data-label="Qty"><span>{{ item.quantity }}</span></td>
-                    <td data-label="Unit Price"><span>{{ formatCurrency(item.price) }}</span></td>
-                    <td data-label="Total"><span>{{ formatCurrency(item.quantity * item.price) }}</span></td>
-                </tr>
-            </tbody>
-        </table>
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Qty</th>
+            <th>Unit Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, index) in invoice.items" :key="index">
+            <td data-label="Description">
+              <span>{{ item.description }}</span>
+            </td>
+            <td data-label="Qty">
+              <span>{{ item.quantity }}</span>
+            </td>
+            <td data-label="Unit Price">
+              <span>{{ formatCurrency(item.price) }}</span>
+            </td>
+            <td data-label="Total">
+              <span>{{ formatCurrency(item.quantity * item.price) }}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </section>
 
     <section class="invoice-summary-and-notes">
-        <div class="notes-and-qr">
-          <div v-if="invoice.notes" class="invoice-notes">
-              <h2>Notes</h2>
-              <p>{{ invoice.notes }}</p>
-          </div>
-          <div v-if="invoice.includeVenmoQr && settings?.company?.venmoQrUrl" class="venmo-qr-code">
-            <h2>Scan to Pay</h2>
-            <img :src="settings.company.venmoQrUrl" alt="Venmo QR Code" />
-            <p>Venmo</p>
-          </div>
+      <div class="notes-and-qr">
+        <div v-if="invoice.notes" class="invoice-notes">
+          <h2>Notes</h2>
+          <p>{{ invoice.notes }}</p>
         </div>
-        <div class="totals">
-            <div class="total-row">
-                <span>Subtotal</span>
-                <span>{{ formatCurrency(subtotal) }}</span>
-            </div>
-            <div class="total-row" v-if="invoice.taxRate > 0">
-                <span>Tax ({{ invoice.taxRate }}%)</span>
-                <span>{{ formatCurrency(taxAmount) }}</span>
-            </div>
-            <div class="total-row grand-total">
-                <span>Total</span>
-                <span>{{ formatCurrency(total) }}</span>
-            </div>
+        <div
+          v-if="invoice.includeVenmoQr && settings?.company?.venmoQrUrl"
+          class="venmo-qr-code"
+        >
+          <h2>Scan to Pay</h2>
+          <img :src="settings.company.venmoQrUrl" alt="Venmo QR Code" />
         </div>
+      </div>
+      <div class="totals">
+        <div class="total-row">
+          <span>Subtotal</span>
+          <span>{{ formatCurrency(subtotal) }}</span>
+        </div>
+        <div class="total-row" v-if="invoice.taxRate > 0">
+          <span>Tax ({{ invoice.taxRate }}%)</span>
+          <span>{{ formatCurrency(taxAmount) }}</span>
+        </div>
+        <div class="total-row grand-total">
+          <span>Total</span>
+          <span>{{ formatCurrency(total) }}</span>
+        </div>
+      </div>
     </section>
 
     <footer class="promo-footer">
-      <p>Create your own professional invoices at <span class="promo-link">swiftinvoice.biz</span></p>
+      <p>
+        Create your own professional invoices at
+        <span class="promo-link">swiftinvoice.biz</span>
+      </p>
     </footer>
   </div>
 </template>
@@ -124,7 +154,7 @@ const formatCurrency = (value) => {
 .invoice-paper {
   background: var(--white-color, #fff);
   border-radius: 12px;
-  padding: 2.5rem; 
+  padding: 2.5rem;
   box-shadow: var(--shadow-md);
   font-family: 'Poppins', sans-serif;
   color: #333;
@@ -167,15 +197,26 @@ const formatCurrency = (value) => {
   letter-spacing: 0.5px;
 }
 
-.status-paid { background-color: #D4EDDA; color: #155724; }
-.status-pending { background-color: #FFF3CD; color: #856404; }
-.status-overdue { background-color: #F8D7DA; color: #721C24; }
+.status-paid {
+  background-color: #d4edda;
+  color: #155724;
+}
+.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+.status-overdue {
+  background-color: #f8d7da;
+  color: #721c24;
+}
 
 .sender-details {
   text-align: right;
   font-size: 0.85em;
 }
-.sender-details p { margin: 0; }
+.sender-details p {
+  margin: 0;
+}
 
 .invoice-meta-details {
   display: flex;
@@ -184,14 +225,18 @@ const formatCurrency = (value) => {
   font-size: 0.85em;
 }
 
-.client-details h2, .invoice-notes h2, .venmo-qr-code h2 {
+.client-details h2,
+.invoice-notes h2,
+.venmo-qr-code h2 {
   font-size: 1.1em;
   font-weight: 600;
   color: var(--text-color, #111827);
   margin-bottom: 0.7rem;
 }
 
-.client-details p { margin: 0; }
+.client-details p {
+  margin: 0;
+}
 
 .invoice-dates {
   text-align: right;
@@ -209,7 +254,8 @@ const formatCurrency = (value) => {
   font-size: 0.85em;
 }
 
-.items-table th, .items-table td {
+.items-table th,
+.items-table td {
   padding: 0.8rem;
   text-align: left;
   border-bottom: 1px solid #eee;
@@ -233,19 +279,19 @@ const formatCurrency = (value) => {
 }
 
 .invoice-summary-and-notes {
-    display: flex;
-    justify-content: space-between;
-    gap: 2rem;
-    margin-top: 2rem;
-    border-top: 2px solid #eee;
-    padding-top: 2rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-top: 2rem;
+  border-top: 2px solid #eee;
+  padding-top: 2rem;
 }
 
 .notes-and-qr {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 .invoice-notes p {
@@ -264,9 +310,9 @@ const formatCurrency = (value) => {
 }
 
 .venmo-qr-code p {
-    font-weight: 600;
-    font-size: 0.9em;
-    color: #007bff; /* Venmo blue */
+  font-weight: 600;
+  font-size: 0.9em;
+  color: #007bff; /* Venmo blue */
 }
 
 .totals {
@@ -286,7 +332,7 @@ const formatCurrency = (value) => {
 .total-row.grand-total {
   font-size: 1.4em;
   font-weight: 700;
-  color: var(--primary-color, #4A90E2);
+  color: var(--primary-color, #4a90e2);
   border-top: 2px solid #eee;
   margin-top: 0.6rem;
   padding-top: 0.8rem;
@@ -302,37 +348,47 @@ const formatCurrency = (value) => {
 }
 
 .promo-link {
-  color: var(--primary-color, #4A90E2);
+  color: var(--primary-color, #4a90e2);
   text-decoration: none;
   font-weight: 600;
 }
 
 @media (max-width: 768px) {
-    .invoice-summary-and-notes {
-        flex-direction: column-reverse;
-    }
-    .totals { max-width: none; }
+  .invoice-summary-and-notes {
+    flex-direction: column-reverse;
+  }
+  .totals {
+    max-width: none;
+  }
 }
 
 /* Responsive Styles for table */
 @media (max-width: 768px) {
-  .invoice-paper { padding: 1.5rem; }
-  .invoice-main-header, .invoice-meta-details {
+  .invoice-paper {
+    padding: 1.5rem;
+  }
+  .invoice-main-header,
+  .invoice-meta-details {
     flex-direction: column;
     gap: 1.5rem;
   }
-  .sender-details, .invoice-dates {
+  .sender-details,
+  .invoice-dates {
     text-align: left;
     width: 100%;
   }
-  .items-table thead { display: none; }
-  .items-table tr { 
-    display: block; 
-    margin-bottom: 1rem; 
-    border-bottom: 2px solid #eee; 
-    padding-bottom: 1rem; 
+  .items-table thead {
+    display: none;
   }
-  .items-table tr:last-of-type { border-bottom: none; }
+  .items-table tr {
+    display: block;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 1rem;
+  }
+  .items-table tr:last-of-type {
+    border-bottom: none;
+  }
 
   .items-table td {
     display: grid;
