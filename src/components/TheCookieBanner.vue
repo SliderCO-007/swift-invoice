@@ -22,7 +22,7 @@
 
   <transition name="fade-slide">
     <div v-if="showBanner" class="cookie-banner-wrapper">
-      <v-card class="cookie-banner" elevation="8" rounded="lg">
+      <v-card class="cookie-banner" elevation="12" rounded="lg">
         <div class="cookie-banner-inner">
           <v-row no-gutters align="center">
             <v-col cols="auto" class="px-3">
@@ -35,20 +35,13 @@
               </div>
               <div>
                 <p class="text-caption mt-2">
-                  <a
-                    @click.prevent="dialog = true"
-                    href="#"
-                    class="text-grey-darken-1"
-                    style="cursor: pointer"
-                    >View our Cookie Policy</a
-                  >
+                  <a @click.prevent="dialog = true" href="#" class="text-grey-darken-1" style="cursor: pointer">View our
+                    Cookie Policy</a>
                 </p>
               </div>
             </v-col>
             <v-col cols="auto" class="px-3">
-              <v-btn @click="handleDecline" color="grey-darken-1" variant="flat"
-                >Decline</v-btn
-              >
+              <v-btn @click="handleDecline" color="grey-darken-1" variant="flat">Decline</v-btn>
               <v-btn color="primary" variant="flat" @click="handleAccept"> Accept </v-btn>
             </v-col>
           </v-row>
@@ -126,6 +119,7 @@ const handleDecline = () => {
 .fade-slide-leave-active {
   transition: opacity 0.4s ease, transform 0.4s ease;
 }
+
 .fade-slide-enter-from .cookie-banner-inner,
 .fade-slide-leave-to .cookie-banner-inner {
   opacity: 0;
@@ -138,5 +132,39 @@ a.text-grey-darken-1 {
 
 a.text-grey-darken-1:hover {
   text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .cookie-banner-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .cookie-banner-inner .v-row {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .cookie-banner-inner .v-col {
+    width: 100%;
+  }
+
+  /* Buttons stack vertically on mobile */
+  .cookie-banner-inner .v-col[cols="auto"] {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .cookie-banner-inner .v-btn {
+    width: 80%;
+    margin-bottom: 8px;
+  }
+
+  .cookie-banner-inner .v-btn:last-child {
+    margin-bottom: 0;
+  }
 }
 </style>
