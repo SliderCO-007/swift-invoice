@@ -5,9 +5,9 @@
       <!-- Loading/Verifying State -->
       <div v-if="isLoading">
         <v-progress-circular indeterminate color="primary" size="64" class="mb-4"></v-progress-circular>
-        <h1 class="text-h5 font-weight-bold mt-4">Verifying Your Payment</h1>
+        <h1 class="text-h5 font-weight-bold mt-4">{{ loadingMessage }}</h1>
         <p class="text-body-1 text-medium-emphasis mt-2">
-          Please wait a moment while we confirm your subscription...
+          {{ loadingSubMessage }}
         </p>
       </div>
 
@@ -50,9 +50,11 @@ const user = currentUser;
 const isLoading = ref(true);
 const isSuccess = ref(false);
 const isError = ref(false);
+const loadingMessage = ref('Verifying Your Payment');
+const loadingSubMessage = ref('Please wait a moment while we confirm your subscription...');
 
 let unsubscribe = null;
-let timeout = null;
+let timeouts = [];
 
 onMounted(() => {
   if (!user.value) {
@@ -62,8 +64,15 @@ onMounted(() => {
     return;
   }
 
-  // Set a timeout to prevent users from getting stuck indefinitely.
-  timeout = setTimeout(() => {
+  // Set timeouts to provide a better user experience while waiting.
+  timeouts.push(setTimeout(() => {
+    if (!isSuccess.value) {
+      loadingMessage.value = 'Still confirming...';
+      loadingSubMessage.value = 'This can sometimes take up to a minute. We appreciate your patience.';
+    }
+  }, 20000)); // 20 seconds
+
+  timeouts.push(setTimeout(() => {
     isLoading.value = false;
     if (!isSuccess.value) {
       isError.value = true;
@@ -71,18 +80,18 @@ onMounted(() => {
     if (unsubscribe) {
       unsubscribe(); // Stop listening after timeout.
     }
-  }, 30000); // 30 seconds
+  }, 60000)); // 60 seconds
 
   // Listen to real-time changes on the user's document.
   const userRef = doc(db, 'users', user.value.uid);
   unsubscribe = onSnapshot(userRef, (doc) => {
     const userData = doc.data();
-    if (userData && userData.subscriptionStatus === 'active') {
-      // The moment we confirm the active subscription:
+    // A non-free status indicates a successful subscription update.
+    if (userData && userData.subscriptionStatus && userData.subscriptionStatus !== 'free') {
       isLoading.value = false;
       isSuccess.value = true;
       isError.value = false;
-      clearTimeout(timeout); // Clear the timeout
+      timeouts.forEach(clearTimeout); // Clear the timeouts
       if (unsubscribe) {
         unsubscribe(); // Stop listening once we get the success state.
       }
@@ -95,9 +104,7 @@ onUnmounted(() => {
   if (unsubscribe) {
     unsubscribe();
   }
-  if (timeout) {
-    clearTimeout(timeout);
-  }
+  timeouts.forEach(clearTimeout);
 });
 </script>
 

@@ -77,6 +77,9 @@ const generatePDF = async (outputType = 'save') => {
   let pdfOutput = null;
 
   try {
+    // Wait for web fonts to load before rendering the canvas
+    await document.fonts.ready;
+    
     const canvas = await html2canvas(clone, { scale: 4, useCORS: true });
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });

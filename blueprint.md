@@ -13,7 +13,7 @@ Swift Invoice is a modern, web-based invoicing application designed for freelanc
 *   **Invoice Numbering:** Invoices are automatically assigned a unique, sequential invoice number.
 *   **Status Tracking:** Invoices can be marked as "Paid," and the status is visually reflected in the UI.
 *   **Real-Time Updates:** Dashboard statistics update instantly when an invoice is deleted.
-*   **WYSIWYG PDF Generation:** Users can download or email a pixel-perfect PDF of any invoice that exactly matches the in-browser preview.
+*   **WYSIWYG PDF Generation:** Users can download or email a pixel-perfect PDF of any invoice that exactly matches the in-browser preview. The PDF generation logic is carefully designed to wait for web fonts to load, ensuring a perfect render every time.
 *   **Email Invoices:** Users can send PDF invoices directly to clients. The sender is set to `no-reply@swiftinvoice.biz`.
 *   **QR Code Payments:** The invoice editor allows users to toggle the inclusion of a QR code for payments.
 
@@ -27,6 +27,7 @@ Swift Invoice is a modern, web-based invoicing application designed for freelanc
 *   **Subscription Plans:** The application offers a "Free" plan and paid "Pro" and "Business" plans.
 *   **Stripe Integration:** Stripe Checkout is used to handle subscription payments.
 *   **Webhook Handling:** A cloud function handles Stripe webhooks to update user subscription status in Firestore.
+*   **Robust Payment Verification:** A resilient polling mechanism on the payment success page waits for backend confirmation of subscription status, providing dynamic user feedback and a generous timeout to prevent premature errors.
 
 ### Analytics & Privacy
 
@@ -41,27 +42,31 @@ Swift Invoice is a modern, web-based invoicing application designed for freelanc
 *   **Modern Design:** The application features a clean, modern design with a focus on user experience.
 *   **Responsive Navigation:** A fully responsive app bar that provides a consistent and intuitive user experience across all devices.
 
-## Current Task: Enhance Navigation Menus
+## Current Task: Enhance Payment Verification
 
 ### Goal
+Improve the reliability and user experience of the post-payment verification screen.
 
-Improve the navigation menus to be more intuitive and visually appealing across all screen sizes.
+### Problem
+The previous implementation used a short timeout (30 seconds) to verify a subscription update in Firestore after a Stripe payment. This could lead to a "Verification Timed Out" error message even if the payment was successful, simply because of webhook processing delays.
 
 ### Implementation
-
-1.  **Refine Mobile Menu:**
-    *   **Replace Drawer with Menu:** The initial `v-navigation-drawer` was replaced with a `v-menu` component to provide a more direct, dropdown-style interaction on mobile.
-    *   **Anchor to Icon:** The new `v-menu` is anchored to the `v-app-bar-nav-icon` (the hamburger icon), making the menu appear to drop down directly from the icon.
-    *   **Right-Aligned Position:** The hamburger icon is positioned on the far right of the app bar on mobile screens, following modern mobile UI conventions.
-
-2.  **Add Icons to Menus:**
-    *   **Data-Driven Icons:** An `icon` property was added to the `guestNav` and `authNav` data arrays in `AppBar.vue`.
-    *   **Visual Enhancement:** `v-icon` components were added to the `v-list-item`s in both the mobile dropdown and the desktop user menu, providing clear visual cues for each navigation link.
-    *   **Consistent Logout Icon:** An icon was also added to the "Logout" action for consistency.
-
-3.  **Conditional Content:** The menu content remains dynamic, showing appropriate links and icons for both guest and authenticated users.
+1.  **Extended Timeout:** The total timeout for verification has been increased to 60 seconds, providing a more generous window for the backend to process the payment and update the user's status.
+2.  **Dynamic Loading Messages:** Instead of a static loading message, the component now displays a series of messages that change over time. This reassures the user that the process is ongoing and not stuck.
+3.  **Flexible Status Check:** The verification logic now checks for any paid subscription status (e.g., 'pro', 'business') rather than just 'active'. This makes the system more robust and future-proof.
+4.  **Improved Cleanup:** All timers are now tracked in an array and cleared reliably when the component is unmounted or verification succeeds, preventing potential memory leaks.
 
 ## Previous Tasks
+
+### Fix PDF Font Rendering Issue
+
+*   **Problem:** Text in generated PDFs was overlapping and unreadable because the rendering would occur before the "Roboto" web font had fully loaded.
+*   **Solution:** Added `await document.fonts.ready;` to the `generatePDF` function in `InvoiceView.vue`. This simple line ensures that `html2canvas` does not attempt to render the invoice until all necessary fonts are available, resulting in a perfect, pixel-accurate PDF.
+
+### Enhance Navigation Menus
+
+*   **Goal:** Improve the navigation menus to be more intuitive and visually appealing across all screen sizes.
+*   **Implementation:** Refined the mobile menu, added icons to all menu items for better visual guidance, and ensured the content remains dynamic for both guest and authenticated users.
 
 ### Implement Cookie Policy Modal
 
@@ -72,8 +77,3 @@ Improve the navigation menus to be more intuitive and visually appealing across 
 
 *   **Problem:** The cookie consent banner was not functioning due to errors with the `vue-gtag` library.
 *   **Solution:** Corrected the composable used to `useConsent` and fixed the plugin initialization in `main.js`.
-
-### Refactor Privacy Policy Component Location
-
-*   **Problem:** The `PrivacyPolicy.vue` component was in an incorrect directory.
-*   **Solution:** The component was moved from `src/views` to `src/components` and the router was updated.
