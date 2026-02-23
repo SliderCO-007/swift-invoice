@@ -41,22 +41,46 @@ Swift Invoice is a modern, web-based invoicing application designed for freelanc
 *   **Scoped Styles:** Each component has its own scoped styles to prevent CSS conflicts.
 *   **Modern Design:** The application features a clean, modern design with a focus on user experience.
 *   **Responsive Navigation:** A fully responsive app bar that provides a consistent and intuitive user experience across all devices.
+*   **Dynamic Hero Section:** A modern, responsive two-column hero section on the landing page that highlights the key value proposition alongside a professional, animated image composition.
 
-## Current Task: Enhance Payment Verification
+## Current Task: Create Invoices from Templates
 
-### Goal
-Improve the reliability and user experience of the post-payment verification screen.
-
-### Problem
-The previous implementation used a short timeout (30 seconds) to verify a subscription update in Firestore after a Stripe payment. This could lead to a "Verification Timed Out" error message even if the payment was successful, simply because of webhook processing delays.
-
-### Implementation
-1.  **Extended Timeout:** The total timeout for verification has been increased to 60 seconds, providing a more generous window for the backend to process the payment and update the user's status.
-2.  **Dynamic Loading Messages:** Instead of a static loading message, the component now displays a series of messages that change over time. This reassures the user that the process is ongoing and not stuck.
-3.  **Flexible Status Check:** The verification logic now checks for any paid subscription status (e.g., 'pro', 'business') rather than just 'active'. This makes the system more robust and future-proof.
-4.  **Improved Cleanup:** All timers are now tracked in an array and cleared reliably when the component is unmounted or verification succeeds, preventing potential memory leaks.
+*   **Goal:** Allow users to save invoices as templates and create new invoices from those templates.
+*   **Implementation:**
+    1.  **Create "Templates" Page:** A new page at `/templates` will be created to display a list of saved invoice templates.
+    2.  **Update Navigation:** A "Templates" link will be added to the main navigation for authenticated users.
+    3.  **"Save as Template" Functionality:** A "Save as Template" button will be added to the `InvoiceView` page to save the current invoice structure as a new template in the `invoiceTemplates` Firestore collection.
+    4.  **Create Invoice from Template:** A button on the "Templates" page will allow users to create a new invoice pre-filled with the data from a selected template.
 
 ## Previous Tasks
+
+### Revert Feature Grid Layout
+
+*   **Goal:** Restore the four-column layout for the feature cards on the landing page.
+*   **Implementation:** The `features-grid` CSS was updated to use `grid-template-columns: repeat(4, 1fr);` on desktop screens. The responsive styles were also adjusted to show two columns on tablet-sized screens and a single column on mobile devices.
+
+### Simplify Hero Section
+
+*   **Goal:** Simplify the hero section by removing the animation and using a single, static image, while ensuring the correct content order on mobile devices.
+*   **Implementation:**
+    1.  **Removed Animation:** The CSS animation and the secondary `shape_gradient.png` image were removed.
+    2.  **Static Image:** The hero section now uses a single, composite `hero_woman.png` image.
+    3.  **Cleaned Up Code:** The `LandingPage.vue` component was updated to remove the unnecessary code, and the `shape_gradient.png` file was deleted from the project.
+    4.  **Corrected Mobile Stacking:** The responsive styles were adjusted to ensure the hero content appears *above* the image on mobile devices by default.
+
+### Redesign Landing Page Hero Section
+
+*   **Goal:** Redesign the landing page hero section to create a cleaner, more modern, and focused user experience.
+*   **Implementation:**
+    1.  **Two-Column Layout:** A responsive two-column `hero-grid` was created. The left column holds the text content, and the right column contains the visual elements.
+    2.  **Layered Images:** A `hero-image-container` was implemented to layer a decorative `shape_gradient.png` behind the main `hero_woman.png`. This creates a sense of depth and visual interest.
+    3.  **Subtle Animation:** A CSS keyframe animation (`rotate`) was added to the `shape_gradient.png`, causing it to spin slowly. This adds a dynamic, modern feel to the page without being distracting.
+    4.  **Responsive Stacking:** On mobile devices, the columns stack vertically, with the animated image appearing above the text for a strong visual introduction.
+
+### Enhance Payment Verification
+
+*   **Goal:** Improve the reliability and user experience of the post-payment verification screen.
+*   **Implementation:** Extended the verification timeout to 60 seconds, added dynamic loading messages to keep the user informed, and made the subscription status check more flexible.
 
 ### Fix PDF Font Rendering Issue
 
@@ -67,13 +91,3 @@ The previous implementation used a short timeout (30 seconds) to verify a subscr
 
 *   **Goal:** Improve the navigation menus to be more intuitive and visually appealing across all screen sizes.
 *   **Implementation:** Refined the mobile menu, added icons to all menu items for better visual guidance, and ensured the content remains dynamic for both guest and authenticated users.
-
-### Implement Cookie Policy Modal
-
-*   **Problem:** The application needed to display a cookie policy.
-*   **Solution:** A `CookiePolicy.vue` component was created and displayed in a `v-dialog` modal from the cookie consent banner, avoiding the need for a separate route.
-
-### Fix Cookie Consent Banner
-
-*   **Problem:** The cookie consent banner was not functioning due to errors with the `vue-gtag` library.
-*   **Solution:** Corrected the composable used to `useConsent` and fixed the plugin initialization in `main.js`.

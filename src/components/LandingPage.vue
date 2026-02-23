@@ -3,15 +3,20 @@
     <main>
       <section class="hero">
         <div class="container">
-          <div class="hero-content">
-            <h1 class="hero-title">Stop Chasing Payments.</h1>
-            <h1 class="hero-title">Start Getting Paid in Seconds.</h1>
-            <p class="hero-subtitle">Create, send, and track professional invoices in minutes. Focus on your work, not your paperwork.</p>
-            <v-btn to="/register" color="primary" size="x-large" rounded="pill" class="mt-8">Get Started</v-btn>
-            <div class="mt-4 d-none d-md-block">
-              <v-btn density="comfortable" @click="openDemo">
-                Take a tour
-              </v-btn>
+          <div class="hero-grid">
+            <div class="hero-content">
+              <h1 class="hero-title">Stop Chasing Payments.</h1>
+              <h1 class="hero-title">Start Getting Paid in Seconds.</h1>
+              <p class="hero-subtitle">Create, send, and track professional invoices in minutes. Focus on your work, not your paperwork.</p>
+              <v-btn to="/register" color="primary" size="x-large" rounded="pill" class="mt-8">Get Started</v-btn>
+              <div class="mt-4 d-none d-md-block">
+                <v-btn density="comfortable" @click="openDemo">
+                  Take a tour
+                </v-btn>
+              </div>
+            </div>
+            <div class="hero-image">
+              <img src="/hero_woman.png" alt="A woman smiling while using a laptop, representing a satisfied Swift Invoice user.">
             </div>
           </div>
         </div>
@@ -75,15 +80,16 @@
       <div class="modal-content">
         <img src="/dashboardPreview.png" alt="Dashboard Preview" />
         <v-btn @click="showDashboardPreview = false" icon class="modal-close">
-           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"/></svg>
         </v-btn>
       </div>
     </div>
-
+    
     <!-- Invoice Preview Modal -->
     <div v-if="showInvoicePreview" class="modal-overlay" @click.self="showInvoicePreview = false">
-      <div class="modal-content pdf-modal">
-        <embed src="/Invoice-00000009.pdf" type="application/pdf" width="100%" height="100%">
+      <div class="modal-content">
+        <!--<embed src="/Invoice-00000009.pdf" type="application/pdf" width="100%" height="100%"> -->
+        <img src="/Invoice-00000009.png" alt="Invoice Preview" />
         <v-btn @click="showInvoicePreview = false" icon class="modal-close">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"/></svg>
         </v-btn>
@@ -125,7 +131,7 @@ main section[id] {
 
 .landing-page {
   font-family: 'Poppins', sans-serif;
-  background-color: #f8f9fa;
+  background-color: #FFFFFF;
   color: #333;
 }
 
@@ -137,29 +143,23 @@ main section[id] {
 
 /* Hero Section */
 .hero {
-  padding: 4rem 0;
-  background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/hero_background.png') no-repeat center center;
-  background-size: cover;
-  color: #fff;
-  text-align: center;
-  position: relative;
+  padding: 6rem 0;
+  background-color: #FFFFFF;
 }
 
-.hero .container {
-  display: flex;
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
-  justify-content: center;
-  position: relative;
-  z-index: 2;
+  gap: 4rem;
 }
 
 .hero-content {
-  max-width: 800px;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  text-align: left;
 }
 
 .hero-title {
-  font-size: 4rem;
+  font-size: 3.5rem;
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: 1.5rem;
@@ -168,17 +168,19 @@ main section[id] {
 .hero-subtitle {
   font-size: 1.25rem;
   margin-bottom: 2.5rem;
+  color: #555;
 }
 
-.hero-caption {
-    font-size: 1rem;
-    margin-top: 1.5rem;
-    opacity: 0.9;
+.hero-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 16px;
 }
 
 /* Features Section */
 .features {
   padding: 6rem 0;
+  background-color: #f8f9fa;
 }
 
 .section-title {
@@ -321,10 +323,23 @@ main section[id] {
 
 
 /* Responsive Styles */
-@media (max-width: 1024px) {
-    .features-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
+@media (max-width: 960px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  
+  .hero-content {
+    text-align: center;
+  }
+
+  .hero-image {
+    margin-bottom: 2rem;
+  }
+
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
@@ -333,11 +348,11 @@ main section[id] {
   }
 
   .hero {
-    padding: 4rem 1rem;
+    padding: 2rem 1rem;
   }
 
   .hero-title {
-    font-size: 3rem;
+    font-size: 2.5rem;
   }
 
   .hero-subtitle {
@@ -347,9 +362,9 @@ main section[id] {
   .features {
     padding: 4rem 0;
   }
-
+  
   .features-grid {
-    grid-template-columns: 1fr;
+      grid-template-columns: 1fr;
   }
 
   .section-title {
@@ -359,11 +374,6 @@ main section[id] {
   .section-subtitle {
       font-size: 1rem;
       margin-bottom: 2rem;
-  }
-
-  .pdf-modal {
-    width: 95vw;
-    height: 85vh;
   }
 }
 </style>
