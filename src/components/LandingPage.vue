@@ -5,6 +5,7 @@
         <div class="container">
           <div class="hero-grid">
             <div class="hero-content">
+              <span class="font-weight-bold d-sm-none hero-title text-blue-darken-4">Swift Invoice</span>
               <h1 class="hero-title">Stop Chasing Payments.</h1>
               <h1 class="hero-title">Start Getting Paid in Seconds.</h1>
               <p class="hero-subtitle">Create, send, and track professional invoices in minutes. Focus on your work, not your paperwork.</p>

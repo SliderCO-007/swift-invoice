@@ -45,12 +45,8 @@ Swift Invoice is a modern, web-based invoicing application designed for freelanc
 
 ## Current Task: Create Invoices from Templates
 
-*   **Goal:** Allow users to save invoices as templates and create new invoices from those templates.
-*   **Implementation:**
-    1.  **Create "Templates" Page:** A new page at `/templates` will be created to display a list of saved invoice templates.
-    2.  **Update Navigation:** A "Templates" link will be added to the main navigation for authenticated users.
-    3.  **"Save as Template" Functionality:** A "Save as Template" button will be added to the `InvoiceView` page to save the current invoice structure as a new template in the `invoiceTemplates` Firestore collection.
-    4.  **Create Invoice from Template:** A button on the "Templates" page will allow users to create a new invoice pre-filled with the data from a selected template.
+*   **Goal:** Create dark theme with icon toggle using Vuetify.
+
 
 ## Previous Tasks
 
