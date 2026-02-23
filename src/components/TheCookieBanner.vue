@@ -52,42 +52,39 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-// Correct composable provided by the user
-import { useConsent } from 'vue-gtag'
-import CookiePolicy from './CookiePolicy.vue' // Import the policy component
+import { ref, onMounted } from 'vue';
+import { useConsent } from 'vue-gtag';
+import CookiePolicy from './CookiePolicy.vue';
 
-const dialog = ref(false) // Reactive state for the dialog
-
-const showBanner = ref(false)
-const CONSENT_COOKIE_KEY = 'cookie_consent_given'
-
-const { acceptAll, rejectAll } = useConsent()
+const dialog = ref(false);
+const showBanner = ref(false);
+// Correctly destructure the functions from useConsent
+const { acceptAll, rejectAll } = useConsent();
+const CONSENT_STORAGE_KEY = 'cookie_consent_given';
 
 onMounted(() => {
-  // Only show the banner if no choice has been made before.
-  if (!localStorage.getItem(CONSENT_COOKIE_KEY)) {
-    showBanner.value = true
+  // Show the banner only if the user has never made a choice.
+  // The vue-gtag plugin will automatically handle applying the stored consent state.
+  if (!localStorage.getItem(CONSENT_STORAGE_KEY)) {
+    showBanner.value = true;
   }
-})
+});
 
 const handleAccept = () => {
-  // Use the library's built-in function to grant consent.
-  acceptAll()
-
-  console.log('Google Analytics consent granted.')
-  localStorage.setItem(CONSENT_COOKIE_KEY, 'true')
-  showBanner.value = false
-}
+  // Use the correct function to grant consent.
+  acceptAll();
+  console.log('Google Analytics consent granted.');
+  localStorage.setItem(CONSENT_STORAGE_KEY, 'true')
+  showBanner.value = false;
+};
 
 const handleDecline = () => {
-  // Use the library's built-in function to deny consent.
-  rejectAll()
-
-  console.log('Google Analytics consent denied.')
-  localStorage.setItem(CONSENT_COOKIE_KEY, 'false')
-  showBanner.value = false
-}
+  // Use the correct function to deny consent.
+  rejectAll();
+  console.log('Google Analytics consent denied.');
+  localStorage.setItem(CONSENT_STORAGE_KEY, 'false')
+  showBanner.value = false;
+};
 </script>
 
 <style scoped>

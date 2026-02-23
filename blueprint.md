@@ -50,6 +50,14 @@ Swift Invoice is a modern, web-based invoicing application designed for freelanc
 
 ## Previous Tasks
 
+### Implement Google Analytics with Consent Mode
+
+*   **Goal:** Integrate Google Analytics using `vue-gtag` while correctly implementing Google Consent Mode v2.
+*   **Implementation:**
+    1.  **Configured `vue-gtag`:** The plugin was configured in `main.js` to set the default consent for all tracking types to 'denied'. It was also configured to use `localStorage` to persist the user's consent choice, using the key 'cookie_consent_given'.
+    2.  **Created Cookie Banner:** A `TheCookieBanner.vue` component was created to inform the user about cookie usage and provide "Accept" and "Decline" options.
+    3.  **Managed Consent State:** The banner is shown only if no consent choice is stored in `localStorage`. When the user clicks "Accept" or "Decline", the `acceptAll()` or `rejectAll()` functions from the `useConsent` composable are called, and the user's choice is automatically saved to `localStorage` by the plugin.
+
 ### Revert Feature Grid Layout
 
 *   **Goal:** Restore the four-column layout for the feature cards on the landing page.
