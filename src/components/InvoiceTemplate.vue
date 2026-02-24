@@ -162,6 +162,8 @@ const formatCurrency = (value) => {
   line-height: 1.6;
   position: relative;
   overflow: hidden;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .company-logo {

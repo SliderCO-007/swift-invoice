@@ -1,137 +1,170 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { currentUser, userProfile } from '../composables/useAuth.js';
-import useInvoices from '../composables/useInvoices';
-import useUserSettings from '../composables/useUserSettings';
-import InvoiceTemplate from './InvoiceTemplate.vue';
+import { ref, onMounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import jsPDF from 'jspdf'
+import html2canvas from 'html2canvas'
+import { getFunctions, httpsCallable } from 'firebase/functions'
+import { currentUser, userProfile } from '../composables/useAuth.js'
+import useInvoices from '../composables/useInvoices'
+import useUserSettings from '../composables/useUserSettings'
+import InvoiceTemplate from './InvoiceTemplate.vue'
+import InvoiceTemplate2 from './InvoiceTemplate2.vue'
+import InvoiceTemplate3 from './InvoiceTemplate3.vue'
 
-const route = useRoute();
-const router = useRouter();
-const { getInvoice, updateInvoiceStatus, loading, error } = useInvoices();
-const { settings, fetchUserSettings } = useUserSettings();
+const route = useRoute()
+const router = useRouter()
+const { getInvoice, updateInvoiceStatus, updateInvoice, loading, error } = useInvoices()
+const { settings, fetchUserSettings } = useUserSettings()
 
-const invoice = ref(null);
-const invoicePaper = ref(null);
-const isSendingEmail = ref(false);
-const snackbar = ref(false);
-const snackbarText = ref('');
-const confirmDialog = ref(false);
+const invoice = ref(null)
+const invoicePaper = ref(null)
+const isSendingEmail = ref(false)
+const snackbar = ref(false)
+const snackbarText = ref('')
+const confirmDialog = ref(false)
 
-const functions = getFunctions();
+const functions = getFunctions()
 
 onMounted(async () => {
-  const invoiceId = route.params.id;
+  const invoiceId = route.params.id
   try {
-    invoice.value = await getInvoice(invoiceId);
-    await fetchUserSettings();
+    invoice.value = await getInvoice(invoiceId)
+    await fetchUserSettings()
   } catch (err) {
-    error.value = `Failed to load invoice: ${err.message}`;
-    console.error(err);
+    error.value = `Failed to load invoice: ${err.message}`
+    console.error(err)
   }
-});
+})
 
 const isOwner = computed(() => {
-  if (!invoice.value || !currentUser.value) return false;
-  return invoice.value.userId === currentUser.value.uid;
-});
+  if (!invoice.value || !currentUser.value) return false
+  return invoice.value.userId === currentUser.value.uid
+})
 
-const isFreePlan = computed(() => userProfile.value?.subscriptionStatus === 'free');
+const isFreePlan = computed(() => userProfile.value?.subscriptionStatus === 'free')
 
-const goBack = () => router.push('/dashboard');
-const goToPricing = () => router.push('/pricing');
+const goBack = () => router.push('/dashboard')
+const goToPricing = () => router.push('/pricing')
 
 const markAsPaid = async () => {
-  if (!invoice.value) return;
+  if (!invoice.value) return
   try {
-    await updateInvoiceStatus(invoice.value.id, 'Paid');
-    invoice.value.status = 'Paid'; // Immediately update local state
-    snackbarText.value = 'Invoice marked as Paid';
-    snackbar.value = true;
+    await updateInvoiceStatus(invoice.value.id, 'Paid')
+    invoice.value.status = 'Paid' // Immediately update local state
+    snackbarText.value = 'Invoice marked as Paid'
+    snackbar.value = true
   } catch (err) {
-    snackbarText.value = 'Error updating invoice status.';
-    snackbar.value = true;
+    snackbarText.value = 'Error updating invoice status.'
+    snackbar.value = true
   }
-  confirmDialog.value = false;
-};
+  confirmDialog.value = false
+}
+
+const updateStyle = async () => {
+  if (!invoice.value) return
+  try {
+    await updateInvoice(invoice.value.id, { style: invoice.value.style })
+    snackbarText.value = `Style changed to ${invoice.value.style}`
+    snackbar.value = true
+  } catch (err) {
+    snackbarText.value = 'Error updating invoice style.'
+    snackbar.value = true
+  }
+}
 
 // Reusable PDF generation function
 const generatePDF = async (outputType = 'save') => {
-  const templateEl = invoicePaper.value?.$el;
-  if (!templateEl) return null;
+  const templateEl = invoicePaper.value?.$el
+  if (!templateEl) return null
+
+  // Preload images to ensure they're available for html2canvas
+  const images = templateEl.querySelectorAll('img')
+  const imageLoadPromises = Array.from(images).map((img) => {
+    return new Promise((resolve) => {
+      if (img.complete) {
+        resolve()
+      } else {
+        img.onload = () => resolve()
+        img.onerror = () => resolve() // Resolve even if image fails to load
+      }
+    })
+  })
+
+  // Wait for all images to load
+  await Promise.all(imageLoadPromises)
+
+  // Add a small delay to ensure images are fully rendered
+  await new Promise((resolve) => setTimeout(resolve, 500))
 
   // Clone the element to avoid side effects
-  const clone = templateEl.cloneNode(true);
-  const pdfContainer = document.createElement('div');
-  pdfContainer.style.position = 'fixed';
-  pdfContainer.style.left = '-9999px';
-  pdfContainer.style.top = '0';
-  pdfContainer.style.width = '816px'; 
-  pdfContainer.style.backgroundColor = 'white';
-  pdfContainer.appendChild(clone);
-  document.body.appendChild(pdfContainer);
+  const clone = templateEl.cloneNode(true)
+  const pdfContainer = document.createElement('div')
+  pdfContainer.style.position = 'fixed'
+  pdfContainer.style.left = '-9999px'
+  pdfContainer.style.top = '0'
+  pdfContainer.style.width = '816px'
+  pdfContainer.style.backgroundColor = 'white'
+  pdfContainer.appendChild(clone)
+  document.body.appendChild(pdfContainer)
 
-  let pdfOutput = null;
+  let pdfOutput = null
 
   try {
     // Wait for web fonts to load before rendering the canvas
-    await document.fonts.ready;
-    
-    const canvas = await html2canvas(clone, { scale: 4, useCORS: true });
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const canvasAspectRatio = canvas.height / canvas.width;
-    let imgWidth = pdfWidth - 40; // Margin
-    let imgHeight = imgWidth * canvasAspectRatio;
+    await document.fonts.ready
+
+    const canvas = await html2canvas(clone, { scale: 4, useCORS: true })
+    const imgData = canvas.toDataURL('image/png')
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' })
+    const pdfWidth = pdf.internal.pageSize.getWidth()
+    const pdfHeight = pdf.internal.pageSize.getHeight()
+    const canvasAspectRatio = canvas.height / canvas.width
+    let imgWidth = pdfWidth - 40 // Margin
+    let imgHeight = imgWidth * canvasAspectRatio
 
     if (imgHeight > pdfHeight - 40) {
-        imgHeight = pdfHeight - 40;
-        imgWidth = imgHeight / canvasAspectRatio;
+      imgHeight = pdfHeight - 40
+      imgWidth = imgHeight / canvasAspectRatio
     }
 
-    const x = (pdfWidth - imgWidth) / 2;
-    const y = 20;
+    const x = (pdfWidth - imgWidth) / 2
+    const y = 20
 
-    pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight, undefined, 'FAST');
+    pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight, undefined, 'FAST')
 
     if (outputType === 'save') {
-      pdf.save(`Invoice-${invoice.value?.invoiceNumber || invoice.value?.id}.pdf`);
+      pdf.save(`Invoice-${invoice.value?.invoiceNumber || invoice.value?.id}.pdf`)
     } else if (outputType === 'datauristring') {
-      pdfOutput = pdf.output('datauristring');
+      pdfOutput = pdf.output('datauristring')
     }
   } finally {
-    document.body.removeChild(pdfContainer);
+    document.body.removeChild(pdfContainer)
   }
 
-  return pdfOutput;
-};
+  return pdfOutput
+}
 
 const downloadPDF = () => {
-  generatePDF('save');
-};
+  generatePDF('save')
+}
 
 const sendInvoiceEmail = async () => {
-  if (!invoice.value || isSendingEmail.value || isFreePlan.value) return;
+  if (!invoice.value || isSendingEmail.value || isFreePlan.value) return
 
-  isSendingEmail.value = true;
-  snackbarText.value = 'Generating PDF and sending email...';
-  snackbar.value = true;
+  isSendingEmail.value = true
+  snackbarText.value = 'Generating PDF and sending email...'
+  snackbar.value = true
 
   try {
-    const pdfDataUri = await generatePDF('datauristring');
+    const pdfDataUri = await generatePDF('datauristring')
     if (!pdfDataUri) {
-      throw new Error("Failed to generate PDF for email.");
+      throw new Error('Failed to generate PDF for email.')
     }
 
-    const pdfBase64 = pdfDataUri.substring(pdfDataUri.indexOf(',') + 1);
-    
-    const companyName = settings.value?.company?.name || 'Your Company';
-    const clientName = invoice.value.client?.name || 'Valued Client';
+    const pdfBase64 = pdfDataUri.substring(pdfDataUri.indexOf(',') + 1)
+
+    const companyName = settings.value?.company?.name || 'Your Company'
+    const clientName = invoice.value.client?.name || 'Valued Client'
 
     const emailBody = `
       <p><b>Invoice from ${companyName}</b></p>
@@ -140,44 +173,46 @@ const sendInvoiceEmail = async () => {
       <p>Please review the attached PDF for payment details, including available payment options.</p>
       <br>
       <p><i>This is an automated email. Please do not reply.</i></p>
-    `;
+    `
 
-    const sendEmailFunction = httpsCallable(functions, 'sendInvoiceEmail');
+    const sendEmailFunction = httpsCallable(functions, 'sendInvoiceEmail')
     const result = await sendEmailFunction({
       invoiceId: invoice.value.id,
       recipientEmail: invoice.value.client?.email,
       subject: `Invoice #${invoice.value.invoiceNumber} from ${companyName}`,
-      message: emailBody, 
+      message: emailBody,
       pdfBase64: pdfBase64,
-    });
+    })
 
-    snackbarText.value = result.data.message;
+    snackbarText.value = result.data.message
   } catch (error) {
-    console.error('Error sending email:', error);
-    snackbarText.value = `Error: ${error.message}`;
+    console.error('Error sending email:', error)
+    snackbarText.value = `Error: ${error.message}`
   } finally {
-    isSendingEmail.value = false;
-    snackbar.value = true;
+    isSendingEmail.value = false
+    snackbar.value = true
   }
-};
+}
 
 const safeInvoice = computed(() => {
-  if (!invoice.value) return null;
+  if (!invoice.value) return null
 
-  const subtotal = (invoice.value.items || []).reduce((acc, item) => acc + (item.quantity || 0) * (item.price || 0), 0);
-  const taxRate = Number(invoice.value.taxRate) || 0;
-  const taxAmount = subtotal * (taxRate / 100);
-  const total = subtotal + taxAmount;
+  const subtotal = (invoice.value.items || []).reduce(
+    (acc, item) => acc + (item.quantity || 0) * (item.price || 0),
+    0
+  )
+  const taxRate = Number(invoice.value.taxRate) || 0
+  const taxAmount = subtotal * (taxRate / 100)
+  const total = subtotal + taxAmount
 
   return {
     ...invoice.value,
     subtotal,
     taxAmount,
-    total
-  };
-});
+    total,
+  }
+})
 </script>
-
 
 <template>
   <div class="invoice-view-container">
@@ -191,52 +226,91 @@ const safeInvoice = computed(() => {
     <div v-else-if="safeInvoice">
       <header class="invoice-view-header">
         <div class="header-left">
-          <v-btn v-if="isOwner" @click="goBack" text class="back-btn" prepend-icon="mdi-arrow-left">
+          <v-btn
+            v-if="isOwner"
+            @click="goBack"
+            text
+            class="back-btn"
+            prepend-icon="mdi-arrow-left"
+          >
             Dashboard
           </v-btn>
           <h1 class="invoice-title">Invoice #{{ safeInvoice.invoiceNumber }}</h1>
         </div>
+
+        <!-- Style Selector -->
+        <div v-if="isOwner" class="style-selector-container">
+          <label class="style-option">
+            <input
+              type="radio"
+              value="classic"
+              v-model="invoice.style"
+              @change="updateStyle"
+            />
+            <span>Classic</span>
+          </label>
+          <label class="style-option">
+            <input
+              type="radio"
+              value="modern"
+              v-model="invoice.style"
+              @change="updateStyle"
+            />
+            <span>Modern</span>
+          </label>
+          <label class="style-option">
+            <input
+              type="radio"
+              value="corporate"
+              v-model="invoice.style"
+              @change="updateStyle"
+            />
+            <span>Corporate</span>
+          </label>
+        </div>
+
         <!-- Actions for Invoice Owner -->
         <div v-if="isOwner" class="actions">
-            <v-btn
-                v-if="isFreePlan"
-                @click="goToPricing"
-                color="secondary"
-                large
-                class="mr-4"
-                prepend-icon="mdi-arrow-up-bold-circle"
-            >
-                Upgrade to Send Emails
-            </v-btn>
-             <v-btn
-              v-if="safeInvoice.status !== 'Paid'"
-              @click="confirmDialog = true"
-              color="green"
-              large
-              class="mr-4"
-              prepend-icon="mdi-check-circle"
-            >
-              Mark as Paid
-            </v-btn>
-            <v-btn 
-                @click="downloadPDF" 
-                outlined color="primary"
-                large
-                class="mr-4"
-                prepend-icon="mdi-download"
-            >
-                Download PDF
-            </v-btn>
-            <v-btn
-                @click="sendInvoiceEmail"
-                :loading="isSendingEmail"
-                :disabled="isFreePlan"
-                color="primary"
-                large
-                prepend-icon="mdi-email"
-            >
-                Send Email
-            </v-btn>
+          <v-btn
+            v-if="isFreePlan"
+            @click="goToPricing"
+            color="secondary"
+            large
+            class="mr-4"
+            prepend-icon="mdi-arrow-up-bold-circle"
+          >
+            Upgrade to Send Emails
+          </v-btn>
+          <v-btn
+            v-if="safeInvoice.status !== 'Paid'"
+            @click="confirmDialog = true"
+            color="green"
+            large
+            class="mr-4"
+            prepend-icon="mdi-check-circle"
+          >
+            Mark as Paid
+          </v-btn>
+          <v-btn
+            @click="downloadPDF"
+            outlined
+            color="primary"
+            large
+            class="mr-4"
+            prepend-icon="mdi-download"
+          >
+            Download PDF
+          </v-btn>
+          <v-btn
+            @click="sendInvoiceEmail"
+            :loading="isSendingEmail"
+            :disabled="isFreePlan"
+            color="primary"
+            large
+            prepend-icon="mdi-email"
+          >
+            Send Email
+          </v-btn>
         </div>
       </header>
 
@@ -244,10 +318,26 @@ const safeInvoice = computed(() => {
         <h2>PAID</h2>
       </div>
 
-      <InvoiceTemplate ref="invoicePaper" :invoice="safeInvoice" :settings="settings" />
-
+      <InvoiceTemplate
+        v-if="safeInvoice.style === 'classic' || !safeInvoice.style"
+        ref="invoicePaper"
+        :invoice="safeInvoice"
+        :settings="settings"
+      />
+      <InvoiceTemplate2
+        v-else-if="safeInvoice.style === 'modern'"
+        ref="invoicePaper"
+        :invoice="safeInvoice"
+        :settings="settings"
+      />
+      <InvoiceTemplate3
+        v-else-if="safeInvoice.style === 'corporate'"
+        ref="invoicePaper"
+        :invoice="safeInvoice"
+        :settings="settings"
+      />
     </div>
-     <div v-else class="error-container">
+    <div v-else class="error-container">
       <v-alert type="warning" dense outlined>
         Invoice not found. It might have been deleted or there was an issue retrieving it.
       </v-alert>
@@ -257,7 +347,7 @@ const safeInvoice = computed(() => {
       {{ snackbarText }}
     </v-snackbar>
 
-     <v-dialog v-model="confirmDialog" max-width="500px">
+    <v-dialog v-model="confirmDialog" max-width="500px">
       <v-card>
         <v-card-title class="text-h5">Confirm</v-card-title>
         <v-card-text>Are you sure you want to mark this invoice as paid?</v-card-text>
@@ -268,14 +358,13 @@ const safeInvoice = computed(() => {
         </v-card-actions>
       </v-card>
     </v-dialog>
-
   </div>
 </template>
 
 <style scoped>
 .invoice-view-container {
   padding: 2rem;
-  background-color: var(--background-color, #F4F7F9);
+  background-color: var(--background-color, #f4f7f9);
   min-height: 100vh;
   position: relative;
 }
@@ -314,7 +403,8 @@ const safeInvoice = computed(() => {
   flex-grow: 1;
 }
 
-.loading-container, .error-container {
+.loading-container,
+.error-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -338,6 +428,26 @@ const safeInvoice = computed(() => {
   font-weight: 900;
 }
 
+.style-selector-container {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.style-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.style-option input[type='radio'] {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary-color, #4f46e5);
+}
 
 /* Responsive Styles */
 @media (max-width: 960px) {

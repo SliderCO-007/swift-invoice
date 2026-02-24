@@ -7,6 +7,8 @@ import { useCustomers } from '../composables/useCustomers';
 import { useItems } from '../composables/useItems';
 import { currentUser as user } from '../composables/useAuth.js';
 import InvoiceTemplate from './InvoiceTemplate.vue';
+import InvoiceTemplate2 from './InvoiceTemplate2.vue';
+import InvoiceTemplate3 from './InvoiceTemplate3.vue';
 import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 
@@ -29,6 +31,7 @@ const invoice = ref({
   notes: 'Thank you for your business!',
   taxRate: 0,
   includeVenmoQr: false,
+  style: 'classic',
 });
 
 const selectedCustomer = ref(null);
@@ -328,6 +331,24 @@ onUnmounted(() => {
         </div>
 
         <div class="form-section">
+          <h3>Invoice Style</h3>
+          <div class="style-selector">
+            <label>
+              <input type="radio" value="classic" v-model="invoice.style">
+              <span class="style-label">Classic</span>
+            </label>
+            <label>
+              <input type="radio" value="modern" v-model="invoice.style">
+              <span class="style-label">Modern</span>
+            </label>
+            <label>
+              <input type="radio" value="corporate" v-model="invoice.style">
+              <span class="style-label">Corporate</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-section">
           <h3>Payment Options</h3>
           <div class="payment-options-grid">
             <div class="switch-container">
@@ -371,7 +392,9 @@ onUnmounted(() => {
           <h2>Invoice Preview</h2>
           <button @click="showPreview = false" class="close-modal-btn">&times;</button>
         </header>
-        <InvoiceTemplate :invoice="{...invoice, subtotal, taxAmount, total}" :settings="settings" />
+        <InvoiceTemplate v-if="invoice.style === 'classic'" :invoice="{...invoice, subtotal, taxAmount, total}" :settings="settings" />
+        <InvoiceTemplate2 v-else-if="invoice.style === 'modern'" :invoice="{...invoice, subtotal, taxAmount, total}" :settings="settings" />
+        <InvoiceTemplate3 v-else-if="invoice.style === 'corporate'" :invoice="{...invoice, subtotal, taxAmount, total}" :settings="settings" />
       </div>
     </div>
   </div>
@@ -646,5 +669,30 @@ input:checked + .slider:before {
 @media (max-width: 1023px) {
   .from-fields { display: none; }
   .responsive-grid { grid-template-columns: 1fr; }
+}
+
+.style-selector {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.style-selector label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.style-selector input[type="radio"] {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary-color, #4F46E5);
+}
+
+.style-label {
+  user-select: none;
 }
 </style>
