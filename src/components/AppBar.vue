@@ -29,6 +29,7 @@ const authNav = [
   { title: 'Customers', to: '/customers', icon: 'mdi-account-group-outline' },
   { title: 'Items', to: '/items', icon: 'mdi-package-variant-closed' },
   { title: 'Settings', to: '/settings', icon: 'mdi-cog-outline' },
+  { title: 'Upgrade', to: '/pricing', icon: 'mdi-arrow-up-bold-circle' },
 ]
 </script>
 
