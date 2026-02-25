@@ -72,77 +72,131 @@ const updateStyle = async () => {
   }
 }
 
-// Reusable PDF generation function
 const generatePDF = async (outputType = 'save') => {
-  const templateEl = invoicePaper.value?.$el
-  if (!templateEl) return null
-
-  // Preload images to ensure they're available for html2canvas
-  const images = templateEl.querySelectorAll('img')
-  const imageLoadPromises = Array.from(images).map((img) => {
-    return new Promise((resolve) => {
-      if (img.complete) {
-        resolve()
-      } else {
-        img.onload = () => resolve()
-        img.onerror = () => resolve() // Resolve even if image fails to load
-      }
-    })
-  })
-
-  // Wait for all images to load
-  await Promise.all(imageLoadPromises)
-
-  // Add a small delay to ensure images are fully rendered
-  await new Promise((resolve) => setTimeout(resolve, 500))
-
-  // Clone the element to avoid side effects
-  const clone = templateEl.cloneNode(true)
-  const pdfContainer = document.createElement('div')
-  pdfContainer.style.position = 'fixed'
-  pdfContainer.style.left = '-9999px'
-  pdfContainer.style.top = '0'
-  pdfContainer.style.width = '816px'
-  pdfContainer.style.backgroundColor = 'white'
-  pdfContainer.appendChild(clone)
-  document.body.appendChild(pdfContainer)
-
-  let pdfOutput = null
-
-  try {
-    // Wait for web fonts to load before rendering the canvas
-    await document.fonts.ready
-
-    const canvas = await html2canvas(clone, { scale: 4, useCORS: true })
-    const imgData = canvas.toDataURL('image/png')
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' })
-    const pdfWidth = pdf.internal.pageSize.getWidth()
-    const pdfHeight = pdf.internal.pageSize.getHeight()
-    const canvasAspectRatio = canvas.height / canvas.width
-    let imgWidth = pdfWidth - 40 // Margin
-    let imgHeight = imgWidth * canvasAspectRatio
-
-    if (imgHeight > pdfHeight - 40) {
-      imgHeight = pdfHeight - 40
-      imgWidth = imgHeight / canvasAspectRatio
-    }
-
-    const x = (pdfWidth - imgWidth) / 2
-    const y = 20
-
-    pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight, undefined, 'FAST')
-
-    if (outputType === 'save') {
-      pdf.save(`Invoice-${invoice.value?.invoiceNumber || invoice.value?.id}.pdf`)
-    } else if (outputType === 'datauristring') {
-      pdfOutput = pdf.output('datauristring')
-    }
-  } finally {
-    document.body.removeChild(pdfContainer)
+  const invoiceComponent = invoicePaper.value;
+  if (!invoiceComponent || !invoiceComponent.$el) {
+    console.error("Invoice template element not found.");
+    snackbarText.value = "Error: Could not find invoice content to generate PDF.";
+    snackbar.value = true;
+    return null;
   }
 
-  return pdfOutput
-}
+  const originalEl = invoiceComponent.$el;
+  let pdfOutput = null;
+
+  // 1. Create a hidden iframe
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'absolute';
+  iframe.style.left = '-9999px';
+  iframe.style.top = '0';
+  iframe.style.width = '1024px'; // Force a desktop-like viewport width
+  iframe.style.height = '768px'; // A reasonable height
+
+  document.body.appendChild(iframe);
+
+  try {
+    const iframeDoc = iframe.contentWindow.document;
+
+    // 2. Clone stylesheets into the iframe
+    const stylesheets = Array.from(document.styleSheets);
+    stylesheets.forEach(sheet => {
+      try {
+        if (sheet.href) {
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = sheet.href;
+          iframeDoc.head.appendChild(link);
+        } else if (sheet.cssRules) {
+          const style = document.createElement('style');
+          style.textContent = Array.from(sheet.cssRules).map(rule => rule.cssText).join('\n');
+          iframeDoc.head.appendChild(style);
+        }
+      } catch (e) {
+        console.warn('Could not load stylesheet into iframe:', e);
+      }
+    });
+
+    // 3. Clone the invoice element into the iframe
+    const clone = originalEl.cloneNode(true);
+    iframeDoc.body.style.margin = '0'; // Reset body margin
+    iframeDoc.body.style.backgroundColor = 'white';
+    iframeDoc.body.appendChild(clone);
+
+    // 4. Wait for everything to render correctly
+    await new Promise(resolve => {
+        const linkElements = iframeDoc.head.querySelectorAll('link');
+        if (linkElements.length === 0) {
+            resolve();
+            return;
+        }
+        let loadedCount = 0;
+        const totalLinks = linkElements.length;
+        linkElements.forEach(link => {
+            link.onload = () => {
+                loadedCount++;
+                if (loadedCount === totalLinks) {
+                    resolve();
+                }
+            };
+            link.onerror = () => {
+                loadedCount++;
+                console.warn('Stylesheet failed to load in iframe:', link.href);
+                if (loadedCount === totalLinks) {
+                    resolve();
+                }
+            };
+        });
+    });
+
+    await document.fonts.ready;
+    await new Promise(resolve => setTimeout(resolve, 500)); // Extra delay for rendering
+
+
+    // 5. Generate the canvas from the iframe's content
+    const canvas = await html2canvas(iframeDoc.body, {
+      scale: 3,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      width: iframeDoc.body.scrollWidth,
+      height: iframeDoc.body.scrollHeight,
+      windowWidth: iframeDoc.documentElement.scrollWidth,
+      windowHeight: iframeDoc.documentElement.scrollHeight,
+    });
+
+    // 6. Create and format the PDF
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'pt',
+      format: 'letter'
+    });
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = pdfWidth - 40; // 20pt margin
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight, undefined, 'FAST');
+
+    // 7. Handle output
+    if (outputType === 'save') {
+      pdf.save(`Invoice-${invoice.value?.invoiceNumber || invoice.value?.id}.pdf`);
+    } else if (outputType === 'datauristring') {
+      pdfOutput = pdf.output('datauristring');
+    }
+
+  } catch (err) {
+    console.error("Error during PDF generation with iframe:", err);
+    snackbarText.value = "An error occurred while generating the PDF.";
+    snackbar.value = true;
+  } finally {
+    // 8. Cleanup
+    document.body.removeChild(iframe);
+  }
+
+  return pdfOutput;
+};
+
 
 const downloadPDF = () => {
   generatePDF('save')

@@ -14,6 +14,7 @@ Swift Invoice is a modern, web-based invoicing application designed for freelanc
 *   **Status Tracking:** Invoices can be marked as "Paid," and the status is visually reflected in the UI.
 *   **Real-Time Updates:** Dashboard statistics update instantly when an invoice is deleted.
 *   **WYSIWYG PDF Generation:** Users can download or email a pixel-perfect PDF of any invoice that exactly matches the in-browser preview. The PDF generation logic is carefully designed to wait for web fonts to load, ensuring a perfect render every time.
+*   **Consistent PDF Layout:** PDF generation for downloads and emails is sandboxed to ensure a consistent, professional, letter-sized (8.5" x 11") document with the desktop layout, regardless of the device used to initiate the action.
 *   **Email Invoices:** Users can send PDF invoices directly to clients. The sender is set to `no-reply@swiftinvoice.biz`.
 *   **QR Code Payments:** The invoice editor allows users to toggle the inclusion of a QR code for payments.
 
@@ -42,13 +43,21 @@ Swift Invoice is a modern, web-based invoicing application designed for freelanc
 *   **Modern Design:** The application features a clean, modern design with a focus on user experience.
 *   **Responsive Navigation:** A fully responsive app bar that provides a consistent and intuitive user experience across all devices.
 *   **Dynamic Hero Section:** A modern, responsive two-column hero section on the landing page that highlights the key value proposition alongside a professional, animated image composition.
-
-## Current Task: Create Invoices from Templates
-
-*   **Goal:** Create dark theme with icon toggle using Vuetify.
-
+*   **Responsive Invoice Templates:** The invoice templates (`InvoiceTemplate2.vue` and `InvoiceTemplate3.vue`) are designed to be fully responsive. On mobile devices, the items table transforms into a card-based layout for improved readability.
 
 ## Previous Tasks
+
+### Ensure Consistent, Letter-Sized PDF Output
+
+*   **Goal:** Generate a standard 8.5" x 11" letter-sized PDF of the invoice that always uses the desktop layout, even when initiated from a mobile device.
+*   **Challenge:** When generating a PDF from a mobile view, the browser's media queries would apply mobile styles, resulting in an unprofessional-looking PDF.
+*   **Solution (The `iframe` Sandbox):** A robust, isolated rendering environment was created using a hidden `<iframe>`. When a PDF is requested, the invoice component is cloned into this `iframe`, which is set to a fixed desktop width (e.g., 1024px). All necessary CSS is copied into the `iframe` as well. This forces the invoice to render using its desktop styles. `html2canvas` then captures the content from the `iframe`, which is then used to generate a perfectly formatted, letter-sized PDF via `jsPDF`. The `iframe` is removed from the DOM immediately afterward.
+
+### Make Invoice Templates Responsive
+
+*   **Goal:** Make the items table in `InvoiceTemplate2.vue` and `InvoiceTemplate3.vue` responsive.
+*   **Problem:** The items table did not display well on mobile devices.
+*   **Solution:** Applied a responsive table pattern where each row transforms into a card on smaller screens. This was achieved by adding media queries and updating the CSS in the respective components to hide the table header and display table cells as stacked blocks. This pattern was already in use in `InvoiceTemplate.vue`.
 
 ### Implement Google Analytics with Consent Mode
 
@@ -90,8 +99,3 @@ Swift Invoice is a modern, web-based invoicing application designed for freelanc
 
 *   **Problem:** Text in generated PDFs was overlapping and unreadable because the rendering would occur before the "Roboto" web font had fully loaded.
 *   **Solution:** Added `await document.fonts.ready;` to the `generatePDF` function in `InvoiceView.vue`. This simple line ensures that `html2canvas` does not attempt to render the invoice until all necessary fonts are available, resulting in a perfect, pixel-accurate PDF.
-
-### Enhance Navigation Menus
-
-*   **Goal:** Improve the navigation menus to be more intuitive and visually appealing across all screen sizes.
-*   **Implementation:** Refined the mobile menu, added icons to all menu items for better visual guidance, and ensured the content remains dynamic for both guest and authenticated users.

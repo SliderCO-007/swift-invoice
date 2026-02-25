@@ -367,6 +367,12 @@ const formatCurrency = (value) => {
   text-align: right;
 }
 
+.items-table th.col-qty,
+.items-table th.col-price,
+.items-table th.col-total {
+  text-align: right;
+}
+
 .items-table tbody tr:last-child td {
   border-bottom: none;
 }
@@ -501,11 +507,67 @@ const formatCurrency = (value) => {
 
   .items-table {
     font-size: 0.85rem;
+    border: none;
   }
 
-  .items-table th,
+  .items-table thead {
+    display: none;
+  }
+
+  .items-table tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1rem;
+    background-color: #fafafa;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
   .items-table td {
-    padding: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+    text-align: right;
+  }
+
+  .items-table td:last-child {
+    border-bottom: none;
+    font-weight: bold;
+  }
+
+  .items-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    text-align: left;
+    margin-right: 1rem;
+    color: #555;
+  }
+
+  .items-table .col-description {
+    justify-content: flex-start;
+    text-align: left;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #1a1a1a;
+    padding-bottom: 0.75rem;
+  }
+
+  .items-table .col-description::before {
+    display: none;
+  }
+
+  .items-table .col-qty::before {
+    content: 'Qty';
+  }
+
+  .items-table .col-price::before {
+    content: 'Unit Price';
+  }
+
+  .items-table .col-total::before {
+    content: 'Total';
   }
 }
 </style>

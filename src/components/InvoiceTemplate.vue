@@ -1,6 +1,5 @@
 <script setup>
 import { computed, onMounted } from 'vue'
-import useUserSettings from '../composables/useUserSettings'
 import { format, isValid } from 'date-fns'
 
 const props = defineProps({
