@@ -25,41 +25,45 @@
 
       <section id="features" class="features">
         <div class="container">
-          <h2 class="section-title">Everything you need, nothing you don't.</h2>
-          <p class="section-subtitle">Swift Invoice is packed with features to help you get paid faster.</p>
-          <div class="features-grid">
-            <div class="feature-card">
-              <div class="feature-icon">
-                <IconPricing />
-              </div>
-              <h3 class="feature-title">Start for Free</h3>
-              <p class="feature-description">Get started with a generous free plan, including 2 invoices and unlimited customers. Scale up when you're ready.</p>
-              <v-btn to="/register" color="secondary" rounded="pill" class="mt-4">Start for Free</v-btn>
+          <h2 class="section-title">A Feature Set That Works For You</h2>
+          <p class="section-subtitle">From freelancers to small businesses, Swift Invoice has the tools you need to succeed.</p>
+          <div class="feature-list-grid">
+            <div class="feature-category">
+              <h3 class="category-title"><v-icon color="blue" class="mr-2">mdi-text-box-check-outline</v-icon>Invoicing</h3>
+              <ul class="feature-list">
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Create & Send Invoices Instantly</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>At-a-Glance Invoice Tracking</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Download Invoices as PDF</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Generous Free Plan (2 Invoices)</li>
+              </ul>
             </div>
-             <div class="feature-card">
-                <div class="feature-icon">
-                  <IconVenmo />
-                </div>
-                <h3 class="feature-title">Instant Venmo Payments</h3>
-                <p class="feature-description">Add your Venmo QR code to invoices so clients can pay you in a snap. Faster payments, happier you.</p>
-                <v-btn href="https://help.venmo.com/cs/articles/how-to-sign-up-for-a-business-profile-vhel163" target="_blank" color="secondary" rounded="pill" class="mt-4">Create Venmo</v-btn>
+            <div class="feature-category">
+              <h3 class="category-title"><v-icon color="blue" class="mr-2">mdi-palette-outline</v-icon>Customization</h3>
+              <ul class="feature-list">
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Professionally Designed Templates</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Add Your Company Logo & Info</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Reusable Item Library</li>
+              </ul>
             </div>
-            <div class="feature-card">
-              <div class="feature-icon">
-                <IconEmail />
-              </div>
-              <h3 class="feature-title">Create & Send Instantly</h3>
-              <p class="feature-description">Generate a professional invoice and email it to your client in seconds. No need to download, attach, or switch apps.</p>
-              <v-btn @click="showInvoicePreview = true" color="secondary" rounded="pill" class="mt-4">Preview Invoice</v-btn>
+            <div class="feature-category">
+              <h3 class="category-title"><v-icon color="blue" class="mr-2">mdi-credit-card-outline</v-icon>Payments</h3>
+              <ul class="feature-list">
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Instant Venmo Payments with QR Code</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Secure Subscription Payments with Stripe</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Clear Payment Status Tracking</li>
+              </ul>
             </div>
-            <div class="feature-card">
-              <div class="feature-icon">
-                <IconAnalytics />
-              </div>
-              <h3 class="feature-title">At-a-Glance Tracking</h3>
-              <p class="feature-description">The dashboard gives you a clear overview of all your invoices. See which invoices are paid, pending, or overdue in a single glance.</p>
-              <v-btn @click="showDashboardPreview = true" color="secondary" rounded="pill" class="mt-4">Preview Dashboard</v-btn>
+            <div class="feature-category">
+              <h3 class="category-title"><v-icon color="blue" class="mr-2">mdi-account-group-outline</v-icon>Clients & Management</h3>
+              <ul class="feature-list">
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Unlimited Customers</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Unlimited Items</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Simple Client Management</li>
+              </ul>
             </div>
+          </div>
+          <div class="text-center mt-12">
+            <v-btn to="/pricing" color="primary" size="x-large" rounded="pill">See All Features & Pricing</v-btn>
           </div>
         </div>
       </section>
@@ -102,10 +106,6 @@
 <script setup>
 import { ref } from 'vue';
 import { useMeta } from '../composables/useMeta';
-import IconPricing from './IconPricing.vue';
-import IconEmail from './IconEmail.vue';
-import IconAnalytics from './IconAnalytics.vue';
-import IconVenmo from './IconVenmo.vue';
 import TrustpilotWidget from './TrustpilotWidget.vue'
 
 const showDashboardPreview = ref(false);
@@ -198,46 +198,38 @@ main section[id] {
   margin-bottom: 4rem;
 }
 
-.features-grid {
+.feature-list-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2.5rem;
 }
 
-.feature-card {
-  background-color: #fff;
-  padding: 2.5rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+.feature-category {
+  text-align: left;
 }
 
-.feature-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-}
-
-.feature-icon {
-    font-size: 3rem;
-    margin-bottom: 1.5rem;
-    color: #007bff;
-    display: flex;
-    justify-content: center;
-}
-
-.feature-title {
-  font-size: 1.5rem;
+.category-title {
+  font-size: 1.4rem;
   font-weight: 600;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--v-primary-base);
+  display: flex;
+  align-items: center;
 }
 
-.feature-description {
+.feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.feature-list li {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
   color: #555;
-  margin-bottom: auto;
+  margin-bottom: 1rem;
 }
 
 /* Footer */
@@ -375,6 +367,9 @@ main section[id] {
   .section-subtitle {
       font-size: 1rem;
       margin-bottom: 2rem;
+  }
+  .category-title {
+    justify-content: center;
   }
 }
 </style>
