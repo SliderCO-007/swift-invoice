@@ -1,5 +1,6 @@
 <template>
   <div class="landing-page">
+    <ScienceImage />
     <main>
       <section class="hero">
         <div class="container">
@@ -106,7 +107,8 @@
 <script setup>
 import { ref } from 'vue';
 import { useMeta } from '../composables/useMeta';
-import TrustpilotWidget from './TrustpilotWidget.vue'
+import TrustpilotWidget from './TrustpilotWidget.vue';
+import ScienceImage from './ScienceImage.vue';
 
 const showDashboardPreview = ref(false);
 const showInvoicePreview = ref(false);
@@ -132,8 +134,9 @@ main section[id] {
 
 .landing-page {
   font-family: 'Poppins', sans-serif;
-  background-color: #FFFFFF;
   color: #333;
+  position: relative;
+  z-index: 1;
 }
 
 .container {
@@ -145,7 +148,7 @@ main section[id] {
 /* Hero Section */
 .hero {
   padding: 6rem 0;
-  background-color: #FFFFFF;
+  background-color: transparent;
 }
 
 .hero-grid {
@@ -153,6 +156,9 @@ main section[id] {
   grid-template-columns: 1fr 1fr;
   align-items: center;
   gap: 4rem;
+  background-color: rgba(255, 255, 255, 0.8);
+    padding: 2rem;
+    border-radius: 16px;
 }
 
 .hero-content {
@@ -337,19 +343,22 @@ main section[id] {
 
 @media (max-width: 768px) {
   .container {
-      padding: 0 1rem;
+      padding: 0 .5rem;
   }
 
   .hero {
-    padding: 2rem 1rem;
+    padding: 1rem 1rem;
   }
 
   .hero-title {
     font-size: 2.5rem;
+    line-height: 1.1;
+    margin-bottom: 1rem;
   }
 
   .hero-subtitle {
     font-size: 1.1rem;
+    margin-bottom: 1.5rem;
   }
 
   .features {
