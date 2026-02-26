@@ -92,6 +92,7 @@ const getStatusColor = (status) => {
       :items="invoices"
       item-key="id"
       class="elevation-1 invoice-data-table"
+      :sort-by="[{ key: 'invoiceNumber', order: 'desc' }]"
     >
       <template v-slot:item.issueDate="{ item }">
         {{ formatDate(item.issueDate) }}
