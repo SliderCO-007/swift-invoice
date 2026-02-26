@@ -20,21 +20,18 @@ const headers = [
 ];
 
 const formattedInvoices = computed(() => invoices.value.map(invoice => {
-  const dueDate = new Date(invoice.dateDue);
+  const dueDate = new Date(invoice.dueDate);
   let status = invoice.status;
-  if (status === 'Pending' && isPast(dueDate)) {
+  if (status.toLowerCase() === 'pending' && isPast(dueDate)) {
     status = 'Overdue';
   }
 
-  
   return {
     ...invoice,
-    dateIssued: format(new Date(invoice.dateIssued), 'MMM d, yyyy'),
+    dateIssued: format(new Date(invoice.issueDate), 'MMM d, yyyy'),
     dateDue: format(dueDate, 'MMM d, yyyy'),
-    total: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
-      (invoice.items || []).reduce((acc, item) => acc + (item.quantity * item.price), 0) * (1 + (invoice.taxRate || 0) / 100)
-    ),
-    status: status,
+    total: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(invoice.total),
+    status: status.charAt(0).toUpperCase() + status.slice(1),
   };
 }));
 
@@ -184,9 +181,9 @@ const deleteInvoice = async (id) => {
   color: #155724;
 }
 
-.status-sent, .status-pending {
-  background-color: #D1E7FD;
-  color: #0C5460;
+.status-pending {
+    background-color: #fff3cd;
+    color: #856404;
 }
 
 .status-draft {
@@ -197,6 +194,11 @@ const deleteInvoice = async (id) => {
 .status-overdue {
   background-color: #F8D7DA;
   color: #721C24;
+}
+
+.status-quote {
+  background-color: #D6EAF8;
+  color: #2874A6;
 }
 
 .action-buttons button {

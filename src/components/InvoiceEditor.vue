@@ -100,7 +100,6 @@ const saveInvoice = async () => {
 
   const invoiceData = {
     ...invoice.value,
-    status: 'pending',
     subtotal: subtotal.value,
     taxAmount: taxAmount.value,
     total: total.value,
@@ -328,6 +327,20 @@ onUnmounted(() => {
             </div>
           </div>
           <button class="add-item-btn" @click="addItem">+ Add New Item</button>
+        </div>
+
+        <div class="form-section">
+          <h3>Invoice Status</h3>
+          <div class="style-selector">
+            <label>
+              <input type="radio" value="pending" v-model="invoice.status">
+              <span class="style-label">Pending</span>
+            </label>
+            <label>
+              <input type="radio" value="quote" v-model="invoice.status">
+              <span class="style-label">Quote</span>
+            </label>
+          </div>
         </div>
 
         <div class="form-section">

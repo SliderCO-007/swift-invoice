@@ -22,6 +22,7 @@ const isSendingEmail = ref(false)
 const snackbar = ref(false)
 const snackbarText = ref('')
 const confirmDialog = ref(false)
+const confirmPendingDialog = ref(false)
 
 const functions = getFunctions()
 
@@ -49,8 +50,8 @@ const goToPricing = () => router.push('/pricing')
 const markAsPaid = async () => {
   if (!invoice.value) return
   try {
-    await updateInvoiceStatus(invoice.value.id, 'Paid')
-    invoice.value.status = 'Paid' // Immediately update local state
+    await updateInvoiceStatus(invoice.value.id, 'paid')
+    invoice.value.status = 'paid'
     snackbarText.value = 'Invoice marked as Paid'
     snackbar.value = true
   } catch (err) {
@@ -58,6 +59,20 @@ const markAsPaid = async () => {
     snackbar.value = true
   }
   confirmDialog.value = false
+}
+
+const markAsPending = async () => {
+  if (!invoice.value) return
+  try {
+    await updateInvoiceStatus(invoice.value.id, 'pending')
+    invoice.value.status = 'pending'
+    snackbarText.value = 'Invoice marked as Pending'
+    snackbar.value = true
+  } catch (err) {
+    snackbarText.value = 'Error updating invoice status.'
+    snackbar.value = true
+  }
+  confirmPendingDialog.value = false
 }
 
 const updateStyle = async () => {
@@ -84,20 +99,17 @@ const generatePDF = async (outputType = 'save') => {
   const originalEl = invoiceComponent.$el;
   let pdfOutput = null;
 
-  // 1. Create a hidden iframe
   const iframe = document.createElement('iframe');
   iframe.style.position = 'absolute';
   iframe.style.left = '-9999px';
   iframe.style.top = '0';
-  iframe.style.width = '1024px'; // Force a desktop-like viewport width
-  iframe.style.height = '768px'; // A reasonable height
+  iframe.style.width = '1024px';
 
   document.body.appendChild(iframe);
 
   try {
     const iframeDoc = iframe.contentWindow.document;
 
-    // 2. Clone stylesheets into the iframe
     const stylesheets = Array.from(document.styleSheets);
     stylesheets.forEach(sheet => {
       try {
@@ -116,69 +128,64 @@ const generatePDF = async (outputType = 'save') => {
       }
     });
 
-    // 3. Clone the invoice element into the iframe
     const clone = originalEl.cloneNode(true);
-    iframeDoc.body.style.margin = '0'; // Reset body margin
+    iframeDoc.body.style.margin = '0';
     iframeDoc.body.style.backgroundColor = 'white';
     iframeDoc.body.appendChild(clone);
 
-    // 4. Wait for everything to render correctly
     await new Promise(resolve => {
-        const linkElements = iframeDoc.head.querySelectorAll('link');
-        if (linkElements.length === 0) {
-            resolve();
-            return;
-        }
-        let loadedCount = 0;
-        const totalLinks = linkElements.length;
-        linkElements.forEach(link => {
-            link.onload = () => {
-                loadedCount++;
-                if (loadedCount === totalLinks) {
-                    resolve();
-                }
-            };
-            link.onerror = () => {
-                loadedCount++;
-                console.warn('Stylesheet failed to load in iframe:', link.href);
-                if (loadedCount === totalLinks) {
-                    resolve();
-                }
-            };
-        });
+      const linkElements = iframeDoc.head.querySelectorAll('link');
+      if (linkElements.length === 0) {
+        resolve();
+        return;
+      }
+      let loadedCount = 0;
+      const totalLinks = linkElements.length;
+      linkElements.forEach(link => {
+        link.onload = link.onerror = () => {
+          loadedCount++;
+          if (loadedCount === totalLinks) resolve();
+        };
+      });
     });
 
     await document.fonts.ready;
-    await new Promise(resolve => setTimeout(resolve, 500)); // Extra delay for rendering
+    await new Promise(resolve => setTimeout(resolve, 500));
 
+    const contentElement = iframeDoc.body.firstElementChild;
+    const contentRect = contentElement.getBoundingClientRect();
+    const contentHeight = contentRect.height;
+    const heightBuffer = 150;
+    iframe.style.height = `${contentHeight + heightBuffer}px`;
 
-    // 5. Generate the canvas from the iframe's content
-    const canvas = await html2canvas(iframeDoc.body, {
+    const canvas = await html2canvas(contentElement, {
       scale: 3,
       useCORS: true,
       backgroundColor: '#ffffff',
-      width: iframeDoc.body.scrollWidth,
-      height: iframeDoc.body.scrollHeight,
-      windowWidth: iframeDoc.documentElement.scrollWidth,
-      windowHeight: iframeDoc.documentElement.scrollHeight,
     });
 
-    // 6. Create and format the PDF
     const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'pt',
-      format: 'letter'
-    });
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
 
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
-    const imgWidth = pdfWidth - 40; // 20pt margin
+    const margin = 40;
+    const imgWidth = pdfWidth - margin;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-    pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight, undefined, 'FAST');
+    let heightLeft = imgHeight;
+    let position = 0;
 
-    // 7. Handle output
+    pdf.addImage(imgData, 'PNG', margin / 2, position, imgWidth, imgHeight, undefined, 'FAST');
+    heightLeft -= pdfHeight;
+
+    while (heightLeft > 0) {
+      position -= pdfHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', margin / 2, position, imgWidth, imgHeight, undefined, 'FAST');
+      heightLeft -= pdfHeight;
+    }
+
     if (outputType === 'save') {
       pdf.save(`Invoice-${invoice.value?.invoiceNumber || invoice.value?.id}.pdf`);
     } else if (outputType === 'datauristring') {
@@ -190,7 +197,6 @@ const generatePDF = async (outputType = 'save') => {
     snackbarText.value = "An error occurred while generating the PDF.";
     snackbar.value = true;
   } finally {
-    // 8. Cleanup
     document.body.removeChild(iframe);
   }
 
@@ -249,23 +255,27 @@ const sendInvoiceEmail = async () => {
 }
 
 const safeInvoice = computed(() => {
-  if (!invoice.value) return null
+  if (!invoice.value) return null;
 
   const subtotal = (invoice.value.items || []).reduce(
     (acc, item) => acc + (item.quantity || 0) * (item.price || 0),
     0
-  )
-  const taxRate = Number(invoice.value.taxRate) || 0
-  const taxAmount = subtotal * (taxRate / 100)
-  const total = subtotal + taxAmount
+  );
+  const taxRate = Number(invoice.value.taxRate) || 0;
+  const taxAmount = subtotal * (taxRate / 100);
+  const total = subtotal + taxAmount;
+
+  let status = invoice.value.status || '';
+  status = status.charAt(0).toUpperCase() + status.slice(1);
 
   return {
     ...invoice.value,
     subtotal,
     taxAmount,
     total,
-  }
-})
+    status,
+  };
+});
 </script>
 
 <template>
@@ -336,7 +346,17 @@ const safeInvoice = computed(() => {
             Upgrade to Send Emails
           </v-btn>
           <v-btn
-            v-if="safeInvoice.status !== 'Paid'"
+            v-if="safeInvoice.status === 'Quote'"
+            @click="confirmPendingDialog = true"
+            color="orange"
+            large
+            class="mr-4"
+            prepend-icon="mdi-file-check"
+          >
+            Mark as Pending
+          </v-btn>
+          <v-btn
+            v-if="safeInvoice.status === 'Pending'"
             @click="confirmDialog = true"
             color="green"
             large
@@ -409,6 +429,18 @@ const safeInvoice = computed(() => {
           <v-spacer></v-spacer>
           <v-btn color="blue darken-1" text @click="confirmDialog = false">Cancel</v-btn>
           <v-btn color="blue darken-1" text @click="markAsPaid">OK</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="confirmPendingDialog" max-width="500px">
+      <v-card>
+        <v-card-title class="text-h5">Confirm</v-card-title>
+        <v-card-text>Are you sure you want to convert this quote to a pending invoice?</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="confirmPendingDialog = false">Cancel</v-btn>
+          <v-btn color="blue darken-1" text @click="markAsPending">OK</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

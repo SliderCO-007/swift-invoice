@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { format, isValid, isBefore, startOfToday } from 'date-fns';
 
@@ -14,24 +14,37 @@ const emit = defineEmits(['delete-invoice']);
 
 const router = useRouter();
 
+// Define the logical sort order for statuses
+const statusOrder = {
+  'Overdue': 1,
+  'Pending': 2,
+  'Quote': 3,
+  'Paid': 4,
+  'Draft': 5,
+};
+
 const headers = ref([
   { title: 'Invoice #', key: 'invoiceNumber', sortable: true },
   { title: 'Client', key: 'client.name', sortable: true },
   { title: 'Issue Date', key: 'issueDate', sortable: true },
   { title: 'Due Date', key: 'dueDate', sortable: true },
   { title: 'Total', key: 'total', sortable: true },
-  { title: 'Status', key: 'status', sortable: true },
+  // Sort by the numeric rank, not the status name
+  { title: 'Status', key: 'statusSortKey', sortable: true }, 
   { title: 'Actions', key: 'actions', sortable: false, align: 'end' },
 ]);
 
 const dialogDelete = ref(false);
 const itemToDelete = ref(null);
 
+// Determines the correct status string for an invoice
 const getInvoiceStatus = (invoice) => {
-  const status = invoice.status || 'pending';
-  if (status.toLowerCase() !== 'pending') {
-    return status;
+  const status = (invoice.status || 'pending').toLowerCase();
+  
+  if (status !== 'pending') {
+    return invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1);
   }
+
   const dueDate = invoice.dueDate && typeof invoice.dueDate.toDate === 'function'
     ? invoice.dueDate.toDate()
     : new Date(invoice.dueDate);
@@ -39,8 +52,20 @@ const getInvoiceStatus = (invoice) => {
   if (isValid(dueDate) && isBefore(dueDate, startOfToday())) {
     return 'Overdue';
   }
-  return status;
+  return 'Pending';
 };
+
+// Processes invoices to add a sortable key for the status
+const processedInvoices = computed(() => {
+  return props.invoices.map(invoice => {
+    const status = getInvoiceStatus(invoice);
+    return {
+      ...invoice,
+      status: status, // The status string for display
+      statusSortKey: statusOrder[status] || 99, // The numeric rank for sorting
+    };
+  });
+});
 
 const formatDate = (date) => {
   if (date && isValid(new Date(date))) {
@@ -79,6 +104,8 @@ const getStatusColor = (status) => {
         case 'paid': return 'green-darken-2';
         case 'pending': return 'orange-darken-2';
         case 'overdue': return 'red-darken-2';
+        case 'quote': return 'blue-darken-1';
+        case 'draft': return 'grey-darken-1';
         default: return 'grey';
     }
 };
@@ -89,7 +116,7 @@ const getStatusColor = (status) => {
   <v-card class="invoice-table-card">
     <v-data-table
       :headers="headers"
-      :items="invoices"
+      :items="processedInvoices"
       item-key="id"
       class="elevation-1 invoice-data-table"
       :sort-by="[{ key: 'invoiceNumber', order: 'desc' }]"
@@ -103,9 +130,9 @@ const getStatusColor = (status) => {
       <template v-slot:item.total="{ item }">
         {{ formatCurrency(item.total) }}
       </template>
-      <template v-slot:item.status="{ item }">
-        <v-chip :color="getStatusColor(getInvoiceStatus(item))" size="small" text-color="white">
-          {{ getInvoiceStatus(item) }}
+      <template v-slot:item.statusSortKey="{ item }">
+        <v-chip :color="getStatusColor(item.status)" size="small" text-color="white">
+          {{ item.status }}
         </v-chip>
       </template>
       <template v-slot:item.actions="{ item }">
