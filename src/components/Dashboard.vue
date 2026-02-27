@@ -1,7 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuth, userProfile } from '../composables/useAuth.js'; // Import userProfile directly
+import { useAuth, userProfile } from '../composables/useAuth.js';
 import useInvoices from '../composables/useInvoices';
 import useUserSettings from '../composables/useUserSettings';
 import { useMeta } from '../composables/useMeta';
@@ -27,21 +27,17 @@ useMeta(
   'Best small business invoice online application.'
 );
 
-// --- Data Fetching ---
-// User profile and settings are now reactively handled by their composables.
-// We just need to ensure invoices are loaded.
-getInvoices();
-fetchUserSettings();
-
+// --- DATA FETCHING ---
+onMounted(async () => {
+  if (userProfile.value) {
+    await fetchUserSettings();
+    await getInvoices();
+  }
+});
 
 // --- Computed Properties ---
 const showCompanyInfoPrompt = computed(() => {
   return settings.value && !settings.value.company?.name;
-});
-
-const showUpgradePrompt = computed(() => {
-  if (!userProfile.value) return false;
-  return userProfile.value.subscriptionStatus === 'free' && userProfile.value.invoiceCount >= 2;
 });
 
 const getInvoiceStatus = (invoice) => {
@@ -67,10 +63,6 @@ const getStatusColor = (status) => {
 };
 
 // --- Methods ---
-const goToPricing = () => {
-  router.push('/pricing');
-};
-
 const createNewInvoice = () => {
   if (showCompanyInfoPrompt.value) {
     alert('Please complete your company profile in the settings before creating an invoice.');
@@ -91,30 +83,17 @@ const goToInvoiceDetails = (id) => {
 const handleDeleteInvoice = async (invoiceId) => {
   try {
     await deleteInvoice(invoiceId);
-    const index = invoices.value.findIndex(inv => inv.id === invoiceId);
-    if (index !== -1) {
-      invoices.value.splice(index, 1);
-    }
+    // No need to manually splice, the list will be reactive
   } catch (err) {
     console.error("Failed to delete invoice:", err);
     alert(`Error deleting invoice: ${err.message}`);
   }
 };
 
-const handleDeleteFromCard = (event, invoiceId) => {
-  event.stopPropagation();
-  if (confirm(`Are you sure you want to delete this invoice? This action cannot be undone.`)) {
-    handleDeleteInvoice(invoiceId);
-  }
-};
-
 const formatDate = (date) => {
     if (!date) return 'No due date';
     const d = date && typeof date.toDate === 'function' ? date.toDate() : new Date(date);
-    if (isValid(d)) {
-        return format(d, 'MMM d, yyyy');
-    }
-    return 'Invalid Date';
+    return isValid(d) ? format(d, 'MMM d, yyyy') : 'Invalid Date';
 };
 
 const formatCurrency = (value) => {
@@ -124,9 +103,9 @@ const formatCurrency = (value) => {
 </script>
 
 <template>
-  <div v-if="authLoading" class="page-loading-container">
+  <div v-if="authLoading && !userProfile" class="page-loading-container">
     <v-progress-circular indeterminate size="64" color="primary"></v-progress-circular>
-    <p>Authenticating...</p>
+    <p>Loading your workspace...</p>
   </div>
 
   <div v-else class="dashboard-container">
@@ -137,14 +116,14 @@ const formatCurrency = (value) => {
       </div>
     </header>
 
+    <!-- Invoice Stats Section -->
+    <div class="mb-8">
+      <InvoiceStats />
+    </div>
+
     <CompanyInfoPrompt v-if="showCompanyInfoPrompt" />
 
     <main class="dashboard-content">
-
-      <div class="mb-8">
-        <InvoiceStats />
-      </div>
-
       <div class="invoices-header">
         <div class="invoices-header-title">
             <h2>Your Invoices</h2>
@@ -208,7 +187,7 @@ const formatCurrency = (value) => {
                     variant="text"
                     size="small"
                     color="red-lighten-1"
-                    @click.stop="handleDeleteFromCard($event, invoice.id)"
+                    @click.stop="handleDeleteInvoice(invoice.id)"
                     title="Delete Invoice"
                   ></v-btn>
                 </div>
@@ -244,6 +223,7 @@ const formatCurrency = (value) => {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  gap: 1rem;
 }
 
 .dashboard-container {
@@ -270,12 +250,6 @@ const formatCurrency = (value) => {
 .date-display {
   font-size: 1rem;
   color: #64748B;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
 }
 
 .no-invoices-container {
@@ -326,11 +300,5 @@ const formatCurrency = (value) => {
   padding: 3rem 0 1rem;
   font-size: 0.9rem;
   color: #94A3B8;
-}
-
-@media (max-width: 1200px) {
-  .header-actions {
-    width: 100%;
-  }
 }
 </style>

@@ -1,4 +1,4 @@
-import { createApp, watch } from 'vue';
+import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
 import vuetify from './plugins/vuetify';
@@ -31,11 +31,14 @@ app.use(createGtag({
   },
 }));
 
-// Wait for Firebase auth to be ready before mounting the app.
-let isAppMounted = false;
-watch(isAuthReady, (ready) => {
-  if (ready && !isAppMounted) {
-    app.mount('#app');
-    isAppMounted = true;
-  }
-}, { immediate: true });
+// Asynchronously mount the app only after Firebase auth is ready.
+async function mountApp() {
+  // This will pause the function until the isAuthReady promise resolves.
+  await isAuthReady;
+  
+  // Now that auth is confirmed, mount the app.
+  app.mount('#app');
+}
+
+// Call the async function to start the mounting process.
+mountApp();

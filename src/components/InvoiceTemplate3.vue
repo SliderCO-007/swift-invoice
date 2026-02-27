@@ -193,7 +193,6 @@ const formatCurrency = (value) => {
   max-height: 80px;
   max-width: 220px;
   margin-bottom: 1rem;
-  filter: brightness(0) invert(1);
 }
 
 .company-info h1 {

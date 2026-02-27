@@ -1,17 +1,19 @@
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import { 
   collection, getDocs, doc, getDoc, updateDoc, serverTimestamp, 
   query, where, deleteDoc, runTransaction, setDoc
 } from 'firebase/firestore';
 import { db } from './useFirebase';
-import { currentUser, isAuthReady } from './useAuth.js';
+import { currentUser } from './useAuth.js';
+
+// --- SHARED SINGLETON STATE ---
+const invoices = ref([]);
+const loading = ref(false);
+const error = ref(null);
+// --------------------
 
 const useInvoices = () => {
-  const invoices = ref([]);
-  const loading = ref(false);
-  const error = ref(null);
   const user = currentUser;
-
   const invoicesCollection = collection(db, 'invoices');
 
   const parseFirestoreDate = (date) => {
@@ -65,8 +67,9 @@ const useInvoices = () => {
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const data = docSnap.data();
+        // Security check: Ensure the fetched invoice belongs to the current user.
         if (data.userId !== user.value?.uid) {
-          throw new Error('Permission denied');
+          throw new Error('Permission denied. You do not own this invoice.');
         }
         return {
           id: docSnap.id,
@@ -78,9 +81,9 @@ const useInvoices = () => {
         throw new Error('Invoice not found');
       }
     } catch (err) {
-      error.value = 'Failed to fetch invoice.';
+      error.value = `Failed to fetch invoice: ${err.message}`;
       console.error(err);
-      return null;
+      throw err; // Re-throw the error so the component can handle it
     } finally {
       loading.value = false;
     }
@@ -246,15 +249,6 @@ const useInvoices = () => {
       loading.value = false;
     }
   };
-
-  // Watch for authentication readiness before fetching data
-  watch(isAuthReady, (ready) => {
-      if (ready && currentUser.value) {
-          getInvoices();
-      } else {
-          invoices.value = []; // Clear invoices if user logs out
-      }
-  }, { immediate: true });
 
   return { invoices, loading, error, getInvoices, getInvoice, createInvoice, updateInvoice, deleteInvoice, updateInvoiceStatus };
 };

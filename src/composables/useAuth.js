@@ -10,17 +10,26 @@ import {
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { db, auth } from './useFirebase.js';
 
-// Reactive state for auth
+// --- SHARED SINGLETON STATE ---
+// These are defined once and shared across the entire application.
 const currentUser = ref(null);
-const userProfile = ref(null); // To hold Firestore user data
+const userProfile = ref(null);
 const error = ref(null);
 const loading = ref(false);
-const isAuthReady = ref(false); // New state to signal when auth is ready
 
-// --- Firestore User Profile Management ---
+// Create a promise that resolves when auth is ready
+let authReadyResolver;
+const isAuthReady = new Promise(resolve => {
+  authReadyResolver = resolve;
+});
+
+
 
 const fetchUserProfile = async (userId) => {
-  if (!userId) return;
+  if (!userId) {
+    userProfile.value = null;
+    return;
+  }
   const userRef = doc(db, 'users', userId);
   const docSnap = await getDoc(userRef);
   if (docSnap.exists()) {
@@ -48,7 +57,7 @@ const createUserProfile = async (user) => {
   }
 };
 
-// --- Firebase Auth Operations ---
+// --- AUTH ACTIONS ---
 
 const signup = async (email, password) => {
   loading.value = true;
@@ -56,9 +65,10 @@ const signup = async (email, password) => {
   try {
     const res = await createUserWithEmailAndPassword(auth, email, password);
     await createUserProfile(res.user);
-    // onAuthStateChanged will handle setting state
+    await fetchUserProfile(res.user.uid); // Ensure profile is loaded right after signup
   } catch (err) {
     error.value = err.message;
+    throw err; 
   } finally {
     loading.value = false;
   }
@@ -69,9 +79,9 @@ const login = async (email, password) => {
   error.value = null;
   try {
     await signInWithEmailAndPassword(auth, email, password);
-    // onAuthStateChanged will handle setting state
   } catch (err) {
     error.value = err.message;
+    throw err;
   } finally {
     loading.value = false;
   }
@@ -84,9 +94,10 @@ const googleLogin = async () => {
     const provider = new GoogleAuthProvider();
     const res = await signInWithPopup(auth, provider);
     await createUserProfile(res.user);
-    // onAuthStateChanged will handle setting state
+    await fetchUserProfile(res.user.uid);
   } catch (err) {
     error.value = err.message;
+    throw err;
   } finally {
     loading.value = false;
   }
@@ -95,7 +106,6 @@ const googleLogin = async () => {
 const logout = async () => {
   try {
     await signOut(auth);
-    // onAuthStateChanged will handle clearing state
   } catch (err) {
     error.value = err.message;
   }
@@ -112,11 +122,12 @@ onAuthStateChanged(auth, async (user) => {
     userProfile.value = null;
   }
   // The first time this runs, the initial auth state is determined.
-  if (!isAuthReady.value) {
-    isAuthReady.value = true;
+  // Resolve the promise to signal that auth is ready.
+  if (authReadyResolver) {
+    authReadyResolver();
+    authReadyResolver = null;
   }
 });
-
 // Main composable function
 const useAuth = () => {
   return {
@@ -124,7 +135,6 @@ const useAuth = () => {
     userProfile,
     error,
     loading,
-    isAuthReady, // Export the new state
     signup,
     login,
     logout,
@@ -132,4 +142,5 @@ const useAuth = () => {
   };
 };
 
+// We export the reactive state and the promise directly for convenience elsewhere in the app.
 export { useAuth, currentUser, userProfile, isAuthReady };

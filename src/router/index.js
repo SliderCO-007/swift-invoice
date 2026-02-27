@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { currentUser } from '../composables/useAuth.js';
+import { currentUser, isAuthReady } from '../composables/useAuth.js'; // Import the promise `authIsReady`
 import LandingPage from '../components/LandingPage.vue';
 import CustomersView from '../components/CustomersView.vue';
 
@@ -31,7 +31,7 @@ const routes = [
     component: () => import('../components/LoginPage.vue'),
     meta: { requiresGuest: true }
   },
-  {
+    {
     path: '/payment-success',
     name: 'PaymentSuccess',
     component: () => import('../components/PaymentSuccess.vue'),
@@ -53,7 +53,7 @@ const routes = [
     component: () => import('../components/Dashboard.vue'),
     meta: { requiresAuth: true }
   },
-    {
+  {
     path: '/customers',
     name: 'Customers',
     component: CustomersView,
@@ -114,16 +114,25 @@ const router = createRouter({
   },
 });
 
-router.beforeEach((to, from, next) => {
-  const user = currentUser.value;
+// --- NAVIGATION GUARD ---
+// This guard is now much cleaner. It waits for the initial auth check to complete
+// before making any decisions about routing.
+router.beforeEach(async (to, from, next) => {
+  // Wait for the authIsReady promise to resolve.
+  await isAuthReady;
+
+  const user = currentUser.value; // Now this value is guaranteed to be correct.
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   const requiresGuest = to.matched.some(record => record.meta.requiresGuest);
 
   if (requiresAuth && !user) {
+    // If a route requires authentication and the user is not logged in, redirect to login.
     next({ name: 'Login' });
   } else if (requiresGuest && user) {
+    // If a route is for guests only (like login/register) and the user is logged in, redirect to the dashboard.
     next({ name: 'Dashboard' });
   } else {
+    // Otherwise, allow navigation.
     next();
   }
 });

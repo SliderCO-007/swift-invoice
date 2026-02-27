@@ -27,13 +27,17 @@ const confirmPendingDialog = ref(false)
 const functions = getFunctions()
 
 onMounted(async () => {
-  const invoiceId = route.params.id
+  // The router guard ensures auth is ready, so we can directly fetch the data.
+  const invoiceId = route.params.id;
   try {
     invoice.value = await getInvoice(invoiceId)
-    await fetchUserSettings()
+    // Only fetch user settings if an invoice was successfully loaded
+    if (invoice.value) {
+      await fetchUserSettings();
+    }
   } catch (err) {
-    error.value = `Failed to load invoice: ${err.message}`
-    console.error(err)
+    // The error is already being set in the composable, but we can log it too.
+    console.error("Error in InvoiceView onMounted:", err);
   }
 })
 
@@ -280,7 +284,8 @@ const safeInvoice = computed(() => {
 
 <template>
   <div class="invoice-view-container">
-    <div v-if="loading && !invoice" class="loading-container">
+    <!-- Use the loading state from the composable -->
+    <div v-if="loading" class="loading-container">
       <v-progress-circular indeterminate color="primary"></v-progress-circular>
       <p>Loading invoice...</p>
     </div>

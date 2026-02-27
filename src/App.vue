@@ -11,10 +11,7 @@
 <script setup>
 import { useRoute } from 'vue-router';
 import AppBar from './components/AppBar.vue';
-import TheCookieBanner from './components/TheCookieBanner.vue'
-
-// CORRECTED: The global authentication listener has been removed from this component.
-// It is being moved to main.js to ensure authentication is resolved before the app mounts.
+import TheCookieBanner from './components/TheCookieBanner.vue';
 
 const route = useRoute();
 </script>
@@ -89,4 +86,11 @@ body {
 }
 
 
+.content-loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
 </style>
