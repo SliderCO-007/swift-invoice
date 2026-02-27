@@ -13,6 +13,7 @@ This project is a Vue.js application that allows users to create, manage, and se
 *   **Advanced Invoice List:**
     *   The main dashboard features a powerful data table for listing all invoices and quotes.
     *   All columns are sortable, including a custom, logical sort order for the "Status" column (Overdue > Pending > Quote > Paid > Draft).
+    *   Users can export their invoice data, including line items, to a CSV file.
 *   **Invoice & Quote Management:**
     *   Users can create, edit, and view invoices with "Pending," "Paid," or "Overdue" statuses.
     *   Users can create quotes, which can be converted into "Pending" invoices.

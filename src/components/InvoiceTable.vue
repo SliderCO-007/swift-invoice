@@ -74,6 +74,15 @@ const formatDate = (date) => {
   return 'N/A';
 };
 
+const formatDateForCSV = (date) => {
+  if (!date) return '';
+  const d = (date && typeof date.toDate === 'function') ? date.toDate() : new Date(date);
+  if (isValid(d)) {
+    return format(d, 'MM/dd/yyyy');
+  }
+  return '';
+};
+
 const formatCurrency = (value) => {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0);
 };
@@ -110,6 +119,63 @@ const getStatusColor = (status) => {
     }
 };
 
+const escapeCSV = (str) => {
+  if (str === null || str === undefined) {
+    return '';
+  }
+  let result = String(str);
+  // Escape quotes and wrap in quotes if it contains commas, quotes, or newlines
+  if (result.includes(',') || result.includes('"') || result.includes('\n')) {
+    result = '"' + result.replace(/"/g, '""') + '"';
+  }
+  return result;
+};
+
+const exportToCSV = () => {
+  const headers = [
+    'Invoice #', 'Client', 'Issue Date', 'Due Date', 'Invoice Total', 'Invoice Status',
+    'Item Description', 'Item Quantity', 'Item Unit Price', 'Item Line Total'
+  ];
+
+  const csvRows = [];
+  csvRows.push(headers.join(','));
+
+  processedInvoices.value.forEach(invoice => {
+    const commonData = [
+      escapeCSV(invoice.invoiceNumber),
+      escapeCSV(invoice.client?.name),
+      escapeCSV(formatDateForCSV(invoice.issueDate)),
+      escapeCSV(formatDateForCSV(invoice.dueDate)),
+      escapeCSV(invoice.total || 0),
+      escapeCSV(invoice.status),
+    ];
+
+    if (invoice.items && invoice.items.length > 0) {
+      invoice.items.forEach(item => {
+        const itemData = [
+          escapeCSV(item.description),
+          escapeCSV(item.quantity || 0),
+          escapeCSV(item.price || 0),
+          escapeCSV((item.quantity || 0) * (item.price || 0))
+        ];
+        csvRows.push([...commonData, ...itemData].join(','));
+      });
+    } else {
+      // For invoices with no items, add empty item fields
+      csvRows.push([...commonData, '', '', '', ''].join(','));
+    }
+  });
+
+  const csvContent = csvRows.join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.setAttribute('download', 'invoices.csv');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
 </script>
 
 <template>
@@ -121,6 +187,13 @@ const getStatusColor = (status) => {
       class="elevation-1 invoice-data-table"
       :sort-by="[{ key: 'invoiceNumber', order: 'desc' }]"
     >
+      <template v-slot:top>
+        <v-toolbar flat>
+            <v-toolbar-title>Invoices</v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-btn color="primary" @click="exportToCSV">Export to CSV</v-btn>
+        </v-toolbar>
+      </template>
       <template v-slot:item.issueDate="{ item }">
         {{ formatDate(item.issueDate) }}
       </template>
