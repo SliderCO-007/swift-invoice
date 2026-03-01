@@ -29,7 +29,7 @@
     # The following attributes are used to configure preview ports.
     # To learn more, see: https://developers.google.com/idx/guides/preview-ports
     previews = {
-      enable = false;
+      enable = true;
       previews = [
         {
           # The port to expose on.
@@ -38,7 +38,7 @@
           # The supported actions are: "open-preview", "open-url", "ignore".
           onOpen = "open-preview";
           # A human-readable name for the preview.
-          name = "Web Preview";
+          # name = "Web Preview";
           # The command to run to start the preview.
           command = [ "npm" "run" "dev" "--" "--port" "5173" ];
         }

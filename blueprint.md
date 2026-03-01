@@ -1,10 +1,13 @@
-# Project Blueprint
 
-## Overview
+# Blueprint: Swift Invoice
 
-This project is a Vue.js application that allows users to create, manage, and send invoices. It is built with the Composition API, TypeScript, and Vite, and it uses Firebase for authentication and database services. The application provides a free tier for users to create a limited number of invoices and paid tiers for unlimited invoices and additional features.
+## 1. Overview
 
-## Implemented Features
+Swift Invoice is a powerful and intuitive application designed to streamline the invoice and quote management process for small businesses and freelancers. It offers a comprehensive suite of features to create, track, and manage financial documents, helping users stay organized and get paid faster.
+
+## 2. Core Features
+
+### 2.1. Implemented
 
 *   **Authentication:** Users can register and log in to the application.
 *   **Professional User Interface:** The user interface maintains a professional tone. Personalized greetings and emojis have been removed from the dashboard to align with this standard.
@@ -26,6 +29,27 @@ This project is a Vue.js application that allows users to create, manage, and se
 *   **Stripe Integration:** The application uses Stripe for subscription payments.
 *   **Multiple Invoice Templates:** The application includes three professionally designed invoice templates: 'Classic', 'Modern', and 'Corporate'.
 
-## Current Task
+### 2.2. Current Task: Weekly Email Report
 
-All recent tasks are complete. Ready for the next request.
+The new feature will automatically send a weekly email report to users, summarizing key invoice activity.
+
+*   **Automated Weekly Emails:** A scheduled function will run weekly to compile and send the report.
+*   **Dynamic Content:** The email will be personalized for each user, containing two main sections:
+    *   **Invoices Paid Last Week:** A list of all invoices that were marked as "Paid" in the previous seven days.
+    *   **Invoices Due This Week:** A list of all "Pending" or "Overdue" invoices with a due date in the next seven days.
+*   **No-Data Handling:** If a user has no invoices in either category, the email will not be sent to avoid unnecessary notifications.
+*   **Backend Logic:** The feature will be implemented as a Firebase Cloud Function that runs on a recurring schedule.
+
+## 3. Plan
+
+1.  **Create a new Firebase Function:** I'll create a new file `functions/weeklyReport.js` to house the logic for the weekly email report.
+2.  **Add Scheduled Trigger:** The function will be triggered on a schedule (e.g., every Monday at 8 AM).
+3.  **Implement Report Logic:**
+    *   Fetch all users.
+    *   For each user, query their invoices to find:
+        *   Invoices marked as "Paid" within the last week.
+        *   Invoices with a due date within the upcoming week.
+    *   If there's data for the report, compile it into an HTML email.
+4.  **Set up Emailing:** I'll use Resend to send the emails. I'll need to add it as a dependency in `functions/package.json`.
+5.  **Integrate into `functions/index.js`:** I'll import and export the new function from the main `index.js` file.
+6.  **Update `blueprint.md`:** Document the new weekly email report feature.
