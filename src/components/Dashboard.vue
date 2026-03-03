@@ -170,8 +170,8 @@ const formatInvoiceNumber = (num) => {
       title="Create New Invoice" class="fab-button" :disabled="isDataLoading"></v-fab>
 
     <footer class="dashboard-footer">
-      <p>&copy; 2026 Swift Invoice. All rights reserved. | <a
-          href="mailto:support@swiftinvoice.biz">support@swiftinvoice.biz</a></p>
+      <p>&copy; 2026 ScanGo Invoice. All rights reserved. | <a
+          href="mailto:support@scangoinvoice.com">support@scangoinvoice.com</a></p>
     </footer>
   </div>
 </template>
