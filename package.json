@@ -1,5 +1,5 @@
 {
-  "name": "myapp",
+  "name": "scango-invoice",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -15,6 +15,7 @@
     "axios": "^1.13.5",
     "date-fns": "^4.1.0",
     "firebase": "^12.9.0",
+    "firebase-functions": "^7.0.6",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.0.0",
     "vue": "^3.5.24",

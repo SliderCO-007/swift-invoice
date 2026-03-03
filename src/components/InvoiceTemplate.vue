@@ -143,7 +143,7 @@ const formatCurrency = (value) => {
     <footer class="promo-footer">
       <p>
         Create your own professional invoices at
-        <span class="promo-link">swiftinvoice.biz</span>
+        <span class="promo-link">scangoinvoice.com</span>
       </p>
     </footer>
   </div>

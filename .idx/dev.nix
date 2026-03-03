@@ -5,7 +5,7 @@
   channel = "stable-24.11"; # or "unstable"
   # Use https://search.nixos.org/packages to find packages
   packages = [
-    pkgs.nodejs_20
+    pkgs.nodejs_22
   ];
   # Sets environment variables in the workspace
   env = {};
@@ -29,20 +29,13 @@
     # The following attributes are used to configure preview ports.
     # To learn more, see: https://developers.google.com/idx/guides/preview-ports
     previews = {
-      enable = true;
-      previews = [
-        {
-          # The port to expose on.
-          port = 5173;
-          # What to do when the port is opened.
-          # The supported actions are: "open-preview", "open-url", "ignore".
-          onOpen = "open-preview";
-          # A human-readable name for the preview.
-          # name = "Web Preview";
-          # The command to run to start the preview.
+      enable = false;
+      previews = {
+        web = {
           command = [ "npm" "run" "dev" "--" "--port" "5173" ];
-        }
-      ];
+          manager = "web";
+        };
+      };
     };
   };
 }

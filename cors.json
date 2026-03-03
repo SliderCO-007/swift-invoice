@@ -1,6 +1,6 @@
 [
   {
-    "origin": ["https://swiftinvoice.biz", "https://swift-invoice-9124f.web.app", "https://5173-firebase-swift-invoice-1767843866511.cluster-lqzyk3r5hzdcaqv6zwm7wv6pwa.cloudworkstations.dev"],
+    "origin": ["https://swiftinvoice.biz", "https://swift-invoice-9124f.web.app", "https://5173-firebase-swift-invoice-1767843866511.cluster-lqzyk3r5hzdcaqv6zwm7wv6pwa.cloudworkstations.dev", "https://scangoinvoice.com"],
     "method": ["GET", "POST"],
     "maxAgeSeconds": 3600
   }

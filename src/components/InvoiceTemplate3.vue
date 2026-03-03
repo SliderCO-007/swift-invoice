@@ -155,7 +155,7 @@ const formatCurrency = (value) => {
     <!-- Footer -->
     <div class="footer-section">
       <p class="footer-text">Thank you for your business.</p>
-      <p class="footer-small">Prepared by {{ invoice.sender.name }} | swiftinvoice.biz</p>
+      <p class="footer-small">Prepared by {{ invoice.sender.name }} | scangoinvoice.com</p>
     </div>
   </div>
 </template>

@@ -1,55 +1,53 @@
 
-# Blueprint: Swift Invoice
+# Project Blueprint: ScanGo Invoice
 
 ## 1. Overview
 
-Swift Invoice is a powerful and intuitive application designed to streamline the invoice and quote management process for small businesses and freelancers. It offers a comprehensive suite of features to create, track, and manage financial documents, helping users stay organized and get paid faster.
+This document outlines the plan for rebranding the existing invoice management application to "ScanGo Invoice." The goal is to create a modern, intuitive, and visually appealing application for managing invoices.
 
-## 2. Core Features
+## 2. Design and Style Guide
 
-### 2.1. Implemented
+### 2.1. Visual Identity
 
-*   **Authentication:** Users can register and log in to the application.
-*   **Professional User Interface:** The user interface maintains a professional tone. Personalized greetings and emojis have been removed from the dashboard to align with this standard.
-*   **Dashboard Layout:**
-    *   The `InvoiceStats` component is located in the main content area of the dashboard, providing a clear, responsive overview of key invoice metrics.
-*   **Advanced Invoice List:**
-    *   The main dashboard features a powerful data table for listing all invoices and quotes.
-    *   All columns are sortable, including a custom, logical sort order for the "Status" column (Overdue > Pending > Quote > Paid > Draft).
-    *   Users can export their invoice data, including line items, to a CSV file.
-*   **Invoice & Quote Management:**
-    *   Users can create, edit, and view invoices with "Pending," "Paid," or "Overdue" statuses.
-    *   Users can create quotes, which can be converted into "Pending" invoices.
-*   **Customer Management:** Users can add and manage customer information.
-*   **Item Management:** Users can save and manage frequently used invoice items.
-*   **Robust PDF Generation:**
-    *   Users can download invoices and quotes as multi-page PDF files.
-    *   The generation logic dynamically sizes the output to prevent content from being truncated.
-*   **Email Integration:** Paid users can email invoices directly to clients.
-*   **Stripe Integration:** The application uses Stripe for subscription payments.
-*   **Multiple Invoice Templates:** The application includes three professionally designed invoice templates: 'Classic', 'Modern', and 'Corporate'.
+*   **Logo:** The existing logo will be reused.
+*   **Color Palette:** The existing color palette will be used.
+*   **Typography:** Expressive and relevant typography will be used to emphasize key information and improve readability.
+*   **Iconography:** Modern and interactive icons will be used to enhance usability and visual appeal.
+*   **Visual Effects:** Subtle drop shadows and a "glow" effect on interactive elements will be used to create a sense of depth and interactivity.
 
-### 2.2. Current Task: Weekly Email Report
+### 2.2. Layout and Structure
 
-The new feature will automatically send a weekly email report to users, summarizing key invoice activity.
+*   **Responsive Design:** The application will be fully responsive and accessible on all devices.
+*   **Intuitive Navigation:** A clear and intuitive navigation structure will be implemented to ensure a seamless user experience.
+*   **Clean and Balanced Layout:** A clean and visually balanced layout with ample white space will be used to improve readability and reduce cognitive load.
 
-*   **Automated Weekly Emails:** A scheduled function will run weekly to compile and send the report.
-*   **Dynamic Content:** The email will be personalized for each user, containing two main sections:
-    *   **Invoices Paid Last Week:** A list of all invoices that were marked as "Paid" in the previous seven days.
-    *   **Invoices Due This Week:** A list of all "Pending" or "Overdue" invoices with a due date in the next seven days.
-*   **No-Data Handling:** If a user has no invoices in either category, the email will not be sent to avoid unnecessary notifications.
-*   **Backend Logic:** The feature will be implemented as a Firebase Cloud Function that runs on a recurring schedule.
+## 3. Features
 
-## 3. Plan
+### 3.1. Core Features
 
-1.  **Create a new Firebase Function:** I'll create a new file `functions/weeklyReport.js` to house the logic for the weekly email report.
-2.  **Add Scheduled Trigger:** The function will be triggered on a schedule (e.g., every Monday at 8 AM).
-3.  **Implement Report Logic:**
-    *   Fetch all users.
-    *   For each user, query their invoices to find:
-        *   Invoices marked as "Paid" within the last week.
-        *   Invoices with a due date within the upcoming week.
-    *   If there's data for the report, compile it into an HTML email.
-4.  **Set up Emailing:** I'll use Resend to send the emails. I'll need to add it as a dependency in `functions/package.json`.
-5.  **Integrate into `functions/index.js`:** I'll import and export the new function from the main `index.js` file.
-6.  **Update `blueprint.md`:** Document the new weekly email report feature.
+*   **Invoice Management:** Create, edit, and manage invoices.
+*   **Customer Management:** Add, edit, and manage customer information.
+*   **Item Management:** Add, edit, and manage products and services.
+*   **Stripe Integration:** Process payments securely through Stripe.
+*   **User Authentication:** Secure user authentication and authorization.
+*   **Dashboard:** A comprehensive dashboard with key metrics and insights.
+
+### 3.2. New and Improved Features
+
+*   **Redesigned User Interface:** A modern and intuitive user interface will be designed to improve the user experience.
+*   **Improved Performance:** The application will be optimized for speed and performance.
+*   **Enhanced Accessibility:** The application will be made more accessible to users with disabilities.
+*   **New Branding:** The application will be rebranded as "ScanGo Invoice" with a new logo and visual identity.
+
+## 4. Current Task: Rebrand to "ScanGo Invoice"
+
+The following steps will be taken to rebrand the application:
+
+1.  **Update Project Name:** The project name in `package.json` and `index.html` will be updated to "ScanGo Invoice."
+2.  **Update Firebase Configuration:** The Firebase project ID in `firebase.json` will be updated to reflect the new brand name.
+3.  **Update Application Name:** The application name in `src/App.vue` will be updated to "ScanGo Invoice."
+4.  **Update Landing Page:** The landing page in `src/components/LandingPage.vue` will be updated with the new brand name and visual identity.
+5.  **Update User Settings:** The user settings page in `src/components/UserSettings.vue` will be updated to reflect the new brand name.
+6.  **Update Login Page:** The login page in `src/components/LoginPage.vue` will be updated with the new brand name.
+7.  **Update Registration Page:** The registration page in `src/components/RegisterPage.vue` will be updated with the new brand name.
+8.  **Update App Bar:** The app bar in `src/components/AppBar.vue` will be updated with the new brand name.

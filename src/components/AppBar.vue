@@ -45,7 +45,7 @@ const authNav = [
           <span
             class="font-weight-bold ml-2 d-none d-sm-inline app-bar-brand"
             style="font-size: 1.25rem"
-            >Swift Invoice</span
+            >ScanGo Invoice</span
           >
         </router-link>
       </v-toolbar-title>

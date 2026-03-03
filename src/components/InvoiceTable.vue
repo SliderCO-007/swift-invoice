@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { format, isValid, isBefore, startOfToday } from 'date-fns';
 
+// CORRECTED: The unused `customers` prop has been removed.
 const props = defineProps({
   invoices: {
     type: Array,
@@ -14,7 +15,6 @@ const emit = defineEmits(['delete-invoice']);
 
 const router = useRouter();
 
-// Define the logical sort order for statuses
 const statusOrder = {
   'Overdue': 1,
   'Pending': 2,
@@ -25,11 +25,11 @@ const statusOrder = {
 
 const headers = ref([
   { title: 'Invoice #', key: 'invoiceNumber', sortable: true },
-  { title: 'Client', key: 'client.name', sortable: true },
-  { title: 'Issue Date', key: 'issueDate', sortable: true },
+  // This key correctly points to the nested client name.
+  { title: 'Client', key: 'client.name', sortable: true }, 
+  { title: 'Issue Date', key: 'createdAt', sortable: true },
   { title: 'Due Date', key: 'dueDate', sortable: true },
   { title: 'Total', key: 'total', sortable: true },
-  // Sort by the numeric rank, not the status name
   { title: 'Status', key: 'statusSortKey', sortable: true }, 
   { title: 'Actions', key: 'actions', sortable: false, align: 'end' },
 ]);
@@ -37,50 +37,32 @@ const headers = ref([
 const dialogDelete = ref(false);
 const itemToDelete = ref(null);
 
-// Determines the correct status string for an invoice
 const getInvoiceStatus = (invoice) => {
-  const status = (invoice.status || 'pending').toLowerCase();
-  
-  if (status !== 'pending') {
-    return invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1);
-  }
+  if (invoice.status.toLowerCase() === 'paid') return 'Paid';
 
-  const dueDate = invoice.dueDate && typeof invoice.dueDate.toDate === 'function'
-    ? invoice.dueDate.toDate()
-    : new Date(invoice.dueDate);
+  const dueDate = invoice.dueDate?.toDate ? invoice.dueDate.toDate() : new Date(invoice.dueDate);
 
   if (isValid(dueDate) && isBefore(dueDate, startOfToday())) {
     return 'Overdue';
   }
-  return 'Pending';
+  return invoice.status || 'Pending';
 };
 
-// Processes invoices to add a sortable key for the status
 const processedInvoices = computed(() => {
   return props.invoices.map(invoice => {
     const status = getInvoiceStatus(invoice);
     return {
       ...invoice,
-      status: status, // The status string for display
-      statusSortKey: statusOrder[status] || 99, // The numeric rank for sorting
+      status: status,
+      statusSortKey: statusOrder[status] || 99,
     };
   });
 });
 
-const formatDate = (date) => {
-  if (date && isValid(new Date(date))) {
-    return format(new Date(date), 'MMM d, yyyy');
-  }
-  return 'N/A';
-};
-
-const formatDateForCSV = (date) => {
-  if (!date) return '';
-  const d = (date && typeof date.toDate === 'function') ? date.toDate() : new Date(date);
-  if (isValid(d)) {
-    return format(d, 'MM/dd/yyyy');
-  }
-  return '';
+const formatDate = (timestamp) => {
+    if (!timestamp) return 'N/A';
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    return isValid(date) ? format(date, 'MMM d, yyyy') : 'N/A';
 };
 
 const formatCurrency = (value) => {
@@ -120,11 +102,8 @@ const getStatusColor = (status) => {
 };
 
 const escapeCSV = (str) => {
-  if (str === null || str === undefined) {
-    return '';
-  }
+  if (str === null || str === undefined) return '';
   let result = String(str);
-  // Escape quotes and wrap in quotes if it contains commas, quotes, or newlines
   if (result.includes(',') || result.includes('"') || result.includes('\n')) {
     result = '"' + result.replace(/"/g, '""') + '"';
   }
@@ -137,15 +116,14 @@ const exportToCSV = () => {
     'Item Description', 'Item Quantity', 'Item Unit Price', 'Item Line Total'
   ];
 
-  const csvRows = [];
-  csvRows.push(headers.join(','));
+  const csvRows = [headers.join(',')];
 
   processedInvoices.value.forEach(invoice => {
     const commonData = [
       escapeCSV(invoice.invoiceNumber),
       escapeCSV(invoice.client?.name),
-      escapeCSV(formatDateForCSV(invoice.issueDate)),
-      escapeCSV(formatDateForCSV(invoice.dueDate)),
+      escapeCSV(formatDate(invoice.createdAt)),
+      escapeCSV(formatDate(invoice.dueDate)),
       escapeCSV(invoice.total || 0),
       escapeCSV(invoice.status),
     ];
@@ -161,7 +139,6 @@ const exportToCSV = () => {
         csvRows.push([...commonData, ...itemData].join(','));
       });
     } else {
-      // For invoices with no items, add empty item fields
       csvRows.push([...commonData, '', '', '', ''].join(','));
     }
   });
@@ -185,7 +162,7 @@ const exportToCSV = () => {
       :items="processedInvoices"
       item-key="id"
       class="elevation-1 invoice-data-table"
-      :sort-by="[{ key: 'invoiceNumber', order: 'desc' }]"
+      :sort-by="[{ key: 'createdAt', order: 'desc' }]"
     >
       <template v-slot:top>
         <v-toolbar flat>
@@ -194,8 +171,8 @@ const exportToCSV = () => {
             <v-btn color="primary" @click="exportToCSV">Export to CSV</v-btn>
         </v-toolbar>
       </template>
-      <template v-slot:item.issueDate="{ item }">
-        {{ formatDate(item.issueDate) }}
+      <template v-slot:item.createdAt="{ item }">
+        {{ formatDate(item.createdAt) }}
       </template>
       <template v-slot:item.dueDate="{ item }">
         {{ formatDate(item.dueDate) }}

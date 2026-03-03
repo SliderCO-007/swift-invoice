@@ -16,6 +16,9 @@ const resendApiKey = defineString("RESEND_API_KEY");
 const weeklyReport = require("./weeklyReport");
 exports.sendWeeklyReport = weeklyReport.sendWeeklyReport;
 
+const previewReport = require("./previewReport");
+exports.sendPreviewReport = previewReport.sendPreviewReport;
+
 /**
  * Creates a Stripe Checkout session for a subscription plan.
  */
@@ -131,16 +134,19 @@ exports.sendInvoiceEmail = onCall({ enforceAppCheck: false }, async (request) =>
 
     // 1. Authentication & Authorization
     if (!auth) {
+        console.error("Authentication failed: No auth object present.");
         throw new HttpsError('unauthenticated', 'Authentication is required.');
     }
     const userDoc = await db.collection('users').doc(auth.uid).get();
     if (!userDoc.exists || userDoc.data().subscriptionStatus === 'free') {
+        console.error("Authorization failed: User does not have a valid subscription.");
         throw new HttpsError('permission-denied', 'A Pro or Business plan is required to send invoices.');
     }
 
     // 2. Data Validation
     const { invoiceId, recipientEmail, subject, message, pdfBase64 } = data;
     if (!invoiceId || !recipientEmail || !subject || !message || !pdfBase64) {
+        console.error("Data validation failed: Missing required fields.");
         throw new HttpsError('invalid-argument', 'Required fields (invoiceId, recipientEmail, subject, message, pdfBase64) are missing.');
     }
 
@@ -150,10 +156,12 @@ exports.sendInvoiceEmail = onCall({ enforceAppCheck: false }, async (request) =>
         const invoiceDoc = await invoiceRef.get();
 
         if (!invoiceDoc.exists) {
+            console.error(`Invoice not found for ID: ${invoiceId}`);
             throw new HttpsError('not-found', 'Invoice not found.');
         }
         const invoiceData = invoiceDoc.data();
         if (invoiceData.userId !== auth.uid) {
+            console.error("Permission denied: User does not have permission to send this invoice.");
             throw new HttpsError('permission-denied', 'You do not have permission to send this invoice.');
         }
 
@@ -163,7 +171,7 @@ exports.sendInvoiceEmail = onCall({ enforceAppCheck: false }, async (request) =>
         // 5. Send Email with the PDF Attachment
         const resend = new Resend(resendApiKey.value());
         await resend.emails.send({
-            from: 'no-reply@swiftinvoice.biz',
+            from: 'no-reply@scangoinvoice.com',
             to: recipientEmail,
             subject: subject,
             html: message, // Message is already HTML formatted from the client
@@ -178,6 +186,11 @@ exports.sendInvoiceEmail = onCall({ enforceAppCheck: false }, async (request) =>
     } catch (error) {
         console.error("Error sending invoice email:", error);
         if (error instanceof HttpsError) throw error;
+        // Check for Resend-specific errors and provide a more detailed message
+        if (error.response) {
+            console.error('Resend API Error:', error.response.body);
+            throw new HttpsError('internal', `Failed to send email via Resend: ${error.response.body.message}`);
+        }
         throw new HttpsError('internal', 'An unexpected error occurred while sending the email.');
     }
 });

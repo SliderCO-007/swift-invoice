@@ -38,7 +38,7 @@ watch(currentUser, (user) => {
       </div>
       
       <h1>Create Your Account</h1>
-      <p class="subtitle">Join Swift Invoice and start managing your invoices effortlessly.</p>
+      <p class="subtitle">Join ScanGo Invoice and start managing your invoices effortlessly.</p>
 
       <form @submit.prevent="handleSignup">
         <fieldset :disabled="loading" class="form-fieldset">

@@ -6,7 +6,7 @@
         <div class="container">
           <div class="hero-grid">
             <div class="hero-content">
-              <span class="font-weight-bold d-sm-none hero-title text-blue-darken-4">Swift Invoice</span>
+              <span class="font-weight-bold d-sm-none hero-title text-blue-darken-4">ScanGo Invoice</span>
               <h1 class="hero-title">Stop Chasing Payments.</h1>
               <h1 class="hero-title">Start Getting Paid in Seconds.</h1>
               <p class="hero-subtitle">Create, send, and track professional invoices in minutes. Focus on your work, not your paperwork.</p>
@@ -18,7 +18,7 @@
               </div>
             </div>
             <div class="hero-image">
-              <img src="/hero_woman.png" alt="A woman smiling while using a laptop, representing a satisfied Swift Invoice user.">
+              <img src="/hero_woman.png" alt="A woman smiling while using a laptop, representing a satisfied ScanGo Invoice user.">
             </div>
           </div>
         </div>
@@ -27,7 +27,7 @@
       <section id="features" class="features">
         <div class="container">
           <h2 class="section-title">A Feature Set That Works For You</h2>
-          <p class="section-subtitle">From freelancers to small businesses, Swift Invoice has the tools you need to succeed.</p>
+          <p class="section-subtitle">From freelancers to small businesses, ScanGo Invoice has the tools you need to succeed.</p>
           <div class="feature-list-grid">
             <div class="feature-category">
               <h3 class="category-title"><v-icon color="blue" class="mr-2">mdi-text-box-check-outline</v-icon>Invoicing</h3>
@@ -72,12 +72,7 @@
     
     <footer class="footer">
       <div class="container">
-        <p>&copy; 2026 Swift Invoice. All rights reserved. | <a href="mailto:support@swiftinvoice.biz">support@swiftinvoice.biz</a> | <router-link to="/privacy">Privacy Policy</router-link></p>
-        <div class="badge-container">
-          <a href='https://www.saashub.com/swift-invoice?utm_source=badge&utm_campaign=badge&utm_content=swift-invoice&badge_variant=color&badge_kind=approved' target='_blank'><img src="https://cdn-b.saashub.com/img/badges/approved-color.png?v=1" alt="SwiftInvoice.biz badge"/></a>
-          <TrustpilotWidget />
-          <a href="https://www.producthunt.com/products/swift-invoice-2?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-swift-invoice-2" target="_blank" rel="noopener noreferrer"><img alt="Swift Invoice - Stop Chasing Payments. Start Getting Paid in Seconds. | Product Hunt" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1070834&amp;theme=neutral&amp;t=1769917049866"></a>
-        </div>
+        <p>&copy; 2026 ScanGo Invoice. All rights reserved. | <a href="mailto:support@scangoinvoice.com">support@scangoinvoice.com</a> | <router-link to="/privacy">Privacy Policy</router-link></p>
         </div>
     </footer>
 
@@ -107,15 +102,14 @@
 <script setup>
 import { ref } from 'vue';
 import { useMeta } from '../composables/useMeta';
-import TrustpilotWidget from './TrustpilotWidget.vue';
 import ScienceImage from './ScienceImage.vue';
 
 const showDashboardPreview = ref(false);
 const showInvoicePreview = ref(false);
 
 useMeta(
-  'Swift Invoice | Simple Subscription Invoicing',
-  'Create, download, and track professional invoices for a simple monthly or yearly price. Swift Invoice is packed with features to help you get paid faster. Perfect tool for small businesses and individuals looking to streamline their invoice management.',
+  'ScanGo Invoice | Simple Subscription Invoicing',
+  'Create, download, and track professional invoices for a simple monthly or yearly price. ScanGo Invoice is packed with features to help you get paid faster. Perfect tool for small businesses and individuals looking to streamline their invoice management.',
 );
 
 // In your methods

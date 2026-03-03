@@ -7,11 +7,10 @@ import {
   GoogleAuthProvider,
   signInWithPopup
 } from 'firebase/auth';
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp, writeBatch } from 'firebase/firestore';
 import { db, auth } from './useFirebase.js';
 
 // --- SHARED SINGLETON STATE ---
-// These are defined once and shared across the entire application.
 const currentUser = ref(null);
 const userProfile = ref(null);
 const error = ref(null);
@@ -24,48 +23,74 @@ const isAuthReady = new Promise(resolve => {
 });
 
 
+// --- DECOUPLED HELPER FUNCTIONS ---
 
 const fetchUserProfile = async (userId) => {
   if (!userId) {
     userProfile.value = null;
-    return;
+    return null;
   }
-  const userRef = doc(db, 'users', userId);
-  const docSnap = await getDoc(userRef);
-  if (docSnap.exists()) {
-    userProfile.value = { id: docSnap.id, ...docSnap.data() };
-  } else {
+  try {
+    const userRef = doc(db, 'users', userId);
+    const docSnap = await getDoc(userRef);
+    if (docSnap.exists()) {
+      const profile = { id: docSnap.id, ...docSnap.data() };
+      userProfile.value = profile;
+      return profile;
+    } else {
+      userProfile.value = null;
+      return null;
+    }
+  } catch (err) {
+    console.error("Error fetching user profile:", err);
     userProfile.value = null;
-    console.warn('User profile document not found in Firestore.');
+    return null;
   }
 };
 
-const createUserProfile = async (user) => {
+const createInitialUserData = async (user) => {
   if (!user) return;
-  const userRef = doc(db, 'users', user.uid);
-  const docSnap = await getDoc(userRef);
 
-  if (!docSnap.exists()) {
-    await setDoc(userRef, {
-      uid: user.uid,
-      email: user.email,
-      name: user.displayName || 'User',
-      subscriptionStatus: 'free',
-      invoiceCount: 0,
-      createdAt: serverTimestamp(),
-    });
-  }
+  const batch = writeBatch(db);
+
+  const userRef = doc(db, 'users', user.uid);
+  batch.set(userRef, {
+    uid: user.uid,
+    email: user.email,
+    name: user.displayName || 'New User',
+    photoURL: user.photoURL || null,
+    createdAt: serverTimestamp(),
+  });
+
+  // CORRECTED: Changed "user_settings" to "userSettings" to match firestore.rules
+  const settingsRef = doc(db, "userSettings", user.uid);
+  batch.set(settingsRef, {
+    company: {
+        name: '',
+        address: '',
+        email: '',
+        phone: '',
+    },
+    invoiceSettings: {
+        defaultDueDateDays: 30,
+        defaultTaxRate: 0,
+    },
+    updatedAt: serverTimestamp(),
+  });
+
+  await batch.commit();
+  
+  await fetchUserProfile(user.uid);
 };
 
-// --- AUTH ACTIONS ---
+
+// --- REFACTORED AUTH ACTIONS ---
 
 const signup = async (email, password) => {
   loading.value = true;
   error.value = null;
   try {
-    const res = await createUserWithEmailAndPassword(auth, email, password);
-    await createUserProfile(res.user);
-    await fetchUserProfile(res.user.uid); // Ensure profile is loaded right after signup
+    await createUserWithEmailAndPassword(auth, email, password);
   } catch (err) {
     error.value = err.message;
     throw err; 
@@ -92,9 +117,7 @@ const googleLogin = async () => {
   error.value = null;
   try {
     const provider = new GoogleAuthProvider();
-    const res = await signInWithPopup(auth, provider);
-    await createUserProfile(res.user);
-    await fetchUserProfile(res.user.uid);
+    await signInWithPopup(auth, provider);
   } catch (err) {
     error.value = err.message;
     throw err;
@@ -111,24 +134,27 @@ const logout = async () => {
   }
 };
 
-// Single, persistent listener for auth state changes.
-// This is the core of the fix.
+// --- THE CORE FIX: CENTRALIZED AUTH STATE LISTENER ---
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser.value = user;
-    await fetchUserProfile(user.uid);
+    const existingProfile = await fetchUserProfile(user.uid);
+
+    if (!existingProfile) {
+      await createInitialUserData(user);
+    }
   } else {
     currentUser.value = null;
     userProfile.value = null;
   }
-  // The first time this runs, the initial auth state is determined.
-  // Resolve the promise to signal that auth is ready.
+  
   if (authReadyResolver) {
     authReadyResolver();
     authReadyResolver = null;
   }
 });
-// Main composable function
+
+// --- COMPOSABLE EXPORT ---
 const useAuth = () => {
   return {
     currentUser,
@@ -139,8 +165,8 @@ const useAuth = () => {
     login,
     logout,
     googleLogin,
+    isAuthReady, 
   };
 };
 
-// We export the reactive state and the promise directly for convenience elsewhere in the app.
 export { useAuth, currentUser, userProfile, isAuthReady };
