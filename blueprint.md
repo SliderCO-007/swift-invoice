@@ -39,14 +39,18 @@ This document outlines the plan for rebranding the existing invoice management a
 *   **Enhanced Accessibility:** The application will be made more accessible to users with disabilities.
 *   **New Branding:** The application will be rebranded as "ScanGo Invoice" with a new logo and visual identity.
 
-## 4. Current Task: Update Subscription Flow
+## 4. Completed Tasks
 
-The following steps have been taken to update the subscription flow:
+The following tasks have been completed:
 
-1.  **Update Pricing Page:** The pricing page in `src/components/PricingPage.vue` has been updated to redirect non-logged-in users to the registration page instead of the login page.
-2.  **Update Registration Page:** The registration page in `src/components/RegisterPage.vue` has been updated to handle redirects, ensuring users are returned to their original destination after signing up.
-3.  **Automate Subscription Flow:** The `PricingPage.vue` component now automatically initiates the checkout process by reading the `plan` from the URL query parameters upon redirection after login or registration.
-4.  **Fix Cancellation Flow:** The `cancelUrl` in `src/components/PricingPage.vue` has been updated to correctly redirect users to the `/payment-cancel` page, which displays a confirmation message, preventing the previous authentication error.
-5.  **Fix Auth Race Condition:** The `PaymentCancel.vue` component has been updated to wait for the authentication check to complete before rendering, preventing a race condition that caused a blank page and a permissions error on redirect.
-6.  **Fix Persistent Auth Race Condition:** The authentication logic in `src/composables/useAuth.js` has been refactored to prevent a race condition on redirects. The process was split into two stages: first, confirming authentication status, and second, fetching user data only after authentication is confirmed. This was orchestrated by calling an `init()` function from `App.vue`.
+1.  **Update Subscription Flow:** The subscription flow was updated to improve user experience by handling redirects after registration and automatically applying subscription plans.
+2.  **Fix Auth Race Conditions:** The authentication logic was refactored to prevent race conditions during redirects, ensuring a smoother user experience.
 
+## 5. Current Task: Refactor Loading Logic in InvoiceView
+
+The following steps will be taken to improve the loading user experience in `InvoiceView.vue` and prevent a flash of the "Not Found" message:
+
+1.  **Refactor Loading State:** The previous `isDisplayLoading` and `Promise.all` logic will be removed.
+2.  **Implement Local Loading State:** A new reactive state variable, `isLoading`, will be introduced and initialized to `true`.
+3.  **Ensure `isLoading` is Updated:** The `onMounted` hook will be refactored to use a `try...finally` block. This guarantees that `isLoading` is set to `false` only after the entire data-fetching process (including any errors) is complete.
+4.  **Update Template:** The template will be updated to conditionally render the loading spinner based on the `isLoading` state. The rest of the content (the invoice, error message, or "not found" message) will only be rendered *after* the loading process is finished.

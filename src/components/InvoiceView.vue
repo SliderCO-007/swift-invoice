@@ -23,23 +23,23 @@ const snackbar = ref(false)
 const snackbarText = ref('')
 const confirmDialog = ref(false)
 const confirmPendingDialog = ref(false)
+const isLoading = ref(true);
 
 const functions = getFunctions()
 
 onMounted(async () => {
-  // The router guard ensures auth is ready, so we can directly fetch the data.
   const invoiceId = route.params.id;
   try {
-    invoice.value = await getInvoice(invoiceId)
-    // Only fetch user settings if an invoice was successfully loaded
+    invoice.value = await getInvoice(invoiceId);
     if (invoice.value) {
       await fetchUserSettings();
     }
   } catch (err) {
-    // The error is already being set in the composable, but we can log it too.
     console.error("Error in InvoiceView onMounted:", err);
+  } finally {
+    isLoading.value = false;
   }
-})
+});
 
 const isOwner = computed(() => {
   if (!invoice.value || !currentUser.value) return false
@@ -284,8 +284,8 @@ const safeInvoice = computed(() => {
 
 <template>
   <div class="invoice-view-container">
-    <!-- Use the loading state from the composable -->
-    <div v-if="loading" class="loading-container">
+    <!-- Use the new loading state -->
+    <div v-if="isLoading" class="loading-container">
       <v-progress-circular indeterminate color="primary"></v-progress-circular>
       <p>Loading invoice...</p>
     </div>

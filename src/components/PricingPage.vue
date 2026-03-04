@@ -100,6 +100,9 @@ onMounted(() => {
               <v-list-item>
                 <v-list-item-title class="text-body-1">Unlimited Items</v-list-item-title>
               </v-list-item>
+              <v-list-item>
+                <v-list-item-title class="text-body-1">Download invoices as PDFs</v-list-item-title>
+              </v-list-item>
             </v-card-text>
 
             <v-card-actions class="pa-4">
@@ -137,7 +140,10 @@ onMounted(() => {
                 <v-list-item-title class="text-body-1">Unlimited Customers</v-list-item-title>
               </v-list-item>
               <v-list-item>
-                <v-list-item-title class="text-body-1">Cancel Anytime</v-list-item-title>
+                <v-list-item-title class="text-body-1">Email invoices directly to clients</v-list-item-title>
+              </v-list-item>
+               <v-list-item>
+                <v-list-item-title class="text-body-1">Weekly summary reports</v-list-item-title>
               </v-list-item>
             </v-card-text>
 
@@ -171,13 +177,13 @@ onMounted(() => {
                 <span class="text-h5 font-weight-medium mt-2">/year</span>
               </div>
               <v-list-item>
-                <v-list-item-title class="text-body-1">Unlimited Invoices</v-list-item-title>
+                <v-list-item-title class="text-body-1">Everything in Monthly</v-list-item-title>
               </v-list-item>
               <v-list-item>
-                <v-list-item-title class="text-body-1">Unlimited Customers</v-list-item-title>
-              </v-list-item>
-               <v-list-item>
                 <v-list-item-title class="text-body-1">Priority Support</v-list-item-title>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-title class="text-body-1">Export all invoices (CSV)</v-list-item-title>
               </v-list-item>
             </v-card-text>
             
