@@ -44,7 +44,7 @@
             <div class="feature-category">
               <h3 class="category-title"><v-icon color="blue" class="mr-2">mdi-credit-card-outline</v-icon>Payments</h3>
               <ul class="feature-list">
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Instant Venmo Payments with QR Code</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Instant Payments with QR Code</li>
                 <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Secure Subscription Payments with Stripe</li>
                 <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Clear Payment Status Tracking</li>
               </ul>
