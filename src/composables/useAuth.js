@@ -134,20 +134,12 @@ const logout = async () => {
   }
 };
 
-// --- THE CORE FIX: CENTRALIZED AUTH STATE LISTENER ---
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    currentUser.value = user;
-    const existingProfile = await fetchUserProfile(user.uid);
-
-    if (!existingProfile) {
-      await createInitialUserData(user);
-    }
-  } else {
-    currentUser.value = null;
-    userProfile.value = null;
-  }
+// --- NEW, SAFER AUTH STATE LISTENER ---
+onAuthStateChanged(auth, (user) => {
+  currentUser.value = user;
+  userProfile.value = null; // Reset profile on auth change
   
+  // This signals that the initial user check is done.
   if (authReadyResolver) {
     authReadyResolver();
     authReadyResolver = null;
@@ -156,6 +148,16 @@ onAuthStateChanged(auth, async (user) => {
 
 // --- COMPOSABLE EXPORT ---
 const useAuth = () => {
+  const init = async () => {
+    await isAuthReady; // Wait for the initial auth check to complete
+    if (currentUser.value) {
+      const existingProfile = await fetchUserProfile(currentUser.value.uid);
+      if (!existingProfile) {
+        await createInitialUserData(currentUser.value);
+      }
+    }
+  };
+
   return {
     currentUser,
     userProfile,
@@ -166,6 +168,7 @@ const useAuth = () => {
     logout,
     googleLogin,
     isAuthReady, 
+    init,
   };
 };
 

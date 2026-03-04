@@ -1,12 +1,13 @@
 <script setup>
 import { ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useAuth, currentUser } from '../composables/useAuth.js';
 import Logo from './Logo.vue';
 
 const email = ref('');
 const password = ref('');
 const router = useRouter();
+const route = useRoute();
 
 // Get the global state and actions from the composable
 const { loading, error, signup, googleLogin } = useAuth();
@@ -24,7 +25,11 @@ const handleGoogleSignIn = async () => {
 // Watch the globally shared currentUser for changes
 watch(currentUser, (user) => {
   if (user) {
-    router.push('/dashboard');
+    if (route.query.redirect) {
+      router.push(route.query.redirect);
+    } else {
+      router.push('/dashboard');
+    }
   }
 }, { immediate: true });
 

@@ -39,15 +39,14 @@ This document outlines the plan for rebranding the existing invoice management a
 *   **Enhanced Accessibility:** The application will be made more accessible to users with disabilities.
 *   **New Branding:** The application will be rebranded as "ScanGo Invoice" with a new logo and visual identity.
 
-## 4. Current Task: Rebrand to "ScanGo Invoice"
+## 4. Current Task: Update Subscription Flow
 
-The following steps will be taken to rebrand the application:
+The following steps have been taken to update the subscription flow:
 
-1.  **Update Project Name:** The project name in `package.json` and `index.html` will be updated to "ScanGo Invoice."
-2.  **Update Firebase Configuration:** The Firebase project ID in `firebase.json` will be updated to reflect the new brand name.
-3.  **Update Application Name:** The application name in `src/App.vue` will be updated to "ScanGo Invoice."
-4.  **Update Landing Page:** The landing page in `src/components/LandingPage.vue` will be updated with the new brand name and visual identity.
-5.  **Update User Settings:** The user settings page in `src/components/UserSettings.vue` will be updated to reflect the new brand name.
-6.  **Update Login Page:** The login page in `src/components/LoginPage.vue` will be updated with the new brand name.
-7.  **Update Registration Page:** The registration page in `src/components/RegisterPage.vue` will be updated with the new brand name.
-8.  **Update App Bar:** The app bar in `src/components/AppBar.vue` will be updated with the new brand name.
+1.  **Update Pricing Page:** The pricing page in `src/components/PricingPage.vue` has been updated to redirect non-logged-in users to the registration page instead of the login page.
+2.  **Update Registration Page:** The registration page in `src/components/RegisterPage.vue` has been updated to handle redirects, ensuring users are returned to their original destination after signing up.
+3.  **Automate Subscription Flow:** The `PricingPage.vue` component now automatically initiates the checkout process by reading the `plan` from the URL query parameters upon redirection after login or registration.
+4.  **Fix Cancellation Flow:** The `cancelUrl` in `src/components/PricingPage.vue` has been updated to correctly redirect users to the `/payment-cancel` page, which displays a confirmation message, preventing the previous authentication error.
+5.  **Fix Auth Race Condition:** The `PaymentCancel.vue` component has been updated to wait for the authentication check to complete before rendering, preventing a race condition that caused a blank page and a permissions error on redirect.
+6.  **Fix Persistent Auth Race Condition:** The authentication logic in `src/composables/useAuth.js` has been refactored to prevent a race condition on redirects. The process was split into two stages: first, confirming authentication status, and second, fetching user data only after authentication is confirmed. This was orchestrated by calling an `init()` function from `App.vue`.
+

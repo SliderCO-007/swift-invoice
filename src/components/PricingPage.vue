@@ -1,37 +1,41 @@
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useAuth, currentUser } from '../composables/useAuth';
-import useStripe from '../composables/useStripe'; // Corrected import
+import useStripe from '../composables/useStripe';
 
 const router = useRouter();
+const route = useRoute();
 const user = currentUser;
 
-// Correctly uses the new useStripe composable
 const { createCheckoutSession, loading, error } = useStripe();
 
 const selectedPlan = ref(null);
 
-// This function now correctly handles the subscription flow.
+// Mapping of plan names to their corresponding Price IDs
+const priceIds = {
+  monthly: 'price_1T0Zf0AuWeuwQet6AHC0Owwn',
+  yearly: 'price_1Spgg9AuWeuwQet65ynWRtb7',
+};
+
 const handleSubscribe = async (plan, priceId) => {
   error.value = null;
   selectedPlan.value = plan;
 
   if (!user.value) {
-    router.push({ path: '/login', query: { redirect: `/pricing?plan=${plan}` } });
+    router.push({ path: '/register', query: { redirect: `/pricing?plan=${plan}` } });
     return;
   }
   
   try {
     const successUrl = `${window.location.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`;
-    const cancelUrl = `${window.location.origin}/pricing`;
+    const cancelUrl = `${window.location.origin}/payment-cancel`;
 
     await createCheckoutSession({
       priceId: priceId,
       successUrl: successUrl,
       cancelUrl: cancelUrl
     });
-    // The createCheckoutSession function will handle the redirect to Stripe.
   } catch (err) {
     console.error('Subscription error:', err);
     error.value = err.message || 'An unexpected error occurred. Please try again.';
@@ -39,6 +43,18 @@ const handleSubscribe = async (plan, priceId) => {
     selectedPlan.value = null;
   }
 };
+
+// When the component mounts, check for a plan in the URL
+onMounted(() => {
+  const plan = route.query.plan;
+  if (plan && user.value) {
+    const priceId = priceIds[plan];
+    if (priceId) {
+      handleSubscribe(plan, priceId);
+    }
+  }
+});
+
 </script>
 
 <template>
@@ -132,7 +148,7 @@ const handleSubscribe = async (plan, priceId) => {
                 size="large"
                 :loading="loading && selectedPlan === 'monthly'"
                 :disabled="loading"
-                @click="handleSubscribe('monthly', 'price_1T0Zf0AuWeuwQet6AHC0Owwn')"
+                @click="handleSubscribe('monthly', priceIds.monthly)"
               >
                 Get Started
               </v-btn>
@@ -172,7 +188,7 @@ const handleSubscribe = async (plan, priceId) => {
                 size="large"
                 :loading="loading && selectedPlan === 'yearly'"
                 :disabled="loading"
-                @click="handleSubscribe('yearly', 'price_1Spgg9AuWeuwQet65ynWRtb7')"
+                @click="handleSubscribe('yearly', priceIds.yearly)"
               >
                 Choose Yearly
               </v-btn>

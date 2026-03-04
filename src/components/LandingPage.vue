@@ -11,11 +11,6 @@
               <h1 class="hero-title">Start Getting Paid in Seconds.</h1>
               <p class="hero-subtitle">Create, send, and track professional invoices in minutes. Focus on your work, not your paperwork.</p>
               <v-btn to="/register" color="primary" size="x-large" rounded="pill" class="mt-8">Get Started</v-btn>
-              <div class="mt-4 d-none d-md-block">
-                <v-btn density="comfortable" @click="openDemo">
-                  Take a tour
-                </v-btn>
-              </div>
             </div>
             <div class="hero-image">
               <img src="/hero_woman.png" alt="A woman smiling while using a laptop, representing a satisfied ScanGo Invoice user.">
@@ -108,14 +103,9 @@ const showDashboardPreview = ref(false);
 const showInvoicePreview = ref(false);
 
 useMeta(
-  'ScanGo Invoice | Simple Subscription Invoicing',
+  'ScanGo Invoice | Simple Digital Invoicing',
   'Create, download, and track professional invoices for a simple monthly or yearly price. ScanGo Invoice is packed with features to help you get paid faster. Perfect tool for small businesses and individuals looking to streamline their invoice management.',
 );
-
-// In your methods
-const openDemo = () => {
-  Supademo.open('cmlrgxmfi0guf1189s8jkvkfm');
-}
 
 </script>
 
