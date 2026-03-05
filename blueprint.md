@@ -1,56 +1,49 @@
+# ScanGo Invoice Application Blueprint
 
-# Project Blueprint: ScanGo Invoice
+## Overview
 
-## 1. Overview
+ScanGo Invoice is a web-based application designed to simplify the invoicing process for freelancers and small businesses. It allows users to create, send, and manage invoices efficiently. The application is built with Vue.js and Vite, focusing on a fast, responsive, and user-friendly experience.
 
-This document outlines the plan for rebranding the existing invoice management application to "ScanGo Invoice." The goal is to create a modern, intuitive, and visually appealing application for managing invoices.
+## Project Outline
 
-## 2. Design and Style Guide
+### Design & Style
 
-### 2.1. Visual Identity
+*   **Color Palette:** A modern and vibrant color scheme is used to create a visually appealing interface.
+*   **Typography:** Clean and readable fonts are used to ensure a clear hierarchy and legibility.
+*   **Layout:** The application uses a responsive layout that adapts to different screen sizes, ensuring a seamless experience on both desktop and mobile devices.
+*   **Iconography:** Icons are used to enhance usability and provide visual cues for various actions.
 
-*   **Logo:** The existing logo will be reused.
-*   **Color Palette:** The existing color palette will be used.
-*   **Typography:** Expressive and relevant typography will be used to emphasize key information and improve readability.
-*   **Iconography:** Modern and interactive icons will be used to enhance usability and visual appeal.
-*   **Visual Effects:** Subtle drop shadows and a "glow" effect on interactive elements will be used to create a sense of depth and interactivity.
+### Features
 
-### 2.2. Layout and Structure
-
-*   **Responsive Design:** The application will be fully responsive and accessible on all devices.
-*   **Intuitive Navigation:** A clear and intuitive navigation structure will be implemented to ensure a seamless user experience.
-*   **Clean and Balanced Layout:** A clean and visually balanced layout with ample white space will be used to improve readability and reduce cognitive load.
-
-## 3. Features
-
-### 3.1. Core Features
-
-*   **Invoice Management:** Create, edit, and manage invoices.
-*   **Customer Management:** Add, edit, and manage customer information.
-*   **Item Management:** Add, edit, and manage products and services.
+*   **User Authentication:** Secure user registration and login functionality.
+*   **Invoice Management:**
+    *   Create, edit, and delete invoices.
+    *   View a list of all invoices with their status.
+    *   Real-time updates for invoice status.
+*   **Customer Management:**
+    *   Add, edit, and delete customer information.
+    *   Assign customers to invoices.
+*   **Item Management:**
+    *   Add, edit, and delete line items for invoices.
+    *   Save frequently used items for quick reuse.
+*   **PDF Generation:** Generate PDF versions of invoices for printing or sending to clients.
 *   **Stripe Integration:** Process payments securely through Stripe.
-*   **User Authentication:** Secure user authentication and authorization.
-*   **Dashboard:** A comprehensive dashboard with key metrics and insights.
+*   **Dashboard:** An overview of key invoice statistics, such as total revenue, outstanding payments, and overdue invoices.
 
-### 3.2. New and Improved Features
+## Current Task: Mobile Demo on Landing Page
 
-*   **Redesigned User Interface:** A modern and intuitive user interface will be designed to improve the user experience.
-*   **Improved Performance:** The application will be optimized for speed and performance.
-*   **Enhanced Accessibility:** The application will be made more accessible to users with disabilities.
-*   **New Branding:** The application will be rebranded as "ScanGo Invoice" with a new logo and visual identity.
+### Plan
 
-## 4. Completed Tasks
+1.  **Mobile Detection:**
+    *   Implement a mechanism in `src/components/LandingPage.vue` to detect if the user is accessing the application on a mobile device.
 
-The following tasks have been completed:
+2.  **"See it in Action" Button:**
+    *   Add a new button to the landing page, labeled "See it in Action".
+    *   This button will only be visible to users on mobile devices.
+    *   The button will be placed under the existing "Create a free invoice" call-to-action.
 
-1.  **Update Subscription Flow:** The subscription flow was updated to improve user experience by handling redirects after registration and automatically applying subscription plans.
-2.  **Fix Auth Race Conditions:** The authentication logic was refactored to prevent race conditions during redirects, ensuring a smoother user experience.
-
-## 5. Current Task: Refactor Loading Logic in InvoiceView
-
-The following steps will be taken to improve the loading user experience in `InvoiceView.vue` and prevent a flash of the "Not Found" message:
-
-1.  **Refactor Loading State:** The previous `isDisplayLoading` and `Promise.all` logic will be removed.
-2.  **Implement Local Loading State:** A new reactive state variable, `isLoading`, will be introduced and initialized to `true`.
-3.  **Ensure `isLoading` is Updated:** The `onMounted` hook will be refactored to use a `try...finally` block. This guarantees that `isLoading` is set to `false` only after the entire data-fetching process (including any errors) is complete.
-4.  **Update Template:** The template will be updated to conditionally render the loading spinner based on the `isLoading` state. The rest of the content (the invoice, error message, or "not found" message) will only be rendered *after* the loading process is finished.
+3.  **Mobile Preview Modal:**
+    *   Reuse the existing `InvoicePreview` modal to display a GIF showcasing the mobile experience.
+    *   When a user clicks the "See it in Action" button, the modal will appear.
+    *   The modal will display the `ScanGo_mobile_newInvoice.gif` file, which is located in the `public` folder.
+    *   **Add a loading indicator that is displayed while the GIF is loading.**

@@ -5,13 +5,13 @@
       class="trustpilot-widget" 
       data-locale="en-US" 
       data-template-id="56278e9abfbbba0bdcd568bc" 
-      data-businessunit-id="698e2b5c9111479251cad222"
-      data-token="9f2743be-431e-4092-aaea-3c7e748fe407" 
+      data-businessunit-id="69a9732af09a47296725e587"
+      data-token="5dfcd411-0873-4375-b52e-ec09bb9201dc" 
       data-style-height="52px" 
       data-style-width="100%" 
       data-theme="light"
     >
-      <a href="https://www.trustpilot.com/review/swiftinvoice.biz" target="_blank" rel="noopener">
+      <a href="https://www.trustpilot.com/review/scangoinvoice.com" target="_blank" rel="noopener">
         Trustpilot
       </a>
     </div>
