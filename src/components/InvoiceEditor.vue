@@ -74,10 +74,13 @@ const saveInvoice = async () => {
     return;
   }
 
-  const invoiceData = { ...invoice.value, subtotal: subtotal.value, taxAmount: taxAmount.value, total: total.value, userId: user.value.uid };
+  const invoiceData = { ...invoice.value, subtotal: subtotal.value, taxAmount: taxAmount.value, total: total.value };
 
   try {
-    const finalInvoiceId = invoiceId.value === 'new' ? await createInvoice(invoiceData) : (await updateInvoice(invoiceId.value, invoiceData), invoiceId.value);
+    const finalInvoiceId = invoiceId.value === 'new' 
+      ? await createInvoice(invoiceData, user.value.uid) 
+      : (await updateInvoice(invoiceId.value, invoiceData, user.value.uid), invoiceId.value);
+      
     router.push({ name: 'InvoiceView', params: { id: finalInvoiceId } });
   } catch (error) {
     console.error("Failed to save invoice:", error);
@@ -128,13 +131,14 @@ const initializeInvoice = async () => {
 };
 
 // --- Watchers & Lifecycle ---
-watch(user, (newUser) => {
+watch(user, (newUser, oldUser) => {
   if (newUser) {
     initializeInvoice();
-  } else {
-    // Clear all data on logout
-    invoice.value = createFreshInvoice();
-    router.push('/'); // Redirect to home/login on logout
+  } else if (oldUser && !newUser) {
+    // More robustly handle logout
+    if (route.name !== 'Home' && route.name !== 'Login') {
+      router.push('/');
+    }
   }
 }, { immediate: true });
 
@@ -294,7 +298,7 @@ onUnmounted(() => {
 .form-section h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; }
 .responsive-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
 .address-grid-city-state { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-.item-row { margin-bottom: 1rem; }
+.item-.row { margin-bottom: 1rem; }
 .editor-footer { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; border-top: 2px solid #eee; padding-top: 1.5rem; }
 .preview-content { background: #f7f7f7; padding: 2rem; height: 100%; overflow-y: auto; }
 .totals-summary { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #eee; }

@@ -9,22 +9,26 @@ service cloud.firestore {
     function getUserData(userId) {
       return get(/databases/$(database)/documents/users/$(userId)).data;
     }
+    function userExists(userId) {
+      return exists(/databases/$(database)/documents/users/$(userId));
+    }
     
     // --- Collections ---
     match /users/{userId} {
       allow read: if isOwner(userId);
         
-      // On create, a user is set to the free plan with 0 invoices.
-      allow create: if isOwner(userId)
-                    && request.resource.data.subscriptionStatus == 'free'
-                    && request.resource.data.invoiceCount == 0;
+      // Allow creation for a new user (standard) or on-the-fly during first invoice creation.
+      allow create: if isOwner(userId) && (
+        // Standard user creation
+        (request.resource.data.get('subscriptionStatus', 'free') == 'free' && request.resource.data.get('invoiceCount', 0) == 0) ||
+        // On-the-fly creation during first invoice transaction
+        (request.resource.data.keys().hasOnly(['invoiceCount']) && request.resource.data.invoiceCount == 1)
+      );
       
       // Allow updates for profile changes, and for invoice creation/deletion transactions.
       allow update: if isOwner(userId) && (
-          // Scenario 1: Standard profile update (cannot change subscription or count)
-          (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'email', 'address1', 'address2', 'city', 'state', 'zip', 'logoUrl', 'venmoQrUrl']) &&
-           request.resource.data.invoiceCount == resource.data.invoiceCount &&
-           request.resource.data.subscriptionStatus == resource.data.subscriptionStatus) ||
+          // Scenario 1: Standard profile update
+          (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'email', 'address1', 'address2', 'city', 'state', 'zip', 'logoUrl', 'venmoQrUrl'])) ||
 
           // Scenario 2: Invoice creation transaction
           (request.resource.data.diff(resource.data).affectedKeys().size() == 1 &&
@@ -50,12 +54,13 @@ service cloud.firestore {
         
       // An invoice can be created only if the user meets the plan limits.
       allow create: if isOwner(request.resource.data.userId) && (
-                      // Rule 1: Allow creation if the user has an active subscription.
-                      getUserData(request.auth.uid).subscriptionStatus == 'active'
-                      ||
-                      // Rule 2: OR, allow if the user is on the free plan and has created less than 2 invoices.
-                      (getUserData(request.auth.uid).subscriptionStatus == 'free' && getUserData(request.auth.uid).invoiceCount < 2)
-                    );
+          // Allow if the user document does not exist yet (it's their first invoice)
+          !userExists(request.auth.uid) ||
+          // OR, allow creation if the user has an active subscription.
+          getUserData(request.auth.uid).subscriptionStatus == 'active' ||
+          // OR, allow if the user is on the free plan and has created less than 2 invoices.
+          (getUserData(request.auth.uid).subscriptionStatus == 'free' && getUserData(request.auth.uid).invoiceCount < 2)
+      );
     }
     
     match /userSettings/{userId} {

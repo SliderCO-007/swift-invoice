@@ -6,6 +6,7 @@ import { createHead } from '@vueuse/head';
 import { isAuthReady } from './composables/useAuth.js';
 import '@mdi/font/css/materialdesignicons.css';
 import { createGtag } from "vue-gtag";
+import './style.css';
 
 const app = createApp(App);
 const head = createHead();

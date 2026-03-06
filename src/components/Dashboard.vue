@@ -7,6 +7,7 @@ import useUserSettings from '../composables/useUserSettings';
 import InvoiceTable from './InvoiceTable.vue';
 import InvoiceStats from './InvoiceStats.vue';
 import CompanyInfoPrompt from './CompanyInfoPrompt.vue';
+import UpgradePrompt from './UpgradePrompt.vue'; // Import the new component
 
 const router = useRouter();
 const { mobile } = useDisplay();
@@ -19,6 +20,11 @@ onMounted(async () => {
     fetchUserSettings(),
     getInvoices()
   ]);
+});
+
+// Computed property to check subscription status
+const isSubscribed = computed(() => {
+  return settings.value?.subscriptionStatus === 'active';
 });
 
 const isDataLoading = computed(() => {
@@ -96,6 +102,9 @@ const formatInvoiceNumber = (num) => {
         <p class="date-display">A summary of your recent invoices.</p>
       </div>
     </header>
+
+    <!-- Show Upgrade Prompt if not subscribed -->
+    <UpgradePrompt v-if="!isSubscribed && !settingsLoading" />
 
     <CompanyInfoPrompt v-if="!settings.company?.name && !settingsLoading" />
 

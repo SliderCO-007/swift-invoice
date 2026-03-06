@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue';
 import { 
   collection, getDocs, doc, getDoc, updateDoc, serverTimestamp, 
-  query, where, deleteDoc, runTransaction, setDoc, deleteField, onSnapshot
+  query, where, deleteDoc, runTransaction, setDoc, deleteField, onSnapshot, increment
 } from 'firebase/firestore';
 import { db } from './useFirebase';
 import { currentUser } from './useAuth.js';
@@ -59,10 +59,7 @@ const useInvoices = () => {
     return subtotal + taxAmount;
   };
 
-  // getInvoices is no longer needed to be called from components,
-  // as the listener will automatically keep the data up to date.
   const getInvoices = async () => {
-    // This can be kept for one-off fetches if needed, but for now we rely on the listener
     if(currentUser.value?.uid) {
       setupInvoiceListener(currentUser.value.uid)
     }
@@ -94,21 +91,23 @@ const useInvoices = () => {
     }
   };
 
-  const createInvoice = async (invoiceData) => {
-    if (!currentUser.value) throw new Error("Authentication required.");
+  const createInvoice = async (invoiceData, userId) => {
+    if (!userId) throw new Error("Authentication required.");
     loading.value = true;
     try {
       const newInvoiceId = await runTransaction(db, async (transaction) => {
-        const userRef = doc(db, 'users', currentUser.value.uid);
+        const userRef = doc(db, 'users', userId);
         const userDoc = await transaction.get(userRef);
-        if (!userDoc.exists()) throw new Error("User profile not found.");
+        
+        const userData = userDoc.data() || {};
+        const invoiceCount = userData.invoiceCount || 0;
+        const subscriptionStatus = userData.subscriptionStatus || 'free';
 
-        const { subscriptionStatus, invoiceCount = 0 } = userDoc.data();
         if (subscriptionStatus !== 'active' && invoiceCount >= 2) {
           throw new Error("Invoice limit reached. Please upgrade.");
         }
 
-        const settingsRef = doc(db, 'userSettings', currentUser.value.uid);
+        const settingsRef = doc(db, 'userSettings', userId);
         const settingsDoc = await transaction.get(settingsRef);
         const newInvoiceCounter = (settingsDoc.data()?.invoiceCounter || 0) + 1;
         const invoiceNumber = String(newInvoiceCounter).padStart(6, '0');
@@ -117,12 +116,13 @@ const useInvoices = () => {
         transaction.set(newInvoiceRef, {
           ...invoiceData,
           invoiceNumber,
-          userId: currentUser.value.uid,
+          userId: userId,
           createdAt: serverTimestamp(),
           svcFeePaid: false,
         });
 
-        transaction.update(userRef, { invoiceCount: invoiceCount + 1 });
+        // Atomically create or update user and settings documents
+        transaction.set(userRef, { invoiceCount: increment(1) }, { merge: true });
         transaction.set(settingsRef, { invoiceCounter: newInvoiceCounter }, { merge: true });
 
         return newInvoiceRef.id;
@@ -130,13 +130,15 @@ const useInvoices = () => {
       return newInvoiceId;
     } catch (err) {
       error.value = `Failed to create invoice: ${err.message}`;
+      console.error("Error in createInvoice transaction:", err);
       throw err;
     } finally {
       loading.value = false;
     }
   };
 
-  const updateInvoice = async (id, invoiceData) => {
+
+  const updateInvoice = async (id, invoiceData, userId) => {
     loading.value = true;
     try {
       const docRef = doc(db, 'invoices', id);
@@ -182,11 +184,8 @@ const useInvoices = () => {
           throw new Error("Invoice not found or permission denied.");
         }
 
-        const userDoc = await transaction.get(userRef);
-        const currentCount = userDoc.data()?.invoiceCount || 0;
-
         transaction.delete(invoiceRef);
-        transaction.update(userRef, { invoiceCount: Math.max(0, currentCount - 1) });
+        transaction.set(userRef, { invoiceCount: increment(-1) }, { merge: true });
       });
     } catch (err) {
       error.value = `Failed to delete invoice: ${err.message}`;
