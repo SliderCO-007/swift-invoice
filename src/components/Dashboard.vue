@@ -1,45 +1,36 @@
 <script setup>
-import { computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify';
 import useInvoices from '../composables/useInvoices';
 import useUserSettings from '../composables/useUserSettings';
+import { userProfile } from '../composables/useAuth.js';
 import InvoiceTable from './InvoiceTable.vue';
 import InvoiceStats from './InvoiceStats.vue';
 import CompanyInfoPrompt from './CompanyInfoPrompt.vue';
-import UpgradePrompt from './UpgradePrompt.vue'; // Import the new component
+import UpgradePrompt from './UpgradePrompt.vue';
 
 const router = useRouter();
 const { mobile } = useDisplay();
 
-const { invoices, loading: invoicesLoading, error: invoicesError, deleteInvoice, getInvoices } = useInvoices();
-const { settings, loading: settingsLoading, error: settingsError, fetchUserSettings } = useUserSettings();
+const { invoices, loading: invoicesLoading, error: invoicesError, deleteInvoice } = useInvoices();
+const { settings, loading: settingsLoading, error: settingsError } = useUserSettings();
 
-onMounted(async () => {
-  await Promise.all([
-    fetchUserSettings(),
-    getInvoices()
-  ]);
-});
+const isFreePlan = computed(() => userProfile.value?.subscriptionStatus === 'free');
+const invoiceLimitReached = computed(() => isFreePlan.value && userProfile.value?.invoiceCount >= 2);
 
-// Computed property to check subscription status
-const isSubscribed = computed(() => {
-  return settings.value?.subscriptionStatus === 'active';
-});
+const isDataLoading = computed(() => invoicesLoading.value || settingsLoading.value);
+const hasError = computed(() => invoicesError.value || settingsError.value);
+const isInitialLoad = computed(() => isDataLoading.value && !invoices.value.length);
 
-const isDataLoading = computed(() => {
-  return invoicesLoading.value || settingsLoading.value;
-});
-
-const hasError = computed(() => {
-  return invoicesError.value || settingsError.value;
-});
-
-const isInitialLoad = computed(() => {
-    return isDataLoading.value && !invoices.value.length;
-});
+const dialogDelete = ref(false);
+const itemToDeleteId = ref(null);
 
 const createNewInvoice = () => {
+  if (invoiceLimitReached.value) {
+    alert('You have reached the invoice limit. Please upgrade.');
+    return;
+  }
   if (!settings.value.company?.name) {
     alert('Please set up your company information before creating an invoice.');
     router.push('/settings');
@@ -52,28 +43,39 @@ const editInvoice = (invoiceId) => {
   router.push(`/invoice/${invoiceId}`);
 };
 
-const handleDeleteInvoice = async (invoiceId) => {
-  if (confirm('Are you sure you want to delete this invoice? This cannot be undone.')) {
+// --- DELETE INVOICE LOGIC ---
+const openDeleteDialog = (invoiceId) => {
+  itemToDeleteId.value = invoiceId;
+  dialogDelete.value = true;
+};
+
+const closeDeleteDialog = () => {
+  itemToDeleteId.value = null;
+  dialogDelete.value = false;
+};
+
+const confirmDelete = async () => {
+  if (itemToDeleteId.value) {
     try {
-      await deleteInvoice(invoiceId);
+      await deleteInvoice(itemToDeleteId.value);
     } catch (err) {
       console.error("Failed to delete invoice:", err);
       alert(`Error deleting invoice: ${err.message}`);
+    } finally {
+      closeDeleteDialog();
     }
   }
 };
 
+
+// --- FORMATTERS & HELPERS ---
 const getStatusInfo = (status) => {
   const s = status ? status.toLowerCase() : 'pending';
   switch (s) {
-    case 'paid':
-      return { color: '#4CAF50', icon: 'mdi-check-circle-outline' }; // Green
-    case 'overdue':
-      return { color: '#F44336', icon: 'mdi-alert-circle-outline' }; // Red
-    case 'pending':
-      return { color: '#2196F3', icon: 'mdi-cash-clock' }; // Blue
-    default:
-      return { color: '#9E9E9E', icon: 'mdi-help-circle-outline' }; // Grey
+    case 'paid': return { color: '#4CAF50', icon: 'mdi-check-circle-outline' };
+    case 'overdue': return { color: '#F44336', icon: 'mdi-alert-circle-outline' };
+    case 'pending': return { color: '#2196F3', icon: 'mdi-cash-clock' };
+    default: return { color: '#9E9E9E', icon: 'mdi-help-circle-outline' };
   }
 };
 
@@ -83,19 +85,17 @@ const formatDate = (timestamp) => {
     return isNaN(date.getTime()) ? 'N/A' : date.toLocaleDateString();
 };
 
-const formatInvoiceNumber = (num) => {
-  return `#${num}`;
-};
+const formatInvoiceNumber = (num) => `#${num}`;
 
 </script>
 
 <template>
-  <div v-show="isInitialLoad" class="page-loading-container">
+  <div v-if="isInitialLoad" class="page-loading-container">
     <v-progress-circular indeterminate size="64" color="primary"></v-progress-circular>
     <p>Loading your workspace...</p>
   </div>
 
-  <div v-show="!isInitialLoad" class="dashboard-container">
+  <div v-else class="dashboard-container">
     <header class="dashboard-header">
       <div>
         <h1 class="welcome-message">Your Invoices</h1>
@@ -103,24 +103,31 @@ const formatInvoiceNumber = (num) => {
       </div>
     </header>
 
-    <!-- Show Upgrade Prompt if not subscribed -->
-    <UpgradePrompt v-if="!isSubscribed && !settingsLoading" />
+    <v-alert
+      v-if="invoiceLimitReached"
+      type="warning"
+      variant="outlined"
+      class="mb-4"
+      prominent
+      :icon="false"
+    >
+      <template v-slot:text>
+        You have reached the 2-invoice limit for the free plan. Please upgrade to create more invoices.
+      </template>
+      <template v-slot:append>
+        <v-btn to="/pricing" color="warning" variant="flat">Upgrade</v-btn>
+      </template>
+    </v-alert>
 
+    <UpgradePrompt v-if="isFreePlan && !invoiceLimitReached && !settingsLoading" />
     <CompanyInfoPrompt v-if="!settings.company?.name && !settingsLoading" />
 
     <InvoiceStats :invoices="invoices" />
 
     <main class="dashboard-content">
-      <div class="invoices-header-desktop">
-        <div class="invoices-header-title">
-          <h2>Your Invoices</h2>
-          <p class="text-grey-darken-1">A summary of your recent invoices.</p>
-        </div>
-      </div>
-
       <div v-if="hasError" class="error-container">
         <v-alert type="error" dense outlined>
-          There was an error loading your dashboard. Please refresh the page or contact support if the problem persists.
+          There was an error loading your dashboard. Please refresh the page.
         </v-alert>
       </div>
 
@@ -135,55 +142,58 @@ const formatInvoiceNumber = (num) => {
           <p class="text-body-1 text-grey-darken-1 mt-2 mb-6">Click the button to create your first invoice.</p>
         </div>
 
-        <!-- Desktop View: Data Table -->
-        <InvoiceTable v-else-if="!mobile" :invoices="invoices" @delete-invoice="handleDeleteInvoice" @edit-invoice="editInvoice"/>
+        <InvoiceTable v-else-if="!mobile" :invoices="invoices" @delete-invoice="openDeleteDialog" @edit-invoice="editInvoice"/>
 
-        <!-- Mobile View: Card List -->
         <div v-else class="pa-2">
-            <v-card v-for="invoice in invoices" :key="invoice.id" class="mb-4" elevation="2" rounded="xl">
-                <v-card-text class="pa-4">
-                    <div class="d-flex justify-space-between align-center mb-4">
-                        <span class="text-h6 font-weight-bold text-grey-darken-3">{{ invoice.client?.name || 'N/A' }}</span>
-                        <v-chip :color="getStatusInfo(invoice.status).color" text-color="white" label small>
-                            <v-icon start :icon="getStatusInfo(invoice.status).icon" size="small"></v-icon>
-                            {{ invoice.status ? invoice.status.toLowerCase() : '' }}
-                        </v-chip>
-                    </div>
-                    <div class="d-flex justify-space-between align-end mb-3">
-                        <div class="text-medium-emphasis">
-                            <span>Invoice {{ formatInvoiceNumber(invoice.invoiceNumber) }}</span>
-                            <br>
-                            <span>Due: {{ formatDate(invoice.dueDate) }}</span>
-                        </div>
-                        <span class="font-weight-bold text-h5 text-grey-darken-4">${{ invoice.total.toFixed(2) }}</span>
-                    </div>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions class="pa-3">
-                    <v-spacer></v-spacer>
-                    <v-btn variant="text" class="text-capitalize" @click="editInvoice(invoice.id)">
-                        View / Edit
-                    </v-btn>
-                    <v-btn color="red-darken-1" variant="text" class="text-capitalize" @click="handleDeleteInvoice(invoice.id)">
-                        Delete
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
+          <v-card v-for="invoice in invoices" :key="invoice.id" class="mb-4" elevation="2" rounded="xl">
+            <v-card-text class="pa-4">
+              <div class="d-flex justify-space-between align-center mb-4">
+                <span class="text-h6 font-weight-bold text-grey-darken-3">{{ invoice.client?.name || 'N/A' }}</span>
+                <v-chip :color="getStatusInfo(invoice.status).color" text-color="white" label small>
+                  <v-icon start :icon="getStatusInfo(invoice.status).icon" size="small"></v-icon>
+                  {{ invoice.status ? invoice.status.toLowerCase() : '' }}
+                </v-chip>
+              </div>
+              <div class="d-flex justify-space-between align-end mb-3">
+                <div class="text-medium-emphasis">
+                  <span>Invoice {{ formatInvoiceNumber(invoice.invoiceNumber) }}</span><br>
+                  <span>Due: {{ formatDate(invoice.dueDate) }}</span>
+                </div>
+                <span class="font-weight-bold text-h5 text-grey-darken-4">${{ invoice.total.toFixed(2) }}</span>
+              </div>
+            </v-card-text>
+            <v-divider></v-divider>
+            <v-card-actions class="pa-3">
+              <v-spacer></v-spacer>
+              <v-btn variant="text" class="text-capitalize" @click="editInvoice(invoice.id)">View / Edit</v-btn>
+              <v-btn color="red-darken-1" variant="text" class="text-capitalize" @click="openDeleteDialog(invoice.id)">Delete</v-btn>
+            </v-card-actions>
+          </v-card>
         </div>
-
       </div>
-
     </main>
 
-    <v-fab icon="mdi-plus" location="bottom right" size="64" color="primary" app appear @click="createNewInvoice"
-      title="Create New Invoice" class="fab-button" :disabled="isDataLoading"></v-fab>
+    <v-fab icon="mdi-plus" location="bottom right" size="64" color="primary" app appear @click="createNewInvoice" title="Create New Invoice" class="fab-button" :disabled="isDataLoading || invoiceLimitReached"></v-fab>
+
+    <v-dialog v-model="dialogDelete" max-width="500px">
+      <v-card>
+        <v-card-title class="text-h5">Are you sure?</v-card-title>
+        <v-card-text>Do you really want to delete this invoice? This action cannot be undone.</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue-darken-1" variant="text" @click="closeDeleteDialog">Cancel</v-btn>
+          <v-btn color="red-darken-1" variant="text" @click="confirmDelete">Delete</v-btn>
+          <v-spacer></v-spacer>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <footer class="dashboard-footer">
-      <p>&copy; 2026 ScanGo Invoice. All rights reserved. | <a
-          href="mailto:support@scangoinvoice.com">support@scangoinvoice.com</a></p>
+      <p>&copy; 2026 ScanGo Invoice. All rights reserved. | <a href="mailto:support@scangoinvoice.com">support@scangoinvoice.com</a></p>
     </footer>
   </div>
 </template>
+
 
 <style scoped>
 .page-loading-container { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; gap: 1.5rem; }
@@ -199,12 +209,11 @@ const formatInvoiceNumber = (num) => {
 .dashboard-footer { text-align: center; padding: 3rem 1rem 1rem; font-size: 0.9rem; color: #94A3B8; }
 .loading-container, .error-container { text-align: center; padding: 3rem; }
 
-/* Mobile-specific adjustments */
 @media (max-width: 600px) {
     .dashboard-container { padding: 0.5rem; }
     .dashboard-header { text-align: center; padding: 1.5rem 0.5rem 0 0.5rem; }
     .welcome-message { font-size: 1.8rem; }
-    .invoices-header-desktop { display: none; } /* Hide the desktop header on mobile */
+    .invoices-header-desktop { display: none; }
     .dashboard-footer { padding: 2rem 0.5rem 1rem; }
 }
 </style>

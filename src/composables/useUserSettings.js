@@ -1,114 +1,146 @@
-import { ref } from 'vue';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { ref, watchEffect } from 'vue';
+import { doc, setDoc, getDoc, onSnapshot } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from './useFirebase';
-import { currentUser } from './useAuth.js';
+import { currentUser } from './useAuth';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
-// --- SHARED SINGLETON STATE ---
-const settings = ref(getInitialSettings());
-const loading = ref(false);
-const error = ref(null);
-
-// --- HELPER FUNCTIONS ---
 function getInitialSettings() {
   return {
-    company: { name: '', email: '', address1: '', address2: '', city: '', state: '', zip: '', logoUrl: '', venmoQrUrl: '' },
+    company: {
+      name: '', email: '', address1: '', address2: '', city: '', state: '', zip: '',
+      logoUrl: '', venmoQrUrl: '', venmoUsername: ''
+    },
     taxRate: 0,
     invoiceCounter: 0,
   };
 }
 
-// --- EXPLICIT, SIMPLE DATA-FETCHING FUNCTIONS ---
+const settings = ref(getInitialSettings());
+const loading = ref(true);
+const error = ref(null);
+let unsubscribe = null;
 
-// One-time fetch. No listeners. This is the robust pattern.
-const fetchUserSettings = async () => {
-  if (!currentUser.value) {
-    settings.value = getInitialSettings();
-    console.warn("Cannot fetch settings, no user is authenticated.");
-    return;
+watchEffect(() => {
+  if (unsubscribe) {
+    unsubscribe();
+    unsubscribe = null;
   }
-  loading.value = true;
-  error.value = null;
-  try {
-    const docRef = doc(db, 'userSettings', currentUser.value.uid);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      // Deep merge to ensure all fields are present, even if not in Firestore
-      settings.value = { 
-        ...getInitialSettings(), 
-        ...data, 
-        company: { ...getInitialSettings().company, ...(data.company || {}) } 
-      };
-    } else {
-      // This case handles a brand new user who might not have a settings doc yet.
+
+  const user = currentUser.value;
+  if (user) {
+    loading.value = true;
+    const docRef = doc(db, 'userSettings', user.uid);
+    
+    unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        settings.value = { 
+            ...getInitialSettings(), 
+            ...data, 
+            company: { ...getInitialSettings().company, ...(data.company || {}) }
+        };
+      } else {
+        settings.value = getInitialSettings();
+      }
+      loading.value = false;
+    }, (err) => {
+      console.error("Error fetching user settings with snapshot:", err);
+      error.value = 'Failed to fetch settings.';
       settings.value = getInitialSettings();
-      console.log("No user settings document found. Initializing with defaults.");
-    }
-  } catch (err) {
-    console.error("Fatal error fetching user settings: ", err);
-    error.value = 'Failed to fetch settings. Please try again later.';
-    // In case of error, revert to safe defaults
+      loading.value = false;
+    });
+  } else {
     settings.value = getInitialSettings();
-  } finally {
     loading.value = false;
   }
+});
+
+const fetchUserSettings = async () => {
+    const user = currentUser.value;
+    if (!user) {
+        settings.value = getInitialSettings();
+        return settings.value;
+    }
+    
+    loading.value = true;
+    try {
+        const docRef = doc(db, 'userSettings', user.uid);
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            const loadedSettings = { 
+                ...getInitialSettings(), 
+                ...data, 
+                company: { ...getInitialSettings().company, ...(data.company || {}) }
+            };
+            settings.value = loadedSettings;
+            return loadedSettings;
+        } else {
+            const initial = getInitialSettings();
+            await setDoc(docRef, initial);
+            settings.value = initial;
+            return initial;
+        }
+    } catch (err) {
+        console.error("Error during initial fetch of user settings:", err);
+        error.value = 'Failed to initialize settings.';
+        settings.value = getInitialSettings();
+        return settings.value;
+    } finally {
+        loading.value = false;
+    }
 };
 
-const saveUserSettings = async (newSettings, logoFile, venmoQrFile) => {
-  if (!currentUser.value) throw new Error("User not authenticated. Cannot save settings.");
+const saveUserSettings = async (newSettings, logoFile) => {
+  const user = currentUser.value;
+  if (!user) throw new Error("User not authenticated.");
+
   loading.value = true;
   error.value = null;
-  try {
-    let logoUrl = newSettings.company.logoUrl;
-    let venmoQrUrl = newSettings.company.venmoQrUrl;
 
-    // Upload new logo if provided
+  try {
+    const newVenmoUsername = newSettings.company.venmoUsername;
+
+    let logoUrl = newSettings.company.logoUrl;
     if (logoFile) {
-      const logoStorageRef = storageRef(storage, `logos/${currentUser.value.uid}/${logoFile.name}`);
+      const logoStorageRef = storageRef(storage, `logos/${user.uid}/${logoFile.name}`);
       await uploadBytes(logoStorageRef, logoFile);
       logoUrl = await getDownloadURL(logoStorageRef);
     }
 
-    // Upload new Venmo QR code if provided
-    if (venmoQrFile) {
-      const qrStorageRef = storageRef(storage, `qrcodes/${currentUser.value.uid}/${venmoQrFile.name}`);
-      await uploadBytes(qrStorageRef, venmoQrFile);
-      venmoQrUrl = await getDownloadURL(qrStorageRef);
-    }
-
-    // Create the final object to save to Firestore
-    const settingsToSave = { 
-      ...newSettings, 
-      company: { ...newSettings.company, logoUrl, venmoQrUrl } 
+    const settingsToSave = {
+      ...newSettings,
+      company: { ...newSettings.company, logoUrl },
     };
     
-    const docRef = doc(db, 'userSettings', currentUser.value.uid);
-    // Use setDoc with merge:true to create or update the document
+    const docRef = doc(db, 'userSettings', user.uid);
     await setDoc(docRef, settingsToSave, { merge: true });
 
-    // After a successful save, update the local state to match
-    settings.value = JSON.parse(JSON.stringify(settingsToSave));
+    // If a Venmo username is present, generate the QR code.
+    if (newVenmoUsername) {
+      console.log('Venmo username present. Calling generateVenmoQR...');
+      const functions = getFunctions();
+      const generateVenmoQR = httpsCallable(functions, 'generateVenmoQR');
+      await generateVenmoQR({ venmoUsername: newVenmoUsername });
+    }
 
-  } catch (err) { 
+  } catch (err) {
     console.error("Fatal error saving user settings: ", err);
     error.value = `Failed to save settings: ${err.message}`;
-    // Re-throw the error so the component knows the save failed
-    throw err;
   } finally {
     loading.value = false;
   }
 };
 
-
-// --- MAIN COMPOSABLE HOOK ---
 const useUserSettings = () => {
   return {
     settings,
     loading,
     error,
-    fetchUserSettings,
     saveUserSettings,
+    fetchUserSettings,
   };
 };
 

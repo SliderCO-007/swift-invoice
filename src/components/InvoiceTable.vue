@@ -1,9 +1,8 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { format, isValid, isBefore, startOfToday } from 'date-fns';
 
-// CORRECTED: The unused `customers` prop has been removed.
 const props = defineProps({
   invoices: {
     type: Array,
@@ -11,7 +10,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['delete-invoice']);
+const emit = defineEmits(['delete-invoice', 'edit-invoice']);
 
 const router = useRouter();
 
@@ -23,82 +22,49 @@ const statusOrder = {
   'Draft': 5,
 };
 
-const headers = ref([
+const headers = [
   { title: 'Invoice #', key: 'invoiceNumber', sortable: true },
-  // This key correctly points to the nested client name.
-  { title: 'Client', key: 'client.name', sortable: true }, 
+  { title: 'Client', key: 'client.name', sortable: true },
   { title: 'Issue Date', key: 'createdAt', sortable: true },
   { title: 'Due Date', key: 'dueDate', sortable: true },
   { title: 'Total', key: 'total', sortable: true },
-  { title: 'Status', key: 'statusSortKey', sortable: true }, 
+  { title: 'Status', key: 'statusSortKey', sortable: true },
   { title: 'Actions', key: 'actions', sortable: false, align: 'end' },
-]);
-
-const dialogDelete = ref(false);
-const itemToDelete = ref(null);
+];
 
 const getInvoiceStatus = (invoice) => {
   if (invoice.status.toLowerCase() === 'paid') return 'Paid';
-
   const dueDate = invoice.dueDate?.toDate ? invoice.dueDate.toDate() : new Date(invoice.dueDate);
-
-  if (isValid(dueDate) && isBefore(dueDate, startOfToday())) {
-    return 'Overdue';
-  }
+  if (isValid(dueDate) && isBefore(dueDate, startOfToday())) return 'Overdue';
   return invoice.status || 'Pending';
 };
 
-const processedInvoices = computed(() => {
-  return props.invoices.map(invoice => {
-    const status = getInvoiceStatus(invoice);
-    return {
-      ...invoice,
-      status: status,
-      statusSortKey: statusOrder[status] || 99,
-    };
-  });
-});
+const processedInvoices = computed(() => props.invoices.map(invoice => {
+  const status = getInvoiceStatus(invoice);
+  return {
+    ...invoice,
+    status: status,
+    statusSortKey: statusOrder[status] || 99,
+  };
+}));
 
 const formatDate = (timestamp) => {
-    if (!timestamp) return 'N/A';
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    return isValid(date) ? format(date, 'MMM d, yyyy') : 'N/A';
+  if (!timestamp) return 'N/A';
+  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+  return isValid(date) ? format(date, 'MMM d, yyyy') : 'N/A';
 };
 
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0);
-};
-
-const viewInvoice = (invoiceId) => {
-  router.push(`/invoice/${invoiceId}`);
-};
-
-const openDeleteDialog = (item) => {
-  itemToDelete.value = item;
-  dialogDelete.value = true;
-};
-
-const closeDeleteDialog = () => {
-  itemToDelete.value = null;
-  dialogDelete.value = false;
-};
-
-const confirmDelete = () => {
-  if (itemToDelete.value) {
-    emit('delete-invoice', itemToDelete.value.id);
-    closeDeleteDialog();
-  }
-};
+const formatCurrency = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0);
 
 const getStatusColor = (status) => {
-    switch (status.toLowerCase()) {
-        case 'paid': return 'green-darken-2';
-        case 'pending': return 'orange-darken-2';
-        case 'overdue': return 'red-darken-2';
-        case 'quote': return 'blue-darken-1';
-        case 'draft': return 'grey-darken-1';
-        default: return 'grey';
-    }
+  switch (status.toLowerCase()) {
+    case 'paid': return 'green-darken-2';
+    case 'pending': return 'orange-darken-2';
+    case 'overdue': return 'red-darken-2';
+    case 'quote': return 'blue-darken-1';
+    case 'draft': return 'grey-darken-1';
+    default: return 'grey';
+  }
 };
 
 const escapeCSV = (str) => {
@@ -111,30 +77,23 @@ const escapeCSV = (str) => {
 };
 
 const exportToCSV = () => {
-  const headers = [
+  const csvHeaders = [
     'Invoice #', 'Client', 'Issue Date', 'Due Date', 'Invoice Total', 'Invoice Status',
     'Item Description', 'Item Quantity', 'Item Unit Price', 'Item Line Total'
   ];
-
-  const csvRows = [headers.join(',')];
+  const csvRows = [csvHeaders.join(',')];
 
   processedInvoices.value.forEach(invoice => {
     const commonData = [
-      escapeCSV(invoice.invoiceNumber),
-      escapeCSV(invoice.client?.name),
-      escapeCSV(formatDate(invoice.createdAt)),
-      escapeCSV(formatDate(invoice.dueDate)),
-      escapeCSV(invoice.total || 0),
-      escapeCSV(invoice.status),
+      escapeCSV(invoice.invoiceNumber), escapeCSV(invoice.client?.name),
+      escapeCSV(formatDate(invoice.createdAt)), escapeCSV(formatDate(invoice.dueDate)),
+      escapeCSV(invoice.total || 0), escapeCSV(invoice.status),
     ];
-
     if (invoice.items && invoice.items.length > 0) {
       invoice.items.forEach(item => {
         const itemData = [
-          escapeCSV(item.description),
-          escapeCSV(item.quantity || 0),
-          escapeCSV(item.price || 0),
-          escapeCSV((item.quantity || 0) * (item.price || 0))
+          escapeCSV(item.description), escapeCSV(item.quantity || 0),
+          escapeCSV(item.price || 0), escapeCSV((item.quantity || 0) * (item.price || 0))
         ];
         csvRows.push([...commonData, ...itemData].join(','));
       });
@@ -187,31 +146,15 @@ const exportToCSV = () => {
       </template>
       <template v-slot:item.actions="{ item }">
         <div class="d-flex justify-end align-center">
-            <v-btn size="small" color="primary" @click="viewInvoice(item.id)" class="mr-2">
+            <v-btn size="small" color="primary" @click="$emit('edit-invoice', item.id)" class="mr-2">
                 View
             </v-btn>
-            <v-btn variant="plain" size="small" @click="openDeleteDialog(item)" title="Delete Invoice">
+            <v-btn variant="plain" size="small" @click="$emit('delete-invoice', item.id)" title="Delete Invoice">
               <v-icon color="red-lighten-1">mdi-delete</v-icon>
             </v-btn>
         </div>
       </template>
     </v-data-table>
-
-    <!-- Delete Confirmation Dialog -->
-    <v-dialog v-model="dialogDelete" max-width="500px">
-      <v-card>
-        <v-card-title class="text-h5">Are you sure?</v-card-title>
-        <v-card-text>
-          Do you really want to delete this invoice? This action cannot be undone.
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue-darken-1" variant="text" @click="closeDeleteDialog">Cancel</v-btn>
-          <v-btn color="red-darken-1" variant="text" @click="confirmDelete">Delete</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
   </v-card>
 </template>
 

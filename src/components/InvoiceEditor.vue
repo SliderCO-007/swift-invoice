@@ -309,7 +309,7 @@ onUnmounted(() => {
   .editor-container, .editor-form-card { padding: 1rem; }
   .editor-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
   .responsive-grid { grid-template-columns: 1fr; }
-  .from-fields { display: none; } 
+  .from-.fields { display: none; } 
   .editor-footer { flex-direction: column; gap: 0.5rem; }
   .editor-footer .v-btn { width: 100%; margin: 0.25rem 0; }
 }

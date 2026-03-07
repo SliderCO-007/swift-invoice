@@ -19,6 +19,9 @@ exports.sendWeeklyReport = weeklyReport.sendWeeklyReport;
 const previewReport = require("./previewReport");
 exports.sendPreviewReport = previewReport.sendPreviewReport;
 
+const generateVenmoQR = require("./generateVenmoQR");
+exports.generateVenmoQR = generateVenmoQR.generateVenmoQR;
+
 /**
  * Creates a Stripe Checkout session for a subscription plan.
  */

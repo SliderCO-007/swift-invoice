@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue';
 import { 
   collection, getDocs, doc, getDoc, updateDoc, serverTimestamp, 
-  query, where, deleteDoc, runTransaction, setDoc, deleteField, onSnapshot, increment
+  query, where, deleteDoc, runTransaction, setDoc, deleteField, onSnapshot
 } from 'firebase/firestore';
 import { db } from './useFirebase';
 import { currentUser } from './useAuth.js';
@@ -10,20 +10,18 @@ import { currentUser } from './useAuth.js';
 const invoices = ref([]);
 const loading = ref(false);
 const error = ref(null);
-let unsubscribe = null; // To hold the listener's unsubscribe function
+let unsubscribe = null; 
 
 const useInvoices = () => {
 
   const setupInvoiceListener = (userId) => {
     if (unsubscribe) {
-      unsubscribe(); // Unsubscribe from any previous listener
+      unsubscribe();
     }
-
     if (!userId) {
       invoices.value = [];
       return;
     }
-
     const invoicesCollection = collection(db, 'invoices');
     const q = query(invoicesCollection, where('userId', '==', userId));
 
@@ -48,21 +46,14 @@ const useInvoices = () => {
     });
   };
 
-  // Watch for changes in the authenticated user
   watch(currentUser, (newUser) => {
     setupInvoiceListener(newUser?.uid);
-  }, { immediate: true }); // immediate: true runs the watcher upon initialization
+  }, { immediate: true });
 
   const calculateTotal = (invoice) => {
     const subtotal = (invoice.items || []).reduce((acc, item) => acc + (item.quantity || 0) * (item.price || 0), 0);
     const taxAmount = subtotal * ((invoice.taxRate || 0) / 100);
     return subtotal + taxAmount;
-  };
-
-  const getInvoices = async () => {
-    if(currentUser.value?.uid) {
-      setupInvoiceListener(currentUser.value.uid)
-    }
   };
 
   const getInvoice = async (id) => {
@@ -92,23 +83,31 @@ const useInvoices = () => {
   };
 
   const createInvoice = async (invoiceData, userId) => {
-    if (!userId) throw new Error("Authentication required.");
+    if (!userId || !currentUser.value) throw new Error("Authentication required.");
     loading.value = true;
+    error.value = null;
+
     try {
       const newInvoiceId = await runTransaction(db, async (transaction) => {
-        const userRef = doc(db, 'users', userId);
-        const userDoc = await transaction.get(userRef);
-        
-        const userData = userDoc.data() || {};
-        const invoiceCount = userData.invoiceCount || 0;
-        const subscriptionStatus = userData.subscriptionStatus || 'free';
+        const userRef = doc(db, "users", userId);
+        const settingsRef = doc(db, "userSettings", userId);
 
-        if (subscriptionStatus !== 'active' && invoiceCount >= 2) {
-          throw new Error("Invoice limit reached. Please upgrade.");
+        const userDoc = await transaction.get(userRef);
+        const settingsDoc = await transaction.get(settingsRef);
+
+        let invoiceCount = 0;
+        let subscriptionStatus = 'free';
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          invoiceCount = userData.invoiceCount || 0;
+          subscriptionStatus = userData.subscriptionStatus || 'free';
         }
 
-        const settingsRef = doc(db, 'userSettings', userId);
-        const settingsDoc = await transaction.get(settingsRef);
+        if (subscriptionStatus === 'free' && invoiceCount >= 2) {
+          throw new Error("Invoice limit reached for free plan. Please upgrade.");
+        }
+
         const newInvoiceCounter = (settingsDoc.data()?.invoiceCounter || 0) + 1;
         const invoiceNumber = String(newInvoiceCounter).padStart(6, '0');
 
@@ -121,16 +120,42 @@ const useInvoices = () => {
           svcFeePaid: false,
         });
 
-        // Atomically create or update user and settings documents
-        transaction.set(userRef, { invoiceCount: increment(1) }, { merge: true });
-        transaction.set(settingsRef, { invoiceCounter: newInvoiceCounter }, { merge: true });
+        const newInvoiceCount = invoiceCount + 1;
+
+        if (userDoc.exists()) {
+          transaction.update(userRef, { 
+            invoiceCount: newInvoiceCount,
+            subscriptionStatus: subscriptionStatus
+          });
+        } else {
+          transaction.set(userRef, {
+            uid: userId,
+            email: currentUser.value.email,
+            name: currentUser.value.displayName || 'New User',
+            createdAt: serverTimestamp(),
+            invoiceCount: 1,
+            subscriptionStatus: 'free'
+          });
+        }
+
+        if (settingsDoc.exists()) {
+          transaction.update(settingsRef, { invoiceCounter: newInvoiceCounter });
+        } else {
+          transaction.set(settingsRef, {
+            invoiceCounter: newInvoiceCounter,
+            company: { name: '', address: '', email: '', phone: '' },
+            invoiceSettings: { defaultDueDateDays: 30, defaultTaxRate: 0 },
+            updatedAt: serverTimestamp(),
+          });
+        }
 
         return newInvoiceRef.id;
       });
+
       return newInvoiceId;
     } catch (err) {
-      error.value = `Failed to create invoice: ${err.message}`;
       console.error("Error in createInvoice transaction:", err);
+      error.value = err.message;
       throw err;
     } finally {
       loading.value = false;
@@ -138,7 +163,7 @@ const useInvoices = () => {
   };
 
 
-  const updateInvoice = async (id, invoiceData, userId) => {
+  const updateInvoice = async (id, invoiceData) => {
     loading.value = true;
     try {
       const docRef = doc(db, 'invoices', id);
@@ -146,10 +171,9 @@ const useInvoices = () => {
         ...invoiceData,
         updatedAt: serverTimestamp(),
       });
-      return true;
     } catch (err) {
       error.value = 'Failed to update invoice.';
-      return false;
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -160,12 +184,15 @@ const useInvoices = () => {
     try {
       const docRef = doc(db, 'invoices', id);
       const updateData = { status, updatedAt: serverTimestamp() };
-      updateData.paidAt = status === 'paid' ? serverTimestamp() : deleteField();
+      if (status === 'paid') {
+        updateData.paidAt = serverTimestamp();
+      } else {
+        updateData.paidAt = deleteField();
+      }
       await updateDoc(docRef, updateData);
-      return true;
     } catch (err) {
       error.value = 'Failed to update status.';
-      return false;
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -178,14 +205,22 @@ const useInvoices = () => {
       await runTransaction(db, async (transaction) => {
         const invoiceRef = doc(db, 'invoices', id);
         const userRef = doc(db, 'users', currentUser.value.uid);
-        
+
+        // --- READS FIRST ---
         const invoiceDoc = await transaction.get(invoiceRef);
+        const userDoc = await transaction.get(userRef);
+
         if (!invoiceDoc.exists() || invoiceDoc.data().userId !== currentUser.value.uid) {
           throw new Error("Invoice not found or permission denied.");
         }
 
+        // --- WRITES SECOND ---
         transaction.delete(invoiceRef);
-        transaction.set(userRef, { invoiceCount: increment(-1) }, { merge: true });
+        
+        if (userDoc.exists()) {
+            const currentCount = userDoc.data().invoiceCount || 0;
+            transaction.update(userRef, { invoiceCount: Math.max(0, currentCount - 1) });
+        }
       });
     } catch (err) {
       error.value = `Failed to delete invoice: ${err.message}`;
@@ -195,7 +230,7 @@ const useInvoices = () => {
     }
   };
 
-  return { invoices, loading, error, getInvoices, getInvoice, createInvoice, updateInvoice, deleteInvoice, updateInvoiceStatus };
+  return { invoices, loading, error, getInvoice, createInvoice, updateInvoice, deleteInvoice, updateInvoiceStatus };
 };
 
 export default useInvoices;

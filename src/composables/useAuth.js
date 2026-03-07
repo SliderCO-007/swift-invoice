@@ -7,7 +7,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup
 } from 'firebase/auth';
-import { doc, setDoc, getDoc, serverTimestamp, writeBatch } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, writeBatch } from 'firebase/firestore';
 import { db, auth } from './useFirebase.js';
 
 // --- SHARED SINGLETON STATE ---
@@ -52,17 +52,18 @@ const createInitialUserData = async (user) => {
   if (!user) return;
 
   const batch = writeBatch(db);
-
   const userRef = doc(db, 'users', user.uid);
+  
   batch.set(userRef, {
     uid: user.uid,
     email: user.email,
     name: user.displayName || 'New User',
     photoURL: user.photoURL || null,
     createdAt: serverTimestamp(),
+    subscriptionStatus: 'free', 
+    invoiceCount: 0,           
   });
 
-  // CORRECTED: Changed "user_settings" to "userSettings" to match firestore.rules
   const settingsRef = doc(db, "userSettings", user.uid);
   batch.set(settingsRef, {
     company: {
@@ -76,15 +77,15 @@ const createInitialUserData = async (user) => {
         defaultTaxRate: 0,
     },
     updatedAt: serverTimestamp(),
+    invoiceCounter: 1, 
   });
 
   await batch.commit();
-  
   await fetchUserProfile(user.uid);
 };
 
 
-// --- REFACTORED AUTH ACTIONS ---
+// --- AUTH ACTIONS ---
 
 const signup = async (email, password) => {
   loading.value = true;
@@ -134,30 +135,27 @@ const logout = async () => {
   }
 };
 
-// --- NEW, SAFER AUTH STATE LISTENER ---
-onAuthStateChanged(auth, (user) => {
+// --- Auth State Change Listener ---
+onAuthStateChanged(auth, async (user) => {
   currentUser.value = user;
-  userProfile.value = null; // Reset profile on auth change
+  if (user) {
+    const profile = await fetchUserProfile(user.uid);
+    if (!profile) {
+      await createInitialUserData(user);
+    }
+  } else {
+    userProfile.value = null;
+  }
   
-  // This signals that the initial user check is done.
   if (authReadyResolver) {
     authReadyResolver();
     authReadyResolver = null;
   }
 });
 
+
 // --- COMPOSABLE EXPORT ---
 const useAuth = () => {
-  const init = async () => {
-    await isAuthReady; // Wait for the initial auth check to complete
-    if (currentUser.value) {
-      const existingProfile = await fetchUserProfile(currentUser.value.uid);
-      if (!existingProfile) {
-        await createInitialUserData(currentUser.value);
-      }
-    }
-  };
-
   return {
     currentUser,
     userProfile,
@@ -168,7 +166,6 @@ const useAuth = () => {
     logout,
     googleLogin,
     isAuthReady, 
-    init,
   };
 };
 

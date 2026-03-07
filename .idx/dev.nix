@@ -5,7 +5,7 @@
   channel = "stable-24.11"; # or "unstable"
   # Use https://search.nixos.org/packages to find packages
   packages = [
-    pkgs.nodejs_22
+    pkgs.nodejs_20
   ];
   # Sets environment variables in the workspace
   env = {};
@@ -15,13 +15,13 @@
       "vue.volar"
     ];
     workspace = {
-      # Runs when a workspace is first created with this \`dev.nix\` file
+      # Runs when a workspace is first created with this `dev.nix` file
       onCreate = {
         npm-install = "npm ci --no-audit --prefer-offline --no-progress --timing";
         # Open editors for the following files by default, if they exist:
         default.openFiles = [ "src/App.vue" ];
       };
-      # To run something each time the workspace is (re)started, use the \`onStart\` hook
+      # To run something each time the workspace is (re)started, use the `onStart` hook
       onStart = {
         # example: "npm run dev"
       };

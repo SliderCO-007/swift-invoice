@@ -42,8 +42,7 @@ const formatCurrency = (value) => {
 
 <template>
   <div class="invoice-modern" v-if="invoice && settings">
-    <!-- Header with Logo and Status -->
-    <div class="header">
+    <header class="header">
       <div class="header-left">
         <img
           v-if="settings?.company?.logoUrl"
@@ -58,9 +57,8 @@ const formatCurrency = (value) => {
           {{ invoice.status }}
         </div>
       </div>
-    </div>
+    </header>
 
-    <!-- Invoice Title and Number -->
     <div class="invoice-title-section">
       <div>
         <h2>INVOICE</h2>
@@ -78,7 +76,6 @@ const formatCurrency = (value) => {
       </div>
     </div>
 
-    <!-- Sender and Client Information -->
     <div class="parties-section">
       <div class="party from">
         <p class="party-label">From</p>
@@ -94,7 +91,6 @@ const formatCurrency = (value) => {
       </div>
     </div>
 
-    <!-- Items Table -->
     <div class="items-container">
       <table class="items-table">
         <thead>
@@ -116,18 +112,17 @@ const formatCurrency = (value) => {
       </table>
     </div>
 
-    <!-- Summary Section -->
     <div class="summary-section">
-      <div class="notes-column">
-        <div v-if="invoice.notes" class="notes">
+       <div class="notes-and-qr-modern">
+        <div v-if="invoice.notes" class="invoice-notes-modern">
           <p class="notes-title">Notes</p>
           <p class="notes-content">{{ invoice.notes }}</p>
         </div>
         <div
           v-if="invoice.includeVenmoQr && settings?.company?.venmoQrUrl"
-          class="qr-code"
+          class="venmo-qr-code-modern"
         >
-          <p class="qr-label">Scan to Pay</p>
+          <p class="qr-label">Scan to Pay with Venmo</p>
           <img :src="settings.company.venmoQrUrl" alt="Venmo QR Code" class="qr-img" />
         </div>
       </div>
@@ -148,7 +143,6 @@ const formatCurrency = (value) => {
       </div>
     </div>
 
-    <!-- Footer -->
     <footer class="footer">
       <p>scangoinvoice.com</p>
     </footer>
@@ -165,7 +159,6 @@ const formatCurrency = (value) => {
   margin: 0 auto;
 }
 
-/* Header */
 .header {
   display: flex;
   justify-content: space-between;
@@ -221,7 +214,6 @@ const formatCurrency = (value) => {
   color: #c62828;
 }
 
-/* Invoice Title Section */
 .invoice-title-section {
   display: flex;
   justify-content: space-between;
@@ -271,16 +263,11 @@ const formatCurrency = (value) => {
   color: #1a1a1a;
 }
 
-/* Parties Section */
 .parties-section {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 3rem;
   margin-bottom: 3rem;
-}
-
-.party {
-  padding-bottom: 2rem;
 }
 
 .party-label {
@@ -306,7 +293,6 @@ const formatCurrency = (value) => {
   line-height: 1.5;
 }
 
-/* Items Container */
 .items-container {
   margin-bottom: 2rem;
 }
@@ -340,23 +326,14 @@ const formatCurrency = (value) => {
   color: #333;
 }
 
-.col-qty,
-.col-price,
-.col-total {
+.col-qty, .col-price, .col-total {
   text-align: right;
 }
 
-.items-table th.col-qty,
-.items-table th.col-price,
-.items-table th.col-total {
+.items-table th.col-qty, .items-table th.col-price, .items-table th.col-total {
   text-align: right;
 }
 
-.items-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-/* Summary Section */
 .summary-section {
   display: grid;
   grid-template-columns: 1fr 300px;
@@ -366,17 +343,14 @@ const formatCurrency = (value) => {
   margin-top: 2rem;
 }
 
-.notes-column {
+.notes-and-qr-modern {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  justify-content: space-between;
 }
 
-.notes {
-  padding-right: 2rem;
-}
-
-.notes-title {
+.invoice-notes-modern .notes-title {
   margin: 0 0 0.5rem 0;
   font-size: 0.9rem;
   font-weight: 700;
@@ -385,15 +359,16 @@ const formatCurrency = (value) => {
   letter-spacing: 0.5px;
 }
 
-.notes-content {
+.invoice-notes-modern .notes-content {
   margin: 0;
   font-size: 0.9rem;
   color: #555;
   line-height: 1.6;
 }
 
-.qr-code {
+.venmo-qr-code-modern {
   text-align: center;
+  margin-top: auto; 
 }
 
 .qr-label {
@@ -413,7 +388,6 @@ const formatCurrency = (value) => {
   border-radius: 4px;
 }
 
-/* Totals Column */
 .totals-column {
   display: flex;
   flex-direction: column;
@@ -437,7 +411,6 @@ const formatCurrency = (value) => {
   color: #1a1a1a;
 }
 
-/* Footer */
 .footer {
   text-align: center;
   margin-top: 3rem;
@@ -447,108 +420,26 @@ const formatCurrency = (value) => {
   color: #999;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
-  .invoice-modern {
-    padding: 1.5rem;
-  }
-
-  .header {
+  .invoice-modern { padding: 1.5rem; }
+  .header, .invoice-title-section, .parties-section, .summary-section {
     flex-direction: column;
-    margin-bottom: 2rem;
-  }
-
-  .invoice-title-section {
-    flex-direction: column;
-    margin-bottom: 2rem;
-  }
-
-  .invoice-meta {
-    flex-direction: column;
-    gap: 1rem;
-    width: 100%;
-  }
-
-  .meta-item {
-    text-align: left;
-  }
-
-  .parties-section {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+    margin-bottom: 2rem;
   }
-
-  .items-table {
-    font-size: 0.85rem;
-    border: none;
-  }
-
-  .items-table thead {
-    display: none;
-  }
-
-  .items-table tr {
-    display: block;
-    margin-bottom: 1rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 1rem;
-    background-color: #fafafa;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  }
-
-  .items-table td {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #eee;
-    text-align: right;
-  }
-
-  .items-table td:last-child {
-    border-bottom: none;
-    font-weight: bold;
-  }
-
-  .items-table td::before {
-    font-weight: 600;
-    text-align: left;
-    margin-right: 1rem;
-    color: #555;
-  }
-
-  .items-table .col-description {
-    justify-content: flex-start;
-    text-align: left;
-    font-size: 1rem;
-    font-weight: bold;
-    color: #1a1a1a;
-    padding-bottom: 0.75rem;
-  }
-
-  .items-table .col-description::before {
-    display: none;
-  }
-
-  .items-table .col-qty::before {
-    content: 'Qty';
-  }
-
-  .items-table .col-price::before {
-    content: 'Unit Price';
-  }
-
-  .items-table .col-total::before {
-    content: 'Amount';
-  }
-
-  .summary-section {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-
-  .notes {
-    padding-right: 0;
-  }
+  .invoice-meta { flex-direction: column; gap: 1rem; width: 100%; }
+  .meta-item { text-align: left; }
+  .items-table { font-size: 0.85rem; border: none; }
+  .items-table thead { display: none; }
+  .items-table tr { display: block; margin-bottom: 1rem; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1rem; background-color: #fafafa; }
+  .items-table td { display: flex; justify-content: space-between; padding: 0.5rem 0; text-align: right; }
+  .items-table td:last-child { border-bottom: none; font-weight: bold; }
+  .items-table td::before { font-weight: 600; text-align: left; margin-right: 1rem; color: #555; }
+  .items-table .col-description { justify-content: flex-start; text-align: left; font-size: 1rem; font-weight: bold; color: #1a1a1a; padding-bottom: 0.75rem; }
+  .items-table .col-description::before { display: none; }
+  .items-table .col-qty::before { content: 'Qty'; }
+  .items-table .col-price::before { content: 'Unit Price'; }
+  .items-table .col-total::before { content: 'Amount'; }
 }
 </style>

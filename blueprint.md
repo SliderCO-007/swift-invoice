@@ -18,7 +18,15 @@ Swift Invoice is a web application designed to help users create, manage, and tr
     *   Background: `#F4F7F9`
 *   **Layout:** The application uses a responsive layout with a maximum width of 1200px.
 
-### 2.2. Features
+### 2.2. Core Architecture: Reactive and Composable
+
+This project is built on a modern, reactive architecture using Vue's Composition API.
+
+*   **Authentication:** `src/composables/useAuth.js` is the single source of truth for user authentication. It provides a reactive `currentUser` object that the rest of the application listens to.
+*   **Data Fetching:** Data is fetched using composable functions (`useUserSettings.js`, `useInvoices.js`, etc.). These composables use Vue's `watchEffect` to react to changes in the `currentUser`. When a user logs in, data is fetched automatically. When they log out, data is cleared.
+*   **Real-time Updates:** The application uses `onSnapshot` from the Firebase SDK to listen for real-time updates to data, ensuring the UI is always in sync with the database.
+
+### 2.3. Features
 
 *   **Authentication:** Users can register and log in to their accounts.
 *   **Invoice Management:** Users can create, view, and manage invoices.
@@ -26,14 +34,11 @@ Swift Invoice is a web application designed to help users create, manage, and tr
 *   **Item Management:** Users can create and manage a list of items for use in invoices.
 *   **Settings:** Users can manage their profile and application settings.
 *   **Upgrade Prompt:** A prompt is displayed on the dashboard for non-subscribed users, encouraging them to upgrade.
+*   **Venmo QR Code Generation:** Users can enter their Venmo username to generate a custom QR code, which includes their company logo, for their invoices.
 
-## 3. Current Task: System Restoration and Security Fix
+### 2.4. Server-Side Functions
 
-*   **Objective:** Restore the application to a fully functional state and patch a security vulnerability.
-*   **Completed Steps:**
-    1.  Fixed the `firestore.rules` to allow new users to save their first invoice.
-    2.  Consolidated all global styles into `src/style.css`.
-    3.  Imported `src/style.css` into `src/main.js`.
-    4.  Removed the conflicting `<style>` block from `App.vue`.
-    5.  **Security Fix:** Patched a vulnerability in the `sendInvoiceEmail` cloud function to prevent non-subscribed users from sending emails.
-    6.  **UI Restoration:** Restored the `UpgradePrompt` component on the `Dashboard.vue` to ensure non-subscribed users are prompted to upgrade their accounts.
+*   **Cloud Functions:** The project uses Google Cloud Functions for backend logic.
+*   **SDK Version:** All functions use the v2 Firebase Functions SDK for consistency and modern features.
+*   **Initialization:** The Firebase Admin SDK is initialized *once* in `functions/index.js` to ensure all functions have the correct authentication context.
+*   **`generateVenmoQR` Function:** This function is responsible for creating a Venmo QR code. It is an `onCall` function that requires authentication to be executed. The function fetches the user's company logo and composites it onto the center of the QR code. If a logo is not available, it generates a standard QR code.

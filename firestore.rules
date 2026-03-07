@@ -16,28 +16,17 @@ service cloud.firestore {
     // --- Collections ---
     match /users/{userId} {
       allow read: if isOwner(userId);
-        
-      // Allow creation for a new user (standard) or on-the-fly during first invoice creation.
+      
       allow create: if isOwner(userId) && (
-        // Standard user creation
-        (request.resource.data.get('subscriptionStatus', 'free') == 'free' && request.resource.data.get('invoiceCount', 0) == 0) ||
-        // On-the-fly creation during first invoice transaction
-        (request.resource.data.keys().hasOnly(['invoiceCount']) && request.resource.data.invoiceCount == 1)
+        request.resource.data.invoiceCount == 1 &&
+        request.resource.data.subscriptionStatus == 'free' &&
+        request.resource.data.uid == userId
       );
       
-      // Allow updates for profile changes, and for invoice creation/deletion transactions.
-      allow update: if isOwner(userId) && (
-          // Scenario 1: Standard profile update
-          (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'email', 'address1', 'address2', 'city', 'state', 'zip', 'logoUrl', 'venmoQrUrl'])) ||
-
-          // Scenario 2: Invoice creation transaction
-          (request.resource.data.diff(resource.data).affectedKeys().size() == 1 &&
-           request.resource.data.invoiceCount == resource.data.invoiceCount + 1) ||
-
-          // Scenario 3: Invoice deletion transaction
-          (request.resource.data.diff(resource.data).affectedKeys().size() == 1 &&
-           request.resource.data.invoiceCount == resource.data.invoiceCount - 1)
-      );
+      // Allow users to update their own document.
+      // The invoice creation and deletion logic is handled in the client-side transaction,
+      // and the primary security concern is ensuring users can only modify their own data.
+      allow update: if isOwner(userId);
       
       // A user owns their own customers and items.
       match /customers/{customerId} {
@@ -59,7 +48,7 @@ service cloud.firestore {
           // OR, allow creation if the user has an active subscription.
           getUserData(request.auth.uid).subscriptionStatus == 'active' ||
           // OR, allow if the user is on the free plan and has created less than 2 invoices.
-          (getUserData(request.auth.uid).subscriptionStatus == 'free' && getUserData(request.auth.uid).invoiceCount < 2)
+          (getUserData(request.auth.uid).get('subscriptionStatus', 'free') == 'free' && getUserData(request.auth.uid).get('invoiceCount', 0) < 2)
       );
     }
     

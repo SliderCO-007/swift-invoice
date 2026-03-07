@@ -24,6 +24,7 @@ const snackbarText = ref('')
 const confirmDialog = ref(false)
 const confirmPendingDialog = ref(false)
 const isLoading = ref(true);
+const emailError = ref(null);
 
 const functions = getFunctions()
 
@@ -213,22 +214,27 @@ const downloadPDF = () => {
 }
 
 const sendInvoiceEmail = async () => {
-  if (!invoice.value || isSendingEmail.value || isFreePlan.value) return
+  if (!invoice.value || isSendingEmail.value) return;
 
-  isSendingEmail.value = true
-  snackbarText.value = 'Generating PDF and sending email...'
-  snackbar.value = true
+  isSendingEmail.value = true;
+  emailError.value = null; // Reset on new attempt
+  snackbarText.value = 'Generating PDF and sending email...';
+  snackbar.value = true;
 
   try {
-    const pdfDataUri = await generatePDF('datauristring')
-    if (!pdfDataUri) {
-      throw new Error('Failed to generate PDF for email.')
+    if (isFreePlan.value) {
+      throw { code: 'permission-denied', message: 'Subscription required.' };
     }
 
-    const pdfBase64 = pdfDataUri.substring(pdfDataUri.indexOf(',') + 1)
+    const pdfDataUri = await generatePDF('datauristring');
+    if (!pdfDataUri) {
+      throw new Error('Failed to generate PDF for email.');
+    }
 
-    const companyName = settings.value?.company?.name || 'Your Company'
-    const clientName = invoice.value.client?.name || 'Valued Client'
+    const pdfBase64 = pdfDataUri.substring(pdfDataUri.indexOf(',') + 1);
+
+    const companyName = settings.value?.company?.name || 'Your Company';
+    const clientName = invoice.value.client?.name || 'Valued Client';
 
     const emailBody = `
       <p><b>Invoice from ${companyName}</b></p>
@@ -237,26 +243,38 @@ const sendInvoiceEmail = async () => {
       <p>Please review the attached PDF for payment details, including available payment options.</p>
       <br>
       <p><i>This is an automated email. Please do not reply.</i></p>
-    `
+    `;
 
-    const sendEmailFunction = httpsCallable(functions, 'sendInvoiceEmail')
+    const sendEmailFunction = httpsCallable(functions, 'sendInvoiceEmail');
     const result = await sendEmailFunction({
       invoiceId: invoice.value.id,
       recipientEmail: invoice.value.client?.email,
       subject: `Invoice #${invoice.value.invoiceNumber} from ${companyName}`,
       message: emailBody,
       pdfBase64: pdfBase64,
-    })
+    });
 
-    snackbarText.value = result.data.message
+    if (result.data.success === false) {
+      throw new Error(result.data.message || 'The email could not be sent.');
+    }
+
+    snackbarText.value = result.data.message;
+
   } catch (error) {
-    console.error('Error sending email:', error)
-    snackbarText.value = `Error: ${error.message}`
+    console.error('Error sending email:', error);
+    
+    if (error.code === 'permission-denied' || (error.message && error.message.toLowerCase().includes('subscription'))) {
+      emailError.value = 'A paid subscription is required to send emails.';
+      snackbarText.value = 'Subscription Required';
+    } else {
+      emailError.value = `Failed to send email: ${error.message}`;
+      snackbarText.value = 'Error sending email.';
+    }
   } finally {
-    isSendingEmail.value = false
-    snackbar.value = true
+    isSendingEmail.value = false;
+    snackbar.value = true;
   }
-}
+};
 
 const safeInvoice = computed(() => {
   if (!invoice.value) return null;
@@ -284,7 +302,6 @@ const safeInvoice = computed(() => {
 
 <template>
   <div class="invoice-view-container">
-    <!-- Use the new loading state -->
     <div v-if="isLoading" class="loading-container">
       <v-progress-circular indeterminate color="primary"></v-progress-circular>
       <p>Loading invoice...</p>
@@ -307,49 +324,22 @@ const safeInvoice = computed(() => {
           <h1 class="invoice-title">Invoice #{{ safeInvoice.invoiceNumber }}</h1>
         </div>
 
-        <!-- Style Selector -->
         <div v-if="isOwner" class="style-selector-container">
           <label class="style-option">
-            <input
-              type="radio"
-              value="classic"
-              v-model="invoice.style"
-              @change="updateStyle"
-            />
+            <input type="radio" value="classic" v-model="invoice.style" @change="updateStyle" />
             <span>Classic</span>
           </label>
           <label class="style-option">
-            <input
-              type="radio"
-              value="modern"
-              v-model="invoice.style"
-              @change="updateStyle"
-            />
+            <input type="radio" value="modern" v-model="invoice.style" @change="updateStyle" />
             <span>Modern</span>
           </label>
           <label class="style-option">
-            <input
-              type="radio"
-              value="corporate"
-              v-model="invoice.style"
-              @change="updateStyle"
-            />
+            <input type="radio" value="corporate" v-model="invoice.style" @change="updateStyle" />
             <span>Corporate</span>
           </label>
         </div>
 
-        <!-- Actions for Invoice Owner -->
         <div v-if="isOwner" class="actions">
-          <v-btn
-            v-if="isFreePlan"
-            @click="goToPricing"
-            color="secondary"
-            large
-            class="mr-4"
-            prepend-icon="mdi-arrow-up-bold-circle"
-          >
-            Upgrade to Send Emails
-          </v-btn>
           <v-btn
             v-if="safeInvoice.status === 'Quote'"
             @click="confirmPendingDialog = true"
@@ -380,18 +370,42 @@ const safeInvoice = computed(() => {
           >
             Download PDF
           </v-btn>
-          <v-btn
-            @click="sendInvoiceEmail"
-            :loading="isSendingEmail"
-            :disabled="isFreePlan"
-            color="primary"
-            large
-            prepend-icon="mdi-email"
+
+          <v-tooltip
+            location="top"
+            :text="isFreePlan ? 'Upgrade to a paid plan to send invoices via email.' : ''"
           >
-            Send Email
-          </v-btn>
+            <template v-slot:activator="{ props }">
+              <div v-bind="props">
+                <v-btn
+                  @click="sendInvoiceEmail"
+                  :loading="isSendingEmail"
+                  :disabled="isFreePlan"
+                  color="primary"
+                  large
+                  prepend-icon="mdi-email"
+                >
+                  Send Email
+                </v-btn>
+              </div>
+            </template>
+          </v-tooltip>
+
         </div>
       </header>
+
+      <div v-if="emailError" class="email-error-notification">
+        <v-alert
+          type="error"
+          elevation="2"
+          closable
+          @click:close="emailError = null"
+          :icon="false"
+        >
+          {{ emailError }}
+          <v-btn @click="goToPricing" color="secondary" class="ml-4">Upgrade Plan</v-btn>
+        </v-alert>
+      </div>
 
       <div v-if="safeInvoice.status === 'Paid'" class="paid-watermark">
         <h2>PAID</h2>
@@ -494,6 +508,11 @@ const safeInvoice = computed(() => {
   flex-grow: 1;
 }
 
+.email-error-notification {
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
 .loading-container,
 .error-container {
   display: flex;
@@ -540,7 +559,6 @@ const safeInvoice = computed(() => {
   accent-color: var(--primary-color, #4f46e5);
 }
 
-/* Responsive Styles */
 @media (max-width: 960px) {
   .invoice-view-header {
     flex-direction: column;
