@@ -23,24 +23,24 @@ const snackbar = ref(false)
 const snackbarText = ref('')
 const confirmDialog = ref(false)
 const confirmPendingDialog = ref(false)
-const isLoading = ref(true);
-const emailError = ref(null);
+const isLoading = ref(true)
+const emailError = ref(null)
 
 const functions = getFunctions()
 
 onMounted(async () => {
-  const invoiceId = route.params.id;
+  const invoiceId = route.params.id
   try {
-    invoice.value = await getInvoice(invoiceId);
+    invoice.value = await getInvoice(invoiceId)
     if (invoice.value) {
-      await fetchUserSettings();
+      await fetchUserSettings()
     }
   } catch (err) {
-    console.error("Error in InvoiceView onMounted:", err);
+    console.error('Error in InvoiceView onMounted:', err)
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-});
+})
 
 const isOwner = computed(() => {
   if (!invoice.value || !currentUser.value) return false
@@ -93,148 +93,166 @@ const updateStyle = async () => {
 }
 
 const generatePDF = async (outputType = 'save') => {
-  const invoiceComponent = invoicePaper.value;
+  const invoiceComponent = invoicePaper.value
   if (!invoiceComponent || !invoiceComponent.$el) {
-    console.error("Invoice template element not found.");
-    snackbarText.value = "Error: Could not find invoice content to generate PDF.";
-    snackbar.value = true;
-    return null;
+    console.error('Invoice template element not found.')
+    snackbarText.value = 'Error: Could not find invoice content to generate PDF.'
+    snackbar.value = true
+    return null
   }
 
-  const originalEl = invoiceComponent.$el;
-  let pdfOutput = null;
+  const originalEl = invoiceComponent.$el
+  let pdfOutput = null
 
-  const iframe = document.createElement('iframe');
-  iframe.style.position = 'absolute';
-  iframe.style.left = '-9999px';
-  iframe.style.top = '0';
-  iframe.style.width = '1024px';
+  const iframe = document.createElement('iframe')
+  iframe.style.position = 'absolute'
+  iframe.style.left = '-9999px'
+  iframe.style.top = '0'
+  iframe.style.width = '1024px'
 
-  document.body.appendChild(iframe);
+  document.body.appendChild(iframe)
 
   try {
-    const iframeDoc = iframe.contentWindow.document;
+    const iframeDoc = iframe.contentWindow.document
 
-    const stylesheets = Array.from(document.styleSheets);
-    stylesheets.forEach(sheet => {
+    const stylesheets = Array.from(document.styleSheets)
+    stylesheets.forEach((sheet) => {
       try {
         if (sheet.href) {
-          const link = document.createElement('link');
-          link.rel = 'stylesheet';
-          link.href = sheet.href;
-          iframeDoc.head.appendChild(link);
+          const link = document.createElement('link')
+          link.rel = 'stylesheet'
+          link.href = sheet.href
+          iframeDoc.head.appendChild(link)
         } else if (sheet.cssRules) {
-          const style = document.createElement('style');
-          style.textContent = Array.from(sheet.cssRules).map(rule => rule.cssText).join('\n');
-          iframeDoc.head.appendChild(style);
+          const style = document.createElement('style')
+          style.textContent = Array.from(sheet.cssRules)
+            .map((rule) => rule.cssText)
+            .join('\n')
+          iframeDoc.head.appendChild(style)
         }
       } catch (e) {
-        console.warn('Could not load stylesheet into iframe:', e);
+        console.warn('Could not load stylesheet into iframe:', e)
       }
-    });
+    })
 
-    const clone = originalEl.cloneNode(true);
-    iframeDoc.body.style.margin = '0';
-    iframeDoc.body.style.backgroundColor = 'white';
-    iframeDoc.body.appendChild(clone);
+    const clone = originalEl.cloneNode(true)
+    iframeDoc.body.style.margin = '0'
+    iframeDoc.body.style.backgroundColor = 'white'
+    iframeDoc.body.appendChild(clone)
 
-    await new Promise(resolve => {
-      const linkElements = iframeDoc.head.querySelectorAll('link');
+    await new Promise((resolve) => {
+      const linkElements = iframeDoc.head.querySelectorAll('link')
       if (linkElements.length === 0) {
-        resolve();
-        return;
+        resolve()
+        return
       }
-      let loadedCount = 0;
-      const totalLinks = linkElements.length;
-      linkElements.forEach(link => {
+      let loadedCount = 0
+      const totalLinks = linkElements.length
+      linkElements.forEach((link) => {
         link.onload = link.onerror = () => {
-          loadedCount++;
-          if (loadedCount === totalLinks) resolve();
-        };
-      });
-    });
+          loadedCount++
+          if (loadedCount === totalLinks) resolve()
+        }
+      })
+    })
 
-    await document.fonts.ready;
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await document.fonts.ready
+    await new Promise((resolve) => setTimeout(resolve, 500))
 
-    const contentElement = iframeDoc.body.firstElementChild;
-    const contentRect = contentElement.getBoundingClientRect();
-    const contentHeight = contentRect.height;
-    const heightBuffer = 150;
-    iframe.style.height = `${contentHeight + heightBuffer}px`;
+    const contentElement = iframeDoc.body.firstElementChild
+    const contentRect = contentElement.getBoundingClientRect()
+    const contentHeight = contentRect.height
+    const heightBuffer = 150
+    iframe.style.height = `${contentHeight + heightBuffer}px`
 
     const canvas = await html2canvas(contentElement, {
       scale: 3,
       useCORS: true,
       backgroundColor: '#ffffff',
-    });
+    })
 
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+    const imgData = canvas.toDataURL('image/png')
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' })
 
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const margin = 40;
-    const imgWidth = pdfWidth - margin;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    const pdfWidth = pdf.internal.pageSize.getWidth()
+    const pdfHeight = pdf.internal.pageSize.getHeight()
+    const margin = 40
+    const imgWidth = pdfWidth - margin
+    const imgHeight = (canvas.height * imgWidth) / canvas.width
 
-    let heightLeft = imgHeight;
-    let position = 0;
+    let heightLeft = imgHeight
+    let position = 0
 
-    pdf.addImage(imgData, 'PNG', margin / 2, position, imgWidth, imgHeight, undefined, 'FAST');
-    heightLeft -= pdfHeight;
+    pdf.addImage(
+      imgData,
+      'PNG',
+      margin / 2,
+      position,
+      imgWidth,
+      imgHeight,
+      undefined,
+      'FAST'
+    )
+    heightLeft -= pdfHeight
 
     while (heightLeft > 0) {
-      position -= pdfHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, 'PNG', margin / 2, position, imgWidth, imgHeight, undefined, 'FAST');
-      heightLeft -= pdfHeight;
+      position -= pdfHeight
+      pdf.addPage()
+      pdf.addImage(
+        imgData,
+        'PNG',
+        margin / 2,
+        position,
+        imgWidth,
+        imgHeight,
+        undefined,
+        'FAST'
+      )
+      heightLeft -= pdfHeight
     }
 
     if (outputType === 'save') {
-      pdf.save(`Invoice-${invoice.value?.invoiceNumber || invoice.value?.id}.pdf`);
+      pdf.save(`Invoice-${invoice.value?.invoiceNumber || invoice.value?.id}.pdf`)
     } else if (outputType === 'datauristring') {
-      pdfOutput = pdf.output('datauristring');
+      pdfOutput = pdf.output('datauristring')
     }
-
   } catch (err) {
-    console.error("Error during PDF generation with iframe:", err);
-    snackbarText.value = "An error occurred while generating the PDF.";
-    snackbar.value = true;
+    console.error('Error during PDF generation with iframe:', err)
+    snackbarText.value = 'An error occurred while generating the PDF.'
+    snackbar.value = true
   } finally {
-    document.body.removeChild(iframe);
+    document.body.removeChild(iframe)
   }
 
-  return pdfOutput;
-};
-
+  return pdfOutput
+}
 
 const downloadPDF = () => {
   generatePDF('save')
 }
 
 const sendInvoiceEmail = async () => {
-  if (!invoice.value || isSendingEmail.value) return;
+  if (!invoice.value || isSendingEmail.value) return
 
-  isSendingEmail.value = true;
-  emailError.value = null; // Reset on new attempt
-  snackbarText.value = 'Generating PDF and sending email...';
-  snackbar.value = true;
+  isSendingEmail.value = true
+  emailError.value = null // Reset on new attempt
+  snackbarText.value = 'Generating PDF and sending email...'
+  snackbar.value = true
 
   try {
     if (isFreePlan.value) {
-      throw { code: 'permission-denied', message: 'Subscription required.' };
+      throw { code: 'permission-denied', message: 'Subscription required.' }
     }
 
-    const pdfDataUri = await generatePDF('datauristring');
+    const pdfDataUri = await generatePDF('datauristring')
     if (!pdfDataUri) {
-      throw new Error('Failed to generate PDF for email.');
+      throw new Error('Failed to generate PDF for email.')
     }
 
-    const pdfBase64 = pdfDataUri.substring(pdfDataUri.indexOf(',') + 1);
+    const pdfBase64 = pdfDataUri.substring(pdfDataUri.indexOf(',') + 1)
 
-    const companyName = settings.value?.company?.name || 'Your Company';
-    const clientName = invoice.value.client?.name || 'Valued Client';
+    const companyName = settings.value?.company?.name || 'Your Company'
+    const clientName = invoice.value.client?.name || 'Valued Client'
 
     const emailBody = `
       <p><b>Invoice from ${companyName}</b></p>
@@ -243,52 +261,54 @@ const sendInvoiceEmail = async () => {
       <p>Please review the attached PDF for payment details, including available payment options.</p>
       <br>
       <p><i>This is an automated email. Please do not reply.</i></p>
-    `;
+    `
 
-    const sendEmailFunction = httpsCallable(functions, 'sendInvoiceEmail');
+    const sendEmailFunction = httpsCallable(functions, 'sendInvoiceEmail')
     const result = await sendEmailFunction({
       invoiceId: invoice.value.id,
       recipientEmail: invoice.value.client?.email,
       subject: `Invoice #${invoice.value.invoiceNumber} from ${companyName}`,
       message: emailBody,
       pdfBase64: pdfBase64,
-    });
+    })
 
     if (result.data.success === false) {
-      throw new Error(result.data.message || 'The email could not be sent.');
+      throw new Error(result.data.message || 'The email could not be sent.')
     }
 
-    snackbarText.value = result.data.message;
-
+    snackbarText.value = result.data.message
   } catch (error) {
-    console.error('Error sending email:', error);
-    
-    if (error.code === 'permission-denied' || (error.message && error.message.toLowerCase().includes('subscription'))) {
-      emailError.value = 'A paid subscription is required to send emails.';
-      snackbarText.value = 'Subscription Required';
+    console.error('Error sending email:', error)
+
+    if (
+      error.code === 'permission-denied' ||
+      (error.message && error.message.toLowerCase().includes('subscription'))
+    ) {
+      emailError.value = 'A paid subscription is required to send emails.'
+      snackbarText.value = 'Subscription Required'
     } else {
-      emailError.value = `Failed to send email: ${error.message}`;
-      snackbarText.value = 'Error sending email.';
+      emailError.value = `Failed to send email: ${error.message}`
+      snackbarText.value = 'Error sending email.'
     }
   } finally {
-    isSendingEmail.value = false;
-    snackbar.value = true;
+    isSendingEmail.value = false
+    snackbar.value = true
   }
-};
+}
 
 const safeInvoice = computed(() => {
-  if (!invoice.value) return null;
+  if (!invoice.value) return null
 
   const subtotal = (invoice.value.items || []).reduce(
     (acc, item) => acc + (item.quantity || 0) * (item.price || 0),
     0
-  );
-  const taxRate = Number(invoice.value.taxRate) || 0;
-  const taxAmount = subtotal * (taxRate / 100);
-  const total = subtotal + taxAmount;
+  )
+  const taxRate = Number(invoice.value.taxRate) || 0
+  const taxAmount = subtotal * (taxRate / 100)
+  const total = subtotal + taxAmount
 
-  let status = invoice.value.status || '';
-  status = status.charAt(0).toUpperCase() + status.slice(1);
+  let status = invoice.value.status || ''
+  status = status.charAt(0).toUpperCase() + status.slice(1)
 
   return {
     ...invoice.value,
@@ -296,8 +316,8 @@ const safeInvoice = computed(() => {
     taxAmount,
     total,
     status,
-  };
-});
+  }
+})
 </script>
 
 <template>
@@ -326,15 +346,30 @@ const safeInvoice = computed(() => {
 
         <div v-if="isOwner" class="style-selector-container">
           <label class="style-option">
-            <input type="radio" value="classic" v-model="invoice.style" @change="updateStyle" />
+            <input
+              type="radio"
+              value="classic"
+              v-model="invoice.style"
+              @change="updateStyle"
+            />
             <span>Classic</span>
           </label>
           <label class="style-option">
-            <input type="radio" value="modern" v-model="invoice.style" @change="updateStyle" />
+            <input
+              type="radio"
+              value="modern"
+              v-model="invoice.style"
+              @change="updateStyle"
+            />
             <span>Modern</span>
           </label>
           <label class="style-option">
-            <input type="radio" value="corporate" v-model="invoice.style" @change="updateStyle" />
+            <input
+              type="radio"
+              value="corporate"
+              v-model="invoice.style"
+              @change="updateStyle"
+            />
             <span>Corporate</span>
           </label>
         </div>
@@ -371,26 +406,38 @@ const safeInvoice = computed(() => {
             Download PDF
           </v-btn>
 
-          <v-tooltip
-            location="top"
-            :text="isFreePlan ? 'Upgrade to a paid plan to send invoices via email.' : ''"
-          >
-            <template v-slot:activator="{ props }">
-              <div v-bind="props">
-                <v-btn
-                  @click="sendInvoiceEmail"
-                  :loading="isSendingEmail"
-                  :disabled="isFreePlan"
-                  color="primary"
-                  large
-                  prepend-icon="mdi-email"
-                >
-                  Send Email
-                </v-btn>
-              </div>
-            </template>
-          </v-tooltip>
-
+          <template v-if="isFreePlan">
+            <v-tooltip
+              location="top"
+              :text="
+                isFreePlan ? 'Upgrade to a paid plan to send invoices via email.' : ''
+              "
+            >
+              <template v-slot:activator="{ props }">
+                <div v-bind="props">
+                  <v-btn
+                    :disabled="isFreePlan"
+                    color="primary"
+                    large
+                    prepend-icon="mdi-email"
+                  >
+                    Send Email
+                  </v-btn>
+                </div>
+              </template>
+            </v-tooltip>
+          </template>
+          <template v-else>
+            <v-btn
+              @click="sendInvoiceEmail"
+              :loading="isSendingEmail"
+              color="primary"
+              large
+              prepend-icon="mdi-email"
+            >
+              Send Email
+            </v-btn>
+          </template>
         </div>
       </header>
 
@@ -455,10 +502,14 @@ const safeInvoice = computed(() => {
     <v-dialog v-model="confirmPendingDialog" max-width="500px">
       <v-card>
         <v-card-title class="text-h5">Confirm</v-card-title>
-        <v-card-text>Are you sure you want to convert this quote to a pending invoice?</v-card-text>
+        <v-card-text
+          >Are you sure you want to convert this quote to a pending invoice?</v-card-text
+        >
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="confirmPendingDialog = false">Cancel</v-btn>
+          <v-btn color="blue darken-1" text @click="confirmPendingDialog = false"
+            >Cancel</v-btn
+          >
           <v-btn color="blue darken-1" text @click="markAsPending">OK</v-btn>
         </v-card-actions>
       </v-card>
