@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify';
 import useInvoices from '../composables/useInvoices';
@@ -16,12 +16,32 @@ const { mobile } = useDisplay();
 const { invoices, loading: invoicesLoading, error: invoicesError, deleteInvoice } = useInvoices();
 const { settings, loading: settingsLoading, error: settingsError } = useUserSettings();
 
+// --- ROBUST INITIAL LOAD TRACKING ---
+const invoicesHaveLoaded = ref(false);
+const settingsHaveLoaded = ref(false);
+
+// Watch the loading status from the invoices composable
+watch(invoicesLoading, (isLoading) => {
+  if (!isLoading) {
+    invoicesHaveLoaded.value = true;
+  }
+});
+
+// Watch the loading status from the user settings composable
+watch(settingsLoading, (isLoading) => {
+  if (!isLoading) {
+    settingsHaveLoaded.value = true;
+  }
+});
+
+// The initial load is complete only when both data sources have loaded.
+const isInitialLoad = computed(() => !invoicesHaveLoaded.value || !settingsHaveLoaded.value);
+// --- END ROBUST LOADING STATE ---
+
+const hasError = computed(() => invoicesError.value || settingsError.value);
 const isFreePlan = computed(() => userProfile.value?.subscriptionStatus === 'free');
 const invoiceLimitReached = computed(() => isFreePlan.value && userProfile.value?.invoiceCount >= 2);
-
 const isDataLoading = computed(() => invoicesLoading.value || settingsLoading.value);
-const hasError = computed(() => invoicesError.value || settingsError.value);
-const isInitialLoad = computed(() => isDataLoading.value && !invoices.value.length);
 
 const dialogDelete = ref(false);
 const itemToDeleteId = ref(null);
@@ -43,7 +63,6 @@ const editInvoice = (invoiceId) => {
   router.push(`/invoice/${invoiceId}`);
 };
 
-// --- DELETE INVOICE LOGIC ---
 const openDeleteDialog = (invoiceId) => {
   itemToDeleteId.value = invoiceId;
   dialogDelete.value = true;
@@ -67,8 +86,6 @@ const confirmDelete = async () => {
   }
 };
 
-
-// --- FORMATTERS & HELPERS ---
 const getStatusInfo = (status) => {
   const s = status ? status.toLowerCase() : 'pending';
   switch (s) {
@@ -90,107 +107,113 @@ const formatInvoiceNumber = (num) => `#${num}`;
 </script>
 
 <template>
-  <div v-if="isInitialLoad" class="page-loading-container">
-    <v-progress-circular indeterminate size="64" color="primary"></v-progress-circular>
-    <p>Loading your workspace...</p>
-  </div>
+  <div>
+    <div v-if="isInitialLoad" class="page-loading-container">
+      <v-progress-circular indeterminate size="64" color="primary"></v-progress-circular>
+      <p>Loading your workspace...</p>
+    </div>
 
-  <div v-else class="dashboard-container">
-    <header class="dashboard-header">
-      <div>
-        <h1 class="welcome-message">Your Invoices</h1>
-        <p class="date-display">A summary of your recent invoices.</p>
-      </div>
-    </header>
-
-    <v-alert
-      v-if="invoiceLimitReached"
-      type="warning"
-      variant="outlined"
-      class="mb-4"
-      prominent
-      :icon="false"
-    >
-      <template v-slot:text>
-        You have reached the 2-invoice limit for the free plan. Please upgrade to create more invoices.
-      </template>
-      <template v-slot:append>
-        <v-btn to="/pricing" color="warning" variant="flat">Upgrade</v-btn>
-      </template>
-    </v-alert>
-
-    <UpgradePrompt v-if="isFreePlan && !invoiceLimitReached && !settingsLoading" />
-    <CompanyInfoPrompt v-if="!settings.company?.name && !settingsLoading" />
-
-    <InvoiceStats :invoices="invoices" />
-
-    <main class="dashboard-content">
-      <div v-if="hasError" class="error-container">
-        <v-alert type="error" dense outlined>
-          There was an error loading your dashboard. Please refresh the page.
-        </v-alert>
-      </div>
-
-      <div v-else>
-        <div v-if="invoicesLoading && !invoices.length" class="loading-container">
-          <v-progress-circular indeterminate size="48" color="primary"></v-progress-circular>
-          <p>Loading invoices...</p>
+    <div v-else class="dashboard-container">
+      <header class="dashboard-header">
+        <div>
+          <h1 class="welcome-message">Your Invoices</h1>
+          <p class="date-display">A summary of your recent invoices.</p>
         </div>
-        <div v-else-if="!invoices.length && !invoicesLoading" class="no-invoices-container">
-          <img src="/no_invoices.svg" alt="No Invoices Illustration" class="no-invoices-illustration" />
-          <h3 class="text-h5 font-weight-medium">No invoices yet</h3>
-          <p class="text-body-1 text-grey-darken-1 mt-2 mb-6">Click the button to create your first invoice.</p>
+      </header>
+
+      <v-alert
+        v-if="invoiceLimitReached"
+        type="warning"
+        variant="outlined"
+        class="mb-4"
+        prominent
+        :icon="false"
+      >
+        <template v-slot:text>
+          You have reached the 2-invoice limit for the free plan. Please upgrade to create more invoices.
+        </template>
+        <template v-slot:append>
+          <v-btn to="/pricing" color="warning" variant="flat">Upgrade</v-btn>
+        </template>
+      </v-alert>
+
+      <UpgradePrompt v-if="isFreePlan && !invoiceLimitReached && !settingsLoading" />
+      <CompanyInfoPrompt v-if="!settings.company?.name && !settingsLoading" />
+
+      <InvoiceStats :invoices="invoices" />
+
+      <main class="dashboard-content">
+        <div v-if="hasError" class="error-container">
+          <v-alert type="error" dense outlined>
+            There was an error loading your dashboard. Please refresh the page.
+          </v-alert>
         </div>
 
-        <InvoiceTable v-else-if="!mobile" :invoices="invoices" @delete-invoice="openDeleteDialog" @edit-invoice="editInvoice"/>
+        <div v-else>
+          <div v-if="invoicesLoading && !invoices.length" class="loading-container">
+            <v-progress-circular indeterminate size="48" color="primary"></v-progress-circular>
+            <p>Loading invoices...</p>
+          </div>
+          <div v-else-if="!invoices.length && !isDataLoading" class="no-invoices-container">
+            <img src="/no_invoices.svg" alt="No Invoices Illustration" class="no-invoices-illustration" />
+            <h3 class="text-h5 font-weight-medium">Start Your Journey</h3>
+            <p class="text-body-1 text-grey-darken-1 mt-2 mb-6">Ready to get paid? Create your first invoice and take control of your billing.</p>
+            <v-btn color="primary" @click="createNewInvoice" size="large" class="mt-4" rounded="lg">
+              <v-icon start>mdi-plus</v-icon>
+              Create Your First Invoice
+            </v-btn>
+          </div>
 
-        <div v-else class="pa-2">
-          <v-card v-for="invoice in invoices" :key="invoice.id" class="mb-4" elevation="2" rounded="xl">
-            <v-card-text class="pa-4">
-              <div class="d-flex justify-space-between align-center mb-4">
-                <span class="text-h6 font-weight-bold text-grey-darken-3">{{ invoice.client?.name || 'N/A' }}</span>
-                <v-chip :color="getStatusInfo(invoice.status).color" text-color="white" label small>
-                  <v-icon start :icon="getStatusInfo(invoice.status).icon" size="small"></v-icon>
-                  {{ invoice.status ? invoice.status.toLowerCase() : '' }}
-                </v-chip>
-              </div>
-              <div class="d-flex justify-space-between align-end mb-3">
-                <div class="text-medium-emphasis">
-                  <span>Invoice {{ formatInvoiceNumber(invoice.invoiceNumber) }}</span><br>
-                  <span>Due: {{ formatDate(invoice.dueDate) }}</span>
+          <InvoiceTable v-else-if="!mobile" :invoices="invoices" @delete-invoice="openDeleteDialog" @edit-invoice="editInvoice"/>
+
+          <div v-else class="pa-2">
+            <v-card v-for="invoice in invoices" :key="invoice.id" class="mb-4" elevation="2" rounded="xl">
+              <v-card-text class="pa-4">
+                <div class="d-flex justify-space-between align-center mb-4">
+                  <span class="text-h6 font-weight-bold text-grey-darken-3">{{ invoice.client?.name || 'N/A' }}</span>
+                  <v-chip :color="getStatusInfo(invoice.status).color" text-color="white" label small>
+                    <v-icon start :icon="getStatusInfo(invoice.status).icon" size="small"></v-icon>
+                    {{ invoice.status ? invoice.status.toLowerCase() : '' }}
+                  </v-chip>
                 </div>
-                <span class="font-weight-bold text-h5 text-grey-darken-4">${{ invoice.total.toFixed(2) }}</span>
-              </div>
-            </v-card-text>
-            <v-divider></v-divider>
-            <v-card-actions class="pa-3">
-              <v-spacer></v-spacer>
-              <v-btn variant="text" class="text-capitalize" @click="editInvoice(invoice.id)">View / Edit</v-btn>
-              <v-btn color="red-darken-1" variant="text" class="text-capitalize" @click="openDeleteDialog(invoice.id)">Delete</v-btn>
-            </v-card-actions>
-          </v-card>
+                <div class="d-flex justify-space-between align-end mb-3">
+                  <div class="text-medium-emphasis">
+                    <span>Invoice {{ formatInvoiceNumber(invoice.invoiceNumber) }}</span><br>
+                    <span>Due: {{ formatDate(invoice.dueDate) }}</span>
+                  </div>
+                  <span class="font-weight-bold text-h5 text-grey-darken-4">${{ invoice.total.toFixed(2) }}</span>
+                </div>
+              </v-card-text>
+              <v-divider></v-divider>
+              <v-card-actions class="pa-3">
+                <v-spacer></v-spacer>
+                <v-btn variant="text" class="text-capitalize" @click="editInvoice(invoice.id)">View / Edit</v-btn>
+                <v-btn color="red-darken-1" variant="text" class="text-capitalize" @click="openDeleteDialog(invoice.id)">Delete</v-btn>
+              </v-card-actions>
+            </v-card>
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
 
-    <v-fab icon="mdi-plus" location="bottom right" size="64" color="primary" app appear @click="createNewInvoice" title="Create New Invoice" class="fab-button" :disabled="isDataLoading || invoiceLimitReached"></v-fab>
+      <v-fab icon="mdi-plus" location="bottom right" size="64" color="primary" app appear @click="createNewInvoice" title="Create New Invoice" class="fab-button" :disabled="isDataLoading || invoiceLimitReached"></v-fab>
 
-    <v-dialog v-model="dialogDelete" max-width="500px">
-      <v-card>
-        <v-card-title class="text-h5">Are you sure?</v-card-title>
-        <v-card-text>Do you really want to delete this invoice? This action cannot be undone.</v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue-darken-1" variant="text" @click="closeDeleteDialog">Cancel</v-btn>
-          <v-btn color="red-darken-1" variant="text" @click="confirmDelete">Delete</v-btn>
-          <v-spacer></v-spacer>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+      <v-dialog v-model="dialogDelete" max-width="500px">
+        <v-card>
+          <v-card-title class="text-h5">Are you sure?</v-card-title>
+          <v-card-text>Do you really want to delete this invoice? This action cannot be undone.</v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue-darken-1" variant="text" @click="closeDeleteDialog">Cancel</v-btn>
+            <v-btn color="red-darken-1" variant="text" @click="confirmDelete">Delete</v-btn>
+            <v-spacer></v-spacer>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
 
-    <footer class="dashboard-footer">
-      <p>&copy; 2026 ScanGo Invoice. All rights reserved. | <a href="mailto:support@scangoinvoice.com">support@scangoinvoice.com</a></p>
-    </footer>
+      <footer class="dashboard-footer">
+        <p>&copy; 2026 ScanGo Invoice. All rights reserved. | <a href="mailto:support@scangoinvoice.com">support@scangoinvoice.com</a></p>
+      </footer>
+    </div>
   </div>
 </template>
 

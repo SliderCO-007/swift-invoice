@@ -1,9 +1,9 @@
 import { ref, watchEffect } from 'vue';
 import { doc, setDoc, getDoc, onSnapshot } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from './useFirebase';
+import { db, storage, functions } from './useFirebase'; // Import the centralized 'functions' instance
 import { currentUser } from './useAuth';
-import { getFunctions, httpsCallable } from 'firebase/functions';
+import { httpsCallable } from 'firebase/functions'; // Only import httpsCallable
 
 function getInitialSettings() {
   return {
@@ -121,7 +121,7 @@ const saveUserSettings = async (newSettings, logoFile) => {
     // If a Venmo username is present, generate the QR code.
     if (newVenmoUsername) {
       console.log('Venmo username present. Calling generateVenmoQR...');
-      const functions = getFunctions();
+      // Use the imported 'functions' instance directly
       const generateVenmoQR = httpsCallable(functions, 'generateVenmoQR');
       await generateVenmoQR({ venmoUsername: newVenmoUsername });
     }

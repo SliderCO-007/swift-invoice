@@ -1,16 +1,15 @@
-
 import { ref, watch } from 'vue';
-import { 
-  collection, getDocs, doc, getDoc, updateDoc, serverTimestamp, 
+import {
+  collection, getDocs, doc, getDoc, updateDoc, serverTimestamp,
   query, where, deleteDoc, runTransaction, setDoc, deleteField, onSnapshot
 } from 'firebase/firestore';
 import { db } from './useFirebase';
 import { currentUser } from './useAuth.js';
 
 const invoices = ref([]);
-const loading = ref(false);
+const loading = ref(true);
 const error = ref(null);
-let unsubscribe = null; 
+let unsubscribe = null;
 
 const useInvoices = () => {
 
@@ -18,14 +17,9 @@ const useInvoices = () => {
     if (unsubscribe) {
       unsubscribe();
     }
-    if (!userId) {
-      invoices.value = [];
-      return;
-    }
     const invoicesCollection = collection(db, 'invoices');
     const q = query(invoicesCollection, where('userId', '==', userId));
 
-    loading.value = true;
     unsubscribe = onSnapshot(q, (querySnapshot) => {
       invoices.value = querySnapshot.docs.map(doc => {
         const data = doc.data();
@@ -38,16 +32,51 @@ const useInvoices = () => {
           total: calculateTotal(data),
         };
       });
-      loading.value = false;
     }, (err) => {
       error.value = 'Failed to fetch invoices in real-time.';
       console.error(err);
-      loading.value = false;
     });
   };
 
+  const fetchInvoices = async (userId) => {
+    loading.value = true;
+    if (unsubscribe) {
+        unsubscribe();
+        unsubscribe = null;
+    }
+
+    if (!userId) {
+      invoices.value = [];
+      loading.value = false;
+      return;
+    }
+
+    try {
+      const invoicesCollection = collection(db, 'invoices');
+      const q = query(invoicesCollection, where('userId', '==', userId));
+      const querySnapshot = await getDocs(q);
+      invoices.value = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          issueDate: data.issueDate?.toDate(),
+          dueDate: data.dueDate?.toDate(),
+          paidAt: data.paidAt?.toDate(),
+          total: calculateTotal(data),
+        };
+      });
+      setupInvoiceListener(userId);
+    } catch (err) {
+      error.value = 'Failed to fetch invoices.';
+      console.error(err);
+    } finally {
+      loading.value = false;
+    }
+  };
+
   watch(currentUser, (newUser) => {
-    setupInvoiceListener(newUser?.uid);
+    fetchInvoices(newUser?.uid);
   }, { immediate: true });
 
   const calculateTotal = (invoice) => {
@@ -206,7 +235,6 @@ const useInvoices = () => {
         const invoiceRef = doc(db, 'invoices', id);
         const userRef = doc(db, 'users', currentUser.value.uid);
 
-        // --- READS FIRST ---
         const invoiceDoc = await transaction.get(invoiceRef);
         const userDoc = await transaction.get(userRef);
 
@@ -214,7 +242,6 @@ const useInvoices = () => {
           throw new Error("Invoice not found or permission denied.");
         }
 
-        // --- WRITES SECOND ---
         transaction.delete(invoiceRef);
         
         if (userDoc.exists()) {

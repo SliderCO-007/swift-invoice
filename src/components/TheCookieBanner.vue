@@ -22,13 +22,10 @@
 
   <transition name="fade-slide">
     <div v-if="showBanner" class="cookie-banner-wrapper">
-      <v-card class="cookie-banner" elevation="12" rounded="lg">
+      <v-card class="cookie-banner" elevation="12" tile color="grey-lighten-4">
         <div class="cookie-banner-inner">
           <v-row no-gutters align="center">
-            <v-col cols="auto" class="px-3">
-              <v-icon size="36" color="amber-darken-2">mdi-cookie</v-icon>
-            </v-col>
-            <v-col>
+            <v-col class="px-3">
               <div class="text-body-1">We use cookies to enhance your experience.</div>
               <div class="text-caption text-grey">
                 By clicking "Accept", you agree to our cookie policy.
@@ -41,8 +38,8 @@
               </div>
             </v-col>
             <v-col cols="auto" class="px-3">
+              <v-btn color="primary" variant="flat" @click="handleAccept" class="mr-2"> Accept </v-btn>
               <v-btn @click="handleDecline" color="grey-darken-1" variant="flat">Decline</v-btn>
-              <v-btn color="primary" variant="flat" @click="handleAccept"> Accept </v-btn>
             </v-col>
           </v-row>
         </div>
@@ -88,22 +85,19 @@ const handleDecline = () => {
 </script>
 
 <style scoped>
-/* 1. Outer wrapper: centering only, never animated */
+/* 1. Outer wrapper: full-width at bottom, never animated */
 .cookie-banner-wrapper {
   position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 0;
+  left: 0;
   width: 100%;
-  max-width: 500px;
   z-index: 1500;
 }
 
 /* 2. Card: Vuetify can do whatever it wants here */
 .cookie-banner {
   width: 100%;
-  background-color: white;
-  padding: 12px;
+  padding: 16px 24px; /* Increased padding for a more spacious look */
 }
 
 /* 3. Inner container: animation only */
@@ -132,6 +126,10 @@ a.text-grey-darken-1:hover {
 }
 
 @media (max-width: 600px) {
+    .cookie-banner {
+        padding: 12px;
+    }
+
   .cookie-banner-inner {
     display: flex;
     flex-direction: column;
@@ -158,6 +156,8 @@ a.text-grey-darken-1:hover {
   .cookie-banner-inner .v-btn {
     width: 80%;
     margin-bottom: 8px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .cookie-banner-inner .v-btn:last-child {

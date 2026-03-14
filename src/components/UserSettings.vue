@@ -2,19 +2,17 @@
 import { ref, watch, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import useUserSettings from '../composables/useUserSettings';
-// INCORRECT IMPORT REMOVED: import { getFunctions, httpsCallable } from "firebase/functions";
-import { currentUser, userProfile, isAuthReady } from '../composables/useAuth.js';
+import { currentUser, userProfile } from '../composables/useAuth.js';
 
 const router = useRouter();
 
-// --- DATA FETCHING ---
 const { 
   settings, 
   loading, 
   error, 
   saveUserSettings, 
+  sendPreviewEmail, // Import the new function
 } = useUserSettings();
-
 
 const logoFile = ref(null);
 const logoPreview = ref(null);
@@ -25,20 +23,8 @@ const previewError = ref('');
 
 const isHelpDialogVisible = ref(false);
 
-// A local copy for editing
 const localSettings = ref({
-  company: { 
-    name: '', 
-    email: '', 
-    address1: '', 
-    address2: '', 
-    city: '', 
-    state: '', 
-    zip: '', 
-    logoUrl: '', 
-    venmoUsername: '',
-    venmoQrUrl: '' 
-  },
+  company: { name: '', email: '', address1: '', address2: '', city: '', state: '', zip: '', logoUrl: '', venmoUsername: '', venmoQrUrl: '' },
   taxRate: 0,
 });
 
@@ -46,7 +32,6 @@ const isSubscribed = computed(() => {
   return userProfile.value?.subscriptionStatus === 'active';
 });
 
-// Watcher to populate local data
 watch(settings, (newSettings) => {
   if (newSettings) {
     localSettings.value = JSON.parse(JSON.stringify(newSettings));
@@ -80,17 +65,12 @@ const handleSave = async () => {
   }
 };
 
-const sendPreviewEmail = async () => {
+// CORRECTED: This function now uses the composable
+const handleSendPreview = async () => {
   previewLoading.value = true;
   previewMessage.value = '';
   previewError.value = '';
 
-  // TODO: Re-implement this using a composable to ensure authentication.
-  previewError.value = "The 'Send Preview' feature is temporarily disabled while we resolve an issue. Please save your settings and try again later.";
-  console.error("sendPreviewEmail is not implemented correctly. It must use a composable.");
-  previewLoading.value = false;
-
-  /* PREVIOUS INCORRECT IMPLEMENTATION:
   const recipientEmail = localSettings.value.company?.email || currentUser.value?.email;
 
   if (!recipientEmail) {
@@ -100,16 +80,13 @@ const sendPreviewEmail = async () => {
   }
 
   try {
-    const functions = getFunctions(); // This was creating an unauthenticated instance.
-    const sendPreviewReport = httpsCallable(functions, 'sendPreviewReport');
-    const result = await sendPreviewReport({ recipientEmail });
-    previewMessage.value = result.data.message;
+    const message = await sendPreviewEmail(recipientEmail);
+    previewMessage.value = message;
   } catch (err) {
-    previewError.value = 'Error sending preview: ' + err.message;
+    previewError.value = err.message;
   } finally {
     previewLoading.value = false;
   }
-  */
 };
 
 const goToPricing = () => {
@@ -140,7 +117,7 @@ const goToPricing = () => {
         <h3>Weekly Report</h3>
         <div v-if="isSubscribed">
           <p>As a subscriber, you get a weekly report emailed to you. Send a preview of the report to your email.</p>
-          <v-btn @click="sendPreviewEmail" :loading="previewLoading" class="preview-btn" color="indigo-darken-3">
+          <v-btn @click="handleSendPreview" :loading="previewLoading" class="preview-btn" color="indigo-darken-3">
             Send Preview
           </v-btn>
           <div v-if="previewMessage" class="preview-message success-notification">{{ previewMessage }}</div>
@@ -193,7 +170,7 @@ const goToPricing = () => {
                           <template v-slot:activator="{ props }">
                             <v-icon v-bind="props" @click.stop.prevent="" size="small" class="help-icon">mdi-help-circle-outline</v-icon>
                           </template>
-                          <span>Your QR code is auto-generated using your username and company logo.</span>
+                          <span>Your QR code is auto-generated using your Venmo username or business profile and company logo.</span>
                         </v-tooltip>
                     </label>
                     <v-text-field
@@ -218,7 +195,7 @@ const goToPricing = () => {
         <v-card class="help-dialog-card">
             <v-card-title class="headline">Automatic Venmo QR Code</v-card-title>
             <v-card-text>
-                By entering your <strong>Venmo username</strong>, we will automatically generate a custom QR code for you.
+                By entering your <strong>Venmo username or business profile</strong>, we will automatically generate a custom QR code for you.
                 <br/><br/>
                 This QR code will be placed on your invoices, making it easy for your customers to pay you. If you have a company logo uploaded, it will be automatically placed in the center of the QR code.
             </v-card-text>
