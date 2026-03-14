@@ -1,6 +1,5 @@
 <template>
   <div class="landing-page">
-    <ScienceImage />
     <main>
       <section class="hero">
         <div class="container">
@@ -51,7 +50,7 @@
             <div class="feature-category">
               <h3 class="category-title"><v-icon color="blue" class="mr-2">mdi-credit-card-outline</v-icon>Payments</h3>
               <ul class="feature-list">
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Instant Payments with QR Code</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Instant Payments with custom QR Code</li>
                 <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Secure Subscription Payments with
                   Stripe</li>
                 <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Clear Payment Status Tracking</li>
@@ -118,7 +117,6 @@
 <script setup>
 import { ref } from 'vue';
 import { useMeta } from '../composables/useMeta';
-import ScienceImage from './ScienceImage.vue';
 import { useDisplay } from 'vuetify';
 import Trustpilot from './TrustpilotWidget.vue';
 
@@ -167,7 +165,7 @@ main section[id] {
 /* Hero Section */
 .hero {
   padding: 6rem 0;
-  background-color: transparent;
+  background-color: #0069A1;
 }
 
 .hero-grid {
