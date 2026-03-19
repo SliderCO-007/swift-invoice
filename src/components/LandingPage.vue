@@ -10,9 +10,14 @@
               <h1 class="hero-title">Start Getting Paid in Seconds.</h1>
               <p class="hero-subtitle">Create, send, and track professional invoices in minutes. Focus on your work, not
                 your paperwork.</p>
-              <v-btn to="/register" color="primary" size="x-large" rounded="pill" class="mt-8">Get Started</v-btn>
-              <v-btn v-if="mobile" @click="openMobilePreview" color="secondary" size="large" rounded="pill"
-                class="mt-4">See it in Action</v-btn>
+              <div class="d-flex flex-wrap ga-4 mt-8 align-center justify-center justify-md-start">
+                <v-btn to="/register" color="primary" size="x-large" rounded="pill">GET STARTED</v-btn>
+                <v-btn v-if="mobile" @click="openMobilePreview" color="secondary" size="large" rounded="pill">See it in
+                  Action</v-btn>
+                <v-btn v-else
+                  onclick="Storylane.Play({type: 'popup', demo_type: 'image', width: 2560, height: 1215, scale: '0.95', demo_url: 'https://app.storylane.io/demo/qmii40zks2hl?embed=popup', padding_bottom: 'calc(47.46% + 25px)'})"
+                  color="secondary" size="large" rounded="pill">TAKE A TOUR</v-btn>
+              </div>
             </div>
             <div class="hero-image">
               <img src="/hero_woman.png"
@@ -50,7 +55,8 @@
             <div class="feature-category">
               <h3 class="category-title"><v-icon color="blue" class="mr-2">mdi-credit-card-outline</v-icon>Payments</h3>
               <ul class="feature-list">
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Instant Payments with custom QR Code</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Instant Payments with custom QR Code
+                </li>
                 <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Secure Subscription Payments with
                   Stripe</li>
                 <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Clear Payment Status Tracking</li>

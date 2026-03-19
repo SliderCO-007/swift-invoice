@@ -42,3 +42,14 @@ This project is built on a modern, reactive architecture using Vue's Composition
 *   **SDK Version:** All functions use the v2 Firebase Functions SDK for consistency and modern features.
 *   **Initialization:** The Firebase Admin SDK is initialized *once* in `functions/index.js` to ensure all functions have the correct authentication context.
 *   **`generateVenmoQR` Function:** This function is responsible for creating a Venmo QR code. It is an `onCall` function that requires authentication to be executed. The function fetches the user's company logo and composites it onto the center of the QR code. If a logo is not available, it generates a standard QR code.
+
+### 2.5. Landing Page
+*   **Call to Action Buttons:** The "Get Started" and "TAKE A TOUR" buttons in the hero section are wrapped in a flex container to ensure proper alignment and spacing. They are centered on mobile and aligned to the start on medium and larger screens.
+
+## 3. Current Change: Fix Build Error
+
+### 3.1. Plan
+
+1.  **Analyze the issue:** The build is failing due to a CSS syntax error in `src/components/LandingPage.vue`.
+2.  **Modify the style:** Correct the typo in the `align-items` property within the `.loader-container` class.
+3.  **Update `blueprint.md`:** Document the change in the `blueprint.md` file.
