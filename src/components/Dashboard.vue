@@ -25,14 +25,14 @@ watch(invoicesLoading, (isLoading) => {
   if (!isLoading) {
     invoicesHaveLoaded.value = true;
   }
-});
+}, { immediate: true });
 
 // Watch the loading status from the user settings composable
 watch(settingsLoading, (isLoading) => {
   if (!isLoading) {
     settingsHaveLoaded.value = true;
   }
-});
+}, { immediate: true });
 
 // The initial load is complete only when both data sources have loaded.
 const isInitialLoad = computed(() => !invoicesHaveLoaded.value || !settingsHaveLoaded.value);
