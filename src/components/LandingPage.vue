@@ -20,7 +20,7 @@
               </div>
             </div>
             <div class="hero-image">
-              <img src="/hero_woman.png"
+              <img src="/hero_image.png"
                 alt="A woman smiling while using a laptop, representing a satisfied ScanGo Invoice user.">
             </div>
           </div>
