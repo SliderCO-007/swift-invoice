@@ -27,53 +27,86 @@
         </div>
       </section>
 
-      <section id="features" class="features">
+      <section id="how-it-works" class="how-it-works">
         <div class="container">
-          <h2 class="section-title">A Feature Set That Works For You</h2>
-          <p class="section-subtitle">From freelancers to small businesses, ScanGo Invoice has the tools you need to
-            succeed.</p>
-          <div class="feature-list-grid">
-            <div class="feature-category">
-              <h3 class="category-title"><v-icon color="blue" class="mr-2">mdi-text-box-check-outline</v-icon>Invoicing
-              </h3>
-              <ul class="feature-list">
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Create & Send Invoices Instantly</li>
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>At-a-Glance Invoice Tracking</li>
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Download Invoices as PDF</li>
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Generous Free Plan (2 Invoices)</li>
-              </ul>
+          <h2 class="section-title">How It Works</h2>
+          <p class="section-subtitle">Get paid faster in 3 simple steps.</p>
+          <div class="steps-grid">
+            <div class="step-card">
+              <div class="step-number">1</div>
+              <h3 class="step-title">Add Client & Items</h3>
+              <p>Quickly build your invoice with reusable clients and line items.</p>
             </div>
-            <div class="feature-category">
-              <h3 class="category-title"><v-icon color="blue" class="mr-2">mdi-palette-outline</v-icon>Customization
-              </h3>
-              <ul class="feature-list">
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Professionally Designed Templates</li>
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Add Your Company Logo & Info</li>
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Reusable Item Library</li>
-              </ul>
+            <div class="step-card">
+              <div class="step-number">2</div>
+              <h3 class="step-title">Choose Template</h3>
+              <p>Select from our beautifully designed templates and add your branding.</p>
             </div>
-            <div class="feature-category">
-              <h3 class="category-title"><v-icon color="blue" class="mr-2">mdi-credit-card-outline</v-icon>Payments</h3>
-              <ul class="feature-list">
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Instant Payments with custom QR Code
-                </li>
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Secure Subscription Payments with
-                  Stripe</li>
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Clear Payment Status Tracking</li>
-              </ul>
-            </div>
-            <div class="feature-category">
-              <h3 class="category-title"><v-icon color="blue" class="mr-2">mdi-account-group-outline</v-icon>Clients &
-                Management</h3>
-              <ul class="feature-list">
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Unlimited Customers</li>
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Unlimited Items</li>
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Simple Client Management</li>
-              </ul>
+            <div class="step-card">
+              <div class="step-number">3</div>
+              <h3 class="step-title">Send & Get Paid</h3>
+              <p>Email the PDF instantly with a clickable Venmo QR code for fast payment.</p>
             </div>
           </div>
-          <div class="text-center mt-12">
-            <v-btn to="/pricing" color="primary" size="x-large" rounded="pill">See All Features & Pricing</v-btn>
+        </div>
+      </section>
+
+      <section id="features" class="features-alternating">
+        <div class="container">
+          <div class="feature-row">
+            <div class="feature-text">
+              <h2>Instant Payments with Venmo QR</h2>
+              <p>Stop waiting for checks to arrive in the mail. Every invoice generated can include a unique Venmo QR code that your clients can scan or click to pay you instantly.</p>
+              <ul class="feature-bullets">
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Clickable QR codes on PDF</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Seamless mobile payment flow</li>
+              </ul>
+            </div>
+            <div class="feature-image">
+              <div class="mockup-card qr-mockup">
+                <v-icon size="64" color="#007bff">mdi-qrcode-scan</v-icon>
+                <h3 class="mt-4 text-blue">Scan or click to pay</h3>
+              </div>
+            </div>
+          </div>
+
+          <div class="feature-row reverse">
+            <div class="feature-text">
+              <h2>Versatile Professional Templates</h2>
+              <p>Your brand matters. Choose between Classic, Modern, or Corporate templates. Customize colors and add your logo to make every invoice look incredible.</p>
+              <ul class="feature-bullets">
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>3 High-conversion designs</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Live preview while editing</li>
+              </ul>
+            </div>
+            <div class="feature-image">
+              <div class="template-gallery">
+                <div class="template-card"><span>Classic</span></div>
+                <div class="template-card modern"><span>Modern</span></div>
+                <div class="template-card corp"><span>Corporate</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="feature-row">
+            <div class="feature-text">
+              <h2>One-Click PDF & Emailing</h2>
+              <p>Generate precise, high-quality PDFs with a single click. Email them directly to your clients from within the dashboard—no need to juggle apps.</p>
+              <ul class="feature-bullets">
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Flawless PDF rendering</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Automated email delivery</li>
+              </ul>
+            </div>
+            <div class="feature-image">
+               <div class="mockup-card pdf-mockup">
+                 <v-icon size="64" color="red">mdi-file-pdf-box</v-icon>
+                 <h3 class="mt-4 text-red">Invoice_1001.pdf</h3>
+               </div>
+            </div>
+          </div>
+          
+          <div class="text-center mt-12 mb-12">
+            <v-btn to="/pricing" color="primary" size="x-large" rounded="pill" class="glow-btn">See All Features & Pricing</v-btn>
           </div>
         </div>
       </section>
@@ -207,9 +240,9 @@ main section[id] {
   border-radius: 16px;
 }
 
-/* Features Section */
-.features {
-  padding: 6rem 0;
+/* How It Works Section */
+.how-it-works {
+  padding: 6rem 0 3rem 0;
   background-color: #f8f9fa;
 }
 
@@ -227,38 +260,191 @@ main section[id] {
   margin-bottom: 4rem;
 }
 
-.feature-list-grid {
+.steps-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2.5rem;
+  margin-top: 3rem;
 }
 
-.feature-category {
-  text-align: left;
+.step-card {
+  background: white;
+  padding: 2.5rem 2rem;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
 }
 
-.category-title {
-  font-size: 1.4rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--v-primary-base);
+.step-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+}
+
+.step-number {
+  width: 50px;
+  height: 50px;
+  background: var(--v-primary-base, #1976D2);
+  color: white;
+  border-radius: 50%;
   display: flex;
   align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 auto 1.5rem auto;
+  box-shadow: 0 4px 15px rgba(25, 118, 210, 0.3);
 }
 
-.feature-list {
+.step-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #111;
+}
+
+.step-card p {
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Features Alternating Section */
+.features-alternating {
+  padding: 3rem 0 6rem 0;
+  background-color: #f8f9fa;
+}
+
+.feature-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 4rem;
+  margin-bottom: 6rem;
+}
+
+.feature-row.reverse {
+  direction: rtl;
+}
+
+.feature-row.reverse > * {
+  direction: ltr;
+}
+
+.feature-text h2 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #111;
+  line-height: 1.2;
+}
+
+.feature-text p {
+  font-size: 1.1rem;
+  color: #555;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+
+.feature-bullets {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.feature-list li {
+.feature-bullets li {
   display: flex;
   align-items: center;
-  font-size: 1rem;
-  color: #555;
-  margin-bottom: 1rem;
+  font-size: 1.05rem;
+  color: #333;
+  margin-bottom: 0.8rem;
+  font-weight: 600;
+}
+
+.feature-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+/* Mockups & Animations */
+.mockup-card {
+  background: white;
+  border-radius: 20px;
+  padding: 3rem;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+  text-align: center;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  width: 100%;
+  max-width: 360px;
+}
+
+.mockup-card:hover {
+  transform: scale(1.05) rotate(2deg);
+}
+
+.template-gallery {
+  display: flex;
+  gap: 1rem;
+  position: relative;
+  height: 300px;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.template-card {
+  width: 140px;
+  height: 200px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #333;
+  position: absolute;
+  transition: all 0.4s ease;
+  border: 1px solid #eee;
+}
+
+.template-card {
+  transform: translateX(-80px) rotate(-10deg) scale(0.9);
+  z-index: 1;
+}
+
+.template-card.modern {
+  transform: translateX(0) scale(1.1);
+  z-index: 3;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.template-card.corp {
+  transform: translateX(80px) rotate(10deg) scale(0.9);
+  z-index: 2;
+}
+
+.template-gallery:hover .template-card {
+  transform: translateX(-120px) rotate(-15deg) scale(0.95);
+}
+.template-gallery:hover .template-card.modern {
+  transform: translateX(0) translateY(-20px) scale(1.15);
+}
+.template-gallery:hover .template-card.corp {
+  transform: translateX(120px) rotate(15deg) scale(0.95);
+}
+
+.glow-btn {
+  box-shadow: 0 8px 25px rgba(25, 118, 210, 0.4);
+  transition: all 0.3s ease;
+}
+
+.glow-btn:hover {
+  box-shadow: 0 12px 35px rgba(25, 118, 210, 0.6);
+  transform: translateY(-2px);
 }
 
 /* Footer */
@@ -367,8 +553,16 @@ main section[id] {
     margin-bottom: 2rem;
   }
 
-  .features-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .feature-row {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 3rem;
+  }
+  .feature-row.reverse {
+    direction: ltr;
+  }
+  .feature-bullets li {
+    justify-content: center;
   }
 }
 
@@ -392,11 +586,11 @@ main section[id] {
     margin-bottom: 1.5rem;
   }
 
-  .features {
-    padding: 4rem 0;
+  .how-it-works, .features-alternating {
+    padding: 3rem 0;
   }
 
-  .features-grid {
+  .steps-grid {
     grid-template-columns: 1fr;
   }
 
@@ -407,10 +601,6 @@ main section[id] {
   .section-subtitle {
     font-size: 1rem;
     margin-bottom: 2rem;
-  }
-
-  .category-title {
-    justify-content: center;
   }
 }
 </style>
