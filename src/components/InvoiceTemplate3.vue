@@ -130,8 +130,10 @@ const formatCurrency = (value) => {
             v-if="invoice.includeVenmoQr && settings?.company?.venmoQrUrl"
             class="qr-section"
           >
-            <h3>PAYMENT QR CODE</h3>
-            <img :src="settings.company.venmoQrUrl" alt="Venmo QR Code" class="qr-code" />
+            <h3>Scan or click to pay</h3>
+            <a :href="'https://venmo.com/' + settings.company.venmoUsername" target="_blank" rel="noopener noreferrer">
+              <img :src="settings.company.venmoQrUrl" alt="Venmo QR Code" class="qr-code" />
+            </a>
           </div>
         </div>
 

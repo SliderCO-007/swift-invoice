@@ -179,9 +179,34 @@ const generatePDF = async (outputType = 'save') => {
     const margin = 40
     const imgWidth = pdfWidth - margin
     const imgHeight = (canvas.height * imgWidth) / canvas.width
+    
+    let qrRect = null
+    let qrUrl = null
+    const qrCodeEl = iframeDoc.querySelector('.venmo-qr-code img, .venmo-qr-code-modern img, .qr-section img')
+    if (qrCodeEl && invoice.value.includeVenmoQr && settings.value?.company?.venmoUsername) {
+      qrRect = qrCodeEl.getBoundingClientRect()
+      qrUrl = `https://venmo.com/${settings.value.company.venmoUsername}`
+    }
+    const scaleFactor = imgWidth / contentRect.width
 
     let heightLeft = imgHeight
     let position = 0
+    let pageNumber = 1
+
+    const addQrLinkIfOnPage = (currentPos) => {
+      if (!qrRect || !qrUrl) return
+      const qrPdfYTotal = (qrRect.top - contentRect.top) * scaleFactor
+      const qrPdfX = margin / 2 + (qrRect.left - contentRect.left) * scaleFactor
+      const qrPdfW = qrRect.width * scaleFactor
+      const qrPdfH = qrRect.height * scaleFactor
+      
+      const qrPageY = qrPdfYTotal + currentPos
+      
+      if (qrPageY + qrPdfH > 0 && qrPageY < pdfHeight) {
+        pdf.setPage(pageNumber)
+        pdf.link(qrPdfX, qrPageY, qrPdfW, qrPdfH, { url: qrUrl })
+      }
+    }
 
     pdf.addImage(
       imgData,
@@ -193,10 +218,12 @@ const generatePDF = async (outputType = 'save') => {
       undefined,
       'FAST'
     )
+    addQrLinkIfOnPage(position)
     heightLeft -= pdfHeight
 
     while (heightLeft > 0) {
       position -= pdfHeight
+      pageNumber++
       pdf.addPage()
       pdf.addImage(
         imgData,
@@ -208,6 +235,7 @@ const generatePDF = async (outputType = 'save') => {
         undefined,
         'FAST'
       )
+      addQrLinkIfOnPage(position)
       heightLeft -= pdfHeight
     }
 

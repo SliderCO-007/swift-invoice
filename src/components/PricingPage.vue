@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuth, currentUser } from '../composables/useAuth';
+import { useMeta } from '../composables/useMeta';
 import useStripe from '../composables/useStripe';
 
 const router = useRouter();
@@ -11,6 +12,11 @@ const user = currentUser;
 const { createCheckoutSession, loading, error } = useStripe();
 
 const selectedPlan = ref(null);
+
+useMeta(
+  'ScanGo Invoice | Pricing',
+  'ScanGo Invoice offers flexible pricing plans to fit your needs. Start for free with 2 invoices, or upgrade to monthly or yearly plans for unlimited invoicing and advanced features. All plans include professional invoice templates, client management, and secure payment options.',
+);
 
 // Mapping of plan names to their corresponding Price IDs
 const priceIds = {
