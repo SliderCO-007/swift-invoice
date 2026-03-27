@@ -56,7 +56,7 @@
           <div class="feature-row">
             <div class="feature-text">
               <h2>Instant Payments with Venmo QR</h2>
-              <p>Stop waiting for checks to arrive in the mail. Every invoice generated can include a unique Venmo QR code that your clients can scan or click to pay you instantly.</p>
+              <p>Stop waiting for checks to arrive in the mail. Every invoice generated can include a custom branded Venmo QR code that your clients can scan or click to pay you instantly.</p>
               <ul class="feature-bullets">
                 <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Clickable QR codes on PDF</li>
                 <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Seamless mobile payment flow</li>
@@ -64,8 +64,7 @@
             </div>
             <div class="feature-image">
               <div class="mockup-card qr-mockup">
-                <v-icon size="64" color="#007bff">mdi-qrcode-scan</v-icon>
-                <h3 class="mt-4 text-blue">Scan or click to pay</h3>
+                <img src="/venmo-qr-with-logo.png" alt="Venmo QR Code with Logo" class="qr-img" />
               </div>
             </div>
           </div>
@@ -81,9 +80,9 @@
             </div>
             <div class="feature-image">
               <div class="template-gallery">
-                <div class="template-card"><span>Classic</span></div>
-                <div class="template-card modern"><span>Modern</span></div>
-                <div class="template-card corp"><span>Corporate</span></div>
+                <img src="/template_classic.png" class="template-card" alt="Classic Template" tabindex="0" />
+                <img src="/template_modern.png" class="template-card modern" alt="Modern Template" tabindex="0" />
+                <img src="/template_corporate.png" class="template-card corp" alt="Corporate Template" tabindex="0" />
               </div>
             </div>
           </div>
@@ -99,8 +98,7 @@
             </div>
             <div class="feature-image">
                <div class="mockup-card pdf-mockup">
-                 <v-icon size="64" color="red">mdi-file-pdf-box</v-icon>
-                 <h3 class="mt-4 text-red">Invoice_1001.pdf</h3>
+                 <img src="/ScanGo_click_send_3.gif" alt="Send PDF Animation" class="pdf-img" />
                </div>
             </div>
           </div>
@@ -379,10 +377,44 @@ main section[id] {
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   width: 100%;
   max-width: 360px;
+  position: relative;
+  z-index: 1;
 }
 
 .mockup-card:hover {
-  transform: scale(1.05) rotate(2deg);
+  transform: scale(1.05);
+  z-index: 2;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+}
+
+.pdf-mockup {
+  padding: 0;
+  overflow: hidden;
+}
+
+.pdf-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 20px;
+}
+
+.qr-mockup {
+  padding: 1.5rem;
+  max-width: 250px;
+}
+
+.qr-img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  display: block;
+}
+
+.qr-mockup:hover {
+  transform: scale(1.3) translateY(-10px) rotate(0deg);
+  z-index: 10;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.25);
 }
 
 .template-gallery {
@@ -401,14 +433,11 @@ main section[id] {
   background: white;
   border-radius: 8px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  color: #333;
   position: absolute;
   transition: all 0.4s ease;
   border: 1px solid #eee;
+  object-fit: cover;
+  object-position: top;
 }
 
 .template-card {
@@ -429,12 +458,40 @@ main section[id] {
 
 .template-gallery:hover .template-card {
   transform: translateX(-120px) rotate(-15deg) scale(0.95);
+  opacity: 0.6;
 }
 .template-gallery:hover .template-card.modern {
   transform: translateX(0) translateY(-20px) scale(1.15);
+  opacity: 0.6;
 }
 .template-gallery:hover .template-card.corp {
   transform: translateX(120px) rotate(15deg) scale(0.95);
+  opacity: 0.6;
+}
+
+.template-gallery:hover .template-card:hover,
+.template-card:focus {
+  transform: translateX(-40px) translateY(-30px) rotate(0deg) scale(2.3);
+  z-index: 10;
+  opacity: 1;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+  outline: none;
+}
+.template-gallery:hover .template-card.modern:hover,
+.template-card.modern:focus {
+  transform: translateX(0) translateY(-30px) rotate(0deg) scale(2.3);
+  z-index: 10;
+  opacity: 1;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+  outline: none;
+}
+.template-gallery:hover .template-card.corp:hover,
+.template-card.corp:focus {
+  transform: translateX(40px) translateY(-30px) rotate(0deg) scale(2.3);
+  z-index: 10;
+  opacity: 1;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+  outline: none;
 }
 
 .glow-btn {
@@ -563,6 +620,21 @@ main section[id] {
   }
   .feature-bullets li {
     justify-content: center;
+  }
+
+  .qr-mockup:hover {
+    transform: scale(1.05);
+    z-index: 2;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+  }
+
+  .template-gallery:hover .template-card:hover,
+  .template-card:focus,
+  .template-gallery:hover .template-card.modern:hover,
+  .template-card.modern:focus,
+  .template-gallery:hover .template-card.corp:hover,
+  .template-card.corp:focus {
+    transform: translateX(0) translateY(-20px) rotate(0deg) scale(2.2);
   }
 }
 
