@@ -58,33 +58,33 @@
 </script>
 
 <style scoped>
-h1, h2 {
-  line-height: 1.3;
+:deep(.v-container) {
+  max-width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 2rem;
+  background-color: #111d2f;
+  color: #f1f5f9;
 }
 
-p, li {
-  font-size: 1rem;
-  line-height: 1.7;
-  color: #333;
+:deep(.v-card) {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(16px);
+  color: #f1f5f9 !important;
 }
 
-a {
-  color: #1a73e8;
-  text-decoration: none;
-  font-weight: 500;
-}
+h1, h2 { line-height: 1.3; color: #fff; }
+.text-h4 { color: #fff; }
+.text-h5 { color: #f1f5f9; }
 
-a:hover {
-  text-decoration: underline;
-}
+p, li { font-size: 1rem; line-height: 1.7; color: #e2e8f0; }
 
-section {
-  border-bottom: 1px solid #e0e0e0;
-  padding-bottom: 1.5rem;
-}
+a { color: #64B5F6; text-decoration: none; font-weight: 500; }
+a:hover { text-decoration: underline; color: #90CAF9; }
 
-section:last-of-type {
-  border-bottom: none;
-  padding-bottom: 0;
-}
+section { border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+section:last-of-type { border-bottom: none; padding-bottom: 0; }
+
+.text-medium-emphasis { color: #94a3b8 !important; }
 </style>

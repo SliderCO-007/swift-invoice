@@ -185,7 +185,7 @@ onUnmounted(() => {
               <v-text-field
                 v-model="editedItem.description"
                 label="Description"
-                variant="outlined"
+                variant="solo"
                 required
               ></v-text-field>
               <v-text-field
@@ -193,7 +193,7 @@ onUnmounted(() => {
                 label="Price"
                 type="number"
                 prefix="$"
-                variant="outlined"
+                variant="solo"
                 required
               ></v-text-field>
             </v-form>
@@ -225,3 +225,37 @@ onUnmounted(() => {
 
   </div>
 </template>
+
+<style scoped>
+.items-view {
+  min-height: 100vh;
+  background-color: #111d2f;
+  color: #f1f5f9;
+}
+
+:deep(.v-card) {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(16px);
+  color: #f1f5f9 !important;
+}
+
+:deep(.v-data-table) {
+  background: transparent !important;
+  color: #f1f5f9 !important;
+}
+
+:deep(.v-data-table-header__content) {
+  color: #94a3b8 !important;
+  font-weight: 600 !important;
+}
+
+:deep(.v-data-table__tr:hover) {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+:deep(.text-h4), :deep(.text-h5), :deep(.text-h6), :deep(.v-card-title) { color: #fff !important; }
+:deep(.text-subtitle-1), :deep(.text-body-1), :deep(.v-card-text) { color: #e2e8f0 !important; }
+:deep(.text-medium-emphasis) { color: #94a3b8 !important; }
+:deep(.v-icon) { color: #94a3b8 !important; }
+</style>

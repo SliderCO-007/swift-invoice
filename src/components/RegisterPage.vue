@@ -86,7 +86,8 @@ watch(currentUser, (user) => {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: var(--background-color);
+  background-color: #111d2f;
+  color: #f1f5f9;
   padding: 2rem;
 }
 
@@ -97,13 +98,16 @@ watch(currentUser, (user) => {
 }
 
 .register-card {
-  background: var(--white-color);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
   padding: 3rem;
   border-radius: 15px;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
   width: 100%;
   max-width: 450px;
   text-align: center;
+  color: #f1f5f9;
 }
 
 .logo-wrapper {
@@ -117,10 +121,11 @@ watch(currentUser, (user) => {
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
+  color: #fff;
 }
 
 .register-card .subtitle {
-  color: #777;
+  color: #94a3b8;
   margin-bottom: 2rem;
 }
 
@@ -133,26 +138,34 @@ watch(currentUser, (user) => {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 600;
+  color: #e2e8f0;
 }
 
 .form-group input {
   width: 100%;
   padding: 0.8rem 1rem;
+  background: #fff;
   border: 1px solid #ccc;
+  color: #1e293b;
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+.form-group input::placeholder {
+  color: #94a3b8;
+}
+
 .form-group input:focus {
   outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+  border-color: var(--primary-color, #1976D2);
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.3);
 }
 
 .error-message {
-  background-color: #F8D7DA;
-  color: #721C24;
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #ff6b6b;
+  border: 1px solid rgba(220, 53, 69, 0.2);
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
@@ -175,13 +188,13 @@ watch(currentUser, (user) => {
 }
 
 .register-btn {
-  background-color: var(--primary-color);
-  color: var(--white-color);
+  background-color: var(--primary-color, #1976D2);
+  color: #fff;
 }
 
 .register-btn:hover:not(:disabled) {
-  background-color: #3A80D2;
-  box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+  background-color: #1565C0;
+  box-shadow: 0 4px 15px rgba(25, 118, 210, 0.4);
   transform: translateY(-2px);
 }
 
@@ -189,14 +202,14 @@ watch(currentUser, (user) => {
   display: flex;
   align-items: center;
   text-align: center;
-  color: #aaa;
+  color: #64748b;
   margin: 1.5rem 0;
 }
 
 .separator::before, .separator::after {
   content: '';
   flex: 1;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .separator span {
@@ -204,13 +217,13 @@ watch(currentUser, (user) => {
 }
 
 .google-btn {
-  background-color: #f9f9f9;
-  color: #555;
-  border: 1px solid #ddd;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #f1f5f9;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .google-btn:hover:not(:disabled) {
-  background-color: #f1f1f1;
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .google-icon {
@@ -220,15 +233,17 @@ watch(currentUser, (user) => {
 .login-link {
   margin-top: 2rem;
   font-size: 0.9rem;
+  color: #94a3b8;
 }
 
 .login-link a {
-  color: var(--primary-color);
+  color: var(--primary-color, #64B5F6);
   font-weight: 600;
   text-decoration: none;
 }
 
 .login-link a:hover {
   text-decoration: underline;
+  color: #90CAF9;
 }
 </style>

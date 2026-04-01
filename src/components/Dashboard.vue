@@ -219,18 +219,33 @@ const formatInvoiceNumber = (num) => `#${num}`;
 
 
 <style scoped>
-.page-loading-container { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; gap: 1.5rem; }
-.dashboard-container { padding: 1rem; background-color: #F4F7FE; min-height: 100vh; }
+.page-loading-container { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; gap: 1.5rem; background-color: #111d2f; color: #f1f5f9; }
+.dashboard-container { padding: 1rem; background-color: #111d2f; min-height: 100vh; color: #f1f5f9; }
 .dashboard-header { padding: 1rem 1rem 0 1rem; }
-.welcome-message { font-size: 2.2rem; font-weight: 700; color: #1E293B; }
-.date-display { font-size: 1rem; color: #64748B; }
-.no-invoices-container { text-align: center; padding: 4rem 2rem; background-color: white; border-radius: 24px; margin-top: 2rem; }
+.welcome-message { font-size: 2.2rem; font-weight: 700; color: #fff; }
+.date-display { font-size: 1rem; color: #94A3B8; }
+.no-invoices-container { text-align: center; padding: 4rem 2rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(16px); border-radius: 24px; margin-top: 2rem; color: #f1f5f9; }
 .no-invoices-illustration { max-width: 220px; margin-bottom: 2rem; }
 .invoices-header-desktop { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding: 0 1rem; }
 .fab-button { transition: transform 0.3s ease; }
-.fab-button:hover { transform: scale(1.1); }
-.dashboard-footer { text-align: center; padding: 3rem 1rem 1rem; font-size: 0.9rem; color: #94A3B8; }
+.fab-button:hover { transform: scale(1.1); box-shadow: 0 10px 30px rgba(25, 118, 210, 0.5); }
+.dashboard-footer { text-align: center; padding: 3rem 1rem 1rem; font-size: 0.9rem; color: #64748B; }
+.dashboard-footer a { color: #f1f5f9; text-decoration: none; }
+.dashboard-footer a:hover { text-decoration: underline; }
 .loading-container, .error-container { text-align: center; padding: 3rem; }
+
+:deep(.v-card:not(.stat-card)) {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(16px);
+  color: #f1f5f9 !important;
+}
+:deep(.text-grey-darken-1), :deep(.text-grey-darken-3), :deep(.text-grey-darken-4) {
+  color: #f1f5f9 !important;
+}
+:deep(.text-medium-emphasis) {
+  color: #94a3b8 !important;
+}
 
 @media (max-width: 600px) {
     .dashboard-container { padding: 0.5rem; }

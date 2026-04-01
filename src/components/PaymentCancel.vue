@@ -32,3 +32,17 @@ const goToDashboard = () => {
     </v-card>
   </v-container>
 </template>
+
+<style scoped>
+:deep(.v-container) {
+  min-height: 100vh;
+  background-color: #111d2f !important;
+  color: #f1f5f9 !important;
+}
+:deep(.v-card) {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(16px);
+  color: #f1f5f9 !important;
+}
+</style>

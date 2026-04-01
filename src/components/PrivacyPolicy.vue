@@ -85,55 +85,30 @@ useMeta(
 
 <style scoped>
 .privacy-policy-container {
+  max-width: 100%;
+  min-height: 100vh;
+  padding: 2rem;
+  background-color: #111d2f;
+  color: #f1f5f9;
+}
+
+:deep(.v-card) {
   max-width: 900px;
-  margin: 2rem auto;
-  padding: 1rem;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(16px);
+  color: #f1f5f9 !important;
 }
 
-section {
-    margin-bottom: 2rem;
-}
-
-h1, h2, h3 {
-  font-family: 'Poppins', sans-serif;
-  font-weight: 600;
-}
-
-h1 {
-  font-size: 2.5rem;
-  margin-bottom: 1.5rem;
-}
-
-h2 {
-  font-size: 1.75rem;
-  margin-top: 2rem;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 0.5rem;
-}
-
-h3 {
-    font-size: 1.2rem;
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-ul {
-  list-style-position: inside;
-  padding-left: 1rem;
-}
-
-li {
-  margin-bottom: 0.5rem;
-}
-
-a {
-  color: var(--primary-color, #4F46E5);
-  text-decoration: none;
-  font-weight: 500;
-}
-
-a:hover {
-  text-decoration: underline;
-}
+section { margin-bottom: 2rem; }
+h1, h2, h3 { font-family: 'Inter', 'Poppins', sans-serif; font-weight: 600; color: #fff; }
+h1 { font-size: 2.5rem; margin-bottom: 1.5rem; }
+h2 { font-size: 1.75rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 0.5rem; }
+h3 { font-size: 1.2rem; margin-top: 1.5rem; margin-bottom: 1rem; }
+ul { list-style-position: inside; padding-left: 1rem; }
+li { margin-bottom: 0.5rem; color: #e2e8f0; }
+p { color: #e2e8f0; line-height: 1.6; }
+a { color: #64B5F6; text-decoration: none; font-weight: 500; }
+a:hover { text-decoration: underline; color: #90CAF9; }
 </style>

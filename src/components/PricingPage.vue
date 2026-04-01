@@ -215,20 +215,33 @@ onMounted(() => {
 <style scoped>
 .pricing-page {
   font-family: 'Poppins', sans-serif;
-  background-color: #f8f9fa;
-  color: #333;
+  background-color: #111d2f;
+  color: #f1f5f9;
   min-height: 100vh;
+}
+
+.pricing-page .text-medium-emphasis {
+  color: #94a3b8 !important;
 }
 
 .v-card {
   border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.08) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(16px);
+  color: #f1f5f9 !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
   transition: all 0.3s ease-in-out !important;
 }
 
 .v-card:hover {
   transform: translateY(-5px) !important;
-  box-shadow: 0 12px 25px rgba(0,0,0,0.12) !important;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.4) !important;
+}
+
+:deep(.v-list-item) {
+  background: transparent !important;
+  color: inherit !important;
 }
 
 :deep(.v-btn) {
@@ -236,8 +249,8 @@ onMounted(() => {
 }
 
 :deep(.v-btn:hover) {
-  box-shadow: 0px 4px 8px -2px rgba(0, 0, 0, 0.2),
-              0px 2px 2px 0px rgba(0, 0, 0, 0.14),
-              0px 1px 5px 0px rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0px 4px 8px -2px rgba(25, 118, 210, 0.3),
+              0px 2px 2px 0px rgba(25, 118, 210, 0.2),
+              0px 1px 5px 0px rgba(25, 118, 210, 0.2) !important;
 }
 </style>

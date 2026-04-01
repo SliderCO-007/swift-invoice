@@ -76,5 +76,14 @@ const unwatch = watch(isAuthReady, (ready) => {
 </script>
 
 <style scoped>
-/* Add any specific styles if needed */
+:deep(.v-container) {
+  min-height: 100vh;
+  background-color: #111d2f !important;
+}
+:deep(.v-card) {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(16px);
+  color: #f1f5f9 !important;
+}
 </style>

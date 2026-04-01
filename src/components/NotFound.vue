@@ -18,5 +18,8 @@
 </script>
 
 <style scoped>
-/* Add any desired styling */
+:deep(.v-container) {
+  background-color: #111d2f !important;
+  color: #f1f5f9;
+}
 </style>

@@ -1,10 +1,10 @@
 <template>
   <v-dialog v-model="dialog" scrollable max-width="850px">
-    <v-card>
-      <v-toolbar color="grey-lighten-4">
-        <v-toolbar-title class="font-weight-bold">Cookie Policy</v-toolbar-title>
+    <v-card class="cookie-dialog-card">
+      <v-toolbar class="cookie-toolbar" elevation="0">
+        <v-toolbar-title class="font-weight-bold text-white">Cookie Policy</v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-btn icon @click="dialog = false">
+        <v-btn icon color="white" @click="dialog = false">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-toolbar>
@@ -22,24 +22,23 @@
 
   <transition name="fade-slide">
     <div v-if="showBanner" class="cookie-banner-wrapper">
-      <v-card class="cookie-banner" elevation="12" tile color="grey-lighten-4">
+      <v-card class="cookie-banner" elevation="12" tile>
         <div class="cookie-banner-inner">
           <v-row no-gutters align="center">
             <v-col class="px-3">
-              <div class="text-body-1">We use cookies to enhance your experience.</div>
-              <div class="text-caption text-grey">
+              <div class="text-body-1 text-white">We use cookies to enhance your experience.</div>
+              <div class="text-caption" style="color: #94a3b8;">
                 By clicking "Accept", you agree to our cookie policy.
               </div>
               <div>
                 <p class="text-caption mt-2">
-                  <a @click.prevent="dialog = true" href="#" class="text-grey-darken-1" style="cursor: pointer">View our
-                    Cookie Policy</a>
+                  <a @click.prevent="dialog = true" href="#" style="cursor: pointer; color: #64B5F6;">View our Cookie Policy</a>
                 </p>
               </div>
             </v-col>
-            <v-col cols="auto" class="px-3">
+            <v-col cols="auto" class="px-3 btn-group">
               <v-btn color="primary" variant="flat" @click="handleAccept" class="mr-2"> Accept </v-btn>
-              <v-btn @click="handleDecline" color="grey-darken-1" variant="flat">Decline</v-btn>
+              <v-btn @click="handleDecline" color="white" variant="outlined">Decline</v-btn>
             </v-col>
           </v-row>
         </div>
@@ -85,6 +84,21 @@ const handleDecline = () => {
 </script>
 
 <style scoped>
+:deep(.v-card.cookie-banner), :deep(.v-card.cookie-dialog-card) {
+  background: rgba(17, 29, 47, 0.95) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(16px);
+  color: #f1f5f9 !important;
+}
+
+:deep(.cookie-dialog-card) {
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+:deep(.cookie-toolbar) {
+  background: transparent !important;
+  color: #fff !important;
+}
 /* 1. Outer wrapper: full-width at bottom, never animated */
 .cookie-banner-wrapper {
   position: fixed;

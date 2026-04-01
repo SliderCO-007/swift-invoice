@@ -548,9 +548,10 @@ const safeInvoice = computed(() => {
 <style scoped>
 .invoice-view-container {
   padding: 2rem;
-  background-color: var(--background-color, #f4f7f9);
+  background-color: #111d2f;
   min-height: 100vh;
   position: relative;
+  color: #f1f5f9;
 }
 
 .invoice-view-header {
@@ -572,11 +573,13 @@ const safeInvoice = computed(() => {
 .invoice-title {
   font-size: 1.75rem;
   font-weight: 600;
+  color: #fff;
 }
 
 .back-btn {
   text-transform: none;
   font-weight: 600;
+  color: #f1f5f9 !important;
 }
 
 .actions {

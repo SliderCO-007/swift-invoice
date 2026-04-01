@@ -3,7 +3,7 @@
 ## Overview
 ScanGo Invoice is a modern, responsive Vue.js application that allows users to create, send, and track professional invoices. It features multiple invoice templates, PDF generation, instant payments via Venmo QR codes, and a generous free tier for users.
 
-## Current Application State
+## Application Architecture & Design System
 - **Core Functionality:** User authentication, invoice creation with line items, tax calculation, client management.
 - **Templates:** Classic, Modern, and Corporate invoice styles.
 - **Features:** 
@@ -11,19 +11,24 @@ ScanGo Invoice is a modern, responsive Vue.js application that allows users to c
   - "Scan or click to pay" feature for QR codes.
   - PDF generation and email sending.
   - Simple client and item management.
-- **Design:** Modern aesthetics with Vuetify components, responsive grid layouts, and custom CSS styling.
+- **Design System (v2 Dark Theme):** 
+  - The application has been upgraded to a premium, glassmorphic dark theme.
+  - **Base Background:** Deep navy `#111d2f` perfectly matching the hero image.
+  - **Typography:** Light text (`#f1f5f9`, `#fff`) with softer secondary colors (`#94a3b8`, `#e2e8f0`).
+  - **Glassmorphism:** Cards, dialogs, and panels utilize slightly transparent white backgrounds (`rgba(255, 255, 255, 0.03)`), borders (`rgba(255, 255, 255, 0.08)`), and backdrops (`blur(16px)`).
+  - **Glow & Interactions:** Soft drop shadows (`rgba(0,0,0,0.4)`) and glowing interactive elements using the primary brand color to build depth.
 
-## Action Plan: Replacing Template Cards with Images
+## Current Action Plan: Dark Theme Redesign
 
 ### Goal
-Replace the CSS-styled template placeholder cards on the Landing Page with actual PNG images of the three existing templates.
+Redesign the theme of the application to feature a seamless, modern dark background that matches the `branded_hero_v7.png` (`#111d2f`). Apply this aesthetic globally across the Landing Page, Pricing Page, and Register Page.
 
-### Proposed Steps
-1. **Update DOM Elements:** Replace `<div class="template-card">` with `<img src="...">` tags pointing to the user-provided PNG files (`template_classic.png`, `template_modern.png`, `template_corporate.png`).
-2. **Update CSS:** Alter the `.template-card` CSS class to include `object-fit: cover` and `object-position: top` to realistically crop the invoices, and remove previous flex and text-styling properties.
-3. **Enhance Hover Details:** Update template card CSS hover effects to scale individual hovered cards massively, reset rotation, and bring them to the foreground (`z-index: 10`) allowing users to easily inspect their details. Non-hovered cards fade slightly to focus attention. On mobile, `tabindex` allows a tap-to-expand effect scaling to exactly 2.2x and centering perfectly on screen.
-4. **QR Code Image & Magnification:** Replace the `.qr-mockup` placeholder text and icon with the `venmo-qr-with-logo.png` image. The base size is reduced by 30% for a cleaner layout, while an enhanced hover action scales the element to 1.3x its size to fully showcase the image and logo quality on desktop. This hover is safely disabled on mobile.
-5. **PDF Mockup Animation:** Replace the `.pdf-mockup` placeholder with the `ScanGo_click_send_2.gif` animated image. The hover interaction is adjusted to remove rotation and increase drop shadow for a more premium, grounded presentation.
+### Steps
+1. **Analyze Hero Image:** Extracted the hex code `#111d2f` from the top-left pixel.
+2. **Landing Page Flip:** Swapped hero to `branded_hero_v7.png`. Darkened the site background to `#111d2f`. Replaced all white component blocks with sleek glassmorphic surfaces (`backdrop-filter`) and inverted typography colors to light shades.
+3. **Pricing Page Update:** Modified `PricingPage.vue` to adopt `#111d2f` and applied matching CSS to Vuetify cards.
+4. **Register Page Update:** Updated `RegisterPage.vue` container, input fields, and UI elements to seamlessly fit the dark ecosystem.
+5. **Blueprint Update:** Updated documentation to reflect the new global design constraints.
 
 ### Status
-- **Completed:** HTML replaced, base CSS updated, image files added by user and linked, hover magnification implemented for templates and QR code.
+- **Completed:** All requested pages are now fully upgraded to the dark theme glassmorphism design language.

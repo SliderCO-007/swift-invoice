@@ -5,7 +5,7 @@
         <div class="container">
           <div class="hero-grid">
             <div class="hero-content">
-              <span class="font-weight-bold d-sm-none hero-title text-blue-darken-4">ScanGo Invoice</span>
+              <span class="font-weight-bold d-sm-none hero-title text-blue-lighten-4">ScanGo Invoice</span>
               <h1 class="hero-title">Stop Chasing Payments.</h1>
               <h1 class="hero-title">Start Getting Paid in Seconds.</h1>
               <p class="hero-subtitle">Create, send, and track professional invoices in minutes. Focus on your work, not
@@ -20,8 +20,8 @@
               </div>
             </div>
             <div class="hero-image">
-              <img src="/hero_image.png"
-                alt="A woman smiling while using a laptop, representing a satisfied ScanGo Invoice user.">
+              <img src="/branded_hero_v7.png"
+                alt="A deconstructed workspace with an invoice and dashboard.">
             </div>
           </div>
         </div>
@@ -188,9 +188,10 @@ main section[id] {
 
 .landing-page {
   font-family: 'Poppins', sans-serif;
-  color: #333;
+  color: #f1f5f9;
   position: relative;
   z-index: 1;
+  background-color: #111d2f;
 }
 
 .container {
@@ -202,7 +203,7 @@ main section[id] {
 /* Hero Section */
 .hero {
   padding: 6rem 0;
-  background-color: #0069A1;
+  background-color: transparent;
 }
 
 .hero-grid {
@@ -210,9 +211,12 @@ main section[id] {
   grid-template-columns: 1fr 1fr;
   align-items: center;
   gap: 4rem;
-  background-color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
   padding: 2rem;
   border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
 }
 
 .hero-content {
@@ -229,19 +233,20 @@ main section[id] {
 .hero-subtitle {
   font-size: 1.25rem;
   margin-bottom: 2.5rem;
-  color: #555;
+  color: #94a3b8;
 }
 
 .hero-image img {
   max-width: 100%;
   height: auto;
-  border-radius: 16px;
+  border-radius: 32px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
 }
 
 /* How It Works Section */
 .how-it-works {
   padding: 6rem 0 3rem 0;
-  background-color: #f8f9fa;
+  background-color: #0c1522;
 }
 
 .section-title {
@@ -249,11 +254,12 @@ main section[id] {
   font-weight: 700;
   text-align: center;
   margin-bottom: 1rem;
+  color: #fff;
 }
 
 .section-subtitle {
   font-size: 1.2rem;
-  color: #555;
+  color: #94a3b8;
   text-align: center;
   margin-bottom: 4rem;
 }
@@ -266,18 +272,20 @@ main section[id] {
 }
 
 .step-card {
-  background: white;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
   padding: 2.5rem 2rem;
   border-radius: 16px;
   text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   position: relative;
 }
 
 .step-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.4);
 }
 
 .step-number {
@@ -292,18 +300,18 @@ main section[id] {
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0 auto 1.5rem auto;
-  box-shadow: 0 4px 15px rgba(25, 118, 210, 0.3);
+  box-shadow: 0 4px 15px rgba(25, 118, 210, 0.6);
 }
 
 .step-title {
   font-size: 1.3rem;
   font-weight: 700;
   margin-bottom: 1rem;
-  color: #111;
+  color: #fff;
 }
 
 .step-card p {
-  color: #555;
+  color: #94a3b8;
   font-size: 0.95rem;
   line-height: 1.6;
 }
@@ -311,7 +319,7 @@ main section[id] {
 /* Features Alternating Section */
 .features-alternating {
   padding: 3rem 0 6rem 0;
-  background-color: #f8f9fa;
+  background-color: #111d2f;
 }
 
 .feature-row {
@@ -334,13 +342,13 @@ main section[id] {
   font-size: 2.2rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
-  color: #111;
+  color: #fff;
   line-height: 1.2;
 }
 
 .feature-text p {
   font-size: 1.1rem;
-  color: #555;
+  color: #e2e8f0;
   line-height: 1.7;
   margin-bottom: 1.5rem;
 }
@@ -355,7 +363,7 @@ main section[id] {
   display: flex;
   align-items: center;
   font-size: 1.05rem;
-  color: #333;
+  color: #f1f5f9;
   margin-bottom: 0.8rem;
   font-weight: 600;
 }
@@ -369,10 +377,12 @@ main section[id] {
 
 /* Mockups & Animations */
 .mockup-card {
-  background: white;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 3rem;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
   text-align: center;
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   width: 100%;
@@ -384,7 +394,7 @@ main section[id] {
 .mockup-card:hover {
   transform: scale(1.05);
   z-index: 2;
-  box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.5);
 }
 
 .pdf-mockup {
@@ -430,12 +440,12 @@ main section[id] {
 .template-card {
   width: 140px;
   height: 200px;
-  background: white;
+  background: #fff;
   border-radius: 8px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
   position: absolute;
   transition: all 0.4s ease;
-  border: 1px solid #eee;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   object-fit: cover;
   object-position: top;
 }
@@ -506,14 +516,14 @@ main section[id] {
 
 /* Footer */
 .footer {
-  background-color: #333;
-  color: #fff;
+  background-color: #0a111c;
+  color: #94a3b8;
   padding: 2rem 0;
   text-align: center;
 }
 
 .footer a {
-  color: #fff;
+  color: #f1f5f9;
   text-decoration: none;
 }
 
@@ -550,9 +560,10 @@ main section[id] {
 }
 
 .modal-content {
-  background: #fff;
+  background: #111d2f;
   padding: 20px;
   border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   position: relative;
   max-width: 90%;
   max-height: 90%;
@@ -587,10 +598,11 @@ main section[id] {
   position: absolute;
   top: -10px;
   right: -10px;
-  background-color: #fff;
-  color: #555;
+  background-color: #111d2f;
+  color: #f1f5f9;
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 50%;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   z-index: 10;
 }
 

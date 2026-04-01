@@ -107,7 +107,7 @@ const goToPricing = () => {
           <h1>User Settings</h1>
           <p>Manage your company information, logo, and payment details.</p>
         </div>
-        <v-btn @click="router.push({ name: 'Dashboard' })" class="back-btn" flat>
+        <v-btn @click="router.push({ name: 'Dashboard' })" class="back-btn" color="white" variant="flat">
           &larr; Back to Dashboard
         </v-btn>
       </header>
@@ -149,14 +149,14 @@ const goToPricing = () => {
         <div class="company-info-section">
           <h3>Company Information</h3>
           <div class="form-grid">
-            <v-text-field label="Company Name" v-model="localSettings.company.name" placeholder="e.g., ScanGo Creations Inc." variant="outlined"></v-text-field>
-            <v-text-field label="Email" v-model="localSettings.company.email" placeholder="e.g., contact@scango.com" variant="outlined"></v-text-field>
-            <v-text-field label="Address Line 1" v-model="localSettings.company.address1" placeholder="e.g., 123 Innovation Drive" variant="outlined" class="full-width"></v-text-field>
-            <v-text-field label="Address Line 2 (Optional)" v-model="localSettings.company.address2" placeholder="e.g., Suite 500" variant="outlined" class="full-width"></v-text-field>
-            <v-text-field label="City" v-model="localSettings.company.city" placeholder="e.g., Tech City" variant="outlined"></v-text-field>
-            <v-text-field label="State" v-model="localSettings.company.state" placeholder="e.g., CA" variant="outlined"></v-text-field>
-            <v-text-field label="Zip Code" v-model="localSettings.company.zip" placeholder="e.g., 94016" variant="outlined" class="full-width"></v-text-field>
-            <v-text-field label="Default Tax Rate (%)" type="number" v-model.number="localSettings.taxRate" placeholder="e.g., 10" variant="outlined"></v-text-field>
+            <v-text-field label="Company Name" v-model="localSettings.company.name" placeholder="e.g., ScanGo Creations Inc." variant="solo"></v-text-field>
+            <v-text-field label="Email" v-model="localSettings.company.email" placeholder="e.g., contact@scango.com" variant="solo"></v-text-field>
+            <v-text-field label="Address Line 1" v-model="localSettings.company.address1" placeholder="e.g., 123 Innovation Drive" variant="solo" class="full-width"></v-text-field>
+            <v-text-field label="Address Line 2 (Optional)" v-model="localSettings.company.address2" placeholder="e.g., Suite 500" variant="solo" class="full-width"></v-text-field>
+            <v-text-field label="City" v-model="localSettings.company.city" placeholder="e.g., Tech City" variant="solo"></v-text-field>
+            <v-text-field label="State" v-model="localSettings.company.state" placeholder="e.g., CA" variant="solo"></v-text-field>
+            <v-text-field label="Zip Code" v-model="localSettings.company.zip" placeholder="e.g., 94016" variant="solo" class="full-width"></v-text-field>
+            <v-text-field label="Default Tax Rate (%)" type="number" v-model.number="localSettings.taxRate" placeholder="e.g., 10" variant="solo"></v-text-field>
           </div>
         </div>
         
@@ -177,7 +177,7 @@ const goToPricing = () => {
                       id="venmoUsername"
                       v-model="localSettings.company.venmoUsername"
                       placeholder="YourVenmoHandle"
-                      variant="outlined"
+                      variant="solo"
                       prepend-inner-icon="mdi-at"
                     ></v-text-field>
                 </div>
@@ -210,41 +210,40 @@ const goToPricing = () => {
 </template>
 
 <style scoped>
-.page-loading-container { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; gap: 1.5rem; }
-.settings-container { padding: 1rem; background-color: #F9FAFB; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
-.settings-card { width: 100%; max-width: 800px; background: #fff; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); padding: 2.5rem; }
+.page-loading-container { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; gap: 1.5rem; color: #f1f5f9; }
+.settings-container { padding: 1rem; background-color: #111d2f; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; color: #f1f5f9; }
+.settings-card { width: 100%; max-width: 800px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(16px); border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); padding: 2.5rem; color: #f1f5f9; }
 .settings-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; }
-.settings-header h1 { font-size: 2.2rem; font-weight: 700; }
-.settings-header p { color: #666; font-size: 1.1rem; }
-.preview-section { margin-bottom: 2.5rem; padding: 1.5rem; background-color: #f9f9f9; border-radius: 8px; border: 1px solid #eee; }
-.preview-section h3 { font-size: 1.3rem; font-weight: 600; margin-bottom: 0.5rem; }
-.preview-section p { margin-bottom: 1rem; }
+.settings-header h1 { font-size: 2.2rem; font-weight: 700; color: #fff; }
+.settings-header p { color: #94a3b8; font-size: 1.1rem; }
+.preview-section { margin-bottom: 2.5rem; padding: 1.5rem; background: rgba(255, 255, 255, 0.02); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1); }
+.preview-section h3 { font-size: 1.3rem; font-weight: 600; margin-bottom: 0.5rem; color: #fff; }
+.preview-section p { margin-bottom: 1rem; color: #e2e8f0; }
 .preview-btn, .subscribe-btn { text-transform: none; }
 .preview-message { margin-top: 1rem; font-weight: 600; }
-.back-btn { text-transform: none; font-weight: 600; }
-.settings-form h3 { font-size: 1.3rem; font-weight: 600; margin-bottom: 1.5rem; color: #111827; padding-bottom: 0.5rem; border-bottom: 1px solid #eee; }
+.back-btn { text-transform: none; font-weight: 600; color: #1e293b !important; }
+.settings-form h3 { font-size: 1.3rem; font-weight: 600; margin-bottom: 1.5rem; color: #fff; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
 .uploaders-section { display: flex; gap: 3rem; margin-bottom: 2.5rem; justify-content: center; align-items: flex-start; text-align: center; }
 .uploader-item h3 { margin-bottom: 1.5rem; }
 .logo-uploader { display: flex; justify-content: center; align-items: center; }
-.logo-preview-wrapper { position: relative; width: 150px; height: 150px; border-radius: 12px; cursor: pointer; overflow: hidden; border: 3px solid #eee; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+.logo-preview-wrapper { position: relative; width: 150px; height: 150px; border-radius: 12px; cursor: pointer; overflow: hidden; border: 3px solid rgba(255, 255, 255, 0.1); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
 .logo-img { width: 100%; height: 100%; object-fit: cover; }
 .upload-icon { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); color: white; display: flex; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
 .logo-preview-wrapper:hover .upload-icon { opacity: 1; }
 .company-info-section, .payment-info-section { margin-top: 2.5rem; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .form-group.full-width, .full-width { grid-column: 1 / -1; }
-.form-group label { font-weight: 600; display: block; margin-bottom: 0.5rem; color: #333; }
-.settings-footer { display: flex; justify-content: flex-end; align-items: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #eee; }
+.form-group label { font-weight: 600; display: block; margin-bottom: 0.5rem; color: #e2e8f0; }
+.settings-footer { display: flex; justify-content: flex-end; align-items: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); }
 .save-btn { text-transform: none; font-weight: 600; }
 .success-notification, .error-notification { margin-right: 1.5rem; font-weight: 600; }
-.success-notification { width: 100%; text-align: center; color: #28A745; margin-bottom: 1.5rem; }
-.error-notification { color: #DC3545; }
+.success-notification { width: 100%; text-align: center; color: #4ade80; margin-bottom: 1.5rem; }
+.error-notification { color: #f87171; }
 
-/* NEW STYLES */
-.venmo-label { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-weight: 600; color: #333; font-size: 0.875rem; }
-.help-icon { color: #666; }
-.help-dialog-card { padding: 1rem; }
-.headline { font-weight: 600; }
+.venmo-label { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-weight: 600; color: #e2e8f0; font-size: 0.875rem; }
+.help-icon { color: #94a3b8; }
+.help-dialog-card { padding: 1rem; background-color: #1e293b; color: #f1f5f9; }
+.help-dialog-card .headline { font-weight: 600; color: #fff; }
 
 @media (max-width: 768px) {
   .settings-card { padding: 1.5rem; }

@@ -199,28 +199,28 @@ async function save() {
             <v-form @submit.prevent="save">
               <v-row>
                 <v-col cols="12">
-                  <v-text-field v-model="editedItem.name" label="Full Name" variant="outlined" required></v-text-field>
+                  <v-text-field v-model="editedItem.name" label="Full Name" variant="solo" required></v-text-field>
                 </v-col>
                 <v-col cols="12" md="6">
-                  <v-text-field v-model="editedItem.email" label="Email Address" variant="outlined" required type="email"></v-text-field>
+                  <v-text-field v-model="editedItem.email" label="Email Address" variant="solo" required type="email"></v-text-field>
                 </v-col>
                 <v-col cols="12" md="6">
-                  <v-text-field v-model="editedItem.phone" label="Phone Number" variant="outlined"></v-text-field>
+                  <v-text-field v-model="editedItem.phone" label="Phone Number" variant="solo"></v-text-field>
                 </v-col>
                 <v-col cols="12">
-                    <v-text-field v-model="editedItem.address1" label="Address Line 1" variant="outlined"></v-text-field>
+                    <v-text-field v-model="editedItem.address1" label="Address Line 1" variant="solo"></v-text-field>
                 </v-col>
                 <v-col cols="12">
-                    <v-text-field v-model="editedItem.address2" label="Address Line 2 (Optional)" variant="outlined"></v-text-field>
+                    <v-text-field v-model="editedItem.address2" label="Address Line 2 (Optional)" variant="solo"></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="editedItem.city" label="City" variant="outlined"></v-text-field>
+                    <v-text-field v-model="editedItem.city" label="City" variant="solo"></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="editedItem.state" label="State" variant="outlined"></v-text-field>
+                    <v-text-field v-model="editedItem.state" label="State" variant="solo"></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="12" md="4">
-                    <v-text-field v-model="editedItem.zip" label="Zip Code" variant="outlined"></v-text-field>
+                    <v-text-field v-model="editedItem.zip" label="Zip Code" variant="solo"></v-text-field>
                 </v-col>
               </v-row>
             </v-form>
@@ -252,3 +252,38 @@ async function save() {
 
   </div>
 </template>
+
+<style scoped>
+.customers-view {
+  min-height: 100vh;
+  background-color: #111d2f;
+  color: #f1f5f9;
+}
+
+:deep(.v-card) {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(16px);
+  color: #f1f5f9 !important;
+}
+
+:deep(.v-data-table) {
+  background: transparent !important;
+  color: #f1f5f9 !important;
+}
+
+:deep(.v-data-table-header__content) {
+  color: #94a3b8 !important;
+  font-weight: 600 !important;
+}
+
+:deep(.v-data-table__tr:hover) {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+:deep(.text-h4), :deep(.text-h5), :deep(.text-h6), :deep(.v-card-title) { color: #fff !important; }
+:deep(.text-subtitle-1), :deep(.text-body-1), :deep(.v-card-text) { color: #e2e8f0 !important; }
+:deep(.text-medium-emphasis) { color: #94a3b8 !important; }
+:deep(.v-icon) { color: #94a3b8 !important; }
+:deep(a.text-decoration-none) { color: #64B5F6 !important; }
+</style>

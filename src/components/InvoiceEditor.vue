@@ -160,7 +160,7 @@ onUnmounted(() => {
     <div class="editor-form-card">
       <header class="editor-header">
         <h1>{{ invoiceId === 'new' ? 'Create Invoice' : `Invoice #${invoice.invoiceNumber}` }}</h1>
-        <v-btn :to="{ name: 'Dashboard' }" text>Back to Dashboard</v-btn>
+        <v-btn :to="{ name: 'Dashboard' }" color="white" variant="flat" class="text-indigo-darken-4 font-weight-bold">Back to Dashboard</v-btn>
       </header>
 
       <div v-if="saveError" class="error-container">
@@ -171,15 +171,15 @@ onUnmounted(() => {
         <div class="form-section responsive-grid">
           <div class="from-fields">
             <h3 class="mb-2">From</h3>
-            <v-text-field density="comfortable" class="mb-2" label="Your Name/Company" v-model="invoice.sender.name" variant="outlined"></v-text-field>
-            <v-text-field density="comfortable" class="mb-2" label="Your Email" v-model="invoice.sender.email" variant="outlined" type="email"></v-text-field>
-            <v-text-field density="comfortable" class="mb-2" label="Address Line 1" v-model="invoice.sender.address1" variant="outlined"></v-text-field>
-            <v-text-field density="comfortable" class="mb-2" label="Address Line 2 (Optional)" v-model="invoice.sender.address2" variant="outlined"></v-text-field>
+            <v-text-field density="comfortable" class="mb-2" label="Your Name/Company" v-model="invoice.sender.name" variant="solo"></v-text-field>
+            <v-text-field density="comfortable" class="mb-2" label="Your Email" v-model="invoice.sender.email" variant="solo" type="email"></v-text-field>
+            <v-text-field density="comfortable" class="mb-2" label="Address Line 1" v-model="invoice.sender.address1" variant="solo"></v-text-field>
+            <v-text-field density="comfortable" class="mb-2" label="Address Line 2 (Optional)" v-model="invoice.sender.address2" variant="solo"></v-text-field>
             <div class="address-grid-city-state">
-              <v-text-field density="comfortable" label="City" v-model="invoice.sender.city" variant="outlined"></v-text-field>
-              <v-text-field density="comfortable" label="State" v-model="invoice.sender.state" variant="outlined"></v-text-field>
+              <v-text-field density="comfortable" label="City" v-model="invoice.sender.city" variant="solo"></v-text-field>
+              <v-text-field density="comfortable" label="State" v-model="invoice.sender.state" variant="solo"></v-text-field>
             </div>
-            <v-text-field density="comfortable" label="Zip Code" v-model="invoice.sender.zip" variant="outlined"></v-text-field>
+            <v-text-field density="comfortable" label="Zip Code" v-model="invoice.sender.zip" variant="solo"></v-text-field>
           </div>
           <div>
             <h3 class="mb-2">To</h3>
@@ -189,7 +189,7 @@ onUnmounted(() => {
               item-title="name"
               return-object
               label="Select a Customer"
-              variant="outlined"
+              variant="solo"
               class="mb-4"
               clearable
             >
@@ -199,25 +199,25 @@ onUnmounted(() => {
                 </v-list-item>
               </template>
             </v-autocomplete>
-            <v-text-field density="comfortable" class="mb-2" label="Client's Name" v-model="invoice.client.name" variant="outlined" required></v-text-field>
-            <v-text-field density="comfortable" class="mb-2" label="Client's Email" v-model="invoice.client.email" variant="outlined" required type="email"></v-text-field>
-            <v-text-field density="comfortable" class="mb-2" label="Client's Phone" v-model="invoice.client.phone" variant="outlined"></v-text-field>
-            <v-text-field density="comfortable" class="mb-2" label="Address Line 1" v-model="invoice.client.address1" variant="outlined"></v-text-field>
-            <v-text-field density="comfortable" class="mb-2" label="Address Line 2 (Optional)" v-model="invoice.client.address2" variant="outlined"></v-text-field>
+            <v-text-field density="comfortable" class="mb-2" label="Client's Name" v-model="invoice.client.name" variant="solo" required></v-text-field>
+            <v-text-field density="comfortable" class="mb-2" label="Client's Email" v-model="invoice.client.email" variant="solo" required type="email"></v-text-field>
+            <v-text-field density="comfortable" class="mb-2" label="Client's Phone" v-model="invoice.client.phone" variant="solo"></v-text-field>
+            <v-text-field density="comfortable" class="mb-2" label="Address Line 1" v-model="invoice.client.address1" variant="solo"></v-text-field>
+            <v-text-field density="comfortable" class="mb-2" label="Address Line 2 (Optional)" v-model="invoice.client.address2" variant="solo"></v-text-field>
             <div class="address-grid-city-state">
-              <v-text-field density="comfortable" label="City" v-model="invoice.client.city" variant="outlined"></v-text-field>
-              <v-text-field density="comfortable" label="State" v-model="invoice.client.state" variant="outlined"></v-text-field>
+              <v-text-field density="comfortable" label="City" v-model="invoice.client.city" variant="solo"></v-text-field>
+              <v-text-field density="comfortable" label="State" v-model="invoice.client.state" variant="solo"></v-text-field>
             </div>
-            <v-text-field density="comfortable" label="Zip Code" v-model="invoice.client.zip" variant="outlined"></v-text-field>
+            <v-text-field density="comfortable" label="Zip Code" v-model="invoice.client.zip" variant="solo"></v-text-field>
           </div>
         </div>
 
         <div class="form-section responsive-grid">
           <div>
-            <v-text-field label="Issue Date" type="date" v-model="formattedIssueDate" variant="outlined" density="comfortable"></v-text-field>
+            <v-text-field label="Issue Date" type="date" v-model="formattedIssueDate" variant="solo" density="comfortable"></v-text-field>
           </div>
           <div>
-            <v-text-field label="Due Date" type="date" v-model="formattedDueDate" variant="outlined" density="comfortable"></v-text-field>
+            <v-text-field label="Due Date" type="date" v-model="formattedDueDate" variant="solo" density="comfortable"></v-text-field>
           </div>
         </div>
 
@@ -226,12 +226,12 @@ onUnmounted(() => {
           <div v-for="(item, index) in invoice.items" :key="index" class="item-row">
             <v-row align="center">
               <v-col cols="12" md="6">
-                <v-combobox v-model="item.description" :items="itemDescriptions" label="Select or type to add an item" variant="outlined" density="comfortable" @update:model-value="(desc) => handleDescriptionUpdate(item, desc)" clearable>
+                <v-combobox v-model="item.description" :items="itemDescriptions" label="Select or type to add an item" variant="solo" density="comfortable" @update:model-value="(desc) => handleDescriptionUpdate(item, desc)" clearable>
                   <template v-slot:no-data><v-list-item><v-list-item-title>No items found. <router-link to="/items">Add one?</router-link></v-list-item-title></v-list-item></template>
                 </v-combobox>
               </v-col>
-              <v-col cols="6" md="2"><v-text-field type="number" label="Quantity" v-model.number="item.quantity" density="comfortable" variant="outlined"></v-text-field></v-col>
-              <v-col cols="6" md="2"><v-text-field type="number" label="Price" v-model.number="item.price" density="comfortable" variant="outlined"></v-text-field></v-col>
+              <v-col cols="6" md="2"><v-text-field type="number" label="Quantity" v-model.number="item.quantity" density="comfortable" variant="solo"></v-text-field></v-col>
+              <v-col cols="6" md="2"><v-text-field type="number" label="Price" v-model.number="item.price" density="comfortable" variant="solo"></v-text-field></v-col>
               <v-col cols="12" md="2" class="d-flex align-center justify-center"><v-btn icon @click="removeItem(index)" variant="text" color="red-lighten-2"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg></v-btn></v-col>
             </v-row>
           </div>
@@ -255,9 +255,9 @@ onUnmounted(() => {
         </div>
 
         <div class="form-section responsive-grid">
-          <div><v-textarea label="Notes" v-model="invoice.notes" variant="outlined"></v-textarea></div>
+          <div><v-textarea label="Notes" v-model="invoice.notes" variant="solo"></v-textarea></div>
           <div>
-            <v-text-field label="Tax Rate (%)" type="number" v-model.number="invoice.taxRate" variant="outlined" density="comfortable"></v-text-field>
+            <v-text-field label="Tax Rate (%)" type="number" v-model.number="invoice.taxRate" variant="solo" density="comfortable"></v-text-field>
             <div class="totals-summary">
               <p>Subtotal: <span>${{ subtotal.toFixed(2) }}</span></p>
               <p>Tax: <span>${{ taxAmount.toFixed(2) }}</span></p>
@@ -290,20 +290,23 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.editor-container { padding: 2rem; background-color: #f9fafb; min-height: 100vh; }
-.editor-form-card { background-color: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 2rem; max-width: 1200px; margin: 0 auto; }
-.editor-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 1.5rem; margin-bottom: 2rem; }
-.editor-header h1 { font-size: 1.8rem; font-weight: 700; }
+.editor-container { padding: 2rem; background-color: #111d2f; min-height: 100vh; color: #f1f5f9; }
+.editor-form-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(16px); border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); padding: 2rem; max-width: 1200px; margin: 0 auto; color: #f1f5f9; }
+.editor-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid rgba(255,255,255,0.1); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+.editor-header h1 { font-size: 1.8rem; font-weight: 700; color: #fff; }
 .form-section { margin-bottom: 2rem; }
-.form-section h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; }
+.form-section h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: #fff; }
 .responsive-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
 .address-grid-city-state { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .item-.row { margin-bottom: 1rem; }
-.editor-footer { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; border-top: 2px solid #eee; padding-top: 1.5rem; }
-.preview-content { background: #f7f7f7; padding: 2rem; height: 100%; overflow-y: auto; }
-.totals-summary { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #eee; }
-.totals-summary p { display: flex; justify-content: space-between; margin: 0.5rem 0; }
+.editor-footer { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; border-top: 2px solid rgba(255,255,255,0.1); padding-top: 1.5rem; }
+.preview-content { background: #111d2f; padding: 2rem; height: 100%; overflow-y: auto; }
+.totals-summary { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); }
+.totals-summary p { display: flex; justify-content: space-between; margin: 0.5rem 0; color: #e2e8f0; }
 .error-container { padding: 1rem 0; }
+
+:deep(.v-list) { background: #fff !important; color: #1e293b !important; }
+:deep(.v-list-item) { color: #1e293b !important; }
 
 @media (max-width: 768px) {
   .editor-container, .editor-form-card { padding: 1rem; }
