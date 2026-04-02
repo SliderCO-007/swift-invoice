@@ -579,7 +579,7 @@ const safeInvoice = computed(() => {
 .back-btn {
   text-transform: none;
   font-weight: 600;
-  color: #f1f5f9 !important;
+  color: #1e293b !important;
 }
 
 .actions {
