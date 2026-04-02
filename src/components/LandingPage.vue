@@ -11,7 +11,7 @@
               <p class="hero-subtitle">Create, send, and track professional invoices in minutes. Focus on your work, not
                 your paperwork.</p>
               <div class="d-flex flex-column flex-sm-row flex-wrap ga-4 mt-8 align-center justify-center justify-md-start">
-                <v-btn to="/register?method=google" color="white" class="text-black font-weight-bold px-8 cta-btn" size="x-large" rounded="pill">
+                <v-btn @click="handleGoogleSignIn" :loading="loading" color="white" class="text-black font-weight-bold px-8 cta-btn" size="x-large" rounded="pill">
                   <svg class="mr-2" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -163,12 +163,17 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAuth, currentUser } from '../composables/useAuth.js';
 import { useMeta } from '../composables/useMeta';
 import { useDisplay } from 'vuetify';
 import Trustpilot from './TrustpilotWidget.vue';
 
 const { mobile } = useDisplay();
+const router = useRouter();
+const { loading, googleLogin } = useAuth();
+
 const showDashboardPreview = ref(false);
 const showMobilePreview = ref(false);
 const isMobilePreviewLoading = ref(false);
@@ -181,6 +186,16 @@ const openMobilePreview = () => {
 const closeMobilePreview = () => {
   showMobilePreview.value = false;
 };
+
+const handleGoogleSignIn = async () => {
+  await googleLogin();
+};
+
+watch(currentUser, (user) => {
+  if (user) {
+    router.push('/dashboard');
+  }
+}, { immediate: true });
 
 useMeta(
   'ScanGo Invoice | Simple Digital Invoicing',
