@@ -18,7 +18,7 @@ service cloud.firestore {
       allow read: if isOwner(userId);
       
       allow create: if isOwner(userId) && (
-        request.resource.data.invoiceCount == 1 &&
+        request.resource.data.invoiceCount == 0 &&
         request.resource.data.subscriptionStatus == 'free' &&
         request.resource.data.uid == userId
       );

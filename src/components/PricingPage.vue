@@ -20,8 +20,8 @@ useMeta(
 
 // Mapping of plan names to their corresponding Price IDs
 const priceIds = {
-  monthly: 'price_1T0Zf0AuWeuwQet6AHC0Owwn',
-  yearly: 'price_1Spgg9AuWeuwQet65ynWRtb7',
+  monthly: 'price_1TICRCAuWeuwQet6OACgdcin',
+  yearly: 'price_1TICSfAuWeuwQet6d3x2jHZ6',
 };
 
 const handleSubscribe = async (plan, priceId) => {
@@ -136,7 +136,7 @@ onMounted(() => {
             
             <v-card-text class="flex-grow-1 text-center">
               <div class="d-flex justify-center align-start mb-6">
-                <span class="text-h2 font-weight-bold">$6</span>
+                <span class="text-h2 font-weight-bold">$9</span>
                 <span class="text-h5 font-weight-medium mt-2">/month</span>
               </div>
               <v-list-item>
@@ -179,7 +179,7 @@ onMounted(() => {
 
             <v-card-text class="flex-grow-1 text-center">
               <div class="d-flex justify-center align-start mb-6">
-                <span class="text-h2 font-weight-bold">$60</span>
+                <span class="text-h2 font-weight-bold">$90</span>
                 <span class="text-h5 font-weight-medium mt-2">/year</span>
               </div>
               <v-list-item>
