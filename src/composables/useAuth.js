@@ -5,7 +5,10 @@ import {
   signInWithEmailAndPassword, 
   signOut, 
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  sendPasswordResetEmail,
+  verifyPasswordResetCode,
+  confirmPasswordReset
 } from 'firebase/auth';
 import { doc, getDoc, serverTimestamp, writeBatch } from 'firebase/firestore';
 import { db, auth } from './useFirebase.js';
@@ -135,6 +138,45 @@ const logout = async () => {
   }
 };
 
+const resetPassword = async (email) => {
+  loading.value = true;
+  error.value = null;
+  try {
+    await sendPasswordResetEmail(auth, email);
+  } catch (err) {
+    error.value = err.message;
+    throw err;
+  } finally {
+    loading.value = false;
+  }
+};
+
+const verifyResetCode = async (code) => {
+  error.value = null;
+  loading.value = true;
+  try {
+    return await verifyPasswordResetCode(auth, code);
+  } catch (err) {
+    error.value = err.message;
+    throw err;
+  } finally {
+    loading.value = false;
+  }
+};
+
+const confirmReset = async (code, newPassword) => {
+  error.value = null;
+  loading.value = true;
+  try {
+    await confirmPasswordReset(auth, code, newPassword);
+  } catch (err) {
+    error.value = err.message;
+    throw err;
+  } finally {
+    loading.value = false;
+  }
+};
+
 // --- Auth State Change Listener ---
 onAuthStateChanged(auth, async (user) => {
   currentUser.value = user;
@@ -165,6 +207,9 @@ const useAuth = () => {
     login,
     logout,
     googleLogin,
+    resetPassword,
+    verifyResetCode,
+    confirmReset,
     isAuthReady, 
   };
 };

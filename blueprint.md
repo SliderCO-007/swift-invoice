@@ -18,17 +18,19 @@ ScanGo Invoice is a modern, responsive Vue.js application that allows users to c
   - **Glassmorphism:** Cards, dialogs, and panels utilize slightly transparent white backgrounds (`rgba(255, 255, 255, 0.03)`), borders (`rgba(255, 255, 255, 0.08)`), and backdrops (`blur(16px)`).
   - **Glow & Interactions:** Soft drop shadows (`rgba(0,0,0,0.4)`) and glowing interactive elements using the primary brand color to build depth.
 
-## Current Action Plan: Dark Theme Redesign
+## Current Action Plan: Password Reset Flow
 
 ### Goal
-Redesign the theme of the application to feature a seamless, modern dark background that matches the `branded_hero_v7.png` (`#111d2f`). Apply this aesthetic globally across the Landing Page, Pricing Page, and Register Page.
+Implement a password reset system so users who forgot their passwords can easily regain access to their accounts.
 
 ### Steps
-1. **Analyze Hero Image:** Extracted the hex code `#111d2f` from the top-left pixel.
-2. **Landing Page Flip:** Swapped hero to `branded_hero_v7.png`. Darkened the site background to `#111d2f`. Replaced all white component blocks with sleek glassmorphic surfaces (`backdrop-filter`) and inverted typography colors to light shades.
-3. **Pricing Page Update:** Modified `PricingPage.vue` to adopt `#111d2f` and applied matching CSS to Vuetify cards.
-4. **Register Page Update:** Updated `RegisterPage.vue` container, input fields, and UI elements to seamlessly fit the dark ecosystem.
-5. **Blueprint Update:** Updated documentation to reflect the new global design constraints.
+1. **Composable Update:** Added `sendPasswordResetEmail`, `verifyPasswordResetCode`, and `confirmPasswordReset` from `firebase/auth` and created corresponding functions (`resetPassword`, `verifyResetCode`, `confirmReset`) in `src/composables/useAuth.js`.
+2. **Route Creation:** Added `/reset-password` and `/auth/action` routes pointing to their respective components.
+3. **UI Components:** 
+   - Created `ResetPasswordPage.vue` incorporating the existing glassmorphic dark theme and connected it to the `resetPassword` composable function.
+   - Created `ActionHandlerPage.vue` to handle the email redirect, displaying a form to verify the new password and complete the reset.
+   - **Password Visibility Toggle:** Implemented an "eye" icon toggle on `LoginPage.vue`, `RegisterPage.vue`, and `ActionHandlerPage.vue` allowing users to view the passwords they type.
+4. **Login Link:** Added an inline "Forgot?" link on the `LoginPage.vue` above the password input field.
 
 ### Status
-- **Completed:** All requested pages are now fully upgraded to the dark theme glassmorphism design language.
+- **Completed:** The password reset flow is fully implemented and styled.

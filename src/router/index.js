@@ -36,7 +36,19 @@ const routes = [
     component: () => import('../components/LoginPage.vue'),
     meta: { requiresGuest: true }
   },
-    {
+  {
+    path: '/reset-password',
+    name: 'ResetPassword',
+    component: () => import('../components/ResetPasswordPage.vue'),
+    meta: { requiresGuest: true }
+  },
+  {
+    path: '/auth/action',
+    name: 'AuthAction',
+    component: () => import('../components/ActionHandlerPage.vue'),
+    meta: { requiresGuest: true }
+  },
+  {
     path: '/payment-success',
     name: 'PaymentSuccess',
     component: () => import('../components/PaymentSuccess.vue'),
