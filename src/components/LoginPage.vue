@@ -189,7 +189,7 @@ watch(currentUser, (user) => {
 
 .form-group input {
   width: 100%;
-  padding: 0.8rem 2.5rem 0.8rem 1rem;
+  padding: 0.5rem 2.5rem 0.5rem 0.8rem;
   background: #fff;
   border: 1px solid #ccc;
   color: #1e293b;

@@ -5,7 +5,9 @@
         <div class="container">
           <div class="hero-grid">
             <div class="hero-content">
-              <span class="font-weight-bold d-sm-none hero-title text-blue-lighten-4">ScanGo Invoice</span>
+              <div class="d-sm-none mb-6">
+                <span class="font-weight-bold text-blue-lighten-4 mobile-brand">ScanGo Invoice</span>
+              </div>
               <h1 class="hero-title">Stop Chasing <span class="text-gradient">Payments.</span></h1>
               <h1 class="hero-title">Start Getting <span class="text-gradient">Paid in Seconds.</span></h1>
               <p class="hero-subtitle">Create, send, and track professional invoices in minutes. Focus on your work, not
@@ -262,7 +264,7 @@ main section[id] {
   -webkit-text-fill-color: transparent !important;
   background-clip: text !important;
   color: transparent !important;
-  display: inline-block;
+  display: inline;
 }
 
 .hero-subtitle {
@@ -660,6 +662,7 @@ main section[id] {
   .hero-grid {
     grid-template-columns: 1fr;
     text-align: center;
+    padding: 2rem 1.5rem;
   }
 
   .hero-content {
@@ -700,21 +703,26 @@ main section[id] {
 
 @media (max-width: 768px) {
   .container {
-    padding: 0 .5rem;
+    padding: 0 1rem;
+  }
+
+  .hero-grid {
+    padding: 1.5rem 1rem;
+    gap: 2rem;
   }
 
   .hero {
-    padding: 1rem 1rem;
+    padding: 2rem 1rem;
   }
 
   .hero-title {
-    font-size: 2.5rem;
-    line-height: 1.1;
-    margin-bottom: 1rem;
+    font-size: 2.2rem;
+    line-height: 1.2;
+    margin-bottom: 0.8rem;
   }
 
   .hero-subtitle {
-    font-size: 1.1rem;
+    font-size: 1rem;
     margin-bottom: 1.5rem;
   }
 
@@ -733,6 +741,32 @@ main section[id] {
   .section-subtitle {
     font-size: 1rem;
     margin-bottom: 2rem;
+  }
+
+  .mobile-brand {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 1.8rem;
+  }
+
+  .mobile-brand {
+    font-size: 1.6rem;
+  }
+
+  .hero-subtitle {
+    font-size: 0.95rem;
+    padding: 0 0.5rem;
+  }
+
+  .cta-btn {
+    width: 100%;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
   }
 }
 </style>
