@@ -9,6 +9,7 @@ import InvoiceTable from './InvoiceTable.vue';
 import InvoiceStats from './InvoiceStats.vue';
 import CompanyInfoPrompt from './CompanyInfoPrompt.vue';
 import UpgradePrompt from './UpgradePrompt.vue';
+import DashboardChart from './DashboardChart.vue';
 
 const router = useRouter();
 const { mobile } = useDisplay();
@@ -141,6 +142,7 @@ const formatInvoiceNumber = (num) => `#${num}`;
       <CompanyInfoPrompt v-if="!settings.company?.name && !settingsLoading" />
 
       <InvoiceStats :invoices="invoices" />
+      <DashboardChart :invoices="invoices" class="mt-2" />
 
       <main class="dashboard-content">
         <div v-if="hasError" class="error-container">
