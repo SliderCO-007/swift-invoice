@@ -92,23 +92,25 @@ onMounted(() => {
             <v-card-title class="text-h4 font-weight-medium text-center mt-2">Free</v-card-title>
             <v-card-subtitle class="text-center text-body-1 mb-4">A perfect start for freelancers</v-card-subtitle>
             
-            <v-card-text class="flex-grow-1 text-center">
+            <v-card-text class="flex-grow-1 d-flex flex-column text-center">
               <div class="d-flex justify-center align-start mb-6">
                 <span class="text-h2 font-weight-bold">$0</span>
                 <span class="text-h5 font-weight-medium mt-2">/month</span>
               </div>
-              <v-list-item>
-                <v-list-item-title class="text-body-1">2 free invoices</v-list-item-title>
-              </v-list-item>
-              <v-list-item>
-                <v-list-item-title class="text-body-1">Unlimited Customers</v-list-item-title>
-              </v-list-item>
-              <v-list-item>
-                <v-list-item-title class="text-body-1">Unlimited Items</v-list-item-title>
-              </v-list-item>
-              <v-list-item>
-                <v-list-item-title class="text-body-1">Download invoices as PDFs</v-list-item-title>
-              </v-list-item>
+              <div class="mt-auto">
+                <v-list-item>
+                  <v-list-item-title class="text-body-1">2 free invoices</v-list-item-title>
+                </v-list-item>
+                <v-list-item>
+                  <v-list-item-title class="text-body-1">Unlimited Customers</v-list-item-title>
+                </v-list-item>
+                <v-list-item>
+                  <v-list-item-title class="text-body-1">Unlimited Items</v-list-item-title>
+                </v-list-item>
+                <v-list-item>
+                  <v-list-item-title class="text-body-1">Download invoices as PDFs</v-list-item-title>
+                </v-list-item>
+              </div>
             </v-card-text>
 
             <v-card-actions class="pa-4">
@@ -134,23 +136,25 @@ onMounted(() => {
             <v-card-title class="text-h4 font-weight-medium text-center mt-2">Monthly</v-card-title>
             <v-card-subtitle class="text-center text-body-1 mb-4">For maximum flexibility</v-card-subtitle>
             
-            <v-card-text class="flex-grow-1 text-center">
+            <v-card-text class="flex-grow-1 d-flex flex-column text-center">
               <div class="d-flex justify-center align-start mb-6">
                 <span class="text-h2 font-weight-bold">$9</span>
                 <span class="text-h5 font-weight-medium mt-2">/month</span>
               </div>
-              <v-list-item>
-                <v-list-item-title class="text-body-1">Unlimited Invoices</v-list-item-title>
-              </v-list-item>
-              <v-list-item>
-                <v-list-item-title class="text-body-1">Unlimited Customers</v-list-item-title>
-              </v-list-item>
-              <v-list-item>
-                <v-list-item-title class="text-body-1">Email invoices directly to clients</v-list-item-title>
-              </v-list-item>
-               <v-list-item>
-                <v-list-item-title class="text-body-1">Weekly summary reports</v-list-item-title>
-              </v-list-item>
+              <div class="mt-auto">
+                <v-list-item>
+                  <v-list-item-title class="text-body-1">Unlimited Invoices</v-list-item-title>
+                </v-list-item>
+                <v-list-item>
+                  <v-list-item-title class="text-body-1">Unlimited Customers</v-list-item-title>
+                </v-list-item>
+                <v-list-item>
+                  <v-list-item-title class="text-body-1">Email invoices directly to clients</v-list-item-title>
+                </v-list-item>
+                <v-list-item>
+                  <v-list-item-title class="text-body-1">Weekly summary reports</v-list-item-title>
+                </v-list-item>
+              </div>
             </v-card-text>
 
             <v-card-actions class="pa-4">
@@ -177,20 +181,22 @@ onMounted(() => {
             <v-card-title class="text-h4 font-weight-medium text-center mt-2">Yearly</v-card-title>
             <v-card-subtitle class="text-center text-body-1 mb-4">Best value for your business</v-card-subtitle>
 
-            <v-card-text class="flex-grow-1 text-center">
+            <v-card-text class="flex-grow-1 d-flex flex-column text-center">
               <div class="d-flex justify-center align-start mb-6">
                 <span class="text-h2 font-weight-bold">$90</span>
                 <span class="text-h5 font-weight-medium mt-2">/year</span>
               </div>
-              <v-list-item>
-                <v-list-item-title class="text-body-1">Everything in Monthly</v-list-item-title>
-              </v-list-item>
-              <v-list-item>
-                <v-list-item-title class="text-body-1">Priority Support</v-list-item-title>
-              </v-list-item>
-              <v-list-item>
-                <v-list-item-title class="text-body-1">Export all invoices (CSV)</v-list-item-title>
-              </v-list-item>
+              <div class="mt-auto">
+                <v-list-item>
+                  <v-list-item-title class="text-body-1">Everything in Monthly</v-list-item-title>
+                </v-list-item>
+                <v-list-item>
+                  <v-list-item-title class="text-body-1">Priority Support</v-list-item-title>
+                </v-list-item>
+                <v-list-item>
+                  <v-list-item-title class="text-body-1">Export all invoices (CSV)</v-list-item-title>
+                </v-list-item>
+              </div>
             </v-card-text>
             
             <v-card-actions class="pa-4">
@@ -242,6 +248,14 @@ onMounted(() => {
 :deep(.v-list-item) {
   background: transparent !important;
   color: inherit !important;
+}
+
+:deep(.v-list-item-title) {
+  white-space: normal !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
 }
 
 :deep(.v-btn) {

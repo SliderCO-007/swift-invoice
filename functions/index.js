@@ -22,6 +22,9 @@ exports.sendPreviewReport = previewReport.sendPreviewReport;
 const generateVenmoQR = require("./generateVenmoQR");
 exports.generateVenmoQR = generateVenmoQR.generateVenmoQR;
 
+const welcomeEmail = require("./welcomeEmail");
+exports.sendWelcomeEmail = welcomeEmail.sendWelcomeEmail;
+
 /**
  * Creates a Stripe Checkout session for a subscription plan.
  */
@@ -71,22 +74,36 @@ exports.createCheckoutSession = onCall({ enforceAppCheck: false }, async (reques
  * Handles incoming webhooks from Stripe to update user subscription status in Firestore.
  */
 exports.stripeWebhook = onRequest(async (req, res) => {
-  const stripe = require("stripe")(stripeSecretKey.value());
-  const sig = req.headers["stripe-signature"];
+  if (req.method !== 'POST') {
+    return res.status(405).send('Method Not Allowed');
+  }
+
   let event;
+  let stripe;
 
   try {
-    event = stripe.webhooks.constructEvent(req.rawBody, sig, stripeWebhookSecret.value());
+    // Initialize stripe safely inside try block to catch secret loading issues
+    const apiKey = stripeSecretKey.value();
+    const webhookSecret = stripeWebhookSecret.value();
+    
+    if (!apiKey || !webhookSecret) {
+        console.error("Missing Stripe API Key or Webhook Secret.");
+        return res.status(500).send("Server Configuration Error");
+    }
+
+    stripe = require("stripe")(apiKey);
+    const sig = req.headers["stripe-signature"];
+
+    event = stripe.webhooks.constructEvent(req.rawBody, sig, webhookSecret);
   } catch (err) {
     console.error(`Webhook signature verification failed: ${err.message}`);
-    res.status(400).send(`Webhook Error: ${err.message}`);
-    return;
+    return res.status(400).send(`Webhook Error: ${err.message}`);
   }
   
   const handleCheckoutSessionCompleted = async (session) => {
     const uid = session.client_reference_id;
     if (!uid) {
-      console.error("Webhook received checkout.session.completed without a client_reference_id (uid).");
+      console.warn("Webhook received checkout.session.completed without a client_reference_id (uid).");
       return;
     }
     try {
@@ -95,22 +112,33 @@ exports.stripeWebhook = onRequest(async (req, res) => {
         stripeCustomerId: session.customer,
         stripeSubscriptionId: session.subscription
       });
+      console.log(`Successfully activated subscription for user: ${uid}`);
     } catch (dbError) {
       console.error(`Database error activating subscription for user ${uid}:`, dbError);
     }
   };
 
   const handleSubscriptionDeleted = async (subscription) => {
-    const stripeCustomerId = subscription.customer;
-    const usersQuery = db.collection('users').where('stripeCustomerId', '==', stripeCustomerId);
-    const userSnapshot = await usersQuery.get();
-    if (userSnapshot.empty) {
-      console.error(`Could not find user with Stripe customer ID: ${stripeCustomerId}`);
-      return;
+    try {
+      const stripeCustomerId = subscription.customer;
+      const usersQuery = db.collection('users').where('stripeCustomerId', '==', stripeCustomerId);
+      const userSnapshot = await usersQuery.get();
+      
+      if (userSnapshot.empty) {
+        console.warn(`Could not find user with Stripe customer ID: ${stripeCustomerId}`);
+        return;
+      }
+      
+      // Fix: Await all updates instead of unhandled Promise execution in forEach
+      const updatePromises = userSnapshot.docs.map((doc) => 
+        doc.ref.update({ subscriptionStatus: 'free' })
+      );
+      
+      await Promise.all(updatePromises);
+      console.log(`Successfully downgraded subscription for Stripe customer ID: ${stripeCustomerId}`);
+    } catch (err) {
+      console.error(`Database error downgrading subscription for customer ${subscription.customer}:`, err);
     }
-    userSnapshot.forEach(async (doc) => {
-      await doc.ref.update({ subscriptionStatus: 'free' });
-    });
   };
 
   try {
@@ -121,11 +149,17 @@ exports.stripeWebhook = onRequest(async (req, res) => {
       case 'customer.subscription.deleted':
         await handleSubscriptionDeleted(event.data.object);
         break;
+      default:
+        console.log(`Unhandled event type: ${event.type}`);
     }
-    res.status(200).json({ received: true });
+
+    // Always enthusiastically confirm receipt 
+    return res.status(200).send({ received: true });
+
   } catch(err) {
-      console.error('Error handling webhook event:', err);
-      res.status(500).send(`Webhook handler failed: ${err.message}`);
+      console.error('Unhandled webhook error in event processing:', err);
+      // Let Stripe know there was an application error so it can optionally retry
+      return res.status(500).send(`Webhook Application Error: ${err.message}`);
   }
 });
 

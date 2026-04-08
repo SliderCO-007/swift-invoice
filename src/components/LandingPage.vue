@@ -662,7 +662,11 @@ main section[id] {
   .hero-grid {
     grid-template-columns: 1fr;
     text-align: center;
-    padding: 2rem 1.5rem;
+    padding: 0;
+    background: transparent;
+    border: none;
+    backdrop-filter: none;
+    box-shadow: none;
   }
 
   .hero-content {
@@ -707,12 +711,12 @@ main section[id] {
   }
 
   .hero-grid {
-    padding: 1.5rem 1rem;
-    gap: 2rem;
+    padding: 0;
+    gap: 1.5rem;
   }
 
   .hero {
-    padding: 2rem 1rem;
+    padding: 1rem 0 2rem 0;
   }
 
   .hero-title {
@@ -765,6 +769,8 @@ main section[id] {
 
   .cta-btn {
     width: 100%;
+    max-width: 280px;
+    margin: 0 auto;
     padding-left: 1rem !important;
     padding-right: 1rem !important;
   }
