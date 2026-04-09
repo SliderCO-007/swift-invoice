@@ -282,4 +282,25 @@ watch(currentUser, (user) => {
   text-decoration: underline;
   color: #90CAF9;
 }
+
+@media (max-width: 768px) {
+  .register-container {
+    padding: 1rem;
+  }
+  .register-card {
+    padding: 2rem 1.5rem;
+  }
+  .register-card h1 {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .register-container {
+    padding: 0.5rem;
+  }
+  .register-card {
+    padding: 1.5rem 1rem;
+  }
+}
 </style>
