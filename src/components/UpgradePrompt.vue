@@ -6,14 +6,14 @@
       rounded="xl"
       color="primary"
     >
-      <div class="d-flex align-center pa-4">
+      <div class="d-flex flex-column flex-sm-row align-center text-center text-sm-left pa-5 pa-sm-6">
         <v-icon
           icon="mdi-rocket-launch-outline"
           size="x-large"
           color="white"
-          class="mr-4"
+          class="mr-0 mr-sm-5 mb-4 mb-sm-0"
         ></v-icon>
-        <div>
+        <div class="flex-grow-1 mb-5 mb-sm-0">
           <h3 class="text-h6 font-weight-bold text-white mb-1">
             Unlock Pro Features!
           </h3>
@@ -21,13 +21,13 @@
             Enable email sending, get detailed analytics, and access premium support.
           </p>
         </div>
-        <v-spacer></v-spacer>
         <v-btn
           to="/pricing"
           color="white"
           variant="elevated"
-          class="font-weight-bold text-primary"
+          class="font-weight-bold text-primary px-6"
           size="large"
+          rounded="pill"
           >Upgrade Now</v-btn
         >
       </div>

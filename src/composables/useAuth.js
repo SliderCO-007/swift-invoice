@@ -80,7 +80,7 @@ const createInitialUserData = async (user) => {
         defaultTaxRate: 0,
     },
     updatedAt: serverTimestamp(),
-    invoiceCounter: 1, 
+    invoiceCounter: 0, 
   });
 
   await batch.commit();

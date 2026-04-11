@@ -40,6 +40,43 @@
         </div>
       </section>
 
+      <!-- Social Proof / Reviews Section -->
+      <section class="social-proof">
+        <div class="container">
+          <v-carousel
+            hide-delimiters
+            show-arrows="hover"
+            cycle
+            interval="5000"
+            height="320"
+            class="bg-transparent"
+          >
+            <v-carousel-item
+              v-for="(review, index) in reviews"
+              :key="index"
+            >
+              <div class="d-flex justify-center align-center fill-height pa-4">
+                <div class="review-card" @click="openReview(review)">
+                  <div class="review-header">
+                    <v-avatar color="primary" size="48" class="mr-3 text-h6 font-weight-bold text-white">
+                      {{ review.name.charAt(0) }}
+                    </v-avatar>
+                    <div>
+                      <h4 class="reviewer-name text-h6">{{ review.name }}</h4>
+                      <p class="reviewer-business">{{ review.business }}</p>
+                    </div>
+                  </div>
+                  <div class="review-stars">
+                    <v-icon color="warning" size="small" v-for="n in 5" :key="n">mdi-star</v-icon>
+                  </div>
+                  <p class="review-text">"{{ review.review }}"</p>
+                </div>
+              </div>
+            </v-carousel-item>
+          </v-carousel>
+        </div>
+      </section>
+
       <section id="how-it-works" class="how-it-works">
         <div class="container">
           <h2 class="section-title">How It Works</h2>
@@ -161,6 +198,31 @@
         </v-btn>
       </div>
     </div>
+
+    <!-- Review Modal -->
+    <div v-if="selectedReview" class="modal-overlay" @click.self="selectedReview = null">
+      <div class="modal-content review-modal-content">
+        <div class="review-header mb-4">
+          <v-avatar color="primary" size="48" class="mr-3 text-h6 font-weight-bold text-white">
+            {{ selectedReview.name.charAt(0) }}
+          </v-avatar>
+          <div>
+            <h4 class="reviewer-name-large">{{ selectedReview.name }}</h4>
+            <p class="reviewer-business-large">{{ selectedReview.business }}</p>
+          </div>
+        </div>
+        <div class="review-stars mb-4">
+          <v-icon color="warning" size="small" v-for="n in 5" :key="n">mdi-star</v-icon>
+        </div>
+        <p class="review-text-full">"{{ selectedReview.review }}"</p>
+        <v-btn @click="selectedReview = null" icon class="modal-close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path fill="currentColor"
+              d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z" />
+          </svg>
+        </v-btn>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -171,14 +233,21 @@ import { useAuth, currentUser } from '../composables/useAuth.js';
 import { useMeta } from '../composables/useMeta';
 import { useDisplay } from 'vuetify';
 import Trustpilot from './TrustpilotWidget.vue';
+import reviewsData from '../assets/reviews.json';
 
 const { mobile } = useDisplay();
 const router = useRouter();
 const { loading, googleLogin } = useAuth();
+const reviews = ref(reviewsData);
 
 const showDashboardPreview = ref(false);
 const showMobilePreview = ref(false);
 const isMobilePreviewLoading = ref(false);
+const selectedReview = ref(null);
+
+const openReview = (review) => {
+  selectedReview.value = review;
+};
 
 const openMobilePreview = () => {
   isMobilePreviewLoading.value = true;
@@ -291,6 +360,103 @@ main section[id] {
   height: auto;
   border-radius: 32px;
   box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+}
+
+/* Social Proof Section */
+.social-proof {
+  padding: 1rem 0 3rem 0;
+  background-color: transparent;
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+  margin-top: -2rem; /* Pull up closer to the hero section */
+}
+
+.review-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  padding: 2rem;
+  border-radius: 16px;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  margin: 0 auto;
+}
+
+.review-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.reviewer-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.reviewer-business {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin: 0;
+  margin-top: 0.2rem;
+}
+
+.review-stars {
+  margin-bottom: 0.8rem;
+  display: flex;
+  gap: 2px;
+}
+
+.review-text {
+  font-size: 0.95rem;
+  color: #e2e8f0;
+  line-height: 1.5;
+  font-style: italic;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Review Modal Styles */
+.review-modal-content {
+  max-width: 500px;
+  width: 90%;
+  padding: 2.5rem;
+  text-align: left;
+}
+
+.reviewer-name-large {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.reviewer-business-large {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.review-text-full {
+  font-size: 1.1rem;
+  color: #e2e8f0;
+  line-height: 1.7;
+  font-style: italic;
 }
 
 /* How It Works Section */
