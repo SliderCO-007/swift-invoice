@@ -24,7 +24,7 @@ const previewError = ref('');
 const isHelpDialogVisible = ref(false);
 
 const localSettings = ref({
-  company: { name: '', email: '', address1: '', address2: '', city: '', state: '', zip: '', logoUrl: '', venmoUsername: '', venmoQrUrl: '' },
+  company: { name: '', email: '', address1: '', address2: '', city: '', state: '', zip: '', logoUrl: '', venmoUsername: '', venmoQrUrl: '', primaryColor: '#1a3a52' },
   taxRate: 0,
 });
 
@@ -157,6 +157,13 @@ const goToPricing = () => {
             <v-text-field label="State" v-model="localSettings.company.state" placeholder="e.g., CA" variant="solo"></v-text-field>
             <v-text-field label="Zip Code" v-model="localSettings.company.zip" placeholder="e.g., 94016" variant="solo" class="full-width"></v-text-field>
             <v-text-field label="Default Tax Rate (%)" type="number" v-model.number="localSettings.taxRate" placeholder="e.g., 10" variant="solo"></v-text-field>
+            <div class="form-group branding-group">
+                <label class="color-label">Brand Primary Color</label>
+                <div class="color-input-wrapper">
+                    <input type="color" v-model="localSettings.company.primaryColor" class="color-picker" />
+                    <span class="color-hex">{{ localSettings.company.primaryColor }}</span>
+                </div>
+            </div>
           </div>
         </div>
         
@@ -244,6 +251,14 @@ const goToPricing = () => {
 .help-icon { color: #94a3b8; }
 .help-dialog-card { padding: 1rem; background-color: #1e293b; color: #f1f5f9; }
 .help-dialog-card .headline { font-weight: 600; color: #fff; }
+
+.branding-group { padding: 0.5rem 0; }
+.color-label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #e2e8f0; font-size: 0.875rem; }
+.color-input-wrapper { display: flex; align-items: center; gap: 1rem; background: rgba(255, 255, 255, 0.05); padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1); }
+.color-picker { width: 40px; height: 40px; border: none; cursor: pointer; background: transparent; padding: 0; border-radius: 4px; overflow: hidden; }
+.color-picker::-webkit-color-swatch-wrapper { padding: 0; }
+.color-picker::-webkit-color-swatch { border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; }
+.color-hex { font-family: monospace; font-size: 1.1rem; color: #fff; }
 
 @media (max-width: 768px) {
   .settings-card { padding: 1.5rem; }

@@ -41,9 +41,9 @@ const formatCurrency = (value) => {
 </script>
 
 <template>
-  <div class="invoice-corporate" v-if="invoice && settings">
-    <!-- Header with Blue Banner -->
-    <div class="header-banner" :style="{ background: `linear-gradient(135deg, ${invoice.primaryColor || settings?.company?.primaryColor || '#1a3a52'} 0%, #2c5aa0 100%)`, borderBottomColor: invoice.primaryColor || settings?.company?.primaryColor || '#1a3a52' }">
+  <div class="invoice-solid" v-if="invoice && settings">
+    <!-- Header with Solid Banner -->
+    <div class="header-banner" :style="{ background: invoice.primaryColor || settings?.company?.primaryColor || '#1a3a52', borderBottomColor: invoice.primaryColor || settings?.company?.primaryColor || '#1a3a52' }">
       <div class="header-content">
         <div class="header-left">
           <img
@@ -163,7 +163,7 @@ const formatCurrency = (value) => {
 </template>
 
 <style scoped>
-.invoice-corporate {
+.invoice-solid {
   background: #ffffff;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #2c3e50;

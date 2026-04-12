@@ -9,7 +9,7 @@ function getInitialSettings() {
   return {
     company: {
       name: '', email: '', address1: '', address2: '', city: '', state: '', zip: '',
-      logoUrl: '', venmoQrUrl: '', venmoUsername: ''
+      logoUrl: '', venmoQrUrl: '', venmoUsername: '', primaryColor: '#1a3a52'
     },
     taxRate: 0,
     invoiceCounter: 0,

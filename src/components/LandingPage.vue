@@ -201,7 +201,7 @@
 
     <!-- Review Modal -->
     <div v-if="selectedReview" class="modal-overlay" @click.self="selectedReview = null">
-      <div class="modal-content review-modal-content">
+      <div class="modal-content review-modal-content" @click="mobile ? selectedReview = null : null">
         <div class="review-header mb-4">
           <v-avatar color="primary" size="48" class="mr-3 text-h6 font-weight-bold text-white">
             {{ selectedReview.name.charAt(0) }}
@@ -916,6 +916,10 @@ main section[id] {
   .mobile-brand {
     font-size: 2rem;
     line-height: 1.2;
+  }
+
+  .modal-content {
+    margin-top: 64px;
   }
 }
 

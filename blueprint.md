@@ -18,16 +18,17 @@ ScanGo Invoice is a modern, responsive Vue.js application that allows users to c
   - **Glassmorphism:** Cards, dialogs, and panels utilize slightly transparent white backgrounds (`rgba(255, 255, 255, 0.03)`), borders (`rgba(255, 255, 255, 0.08)`), and backdrops (`blur(16px)`).
   - **Glow & Interactions:** Soft drop shadows (`rgba(0,0,0,0.4)`) and glowing interactive elements using the primary brand color to build depth.
 
-## Current Action Plan: Convert Reviews Marquee to v-carousel
+## Current Action Plan: Solid Invoice Template & Theme Customization
 
 ### Goal
-Replace the CSS-based scrolling marquee used for user reviews with a sophisticated, responsive Vuetify `v-carousel` component to improve usability and maintain theme consistency.
+Add a primary theme color selector and introduce a new "Solid" template to complement the updated "Corporate" template.
 
 ### Steps
-1. **Component Template Refactor:** Removed the duplicate `.marquee` DOM elements and replaced them with a single `<v-carousel>` integrating `<v-carousel-item>`.
-2. **Carousel Configuration:** Configured the carousel with `hide-delimiters`, `cycle` (interval 5000ms), and custom navigation arrows (`show-arrows="hover"`). Added responsive height support and fixed alignments.
-3. **CSS Cleanup:** Removed the legacy scrolling keyframes and redundant styles (`@keyframes scroll`, `.marquee-container`, `.marquee`) from the `LandingPage.vue` styles.
-4. **Card Adjustments:** Optimized `.review-card` to expand gracefully up to 600px widths and act as a standalone layout element when centered inside a carousel item.
+1. **State & Settings Update:** Added `primaryColor: '#1a3a52'` to default settings in `useUserSettings.js` and exposed an HTML5 color picker within `UserSettings.vue`.
+2. **Editor Support:** Integrated the `primaryColor` selector inside `InvoiceEditor.vue` only visible when using the Corporate or Solid styles. Added the "Solid" template to the radio selector options.
+3. **Template Customization:** 
+   - **Corporate (`InvoiceTemplate3.vue`):** Updated the header background to use a `linear-gradient` that blends the custom `primaryColor` into the application's secondary highlight `#2c5aa0` with dynamically matching bottom borders.
+   - **Solid (`InvoiceTemplate4.vue`):** Extrapolated the corporate style into a new standalone template applying only solid variations of the `primaryColor`.
 
 ### Status
-- **Completed:** The horizontal scrolling marquee is now replaced with a `v-carousel`, cleanly showcasing individual reviews without overlapping or duplication bugs.
+- **Completed:** Settings apply globally across the platform and properly override dynamic inline styles for newly created and existing invoices.

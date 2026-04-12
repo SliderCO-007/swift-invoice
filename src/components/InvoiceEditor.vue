@@ -9,6 +9,7 @@ import { currentUser as user } from '../composables/useAuth.js';
 import InvoiceTemplate from './InvoiceTemplate.vue';
 import InvoiceTemplate2 from './InvoiceTemplate2.vue';
 import InvoiceTemplate3 from './InvoiceTemplate3.vue';
+import InvoiceTemplate4 from './InvoiceTemplate4.vue';
 import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 
@@ -42,6 +43,7 @@ function createFreshInvoice() {
     taxRate: 0,
     includeVenmoQr: false,
     style: 'classic',
+    primaryColor: '#1a3a52',
   };
 }
 
@@ -122,6 +124,7 @@ const initializeInvoice = async () => {
       invoice.value.taxRate = settings.value.taxRate || 0;
       invoice.value.notes = settings.value.defaultNotes || invoice.value.notes;
       invoice.value.style = settings.value.defaultStyle || invoice.value.style;
+      invoice.value.primaryColor = settings.value.company?.primaryColor || '#1a3a52';
     }
 
     if (!invoice.value.items.length) {
@@ -245,7 +248,15 @@ onUnmounted(() => {
           </div>
           <div>
             <h3>Invoice Style</h3>
-            <v-radio-group v-model="invoice.style" inline><v-radio label="Classic" value="classic"></v-radio><v-radio label="Modern" value="modern"></v-radio><v-radio label="Corporate" value="corporate"></v-radio></v-radio-group>
+            <v-radio-group v-model="invoice.style" inline><v-radio label="Classic" value="classic"></v-radio><v-radio label="Modern" value="modern"></v-radio><v-radio label="Corporate" value="corporate"></v-radio><v-radio label="Solid" value="solid"></v-radio></v-radio-group>
+            
+            <div v-if="invoice.style === 'corporate' || invoice.style === 'solid'" class="custom-color-picker mt-2">
+              <label class="color-label">Theme Color</label>
+              <div class="color-input-wrapper">
+                <input type="color" v-model="invoice.primaryColor" class="color-picker" />
+                <span class="color-hex">{{ invoice.primaryColor }}</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -283,6 +294,7 @@ onUnmounted(() => {
           <InvoiceTemplate v-if="invoice.style === 'classic'" :invoice="{...invoice, subtotal, taxAmount, total}" :settings="settings" />
           <InvoiceTemplate2 v-else-if="invoice.style === 'modern'" :invoice="{...invoice, subtotal, taxAmount, total}" :settings="settings" />
           <InvoiceTemplate3 v-else-if="invoice.style === 'corporate'" :invoice="{...invoice, subtotal, taxAmount, total}" :settings="settings" />
+          <InvoiceTemplate4 v-else-if="invoice.style === 'solid'" :invoice="{...invoice, subtotal, taxAmount, total}" :settings="settings" />
         </div>
       </v-card>
     </v-dialog>
@@ -304,6 +316,14 @@ onUnmounted(() => {
 .totals-summary { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); }
 .totals-summary p { display: flex; justify-content: space-between; margin: 0.5rem 0; color: #e2e8f0; }
 .error-container { padding: 1rem 0; }
+
+.custom-color-picker { margin-top: 1rem; }
+.color-label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #e2e8f0; font-size: 0.875rem; }
+.color-input-wrapper { display: flex; align-items: center; gap: 1rem; background: rgba(255, 255, 255, 0.05); padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1); width: cover; display: inline-flex; }
+.color-picker { width: 40px; height: 40px; border: none; cursor: pointer; background: transparent; padding: 0; border-radius: 4px; overflow: hidden; }
+.color-picker::-webkit-color-swatch-wrapper { padding: 0; }
+.color-picker::-webkit-color-swatch { border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; }
+.color-hex { font-family: monospace; font-size: 1.1rem; color: #fff; }
 
 :deep(.v-list) { background: #fff !important; color: #1e293b !important; }
 :deep(.v-list-item) { color: #1e293b !important; }

@@ -10,6 +10,7 @@ import useUserSettings from '../composables/useUserSettings'
 import InvoiceTemplate from './InvoiceTemplate.vue'
 import InvoiceTemplate2 from './InvoiceTemplate2.vue'
 import InvoiceTemplate3 from './InvoiceTemplate3.vue'
+import InvoiceTemplate4 from './InvoiceTemplate4.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -400,6 +401,15 @@ const safeInvoice = computed(() => {
             />
             <span>Corporate</span>
           </label>
+          <label class="style-option">
+            <input
+              type="radio"
+              value="solid"
+              v-model="invoice.style"
+              @change="updateStyle"
+            />
+            <span>Solid</span>
+          </label>
         </div>
 
         <div v-if="isOwner" class="actions">
@@ -500,6 +510,12 @@ const safeInvoice = computed(() => {
       />
       <InvoiceTemplate3
         v-else-if="safeInvoice.style === 'corporate'"
+        ref="invoicePaper"
+        :invoice="safeInvoice"
+        :settings="settings"
+      />
+      <InvoiceTemplate4
+        v-else-if="safeInvoice.style === 'solid'"
         ref="invoicePaper"
         :invoice="safeInvoice"
         :settings="settings"
