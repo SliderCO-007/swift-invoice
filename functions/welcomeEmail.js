@@ -63,7 +63,7 @@ exports.sendWelcomeEmail = onDocumentCreated("users/{userId}", async (event) => 
         `;
 
         await resend.emails.send({
-            from: "ScanGo Invoice <no-reply@scangoinvoice.com>",
+            from: "ScanGo Invoice <support@scangoinvoice.com>",
             to: userEmail,
             subject: "Welcome to ScanGo Invoice! 🚀",
             html: htmlContent,

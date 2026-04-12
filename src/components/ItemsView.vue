@@ -2,8 +2,10 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useDisplay } from 'vuetify';
 import { useItems } from '../composables/useItems';
+import useUserSettings from '../composables/useUserSettings';
 
 const { mobile } = useDisplay();
+const { settings } = useUserSettings();
 const { items, loading, error, fetchItems, addItem, updateItem, deleteItem, stopFetching } = useItems();
 
 const dialog = ref(false);
@@ -30,7 +32,7 @@ const formattedPrice = (price) => {
   if (typeof price !== 'number') {
     return '-';
   }
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
+  return new Intl.NumberFormat(undefined, { style: 'currency', currency: settings.value?.currency || 'USD' }).format(price);
 };
 
 const openNewItemDialog = () => {

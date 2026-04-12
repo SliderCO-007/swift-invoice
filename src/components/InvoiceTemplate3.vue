@@ -34,7 +34,7 @@ const formatAddress = (address) => {
 }
 
 const formatCurrency = (value) => {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
+  return new Intl.NumberFormat(undefined, { style: 'currency', currency: props.settings?.currency || 'USD' }).format(
     value || 0
   )
 }

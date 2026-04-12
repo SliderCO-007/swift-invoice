@@ -2,11 +2,14 @@
 import { computed } from 'vue';
 import useInvoices from '../composables/useInvoices';
 
+import useUserSettings from '../composables/useUserSettings';
+
 // --- Composables ---
 const { invoices } = useInvoices();
+const { settings } = useUserSettings();
 
 // --- Helpers ---
-const formatCurrency = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0);
+const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'currency', currency: settings.value?.currency || 'USD' }).format(value || 0);
 
 // --- Computed Properties ---
 // Adding .toLowerCase() to all status checks to handle data inconsistencies like 'Paid' vs 'paid'.

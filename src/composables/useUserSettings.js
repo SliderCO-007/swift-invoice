@@ -13,6 +13,7 @@ function getInitialSettings() {
     },
     taxRate: 0,
     invoiceCounter: 0,
+    currency: 'USD',
   };
 }
 

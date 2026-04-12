@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { format, isValid, isBefore, startOfToday } from 'date-fns';
+import useUserSettings from '../composables/useUserSettings';
 
 const props = defineProps({
   invoices: {
@@ -9,6 +10,8 @@ const props = defineProps({
     required: true,
   },
 });
+
+const { settings } = useUserSettings();
 
 const emit = defineEmits(['delete-invoice', 'edit-invoice']);
 
@@ -54,7 +57,7 @@ const formatDate = (timestamp) => {
   return isValid(date) ? format(date, 'MMM d, yyyy') : 'N/A';
 };
 
-const formatCurrency = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0);
+const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'currency', currency: settings.value.currency || 'USD' }).format(value || 0);
 
 const getStatusColor = (status) => {
   switch (status.toLowerCase()) {

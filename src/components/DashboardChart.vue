@@ -24,8 +24,11 @@ import {
   LinearScale
 } from 'chart.js';
 import { startOfWeek, endOfWeek, addWeeks, subWeeks, isWithinInterval, format } from 'date-fns';
+import useUserSettings from '../composables/useUserSettings';
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+
+const { settings } = useUserSettings();
 
 const props = defineProps({
   invoices: {
@@ -123,7 +126,7 @@ const chartOptions = {
             label += ': ';
           }
           if (context.parsed.y !== null) {
-            label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
+            label += new Intl.NumberFormat(undefined, { style: 'currency', currency: settings.value?.currency || 'USD' }).format(context.parsed.y);
           }
           return label;
         }
@@ -150,10 +153,11 @@ const chartOptions = {
       ticks: {
         color: '#94a3b8',
         callback: function(value, index, values) {
-          if (value >= 1000) {
-            return '$' + value / 1000 + 'k';
-          }
-          return '$' + value;
+          return new Intl.NumberFormat(undefined, { 
+            style: 'currency', 
+            currency: settings.value?.currency || 'USD',
+            notation: 'compact'
+          }).format(value);
         }
       }
     }

@@ -2,10 +2,12 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import useInvoices from '@/composables/useInvoices';
+import useUserSettings from '@/composables/useUserSettings';
 import { format, isPast } from 'date-fns';
 
 const router = useRouter();
 const { invoices, loading, fetchInvoices, deleteInvoice: removeInvoice } = useInvoices();
+const { settings } = useUserSettings();
 
 onMounted(fetchInvoices);
 
@@ -30,7 +32,7 @@ const formattedInvoices = computed(() => invoices.value.map(invoice => {
     ...invoice,
     dateIssued: format(new Date(invoice.issueDate), 'MMM d, yyyy'),
     dateDue: format(dueDate, 'MMM d, yyyy'),
-    total: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(invoice.total),
+    total: new Intl.NumberFormat(undefined, { style: 'currency', currency: settings.value?.currency || 'USD' }).format(invoice.total),
     status: status.charAt(0).toUpperCase() + status.slice(1),
   };
 }));

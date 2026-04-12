@@ -104,6 +104,7 @@ const formatDate = (timestamp) => {
 };
 
 const formatInvoiceNumber = (num) => `#${num}`;
+const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'currency', currency: settings.value?.currency || 'USD' }).format(value || 0);
 
 </script>
 
@@ -183,7 +184,7 @@ const formatInvoiceNumber = (num) => `#${num}`;
                     <span>Invoice {{ formatInvoiceNumber(invoice.invoiceNumber) }}</span><br>
                     <span>Due: {{ formatDate(invoice.dueDate) }}</span>
                   </div>
-                  <span class="font-weight-bold text-h5 text-grey-darken-4">${{ invoice.total.toFixed(2) }}</span>
+                  <span class="font-weight-bold text-h5 text-grey-darken-4">{{ formatCurrency(invoice.total) }}</span>
                 </div>
               </v-card-text>
               <v-divider></v-divider>
