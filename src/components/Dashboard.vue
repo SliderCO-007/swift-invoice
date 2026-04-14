@@ -41,7 +41,7 @@ const isInitialLoad = computed(() => !invoicesHaveLoaded.value || !settingsHaveL
 
 const hasError = computed(() => invoicesError.value || settingsError.value);
 const isFreePlan = computed(() => userProfile.value?.subscriptionStatus === 'free');
-const invoiceLimitReached = computed(() => isFreePlan.value && userProfile.value?.invoiceCount >= 2);
+const invoiceLimitReached = computed(() => isFreePlan.value && userProfile.value?.invoiceCount >= 3);
 const isDataLoading = computed(() => invoicesLoading.value || settingsLoading.value);
 
 const dialogDelete = ref(false);
@@ -132,7 +132,7 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
         :icon="false"
       >
         <template v-slot:text>
-          You have reached the 2-invoice limit for the free plan. Please upgrade to create more invoices.
+          You have reached the 3-invoice limit for the free plan. Please upgrade to create more invoices.
         </template>
         <template v-slot:append>
           <v-btn to="/pricing" color="warning" variant="flat">Upgrade</v-btn>

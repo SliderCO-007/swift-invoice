@@ -15,7 +15,7 @@ const selectedPlan = ref(null);
 
 useMeta(
   'ScanGo Invoice | Pricing',
-  'ScanGo Invoice offers flexible pricing plans to fit your needs. Start for free with 2 invoices, or upgrade to monthly or yearly plans for unlimited invoicing and advanced features. All plans include professional invoice templates, client management, and secure payment options.',
+  'ScanGo Invoice offers flexible pricing plans to fit your needs. Start for free with 3 invoices, or upgrade to monthly or yearly plans for unlimited invoicing and advanced features. All plans include professional invoice templates, client management, and secure payment options.',
 );
 
 // Mapping of plan names to their corresponding Price IDs
@@ -99,7 +99,7 @@ onMounted(() => {
               </div>
               <div class="mt-auto">
                 <v-list-item>
-                  <v-list-item-title class="text-body-1">2 free invoices</v-list-item-title>
+                  <v-list-item-title class="text-body-1">3 free invoices</v-list-item-title>
                 </v-list-item>
                 <v-list-item>
                   <v-list-item-title class="text-body-1">Unlimited Customers</v-list-item-title>
@@ -254,6 +254,7 @@ onMounted(() => {
   white-space: normal !important;
   display: -webkit-box !important;
   -webkit-line-clamp: 2 !important;
+  line-clamp: 2 !important;
   -webkit-box-orient: vertical !important;
   overflow: hidden !important;
 }

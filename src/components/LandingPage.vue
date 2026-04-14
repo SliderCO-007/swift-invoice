@@ -8,12 +8,11 @@
               <div class="d-sm-none mb-6">
                 <span class="font-weight-bold text-blue-lighten-4 mobile-brand">ScanGo Invoice</span>
               </div>
-              <h1 class="hero-title">Stop Chasing <span class="text-gradient">Payments.</span></h1>
-              <h1 class="hero-title">Start Getting <span class="text-gradient">Paid in Seconds.</span></h1>
-              <p class="hero-subtitle">Create, send, and track professional invoices in minutes. Focus on your work, not
-                your paperwork.</p>
+              <h1 class="hero-title">Professional Invoicing,</h1>
+              <h1 class="hero-title"><span class="text-gradient">Simplified.</span></h1>
+              <p class="hero-subtitle">The all-in-one platform to generate elegant invoices, streamline your billing process, and secure payments with modern QR technology.</p>
               <div class="d-flex flex-column flex-sm-row flex-wrap ga-4 mt-8 align-center justify-center justify-md-start">
-                <v-btn @click="handleGoogleSignIn" :loading="loading" color="white" class="text-black font-weight-bold px-8 cta-btn" size="x-large" rounded="pill">
+                <v-btn @click="handleGoogleSignIn" :loading="loading" color="white" class="text-black font-weight-bold px-10 cta-btn" size="x-large" rounded="xl" :block="mobile">
                   <svg class="mr-2" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -22,9 +21,9 @@
                   </svg>
                   Sign up with Google
                 </v-btn>
-                <v-btn to="/register" variant="outlined" color="white" class="font-weight-bold px-8 cta-btn outline-btn" size="x-large" rounded="pill">
+                <v-btn to="/register" variant="outlined" color="white" class="font-weight-bold px-10 cta-btn outline-btn" size="x-large" rounded="xl" :block="mobile">
                   <v-icon left size="24" class="mr-2">mdi-email-outline</v-icon>
-                  Sign up with Email
+                  Start Invoicing for Free
                 </v-btn>
               </div>
               <p class="mt-4 text-caption text-sm-body-2 text-blue-grey-lighten-2 d-flex align-center justify-center justify-md-start">
@@ -79,23 +78,23 @@
 
       <section id="how-it-works" class="how-it-works">
         <div class="container">
-          <h2 class="section-title">How It Works</h2>
+          <h2 class="section-title">Streamlined Billing</h2>
           <p class="section-subtitle">Get paid faster in 3 simple steps.</p>
           <div class="steps-grid">
             <div class="step-card">
               <div class="step-number">1</div>
-              <h3 class="step-title">Add Client & Items</h3>
-              <p>Quickly build your invoice with reusable clients and line items.</p>
+              <h3 class="step-title">Input Details</h3>
+              <p>Seamlessly assemble your invoice using saved client profiles.</p>
             </div>
             <div class="step-card">
               <div class="step-number">2</div>
-              <h3 class="step-title">Choose Template</h3>
-              <p>Select from our beautifully designed templates and add your branding.</p>
+              <h3 class="step-title">Customize Design</h3>
+              <p>Apply your logo and colors to a professionally crafted template.</p>
             </div>
             <div class="step-card">
               <div class="step-number">3</div>
-              <h3 class="step-title">Send & Get Paid</h3>
-              <p>Email the PDF instantly with a clickable Venmo QR code for fast payment.</p>
+              <h3 class="step-title">Deliver & Track</h3>
+              <p>Issue the invoice via email with integrated, secure payment options.</p>
             </div>
           </div>
         </div>
@@ -105,8 +104,8 @@
         <div class="container">
           <div class="feature-row">
             <div class="feature-text">
-              <h2>Instant Payments with Venmo QR</h2>
-              <p>Stop waiting for checks to arrive in the mail. Every invoice generated can include a custom branded Venmo QR code that your clients can scan or click to pay you instantly.</p>
+              <h2>Modern Payment Integration</h2>
+              <p>Accelerate your cash flow. Embed branded Venmo QR codes directly into your invoices, offering your clients a seamless, modern payment experience.</p>
               <ul class="feature-bullets">
                 <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Clickable QR codes on PDF</li>
                 <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Seamless mobile payment flow</li>
@@ -121,8 +120,8 @@
 
           <div class="feature-row reverse">
             <div class="feature-text">
-              <h2>Versatile Professional Templates</h2>
-              <p>Your brand matters. Choose between Classic, Modern, or Corporate templates. Customize colors and add your logo to make every invoice look incredible.</p>
+              <h2>Agency-Quality Templates</h2>
+              <p>Make a lasting impression. Select from our library of versatile designs and fully customize them to align with your professional brand standards.</p>
               <ul class="feature-bullets">
                 <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>3 High-conversion designs</li>
                 <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Live preview while editing</li>
@@ -139,8 +138,8 @@
 
           <div class="feature-row">
             <div class="feature-text">
-              <h2>One-Click PDF & Emailing</h2>
-              <p>Generate precise, high-quality PDFs with a single click. Email them directly to your clients from within the dashboard—no need to juggle apps.</p>
+              <h2>Integrated PDF & Email</h2>
+              <p>Centralize your workflow. Generate high-fidelity PDFs and deliver them directly to your clients' inboxes with a single click.</p>
               <ul class="feature-bullets">
                 <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Flawless PDF rendering</li>
                 <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Automated email delivery</li>

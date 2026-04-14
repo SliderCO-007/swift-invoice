@@ -133,7 +133,7 @@ const useInvoices = () => {
           subscriptionStatus = userData.subscriptionStatus || 'free';
         }
 
-        if (subscriptionStatus === 'free' && invoiceCount >= 2) {
+        if (subscriptionStatus === 'free' && invoiceCount >= 3) {
           throw new Error("Invoice limit reached for free plan. Please upgrade.");
         }
 

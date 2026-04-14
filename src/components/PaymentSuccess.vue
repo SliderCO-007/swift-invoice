@@ -1,5 +1,6 @@
 <template>
-  <v-container class="fill-height d-flex justify-center align-center text-center">
+  <div class="payment-success-page">
+    <v-container class="fill-height d-flex justify-center align-center text-center">
     <v-card class="pa-8" max-width="600" elevation="12" style="border-radius: 16px;">
       
       <!-- Loading/Verifying State -->
@@ -36,7 +37,8 @@
       </div>
 
     </v-card>
-  </v-container>
+    </v-container>
+  </div>
 </template>
 
 <script setup>
@@ -109,9 +111,10 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-:deep(.v-container) {
+.payment-success-page {
   min-height: 100vh;
-  background-color: #111d2f !important;
+  background-color: #111d2f;
+  color: #f1f5f9;
 }
 :deep(.v-card) {
   background: rgba(255, 255, 255, 0.03) !important;
