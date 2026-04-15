@@ -147,7 +147,7 @@
             </div>
             <div class="feature-image">
                <div class="mockup-card pdf-mockup">
-                 <img src="/ScanGo_click_send_3.gif" alt="Send PDF Animation" class="pdf-img" />
+                 <img src="/ScanGo_click_send_4.gif" alt="Send PDF Animation" class="pdf-img" />
                </div>
             </div>
           </div>
