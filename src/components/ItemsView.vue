@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useDisplay } from 'vuetify';
 import { useItems } from '../composables/useItems';
 import useUserSettings from '../composables/useUserSettings';
+import { exportToCSV } from '../utils/exportCsv';
 
 const { mobile } = useDisplay();
 const { settings } = useUserSettings();
@@ -88,16 +89,30 @@ onMounted(() => {
 onUnmounted(() => {
   stopFetching();
 });
+
+const exportItemsOutput = () => {
+  const data = items.value.map(i => ({
+    Description: i.description,
+    Price: i.price
+  }));
+  exportToCSV('items_export.csv', data);
+};
 </script>
 
 <template>
   <div class="items-view pa-4 pa-md-6">
     <header class="d-flex justify-space-between align-center mb-4 flex-wrap">
       <h1 class="text-h4 font-weight-bold mb-2 mb-sm-0">Manage Your Items</h1>
-      <v-btn color="primary" @click="openNewItemDialog" size="large" class="elevation-2">
-        <v-icon start>mdi-plus</v-icon>
-        Add Item
-      </v-btn>
+      <div class="d-flex align-center mt-3 mt-sm-0">
+        <v-btn color="primary" variant="outlined" @click="exportItemsOutput" size="large" class="elevation-2 me-3 bg-transparent" :disabled="!items.length || loading">
+          <v-icon start>mdi-download</v-icon>
+          Export CSV
+        </v-btn>
+        <v-btn color="primary" @click="openNewItemDialog" size="large" class="elevation-2">
+          <v-icon start>mdi-plus</v-icon>
+          Add Item
+        </v-btn>
+      </div>
     </header>
 
     <p class="text-subtitle-1 mb-6">Create and manage reusable items to build invoices even faster.</p>

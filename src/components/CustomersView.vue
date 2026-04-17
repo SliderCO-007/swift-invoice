@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useDisplay } from 'vuetify';
 import { useCustomers } from '../composables/useCustomers';
+import { exportToCSV } from '../utils/exportCsv';
 
 const { mobile } = useDisplay();
 // CORRECTED: fetchCustomers and stopFetching are no longer needed here as the composable is fully reactive.
@@ -86,16 +87,36 @@ async function save() {
   }
   close();
 }
+
+const exportCustomersOutput = () => {
+  const data = customers.value.map(c => ({
+    Name: c.name,
+    Email: c.email,
+    Phone: c.phone,
+    'Address Line 1': c.address1,
+    'Address Line 2': c.address2,
+    City: c.city,
+    State: c.state,
+    Zip: c.zip
+  }));
+  exportToCSV('customers_export.csv', data);
+};
 </script>
 
 <template>
   <div class="customers-view pa-4 pa-md-6">
     <header class="d-flex justify-space-between align-center mb-4 flex-wrap">
       <h1 class="text-h4 font-weight-bold mb-2 mb-sm-0">Manage Your Customers</h1>
-      <v-btn color="primary" @click="openDialog" size="large" class="elevation-2">
-        <v-icon start>mdi-plus</v-icon>
-        Add Customer
-      </v-btn>
+      <div class="d-flex align-center mt-3 mt-sm-0">
+        <v-btn color="primary" variant="outlined" @click="exportCustomersOutput" size="large" class="elevation-2 me-3 bg-transparent" :disabled="!customers.length || loading">
+          <v-icon start>mdi-download</v-icon>
+          Export CSV
+        </v-btn>
+        <v-btn color="primary" @click="openDialog" size="large" class="elevation-2">
+          <v-icon start>mdi-plus</v-icon>
+          Add Customer
+        </v-btn>
+      </div>
     </header>
 
      <p class="text-subtitle-1 mb-6">Keep all your client information organized in one place for faster invoicing.</p>
