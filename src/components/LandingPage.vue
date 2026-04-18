@@ -10,7 +10,7 @@
               </div>
               <h1 class="hero-title">Professional Invoicing,</h1>
               <h1 class="hero-title"><span class="text-gradient">Made Effortless</span></h1>
-              <p class="hero-subtitle">Create polished invoices, streamline billing, and accept secure QR payments — all in one simple, modern platform.</p>
+              <p class="hero-subtitle">Create polished invoices, streamline billing, and accept secure QR payments — all in one simple, modern platform.<br/><br/>The only invoicing tool with branded Venmo QR codes built in. Get paid instantly!</p>
               <div class="d-flex flex-column flex-sm-row flex-wrap ga-4 mt-8 align-center justify-center justify-md-start">
                 <v-btn to="/register" color="white" class="text-black font-weight-bold px-10 cta-btn" size="x-large" rounded="xl" :block="mobile">
                   <v-icon left size="24" class="mr-2">mdi-email-outline</v-icon>
@@ -78,23 +78,36 @@
 
       <section id="how-it-works" class="how-it-works">
         <div class="container">
-          <div class="compact-steps">
-            <h2 class="compact-title">Get paid faster:</h2>
-            <div class="steps-row">
-              <span class="step-chip">
-                <v-icon size="small" class="mr-2">mdi-pencil-outline</v-icon>
-                Input Details
+          <div class="text-center mb-10">
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-subtitle">A simpler workflow designed for speed.</p>
+          </div>
+
+          <div class="glass-panel d-flex flex-column flex-lg-row align-center justify-space-between mx-auto" style="max-width: 1100px; padding: 2rem; margin-bottom: 0 !important; border-radius: 28px !important;">
+            <div class="d-flex flex-column flex-sm-row align-center mb-6 mb-lg-0">
+              <span class="step-chip" style="font-size: 1.15rem; padding: 1rem 1.8rem;">
+                <v-icon size="small" class="mr-2" color="primary">mdi-pencil-outline</v-icon>
+                1. Input Details
               </span>
-              <v-icon color="grey-darken-1" class="mx-2 d-none d-sm-inline">mdi-arrow-right</v-icon>
-              <span class="step-chip">
-                <v-icon size="small" class="mr-2">mdi-palette-outline</v-icon>
-                Customize Design
+              <v-icon color="grey-darken-1" class="mx-4 my-3 my-sm-0" size="large">mdi-arrow-right</v-icon>
+              <span class="step-chip" style="font-size: 1.15rem; padding: 1rem 1.8rem;">
+                <v-icon size="small" class="mr-2" color="primary">mdi-palette-outline</v-icon>
+                2. Customize Design
               </span>
-              <v-icon color="grey-darken-1" class="mx-2 d-none d-sm-inline">mdi-arrow-right</v-icon>
-              <span class="step-chip">
-                <v-icon size="small" class="mr-2">mdi-email-outline</v-icon>
-                Deliver & Track
-              </span>
+              <v-icon color="grey-darken-1" class="mx-4 my-3 my-sm-0 d-none d-lg-inline" size="large">mdi-arrow-right</v-icon>
+            </div>
+            
+            <div class="d-flex flex-column flex-sm-row align-center text-center text-sm-left" style="background: rgba(0,0,0,0.15); border-radius: 20px; padding: 1.25rem; border: 1px solid rgba(255,255,255,0.05);">
+              <div class="pe-sm-6">
+                <div class="text-primary font-weight-bold text-uppercase mb-1" style="font-size: 0.8rem; letter-spacing: 1px;">Step 3</div>
+                <h3 class="font-weight-bold text-white mb-2" style="font-size: 1.25rem; line-height: 1.2;">Send & Get Paid Instantly</h3>
+                <p class="text-body-2 text-grey-lighten-1 mb-0" style="line-height: 1.5; max-width: 260px;">
+                  Email the invoice with a clickable Venmo QR code your clients can scan or tap to pay immediately.
+                </p>
+              </div>
+              <div class="mt-4 mt-sm-0 flex-shrink-0">
+                <img src="/venmo-qr-with-logo.png" alt="QR Code Payment Flow" style="width: 85px; height: auto; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.3);" />
+              </div>
             </div>
           </div>
         </div>
@@ -213,15 +226,14 @@ const faqs = ref([
   { question: "Can I add a Venmo QR code to my invoices?", answer: "Yes. ScanGo Invoice automatically generates a branded Venmo QR code and embeds it directly into your invoice.<br/><br/>Clients can scan or click the QR code to pay instantly, giving you a fast, modern payment experience that accelerates cash flow." },
   { question: "Are the QR codes on ScanGo invoices clickable in the PDF?", answer: "They are. Every invoice includes a fully clickable QR code that works on desktop and mobile.<br/><br/>Clients can tap the code in the PDF or scan it with their phone — whichever is easier — making payment frictionless." },
   { question: "What’s the easiest way to accept mobile payments from clients?", answer: "ScanGo Invoice integrates Venmo QR payments directly into your invoice design.<br/><br/>Your clients don't need to manually type in your username or payment details — they simply scan the code with their phone to open Venmo and submit payment.<br/><br/>It’s one of the fastest ways to get paid for freelance work, services, or project‑based billing." },
-  { question: "What invoice templates does ScanGo Invoice offer?", answer: "You get three agency‑quality templates — Classic, Modern, and Corporate.<br/><br/>Each template is fully customizable with your brand colors, logo, and layout preferences.<br/><br/>The live preview ensures your invoice looks exactly right before you send it." },
+  { question: "What invoice templates does ScanGo Invoice offer?", answer: "You get four agency‑quality templates — Classic, Modern, Corporate, and Solid.<br/><br/>Each template is fully customizable with your brand colors, logo, and layout preferences.<br/><br/>The live preview ensures your invoice looks exactly right before you send it." },
   { question: "Can I send invoices directly to clients from ScanGo Invoice?", answer: "Yes. With integrated PDF and email delivery, you can generate a high‑fidelity invoice and send it to your client’s inbox with a single click.<br/><br/>No exporting, no attachments to manage, no switching apps." },
   { question: "Will my invoices look clean and professional when printed?", answer: "Absolutely. ScanGo Invoice uses high‑fidelity PDF rendering, ensuring crisp text, accurate colors, and a polished layout whether viewed digitally or printed." },
   { question: "Is ScanGo Invoice good for freelancers and small businesses?", answer: "Yes. ScanGo Invoice is designed for freelancers, contractors, consultants, agencies, and service providers who want a simple, modern invoicing workflow.<br/><br/>You can create unlimited invoices for unlimited clients without dealing with bloated accounting software." },
   { question: "Do my clients need a Venmo account to pay me?", answer: "Only if they choose to pay through Venmo.<br/><br/>Your invoice still supports any payment method you normally accept — Venmo is simply an optional, fast, mobile‑friendly way to get paid." },
   { question: "Can I customize invoice colors to match my brand?", answer: "Yes. Every template supports full color customization, so your invoices always look consistent with your brand identity.<br/><br/>Your logo, colors, and layout stay intact across every invoice you send." },
   { question: "How does ScanGo Invoice handle email deliverability?", answer: "Invoices are sent using optimized email formatting to reduce spam‑filter issues.<br/><br/>If a client misses an invoice, you can resend it instantly from your dashboard." },
-  { question: "Can I duplicate invoices for recurring clients?", answer: "Yes. You can duplicate any invoice with one click, making repeat billing fast and effortless." },
-  { question: "How do I preview my invoice before sending it?", answer: "ScanGo Invoice includes a real‑time live preview, so you always know exactly what your client will see.<br/><br/>No surprises, no formatting issues, no guesswork." },
+  { question: "How do I preview my invoice before sending it?", answer: "ScanGo Invoice includes a quick preview, so you always see what your client will see.<br/><br/>No surprises, no formatting issues, no guesswork." },
   { question: "Is my data secure when using ScanGo Invoice?", answer: "Your invoice data, client details, and payment links are handled using modern security best practices.<br/><br/>Nothing is shared or stored beyond what’s required to generate and deliver your invoices." },
   { question: "What makes ScanGo Invoice different from other invoice generators?", answer: "ScanGo Invoice focuses on speed, simplicity, and modern payment integration.<br/><br/>You get:<br/><ul class='mt-2 mb-2'><li class='ml-4'>Branded Venmo QR codes</li><li class='ml-4'>Clickable QR payments inside PDFs</li><li class='ml-4'>Agency‑quality templates</li><li class='ml-4'>One‑click email delivery</li><li class='ml-4'>A clean, minimal interface</li></ul>No clutter. No accounting bloat. Just beautiful invoices and faster payments." },
 ]);
@@ -254,9 +266,23 @@ watch(currentUser, (user) => {
   }
 }, { immediate: true });
 
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.value.map(faq => ({
+    "@type": "Question",
+    "name": faq.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.answer
+    }
+  }))
+};
+
 useMeta(
   'ScanGo Invoice | Simple Digital Invoicing',
   'Create, download, and track professional invoices for a simple monthly or yearly price. ScanGo Invoice is packed with features to help you get paid faster. Perfect tool for small businesses and individuals looking to streamline their invoice management.',
+  faqSchema
 );
 
 </script>

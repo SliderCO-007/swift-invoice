@@ -336,6 +336,19 @@ useMeta(
 }
 
 @media (max-width: 900px) {
+  .page-content {
+    padding-top: 70px;
+  }
+  .features-alternating {
+    padding: 1rem 0 4rem 0;
+  }
+  .page-title {
+    margin-top: 0;
+    font-size: 2.2rem;
+  }
+  .section-subtitle {
+    margin-bottom: 2.5rem !important;
+  }
   .feature-row {
     grid-template-columns: 1fr;
     gap: 2rem;
