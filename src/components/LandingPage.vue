@@ -100,56 +100,25 @@
         </div>
       </section>
 
-      <section id="features" class="features-alternating">
+      <section id="faq" class="faq-section">
         <div class="container">
-          <div class="feature-row">
-            <div class="feature-text">
-              <h2>Modern Payment Integration</h2>
-              <p>Accelerate your cash flow. Embed branded Venmo QR codes directly into your invoices, offering your clients a seamless, modern payment experience.</p>
-              <ul class="feature-bullets">
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Clickable QR codes on PDF</li>
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Seamless mobile payment flow</li>
-              </ul>
-            </div>
-            <div class="feature-image">
-              <div class="mockup-card qr-mockup">
-                <img src="/venmo-qr-with-logo.png" alt="Venmo QR Code with Logo" class="qr-img" />
-              </div>
-            </div>
-          </div>
-
-          <div class="feature-row reverse">
-            <div class="feature-text">
-              <h2>Agency-Quality Templates</h2>
-              <p>Make a lasting impression. Select from our library of versatile designs and fully customize them to align with your professional brand standards.</p>
-              <ul class="feature-bullets">
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>3 High-conversion designs</li>
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Live preview while editing</li>
-              </ul>
-            </div>
-            <div class="feature-image">
-              <div class="template-gallery">
-                <img src="/template_classic.png" class="template-card" alt="Classic Template" tabindex="0" />
-                <img src="/template_modern.png" class="template-card modern" alt="Modern Template" tabindex="0" />
-                <img src="/template_corporate.png" class="template-card corp" alt="Corporate Template" tabindex="0" />
-              </div>
-            </div>
-          </div>
-
-          <div class="feature-row">
-            <div class="feature-text">
-              <h2>Integrated PDF & Email</h2>
-              <p>Centralize your workflow. Generate high-fidelity PDFs and deliver them directly to your clients' inboxes with a single click.</p>
-              <ul class="feature-bullets">
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Flawless PDF rendering</li>
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Automated email delivery</li>
-              </ul>
-            </div>
-            <div class="feature-image">
-               <div class="mockup-card pdf-mockup">
-                 <img src="/ScanGo_click_send_4.gif" alt="Send PDF Animation" class="pdf-img" />
-               </div>
-            </div>
+          <h2 class="section-title">Frequently Asked Questions</h2>
+          <p class="section-subtitle">Got questions? We've got answers.</p>
+          <div class="faq-container">
+            <v-expansion-panels variant="accordion" class="custom-panels">
+              <v-expansion-panel
+                v-for="(faq, i) in faqs"
+                :key="i"
+                class="glass-panel text-left"
+              >
+                <v-expansion-panel-title class="faq-title font-weight-bold">
+                  {{ faq.question }}
+                </v-expansion-panel-title>
+                <v-expansion-panel-text class="faq-text text-grey-lighten-1">
+                  <div v-html="faq.answer"></div>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
           </div>
           
           <div class="text-center mt-12 mb-12">
@@ -238,6 +207,24 @@ const { mobile } = useDisplay();
 const router = useRouter();
 const { loading, googleLogin } = useAuth();
 const reviews = ref(reviewsData);
+
+const faqs = ref([
+  { question: "How do I create a professional invoice quickly with ScanGo Invoice?", answer: "ScanGo Invoice lets you build a polished, branded invoice in minutes.<br/><br/>Choose a template, customize your colors and logo, and send a flawless PDF instantly — no design skills or setup required.<br/><br/>It’s built for freelancers, contractors, and small businesses who want clean, modern invoices without the complexity of traditional billing software." },
+  { question: "Can I add a Venmo QR code to my invoices?", answer: "Yes. ScanGo Invoice automatically generates a branded Venmo QR code and embeds it directly into your invoice.<br/><br/>Clients can scan or click the QR code to pay instantly, giving you a fast, modern payment experience that accelerates cash flow." },
+  { question: "Are the QR codes on ScanGo invoices clickable in the PDF?", answer: "They are. Every invoice includes a fully clickable QR code that works on desktop and mobile.<br/><br/>Clients can tap the code in the PDF or scan it with their phone — whichever is easier — making payment frictionless." },
+  { question: "What’s the easiest way to accept mobile payments from clients?", answer: "ScanGo Invoice integrates Venmo QR payments directly into your invoice design.<br/><br/>Your clients don't need to manually type in your username or payment details — they simply scan the code with their phone to open Venmo and submit payment.<br/><br/>It’s one of the fastest ways to get paid for freelance work, services, or project‑based billing." },
+  { question: "What invoice templates does ScanGo Invoice offer?", answer: "You get three agency‑quality templates — Classic, Modern, and Corporate.<br/><br/>Each template is fully customizable with your brand colors, logo, and layout preferences.<br/><br/>The live preview ensures your invoice looks exactly right before you send it." },
+  { question: "Can I send invoices directly to clients from ScanGo Invoice?", answer: "Yes. With integrated PDF and email delivery, you can generate a high‑fidelity invoice and send it to your client’s inbox with a single click.<br/><br/>No exporting, no attachments to manage, no switching apps." },
+  { question: "Will my invoices look clean and professional when printed?", answer: "Absolutely. ScanGo Invoice uses high‑fidelity PDF rendering, ensuring crisp text, accurate colors, and a polished layout whether viewed digitally or printed." },
+  { question: "Is ScanGo Invoice good for freelancers and small businesses?", answer: "Yes. ScanGo Invoice is designed for freelancers, contractors, consultants, agencies, and service providers who want a simple, modern invoicing workflow.<br/><br/>You can create unlimited invoices for unlimited clients without dealing with bloated accounting software." },
+  { question: "Do my clients need a Venmo account to pay me?", answer: "Only if they choose to pay through Venmo.<br/><br/>Your invoice still supports any payment method you normally accept — Venmo is simply an optional, fast, mobile‑friendly way to get paid." },
+  { question: "Can I customize invoice colors to match my brand?", answer: "Yes. Every template supports full color customization, so your invoices always look consistent with your brand identity.<br/><br/>Your logo, colors, and layout stay intact across every invoice you send." },
+  { question: "How does ScanGo Invoice handle email deliverability?", answer: "Invoices are sent using optimized email formatting to reduce spam‑filter issues.<br/><br/>If a client misses an invoice, you can resend it instantly from your dashboard." },
+  { question: "Can I duplicate invoices for recurring clients?", answer: "Yes. You can duplicate any invoice with one click, making repeat billing fast and effortless." },
+  { question: "How do I preview my invoice before sending it?", answer: "ScanGo Invoice includes a real‑time live preview, so you always know exactly what your client will see.<br/><br/>No surprises, no formatting issues, no guesswork." },
+  { question: "Is my data secure when using ScanGo Invoice?", answer: "Your invoice data, client details, and payment links are handled using modern security best practices.<br/><br/>Nothing is shared or stored beyond what’s required to generate and deliver your invoices." },
+  { question: "What makes ScanGo Invoice different from other invoice generators?", answer: "ScanGo Invoice focuses on speed, simplicity, and modern payment integration.<br/><br/>You get:<br/><ul class='mt-2 mb-2'><li class='ml-4'>Branded Venmo QR codes</li><li class='ml-4'>Clickable QR payments inside PDFs</li><li class='ml-4'>Agency‑quality templates</li><li class='ml-4'>One‑click email delivery</li><li class='ml-4'>A clean, minimal interface</li></ul>No clutter. No accounting bloat. Just beautiful invoices and faster payments." },
+]);
 
 const showDashboardPreview = ref(false);
 const showMobilePreview = ref(false);
@@ -532,192 +519,57 @@ main section[id] {
   transform: translateY(-2px);
 }
 
-/* Features Alternating Section */
-.features-alternating {
-  padding: 3rem 0 6rem 0;
-  background-color: #111d2f;
+/* FAQ Section */
+.faq-section {
+  padding: 6rem 0 3rem 0;
+  background-color: transparent;
 }
 
-.feature-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  gap: 4rem;
-  margin-bottom: 6rem;
-}
-
-.feature-row.reverse {
-  direction: rtl;
-}
-
-.feature-row.reverse > * {
-  direction: ltr;
-}
-
-.feature-text h2 {
-  font-size: 2.2rem;
+.section-title {
+  font-size: 2.5rem;
   font-weight: 700;
-  margin-bottom: 1.5rem;
-  color: #fff;
-  line-height: 1.2;
-}
-
-.feature-text p {
-  font-size: 1.1rem;
-  color: #e2e8f0;
-  line-height: 1.7;
-  margin-bottom: 1.5rem;
-}
-
-.feature-bullets {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.feature-bullets li {
-  display: flex;
-  align-items: center;
-  font-size: 1.05rem;
-  color: #f1f5f9;
-  margin-bottom: 0.8rem;
-  font-weight: 600;
-}
-
-.feature-image {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-}
-
-/* Mockups & Animations */
-.mockup-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 3rem;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
   text-align: center;
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  width: 100%;
-  max-width: 360px;
-  position: relative;
-  z-index: 1;
+  margin-bottom: 1rem;
+  color: #fff;
 }
 
-.mockup-card:hover {
-  transform: scale(1.05);
-  z-index: 2;
-  box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+.section-subtitle {
+  font-size: 1.2rem;
+  color: #94a3b8;
+  text-align: center;
+  margin-bottom: 4rem;
 }
 
-.pdf-mockup {
-  padding: 0;
-  overflow: hidden;
+.faq-container {
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-.pdf-img {
-  width: 100%;
-  height: auto;
-  display: block;
-  border-radius: 20px;
+.custom-panels {
+  background: transparent !important;
 }
 
-.qr-mockup {
-  padding: 1.5rem;
-  max-width: 250px;
+.glass-panel {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(10px) !important;
+  border-radius: 12px !important;
+  margin-bottom: 1rem !important;
+  color: #fff !important;
 }
 
-.qr-img {
-  width: 100%;
-  height: auto;
-  border-radius: 12px;
-  display: block;
+.glass-panel:not(:first-child) {
+  margin-top: 1rem !important;
 }
 
-.qr-mockup:hover {
-  transform: scale(1.3) translateY(-10px) rotate(0deg);
-  z-index: 10;
-  box-shadow: 0 30px 60px rgba(0,0,0,0.25);
+.faq-title {
+  font-size: 1.15rem;
+  padding: 1.5rem !important;
 }
-
-.template-gallery {
-  display: flex;
-  gap: 1rem;
-  position: relative;
-  height: 300px;
-  width: 100%;
-  justify-content: center;
-  align-items: center;
-}
-
-.template-card {
-  width: 140px;
-  height: 200px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-  position: absolute;
-  transition: all 0.4s ease;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  object-fit: cover;
-  object-position: top;
-}
-
-.template-card {
-  transform: translateX(-80px) rotate(-10deg) scale(0.9);
-  z-index: 1;
-}
-
-.template-card.modern {
-  transform: translateX(0) scale(1.1);
-  z-index: 3;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-}
-
-.template-card.corp {
-  transform: translateX(80px) rotate(10deg) scale(0.9);
-  z-index: 2;
-}
-
-.template-gallery:hover .template-card {
-  transform: translateX(-120px) rotate(-15deg) scale(0.95);
-  opacity: 0.6;
-}
-.template-gallery:hover .template-card.modern {
-  transform: translateX(0) translateY(-20px) scale(1.15);
-  opacity: 0.6;
-}
-.template-gallery:hover .template-card.corp {
-  transform: translateX(120px) rotate(15deg) scale(0.95);
-  opacity: 0.6;
-}
-
-.template-gallery:hover .template-card:hover,
-.template-card:focus {
-  transform: translateX(-40px) translateY(-30px) rotate(0deg) scale(2.3);
-  z-index: 10;
-  opacity: 1;
-  box-shadow: 0 25px 60px rgba(0,0,0,0.3);
-  outline: none;
-}
-.template-gallery:hover .template-card.modern:hover,
-.template-card.modern:focus {
-  transform: translateX(0) translateY(-30px) rotate(0deg) scale(2.3);
-  z-index: 10;
-  opacity: 1;
-  box-shadow: 0 25px 60px rgba(0,0,0,0.3);
-  outline: none;
-}
-.template-gallery:hover .template-card.corp:hover,
-.template-card.corp:focus {
-  transform: translateX(40px) translateY(-30px) rotate(0deg) scale(2.3);
-  z-index: 10;
-  opacity: 1;
-  box-shadow: 0 25px 60px rgba(0,0,0,0.3);
-  outline: none;
+.faq-text {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  padding: 0 1.5rem 1.5rem 1.5rem !important;
 }
 
 .glow-btn {
@@ -896,8 +748,12 @@ main section[id] {
     margin-bottom: 1.5rem;
   }
 
-  .how-it-works, .features-alternating {
+  .how-it-works {
     padding: 3rem 0;
+  }
+
+  .faq-section {
+    padding: 1rem 0;
   }
 
   .steps-grid {

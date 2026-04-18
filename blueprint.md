@@ -18,17 +18,16 @@ ScanGo Invoice is a modern, responsive Vue.js application that allows users to c
   - **Glassmorphism:** Cards, dialogs, and panels utilize slightly transparent white backgrounds (`rgba(255, 255, 255, 0.03)`), borders (`rgba(255, 255, 255, 0.08)`), and backdrops (`blur(16px)`).
   - **Glow & Interactions:** Soft drop shadows (`rgba(0,0,0,0.4)`) and glowing interactive elements using the primary brand color to build depth.
 
-## Current Action Plan: Landing Page Optimization
+## Current Action Plan: FAQ Integration & Features Route
 
 ### Goal
-Refine the landing page by condensing the steps layout and updating the hero messaging to a more direct and cohesive copy.
+Move the existing landing page features grid into a dedicated `/features` route and replace the main page space with an interactive FAQ section.
 
 ### Steps
-1. **Hero Text Update:** Change the title copy to "Made Effortless" and the subtitle to a punchy single sentence summarizing invoice creation, billing, and QR payments.
-2. **CTA Restructure:** Swapped the CTA buttons so that "Start Invoicing for Free" is the primary solid button, making the free aspect more predominant, and "Sign up with Google" is the secondary outlined button.
-3. **Template Restructure:** Remove the `.steps-grid` and 3 individual step cards from `LandingPage.vue`.
-4. **Compact Component:** Insert a single horizontally-flowing `.compact-steps` container highlighting the 3 quick steps (`Input Details`, `Customize Design`, `Deliver & Track`).
-5. **CSS Clean-up:** Purge dead CSS related to the old numbers and grid, and implement modern flexbox styles with subtle glassmorphic hover effects for the new layout.
+1. **Features Page (`FeaturesPage.vue`)**: Extracted all landing page features HTML and CSS into a dedicated route.
+2. **Routing Update**: Appended `{ path: '/features', component: FeaturesPage }` to Vue Router and updated `AppBar.vue` links perfectly.
+3. **FAQ Component**: Inserted a `v-expansion-panels` element heavily customized with glassmorphic `<v-expansion-panel>` styling across `LandingPage.vue`.
+4. **Objection Handling**: Implemented a 15-item array containing precisely tailored messaging addressing buyer frictions around QR functionality, costs, and templates.
 
 ### Status
-- **Completed:** The landing page now displays the refined professional copy along with the elegant, compact steps progression.
+- **Completed**: The landing page now hosts a sleek collapsible FAQ, pushing deep-dive explorers into the new Features view via updated header navs.

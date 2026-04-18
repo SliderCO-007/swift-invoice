@@ -10,6 +10,11 @@ const routes = [
     component: LandingPage,
   },
   {
+    path: '/features',
+    name: 'Features',
+    component: () => import('../components/FeaturesPage.vue'),
+  },
+  {
     path: '/privacy',
     name: 'Privacy',
     component: () => import('../components/PrivacyPolicy.vue'),
