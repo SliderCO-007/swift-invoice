@@ -9,10 +9,14 @@
                 <span class="font-weight-bold text-blue-lighten-4 mobile-brand">ScanGo Invoice</span>
               </div>
               <h1 class="hero-title">Professional Invoicing,</h1>
-              <h1 class="hero-title"><span class="text-gradient">Simplified.</span></h1>
-              <p class="hero-subtitle">The all-in-one platform to generate elegant invoices, streamline your billing process, and secure payments with modern QR technology.</p>
+              <h1 class="hero-title"><span class="text-gradient">Made Effortless</span></h1>
+              <p class="hero-subtitle">Create polished invoices, streamline billing, and accept secure QR payments — all in one simple, modern platform.</p>
               <div class="d-flex flex-column flex-sm-row flex-wrap ga-4 mt-8 align-center justify-center justify-md-start">
-                <v-btn @click="handleGoogleSignIn" :loading="loading" color="white" class="text-black font-weight-bold px-10 cta-btn" size="x-large" rounded="xl" :block="mobile">
+                <v-btn to="/register" color="white" class="text-black font-weight-bold px-10 cta-btn" size="x-large" rounded="xl" :block="mobile">
+                  <v-icon left size="24" class="mr-2">mdi-email-outline</v-icon>
+                  Start Invoicing for Free
+                </v-btn>
+                <v-btn @click="handleGoogleSignIn" :loading="loading" variant="outlined" color="white" class="font-weight-bold px-10 cta-btn outline-btn" size="x-large" rounded="xl" :block="mobile">
                   <svg class="mr-2" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -20,10 +24,6 @@
                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                   </svg>
                   Sign up with Google
-                </v-btn>
-                <v-btn to="/register" variant="outlined" color="white" class="font-weight-bold px-10 cta-btn outline-btn" size="x-large" rounded="xl" :block="mobile">
-                  <v-icon left size="24" class="mr-2">mdi-email-outline</v-icon>
-                  Start Invoicing for Free
                 </v-btn>
               </div>
               <p class="mt-4 text-caption text-sm-body-2 text-blue-grey-lighten-2 d-flex align-center justify-center justify-md-start">
@@ -78,23 +78,23 @@
 
       <section id="how-it-works" class="how-it-works">
         <div class="container">
-          <h2 class="section-title">Streamlined Billing</h2>
-          <p class="section-subtitle">Get paid faster in 3 simple steps.</p>
-          <div class="steps-grid">
-            <div class="step-card">
-              <div class="step-number">1</div>
-              <h3 class="step-title">Input Details</h3>
-              <p>Seamlessly assemble your invoice using saved client profiles.</p>
-            </div>
-            <div class="step-card">
-              <div class="step-number">2</div>
-              <h3 class="step-title">Customize Design</h3>
-              <p>Apply your logo and colors to a professionally crafted template.</p>
-            </div>
-            <div class="step-card">
-              <div class="step-number">3</div>
-              <h3 class="step-title">Deliver & Track</h3>
-              <p>Issue the invoice via email with integrated, secure payment options.</p>
+          <div class="compact-steps">
+            <h2 class="compact-title">Get paid faster:</h2>
+            <div class="steps-row">
+              <span class="step-chip">
+                <v-icon size="small" class="mr-2">mdi-pencil-outline</v-icon>
+                Input Details
+              </span>
+              <v-icon color="grey-darken-1" class="mx-2 d-none d-sm-inline">mdi-arrow-right</v-icon>
+              <span class="step-chip">
+                <v-icon size="small" class="mr-2">mdi-palette-outline</v-icon>
+                Customize Design
+              </span>
+              <v-icon color="grey-darken-1" class="mx-2 d-none d-sm-inline">mdi-arrow-right</v-icon>
+              <span class="step-chip">
+                <v-icon size="small" class="mr-2">mdi-email-outline</v-icon>
+                Deliver & Track
+              </span>
             </div>
           </div>
         </div>
@@ -460,75 +460,76 @@ main section[id] {
 
 /* How It Works Section */
 .how-it-works {
-  padding: 6rem 0 3rem 0;
+  padding: 4rem 0;
   background-color: #0c1522;
 }
 
-.section-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 1rem;
-  color: #fff;
-}
-
-.section-subtitle {
-  font-size: 1.2rem;
-  color: #94a3b8;
-  text-align: center;
-  margin-bottom: 4rem;
-}
-
-.steps-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2.5rem;
-  margin-top: 3rem;
-}
-
-.step-card {
+.compact-steps {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(10px);
-  padding: 2.5rem 2rem;
-  border-radius: 16px;
-  text-align: center;
+  padding: 2rem;
+  border-radius: 32px;
+  max-width: 900px;
+  margin: 0 auto;
   box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  position: relative;
 }
 
-.step-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+@media (min-width: 768px) {
+  .compact-steps {
+    flex-direction: row;
+    padding: 1.5rem 3rem;
+    border-radius: 100px;
+  }
 }
 
-.step-number {
-  width: 50px;
-  height: 50px;
-  background: var(--v-primary-base, #1976D2);
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.compact-title {
   font-size: 1.5rem;
   font-weight: 700;
-  margin: 0 auto 1.5rem auto;
-  box-shadow: 0 4px 15px rgba(25, 118, 210, 0.6);
-}
-
-.step-title {
-  font-size: 1.3rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
   color: #fff;
+  margin: 0 0 1.5rem 0;
+  white-space: nowrap;
 }
 
-.step-card p {
-  color: #94a3b8;
-  font-size: 0.95rem;
-  line-height: 1.6;
+@media (min-width: 768px) {
+  .compact-title {
+    margin: 0 2rem 0 0;
+  }
+}
+
+.steps-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .steps-row {
+    flex-direction: row;
+    gap: 0;
+  }
+}
+
+.step-chip {
+  display: flex;
+  align-items: center;
+  font-size: 1.05rem;
+  color: #e2e8f0;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.6rem 1.25rem;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+}
+
+.step-chip:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
 }
 
 /* Features Alternating Section */

@@ -18,17 +18,17 @@ ScanGo Invoice is a modern, responsive Vue.js application that allows users to c
   - **Glassmorphism:** Cards, dialogs, and panels utilize slightly transparent white backgrounds (`rgba(255, 255, 255, 0.03)`), borders (`rgba(255, 255, 255, 0.08)`), and backdrops (`blur(16px)`).
   - **Glow & Interactions:** Soft drop shadows (`rgba(0,0,0,0.4)`) and glowing interactive elements using the primary brand color to build depth.
 
-## Current Action Plan: Solid Invoice Template & Theme Customization
+## Current Action Plan: Landing Page Optimization
 
 ### Goal
-Add a primary theme color selector and introduce a new "Solid" template to complement the updated "Corporate" template.
+Refine the landing page by condensing the steps layout and updating the hero messaging to a more direct and cohesive copy.
 
 ### Steps
-1. **State & Settings Update:** Added `primaryColor: '#1a3a52'` to default settings in `useUserSettings.js` and exposed an HTML5 color picker within `UserSettings.vue`.
-2. **Editor Support:** Integrated the `primaryColor` selector inside `InvoiceEditor.vue` only visible when using the Corporate or Solid styles. Added the "Solid" template to the radio selector options.
-3. **Template Customization:** 
-   - **Corporate (`InvoiceTemplate3.vue`):** Updated the header background to use a `linear-gradient` that blends the custom `primaryColor` into the application's secondary highlight `#2c5aa0` with dynamically matching bottom borders.
-   - **Solid (`InvoiceTemplate4.vue`):** Extrapolated the corporate style into a new standalone template applying only solid variations of the `primaryColor`.
+1. **Hero Text Update:** Change the title copy to "Made Effortless" and the subtitle to a punchy single sentence summarizing invoice creation, billing, and QR payments.
+2. **CTA Restructure:** Swapped the CTA buttons so that "Start Invoicing for Free" is the primary solid button, making the free aspect more predominant, and "Sign up with Google" is the secondary outlined button.
+3. **Template Restructure:** Remove the `.steps-grid` and 3 individual step cards from `LandingPage.vue`.
+4. **Compact Component:** Insert a single horizontally-flowing `.compact-steps` container highlighting the 3 quick steps (`Input Details`, `Customize Design`, `Deliver & Track`).
+5. **CSS Clean-up:** Purge dead CSS related to the old numbers and grid, and implement modern flexbox styles with subtle glassmorphic hover effects for the new layout.
 
 ### Status
-- **Completed:** Settings apply globally across the platform and properly override dynamic inline styles for newly created and existing invoices.
+- **Completed:** The landing page now displays the refined professional copy along with the elegant, compact steps progression.
