@@ -6,7 +6,7 @@
           <div class="hero-grid">
             <div class="hero-content">
               <div class="d-sm-none mb-6">
-                <span class="font-weight-bold text-blue-lighten-4 mobile-brand">ScanGo Invoice</span>
+                <span class="mobile-brand">ScanGo Invoice</span>
               </div>
               <h1 class="hero-title">Professional Invoicing,</h1>
               <h1 class="hero-title"><span class="text-gradient">Made Effortless</span></h1>
@@ -796,7 +796,8 @@ main section[id] {
   }
 
   .mobile-brand {
-    font-size: 2rem;
+  font-size: 3.5rem;
+  font-weight: 800;
     line-height: 1.2;
   }
 
@@ -811,7 +812,7 @@ main section[id] {
   }
 
   .mobile-brand {
-    font-size: 1.6rem;
+    font-size: 2.0rem;
   }
 
   .hero-subtitle {
