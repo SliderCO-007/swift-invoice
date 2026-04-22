@@ -30,6 +30,29 @@
                 <v-icon size="small" class="mr-1">mdi-check-circle-outline</v-icon>
                 Get started for free. No credit card required.
               </p>
+              <div class="mt-6 d-flex justify-center justify-md-start">
+                <v-btn @click="trackDownload('hero_button')" href="/ScanGo_Invoice_Venmo_Setup_Guide.pdf" target="_blank" rel="noopener noreferrer" color="primary" variant="tonal" rounded="xl" class="font-weight-bold px-6" size="large">
+                  <v-icon left class="mr-2">mdi-download</v-icon>
+                  Download Setup Guide
+                </v-btn>
+              </div>
+              <div class="mt-8 d-flex flex-column flex-sm-row align-center justify-center justify-md-start ga-4">
+                <div class="d-flex align-center cursor-pointer" @click="scrollToReviews">
+                  <div class="avatar-group mr-4">
+                    <v-avatar size="36" class="avatar-item font-weight-bold text-white bg-indigo-darken-1">S</v-avatar>
+                    <v-avatar size="36" class="avatar-item font-weight-bold text-white bg-pink-darken-1">M</v-avatar>
+                    <v-avatar size="36" class="avatar-item font-weight-bold text-white bg-teal-darken-1">A</v-avatar>
+                    <v-avatar size="36" class="avatar-item font-weight-bold text-white bg-orange-darken-1">J</v-avatar>
+                    <v-avatar size="36" class="avatar-item last-avatar text-white bg-grey-darken-3"><span class="text-caption font-weight-bold">20k+</span></v-avatar>
+                  </div>
+                  <div class="text-left">
+                    <div class="d-flex align-center">
+                      <v-icon color="warning" size="small" v-for="n in 5" :key="n">mdi-star</v-icon>
+                    </div>
+                    <div class="text-caption text-grey-lighten-1 mt-1 font-weight-medium">Loved by 20,000+ users</div>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="hero-image">
               <img src="/branded_hero_v7.png"
@@ -40,8 +63,11 @@
       </section>
 
       <!-- Social Proof / Reviews Section -->
-      <section class="social-proof">
+      <section id="reviews" class="social-proof">
         <div class="container">
+          <div class="d-flex justify-center mb-10 mx-auto" style="border-radius: 12px; background: rgba(255, 255, 255, 0.02); padding: 1rem 2rem; border: 1px solid rgba(255, 255, 255, 0.05); max-width: fit-content;">
+            <Trustpilot style="min-width: 250px;" />
+          </div>
           <v-carousel
             hide-delimiters
             show-arrows="hover"
@@ -146,7 +172,7 @@
         <Trustpilot />
         <p>&copy; 2026 ScanGo Invoice. All rights reserved. | <a
             href="mailto:support@scangoinvoice.com">support@scangoinvoice.com</a> | <router-link to="/privacy">Privacy
-            Policy</router-link> | <router-link to="/terms">Terms of Service</router-link></p>
+            Policy</router-link> | <router-link to="/terms">Terms of Service</router-link> | <a @click="trackDownload('footer_link')" href="/ScanGo_Invoice_Venmo_Setup_Guide.pdf" target="_blank" rel="noopener noreferrer">Setup Guide</a></p>
       </div>
     </footer>
 
@@ -213,6 +239,7 @@ import { useRouter } from 'vue-router';
 import { useAuth, currentUser } from '../composables/useAuth.js';
 import { useMeta } from '../composables/useMeta';
 import { useDisplay } from 'vuetify';
+import { event } from 'vue-gtag';
 import Trustpilot from './TrustpilotWidget.vue';
 import reviewsData from '../assets/reviews.json';
 
@@ -220,6 +247,13 @@ const { mobile } = useDisplay();
 const router = useRouter();
 const { loading, googleLogin } = useAuth();
 const reviews = ref(reviewsData);
+
+const trackDownload = (location) => {
+  event('download_setup_guide', {
+    event_category: 'engagement',
+    event_label: location
+  });
+};
 
 const faqs = ref([
   { question: "How do I create a professional invoice quickly with ScanGo Invoice?", answer: "ScanGo Invoice lets you build a polished, branded invoice in minutes.<br/><br/>Choose a template, customize your colors and logo, and send a flawless PDF instantly — no design skills or setup required.<br/><br/>It’s built for freelancers, contractors, and small businesses who want clean, modern invoices without the complexity of traditional billing software." },
@@ -254,6 +288,13 @@ const openMobilePreview = () => {
 
 const closeMobilePreview = () => {
   showMobilePreview.value = false;
+};
+
+const scrollToReviews = () => {
+  const el = document.getElementById('reviews');
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth' });
+  }
 };
 
 const handleGoogleSignIn = async () => {
@@ -623,6 +664,30 @@ main section[id] {
 
 .footer a:hover {
   text-decoration: underline;
+}
+
+.avatar-group {
+  display: flex;
+  align-items: center;
+}
+
+.avatar-item {
+  border: 2px solid #111d2f !important;
+  margin-left: -12px;
+  transition: transform 0.2s ease;
+}
+
+.avatar-item:first-child {
+  margin-left: 0;
+}
+
+.avatar-item:hover {
+  transform: translateY(-3px);
+  z-index: 10;
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }
 
 .badge-container {

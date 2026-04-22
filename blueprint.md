@@ -18,16 +18,15 @@ ScanGo Invoice is a modern, responsive Vue.js application that allows users to c
   - **Glassmorphism:** Cards, dialogs, and panels utilize slightly transparent white backgrounds (`rgba(255, 255, 255, 0.03)`), borders (`rgba(255, 255, 255, 0.08)`), and backdrops (`blur(16px)`).
   - **Glow & Interactions:** Soft drop shadows (`rgba(0,0,0,0.4)`) and glowing interactive elements using the primary brand color to build depth.
 
-## Current Action Plan: FAQ Integration & Features Route
+## Current Action Plan: Social Proof Integration
 
 ### Goal
-Move the existing landing page features grid into a dedicated `/features` route and replace the main page space with an interactive FAQ section.
+Enhance user trust on the landing page by elevating social proof elements from the footer directly into the primary viewing areas, including the hero section.
 
 ### Steps
-1. **Features Page (`FeaturesPage.vue`)**: Extracted all landing page features HTML and CSS into a dedicated route.
-2. **Routing Update**: Appended `{ path: '/features', component: FeaturesPage }` to Vue Router and updated `AppBar.vue` links perfectly.
-3. **FAQ Component**: Inserted a `v-expansion-panels` element heavily customized with glassmorphic `<v-expansion-panel>` styling across `LandingPage.vue`.
-4. **Objection Handling**: Implemented a 15-item array containing precisely tailored messaging addressing buyer frictions around QR functionality, costs, and templates.
+1. **Hero Avatar Group (`LandingPage.vue`)**: Added a 5-star rating summary and an avatar group ("Loved by 2,000+ users") directly underneath the main Hero CTAs.
+2. **Review Navigation (`LandingPage.vue`)**: Made the new hero social proof badge clickable, smoothly scrolling users down to the dedicated review section.
+3. **Trustpilot Elevation (`LandingPage.vue`, `TrustpilotWidget.vue`)**: Moved the Trustpilot component higher up on the landing page to sit prominently above the reviews carousel. Updated the widget configuration to `data-theme="dark"` so it blends flawlessly into the app's `#111d2f` premium dark theme.
 
 ### Status
-- **Completed**: The landing page now hosts a sleek collapsible FAQ, pushing deep-dive explorers into the new Features view via updated header navs.
+- **Completed**: Landing page now prominently features quantitative social proof in the hero and elevated Trustpilot credibility over the customer review carousel.

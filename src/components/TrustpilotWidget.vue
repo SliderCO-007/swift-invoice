@@ -9,7 +9,7 @@
       data-token="5dfcd411-0873-4375-b52e-ec09bb9201dc" 
       data-style-height="52px" 
       data-style-width="100%" 
-      data-theme="light"
+      data-theme="dark"
     >
       <a href="https://www.trustpilot.com/review/scangoinvoice.com" target="_blank" rel="noopener">
         Trustpilot
