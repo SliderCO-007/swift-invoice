@@ -55,8 +55,8 @@
               </div>
             </div>
             <div class="hero-image">
-              <img src="/branded_hero_v7.png"
-                alt="A deconstructed workspace with an invoice and dashboard.">
+              <img src="/branded_hero_v7.png" class="hero-static" alt="A deconstructed workspace with an invoice and dashboard.">
+              <img src="/ScanGo_create_mobile.gif" class="hero-gif" alt="App Preview Animation">
             </div>
           </div>
         </div>
@@ -195,7 +195,7 @@
         <div v-if="isMobilePreviewLoading" class="loader-container">
           <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
         </div>
-        <img v-show="!isMobilePreviewLoading" src="/ScanGo_mobile_newInvoice.gif" alt="Mobile Preview"
+        <img v-show="!isMobilePreviewLoading" src="/ScanGo_create_mobile.gif" alt="Mobile Preview"
           @load="isMobilePreviewLoading = false" />
         <v-btn @click="closeMobilePreview" icon class="modal-close">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -408,11 +408,35 @@ main section[id] {
   box-shadow: 0 12px 25px rgba(255, 255, 255, 0.08) !important;
 }
 
-.hero-image img {
+.hero-image {
+  position: relative;
+}
+
+.hero-image .hero-static {
   max-width: 100%;
   height: auto;
   border-radius: 32px;
   box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  display: block;
+}
+
+.hero-image .hero-gif {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 32px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  object-fit: contain;
+  opacity: 1;
+  animation: fadeOutGif 1.5s ease-in-out forwards;
+  animation-delay: 14s; /* Set to approximate gif duration */
+}
+
+@keyframes fadeOutGif {
+  0% { opacity: 1; }
+  100% { opacity: 0; visibility: hidden; }
 }
 
 /* Social Proof Section */

@@ -54,7 +54,8 @@ exports.generateVenmoQR = onCall({ enforceAppCheck: false }, async (request) => 
     });
 
     await file.makePublic();
-    const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+    const timestamp = Date.now();
+    const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}?t=${timestamp}`;
 
     await admin.firestore().collection("userSettings").doc(auth.uid).set(
       { company: { venmoQrUrl: publicUrl } },
