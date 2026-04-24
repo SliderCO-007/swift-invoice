@@ -360,122 +360,128 @@ const safeInvoice = computed(() => {
     </div>
     <div v-else-if="safeInvoice">
       <header class="invoice-view-header">
-        <div class="header-left">
+        <div class="header-top-row">
           <v-btn
             v-if="isOwner"
             @click="goBack"
-            text
             class="back-btn"
             prepend-icon="mdi-arrow-left"
+            color="white"
+            variant="elevated"
           >
             Dashboard
           </v-btn>
+        </div>
+
+        <div class="header-title-row">
           <h1 class="invoice-title">Invoice #{{ safeInvoice.invoiceNumber }}</h1>
         </div>
 
-        <div v-if="isOwner" class="style-selector-container">
-          <label class="style-option">
-            <input
-              type="radio"
-              value="classic"
-              v-model="invoice.style"
-              @change="updateStyle"
-            />
-            <span>Classic</span>
-          </label>
-          <label class="style-option">
-            <input
-              type="radio"
-              value="modern"
-              v-model="invoice.style"
-              @change="updateStyle"
-            />
-            <span>Modern</span>
-          </label>
-          <label class="style-option">
-            <input
-              type="radio"
-              value="corporate"
-              v-model="invoice.style"
-              @change="updateStyle"
-            />
-            <span>Corporate</span>
-          </label>
-          <label class="style-option">
-            <input
-              type="radio"
-              value="solid"
-              v-model="invoice.style"
-              @change="updateStyle"
-            />
-            <span>Solid</span>
-          </label>
-        </div>
+        <div v-if="isOwner" class="header-controls-row">
+          <div class="style-selector-container">
+            <label class="style-option">
+              <input
+                type="radio"
+                value="classic"
+                v-model="invoice.style"
+                @change="updateStyle"
+              />
+              <span>Classic</span>
+            </label>
+            <label class="style-option">
+              <input
+                type="radio"
+                value="modern"
+                v-model="invoice.style"
+                @change="updateStyle"
+              />
+              <span>Modern</span>
+            </label>
+            <label class="style-option">
+              <input
+                type="radio"
+                value="corporate"
+                v-model="invoice.style"
+                @change="updateStyle"
+              />
+              <span>Corporate</span>
+            </label>
+            <label class="style-option">
+              <input
+                type="radio"
+                value="solid"
+                v-model="invoice.style"
+                @change="updateStyle"
+              />
+              <span>Solid</span>
+            </label>
+          </div>
 
-        <div v-if="isOwner" class="actions">
-          <v-btn
-            v-if="safeInvoice.status === 'Quote'"
-            @click="confirmPendingDialog = true"
-            color="orange"
-            large
-            class="mr-4"
-            prepend-icon="mdi-file-check"
-          >
-            Mark as Pending
-          </v-btn>
-          <v-btn
-            v-if="safeInvoice.status === 'Pending'"
-            @click="confirmDialog = true"
-            color="green"
-            large
-            class="mr-4"
-            prepend-icon="mdi-check-circle"
-          >
-            Mark as Paid
-          </v-btn>
-          <v-btn
-            @click="downloadPDF"
-            outlined
-            color="primary"
-            large
-            class="mr-4"
-            prepend-icon="mdi-download"
-          >
-            Download PDF
-          </v-btn>
-
-          <template v-if="isFreePlan">
-            <v-tooltip
-              location="top"
-              :text="
-                isFreePlan ? 'Upgrade to a paid plan to send invoices via email.' : ''
-              "
-            >
-              <template v-slot:activator="{ props }">
-                <div v-bind="props">
-                  <v-btn
-                    :disabled="isFreePlan"
-                    color="primary"
-                    large
-                    prepend-icon="mdi-email"
-                  >
-                    Send Email
-                  </v-btn>
-                </div>
-              </template>
-            </v-tooltip>
-          </template>
-          <template v-else>
+          <div class="actions">
             <v-btn
-              @click="sendInvoiceEmail"
-              :loading="isSendingEmail"
+              v-if="safeInvoice.status === 'Quote'"
+              @click="confirmPendingDialog = true"
+              color="orange"
+              large
+              class="mr-4"
+              prepend-icon="mdi-file-check"
+            >
+              Mark as Pending
+            </v-btn>
+            <v-btn
+              v-if="safeInvoice.status === 'Pending'"
+              @click="confirmDialog = true"
+              color="green"
+              large
+              class="mr-4"
+              prepend-icon="mdi-check-circle"
+            >
+              Mark as Paid
+            </v-btn>
+            <v-btn
+              @click="downloadPDF"
+              outlined
               color="primary"
               large
-              prepend-icon="mdi-email"
+              class="mr-4"
+              prepend-icon="mdi-download"
             >
-              Send Email
+              Download PDF
             </v-btn>
-          </template>
+
+            <template v-if="isFreePlan">
+              <v-tooltip
+                location="top"
+                :text="
+                  isFreePlan ? 'Upgrade to a paid plan to send invoices via email.' : ''
+                "
+              >
+                <template v-slot:activator="{ props }">
+                  <div v-bind="props">
+                    <v-btn
+                      :disabled="isFreePlan"
+                      color="primary"
+                      large
+                      prepend-icon="mdi-email"
+                    >
+                      Send Email
+                    </v-btn>
+                  </div>
+                </template>
+              </v-tooltip>
+            </template>
+            <template v-else>
+              <v-btn
+                @click="sendInvoiceEmail"
+                :loading="isSendingEmail"
+                color="primary"
+                large
+                prepend-icon="mdi-email"
+              >
+                Send Email
+              </v-btn>
+            </template>
+          </div>
         </div>
       </header>
 
@@ -572,24 +578,35 @@ const safeInvoice = computed(() => {
 
 .invoice-view-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 1.5rem;
   margin-bottom: 2rem;
-  flex-wrap: wrap;
-  gap: 1rem;
 }
 
-.header-left {
+.header-top-row {
   display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.header-title-row {
+  width: 100%;
+}
+
+.header-controls-row {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 1.5rem;
   flex-wrap: wrap;
+  gap: 1.5rem;
 }
 
 .invoice-title {
   font-size: 1.75rem;
   font-weight: 600;
   color: #fff;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .back-btn {
@@ -640,6 +657,7 @@ const safeInvoice = computed(() => {
   display: flex;
   gap: 1.5rem;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .style-option {
@@ -658,10 +676,9 @@ const safeInvoice = computed(() => {
 }
 
 @media (max-width: 960px) {
-  .invoice-view-header {
+  .header-controls-row {
     flex-direction: column;
     align-items: stretch;
-    gap: 1.5rem;
   }
   .actions {
     justify-content: flex-start;
