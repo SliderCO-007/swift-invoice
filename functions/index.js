@@ -25,6 +25,15 @@ exports.generateVenmoQR = generateVenmoQR.generateVenmoQR;
 const welcomeEmail = require("./welcomeEmail");
 exports.sendWelcomeEmail = welcomeEmail.sendWelcomeEmail;
 
+const stripeConnect = require("./stripeConnect");
+exports.createConnectAccount = stripeConnect.createConnectAccount;
+exports.getStripeConnectStatus = stripeConnect.getStripeConnectStatus;
+exports.getInvoiceForPayment = stripeConnect.getInvoiceForPayment;
+exports.createInvoicePaymentSession = stripeConnect.createInvoicePaymentSession;
+exports.stripeConnectWebhook = stripeConnect.stripeConnectWebhook;
+
+
+
 /**
  * Creates a Stripe Checkout session for a subscription plan.
  */

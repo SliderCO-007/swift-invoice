@@ -11,11 +11,33 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  userProfile: {
+    type: Object,
+    default: null,
+  }
 })
 
 const subtotal = computed(() => props.invoice.subtotal || 0)
 const taxAmount = computed(() => props.invoice.taxAmount || 0)
 const total = computed(() => props.invoice.total || 0)
+
+const paymentUrl = computed(() => {
+  if (props.userProfile?.chargesEnabled && props.invoice?.id) {
+    return `${window.location.origin}/pay/${props.invoice.id}`
+  } else if (props.invoice.includeVenmoQr && props.settings?.company?.venmoUsername) {
+    return `https://venmo.com/${props.settings.company.venmoUsername}`
+  }
+  return null
+})
+
+const paymentQrImageUrl = computed(() => {
+  if (props.userProfile?.chargesEnabled && props.invoice?.id) {
+    return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&ecc=H&data=${encodeURIComponent(paymentUrl.value)}`
+  } else {
+    return props.settings?.company?.venmoQrUrl
+  }
+})
+
 
 const formatDate = (date) => {
   if (!date) return 'N/A'
@@ -127,12 +149,13 @@ const formatCurrency = (value) => {
             <p>{{ invoice.notes }}</p>
           </div>
           <div
-            v-if="invoice.includeVenmoQr && settings?.company?.venmoQrUrl"
-            class="qr-section"
+            v-if="(invoice.includeVenmoQr || userProfile?.chargesEnabled) && paymentQrImageUrl"
+            class="payment-qr-code qr-section"
           >
-            <h3>Scan or click to pay</h3>
-            <a :href="'https://venmo.com/' + settings.company.venmoUsername" target="_blank" rel="noopener noreferrer">
-              <img :src="settings.company.venmoQrUrl" alt="Venmo QR Code" class="qr-code" />
+            <h3>{{ userProfile?.chargesEnabled ? 'Scan or click to pay Online Securely' : 'Scan or click to pay' }}</h3>
+            <a :href="paymentUrl" target="_blank" rel="noopener noreferrer" style="position: relative; display: inline-block;">
+              <img :src="paymentQrImageUrl" :alt="userProfile?.chargesEnabled ? 'Pay via Stripe' : 'Pay via Venmo'" class="qr-code" crossorigin="anonymous" style="display: block;" />
+              <img v-if="userProfile?.chargesEnabled && settings?.company?.logoUrl" :src="settings.company.logoUrl" crossorigin="anonymous" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 28%; height: 28%; object-fit: contain; background: white; border-radius: 4px; padding: 2px;" />
             </a>
           </div>
         </div>

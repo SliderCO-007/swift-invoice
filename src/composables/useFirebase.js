@@ -1,8 +1,8 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { getFunctions } from 'firebase/functions';
-import { getStorage } from 'firebase/storage';
+import { getAuth, connectAuthEmulator } from 'firebase/auth';
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
+import { getStorage, connectStorageEmulator } from 'firebase/storage';
 import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 
 const firebaseConfig = {
@@ -21,6 +21,14 @@ const db = getFirestore(app);
 // Connect to the correct region for Cloud Functions
 const functions = getFunctions(app, 'us-central1');
 const storage = getStorage(app);
+
+// if (import.meta.env.DEV) {
+//   connectAuthEmulator(auth, 'http://localhost:9099');
+//   connectFirestoreEmulator(db, 'localhost', 8080);
+//   connectFunctionsEmulator(functions, 'localhost', 5001);
+//   connectStorageEmulator(storage, 'localhost', 9199);
+//   console.log("Connected to local Firebase Emulators (Auth, Firestore, Functions, Storage)");
+// }
 
 // Initialize App Check and store its instance
 let appCheck;

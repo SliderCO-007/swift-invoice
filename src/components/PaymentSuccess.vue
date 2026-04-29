@@ -16,10 +16,16 @@
       <div v-if="isSuccess">
         <v-icon color="success" size="80" class="mb-4">mdi-check-decagram</v-icon>
         <h1 class="text-h4 font-weight-bold mb-3">Payment Successful!</h1>
-        <p class="text-body-1 text-medium-emphasis mb-6">
+        <p v-if="paymentType === 'invoice'" class="text-body-1 text-medium-emphasis mb-6">
+          Thank you for your payment! The invoice has been marked as paid.
+        </p>
+        <p v-else class="text-body-1 text-medium-emphasis mb-6">
           Welcome aboard! Your subscription is now active. You have full access to all features.
         </p>
-        <v-btn color="primary" size="large" to="/dashboard" class="font-weight-bold">
+        <v-btn v-if="paymentType === 'invoice'" color="primary" size="large" :to="'/payment/' + invoiceId" class="font-weight-bold">
+          View Receipt
+        </v-btn>
+        <v-btn v-else color="primary" size="large" to="/dashboard" class="font-weight-bold">
           Go to My Dashboard
         </v-btn>
       </div>
@@ -29,9 +35,12 @@
         <v-icon color="error" size="80" class="mb-4">mdi-alert-circle-outline</v-icon>
         <h1 class="text-h5 font-weight-bold mb-3">Verification Timed Out</h1>
         <p class="text-body-1 text-medium-emphasis mb-6">
-          We could not confirm your subscription status in time. Please check your email for a confirmation or contact our support team if the issue persists.
+          We could not confirm your payment status in time. Please check your email for a receipt or contact support if the issue persists.
         </p>
-        <v-btn color="primary" size="large" to="/dashboard" class="font-weight-bold">
+        <v-btn v-if="paymentType === 'invoice'" color="primary" size="large" :to="'/payment/' + invoiceId" class="font-weight-bold">
+          Return to Invoice
+        </v-btn>
+        <v-btn v-else color="primary" size="large" to="/dashboard" class="font-weight-bold">
           Go to My Dashboard
         </v-btn>
       </div>
@@ -43,24 +52,29 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../composables/useFirebase.js';
 import { currentUser } from '../composables/useAuth.js';
 
+const route = useRoute();
 const user = currentUser;
+
+const paymentType = ref(route.query.type || 'subscription');
+const invoiceId = ref(route.query.invoiceId || null);
 
 const isLoading = ref(true);
 const isSuccess = ref(false);
 const isError = ref(false);
 const loadingMessage = ref('Verifying Your Payment');
-const loadingSubMessage = ref('Please wait a moment while we confirm your subscription...');
+const loadingSubMessage = ref('Please wait a moment while we confirm your payment...');
 
 let unsubscribe = null;
 let timeouts = [];
 
 onMounted(() => {
-  if (!user.value) {
-    // This shouldn't happen if routing is correct, but as a fallback:
+  // If verifying a subscription and user isn't logged in, fail out.
+  if (paymentType.value === 'subscription' && !user.value) {
     isLoading.value = false;
     isError.value = true;
     return;
@@ -84,21 +98,37 @@ onMounted(() => {
     }
   }, 60000)); // 60 seconds
 
-  // Listen to real-time changes on the user's document.
-  const userRef = doc(db, 'users', user.value.uid);
-  unsubscribe = onSnapshot(userRef, (doc) => {
-    const userData = doc.data();
-    // A non-free status indicates a successful subscription update.
-    if (userData && userData.subscriptionStatus && userData.subscriptionStatus !== 'free') {
-      isLoading.value = false;
-      isSuccess.value = true;
-      isError.value = false;
-      timeouts.forEach(clearTimeout); // Clear the timeouts
-      if (unsubscribe) {
-        unsubscribe(); // Stop listening once we get the success state.
+  if (paymentType.value === 'invoice' && invoiceId.value) {
+    // Listen to real-time changes on the invoice document
+    const invoiceRef = doc(db, 'invoices', invoiceId.value);
+    unsubscribe = onSnapshot(invoiceRef, (doc) => {
+      const invoiceData = doc.data();
+      if (invoiceData && invoiceData.status === 'paid') {
+        isLoading.value = false;
+        isSuccess.value = true;
+        isError.value = false;
+        timeouts.forEach(clearTimeout);
+        if (unsubscribe) unsubscribe();
       }
-    }
-  });
+    });
+  } else if (user.value) {
+    // Listen to real-time changes on the user's document for subscription
+    const userRef = doc(db, 'users', user.value.uid);
+    unsubscribe = onSnapshot(userRef, (doc) => {
+      const userData = doc.data();
+      // A non-free status indicates a successful subscription update.
+      if (userData && userData.subscriptionStatus && userData.subscriptionStatus !== 'free') {
+        isLoading.value = false;
+        isSuccess.value = true;
+        isError.value = false;
+        timeouts.forEach(clearTimeout);
+        if (unsubscribe) unsubscribe();
+      }
+    });
+  } else {
+      isLoading.value = false;
+      isError.value = true;
+  }
 });
 
 // Clean up the listener and timeout when the component is unmounted.

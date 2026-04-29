@@ -3,7 +3,8 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
-import { getFunctions, httpsCallable } from 'firebase/functions'
+import { httpsCallable } from 'firebase/functions'
+import { functions } from '../composables/useFirebase.js'
 import { currentUser, userProfile } from '../composables/useAuth.js'
 import useInvoices from '../composables/useInvoices'
 import useUserSettings from '../composables/useUserSettings'
@@ -26,8 +27,6 @@ const confirmDialog = ref(false)
 const confirmPendingDialog = ref(false)
 const isLoading = ref(true)
 const emailError = ref(null)
-
-const functions = getFunctions()
 
 onMounted(async () => {
   const invoiceId = route.params.id
@@ -183,8 +182,13 @@ const generatePDF = async (outputType = 'save') => {
     
     let qrRect = null
     let qrUrl = null
-    const qrCodeEl = iframeDoc.querySelector('.venmo-qr-code img, .venmo-qr-code-modern img, .qr-section img')
-    if (qrCodeEl && invoice.value.includeVenmoQr && settings.value?.company?.venmoUsername) {
+    const qrCodeEl = iframeDoc.querySelector('.venmo-qr-code img, .venmo-qr-code-modern img, .qr-section img, .payment-qr-code img')
+    const qrAnchorEl = iframeDoc.querySelector('.venmo-qr-code a, .venmo-qr-code-modern a, .qr-section a, .payment-qr-code a')
+    
+    if (qrCodeEl && qrAnchorEl && qrAnchorEl.href) {
+      qrRect = qrCodeEl.getBoundingClientRect()
+      qrUrl = qrAnchorEl.href
+    } else if (qrCodeEl && invoice.value.includeVenmoQr && settings.value?.company?.venmoUsername) {
       qrRect = qrCodeEl.getBoundingClientRect()
       qrUrl = `https://venmo.com/${settings.value.company.venmoUsername}`
     }
@@ -507,24 +511,28 @@ const safeInvoice = computed(() => {
         ref="invoicePaper"
         :invoice="safeInvoice"
         :settings="settings"
+        :userProfile="userProfile"
       />
       <InvoiceTemplate2
         v-else-if="safeInvoice.style === 'modern'"
         ref="invoicePaper"
         :invoice="safeInvoice"
         :settings="settings"
+        :userProfile="userProfile"
       />
       <InvoiceTemplate3
         v-else-if="safeInvoice.style === 'corporate'"
         ref="invoicePaper"
         :invoice="safeInvoice"
         :settings="settings"
+        :userProfile="userProfile"
       />
       <InvoiceTemplate4
         v-else-if="safeInvoice.style === 'solid'"
         ref="invoicePaper"
         :invoice="safeInvoice"
         :settings="settings"
+        :userProfile="userProfile"
       />
     </div>
     <div v-else class="error-container">

@@ -18,15 +18,14 @@ ScanGo Invoice is a modern, responsive Vue.js application that allows users to c
   - **Glassmorphism:** Cards, dialogs, and panels utilize slightly transparent white backgrounds (`rgba(255, 255, 255, 0.03)`), borders (`rgba(255, 255, 255, 0.08)`), and backdrops (`blur(16px)`).
   - **Glow & Interactions:** Soft drop shadows (`rgba(0,0,0,0.4)`) and glowing interactive elements using the primary brand color to build depth.
 
-## Current Action Plan: Social Proof Integration
+## Current Action Plan: Update Landing Page FAQs
 
 ### Goal
-Enhance user trust on the landing page by elevating social proof elements from the footer directly into the primary viewing areas, including the hero section.
+Update the Frequently Asked Questions (FAQs) content on the landing page to accurately reflect current features, such as Stripe payment processing, Venmo backup, and account requirements.
 
 ### Steps
-1. **Hero Avatar Group (`LandingPage.vue`)**: Added a 5-star rating summary and an avatar group ("Loved by 2,000+ users") directly underneath the main Hero CTAs.
-2. **Review Navigation (`LandingPage.vue`)**: Made the new hero social proof badge clickable, smoothly scrolling users down to the dedicated review section.
-3. **Trustpilot Elevation (`LandingPage.vue`, `TrustpilotWidget.vue`)**: Moved the Trustpilot component higher up on the landing page to sit prominently above the reviews carousel. Updated the widget configuration to `data-theme="dark"` so it blends flawlessly into the app's `#111d2f` premium dark theme.
+1. **Update Content (`LandingPage.vue`)**: Modified the `faqs` reactive reference within the setup script to contain the new set of six targeted questions and answers.
+2. **Schema Integration**: Because the `faqSchema` maps directly over the `faqs.value` array, updating the `faqs` reference automatically updates the JSON-LD schema generated for SEO without requiring structural changes to `faqSchema`.
 
 ### Status
-- **Completed**: Landing page now prominently features quantitative social proof in the hero and elevated Trustpilot credibility over the customer review carousel.
+- **Completed**: The landing page now displays the updated, Stripe-and-Venmo-focused FAQs both visually on the page and systematically within the page metadata.

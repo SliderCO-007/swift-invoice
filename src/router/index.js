@@ -106,6 +106,12 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/pay/:invoiceId',
+    name: 'PublicPayment',
+    component: () => import('../components/PublicPayment.vue'),
+    meta: { requiresAuth: false }
+  },
+  {
     path: '/invoices',
     name: 'InvoiceList',
     component: () => import('../components/InvoiceList.vue'),

@@ -1,8 +1,9 @@
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import useUserSettings from '../composables/useUserSettings';
-import { currentUser, userProfile } from '../composables/useAuth.js';
+import useStripeConnect from '../composables/useStripeConnect';
+import { currentUser, userProfile, isAuthReady } from '../composables/useAuth.js';
 
 const router = useRouter();
 
@@ -11,8 +12,23 @@ const {
   loading, 
   error, 
   saveUserSettings, 
-  sendPreviewEmail, // Import the new function
+  sendPreviewEmail,
 } = useUserSettings();
+
+const { 
+  connectStatus, 
+  fetchConnectStatus, 
+  createConnectAccount, 
+  loading: stripeLoading 
+} = useStripeConnect();
+
+onMounted(async () => {
+  await isAuthReady;
+  if (currentUser.value) {
+    await fetchConnectStatus();
+  }
+});
+
 
 const logoFile = ref(null);
 const logoPreview = ref(null);
@@ -170,16 +186,53 @@ const goToPricing = () => {
         </div>
         
         <div class="payment-info-section">
-            <h3>Payment Settings</h3>
-            <div class="form-grid">
+            <h3>Payments & Integrations</h3>
+            
+            <!-- Stripe Connect Section -->
+            <div class="stripe-connect-card">
+              <div class="stripe-header">
+                <div class="stripe-title-wrapper">
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" class="stripe-logo" crossorigin="anonymous" />
+                  <h4>Accept Payments with Stripe</h4>
+                </div>
+                <div class="stripe-status" :class="{ 'connected': connectStatus.chargesEnabled }">
+                  <span class="status-indicator"></span>
+                  {{ connectStatus.chargesEnabled ? 'Connected & Verified' : (connectStatus.connected ? 'Pending Verification' : 'Not Connected') }}
+                </div>
+              </div>
+              
+              <div class="stripe-body">
+                <p v-if="connectStatus.chargesEnabled">
+                  Your Stripe account is successfully connected. Customers can now pay your invoices directly using credit cards or other Stripe payment methods.
+                </p>
+                <p v-else-if="connectStatus.connected">
+                  Your Stripe account is connected, but we need more information before you can accept payments. Please resume onboarding.
+                </p>
+                <p v-else>
+                  Connect your Stripe account to let your customers pay invoices directly from a secure payment page. (A 0.5% platform fee applies to payments processed).
+                </p>
+                
+                <v-btn 
+                  @click="createConnectAccount" 
+                  :loading="stripeLoading" 
+                  color="#635bff" 
+                  class="stripe-btn mt-4" 
+                  prepend-icon="mdi-credit-card-outline"
+                >
+                  {{ connectStatus.connected && !connectStatus.chargesEnabled ? 'Resume Onboarding' : (connectStatus.chargesEnabled ? 'Go to Stripe Dashboard' : 'Connect with Stripe') }}
+                </v-btn>
+              </div>
+            </div>
+
+            <div class="form-grid mt-6">
                 <div class="form-group full-width">
                     <label for="venmoUsername" class="venmo-label">
-                        Venmo Username
+                        Venmo Fallback Username
                         <v-tooltip location="top">
                           <template v-slot:activator="{ props }">
                             <v-icon v-bind="props" @click.stop.prevent="" size="small" class="help-icon">mdi-help-circle-outline</v-icon>
                           </template>
-                          <span>Your QR code is auto-generated using your Venmo username or business profile and company logo.</span>
+                          <span>If Stripe is not connected, a Venmo QR code will be generated on your invoices using this handle.</span>
                         </v-tooltip>
                     </label>
                     <v-text-field
@@ -261,6 +314,68 @@ const goToPricing = () => {
 .color-picker::-webkit-color-swatch-wrapper { padding: 0; }
 .color-picker::-webkit-color-swatch { border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; }
 .color-hex { font-family: monospace; font-size: 1.1rem; color: #fff; }
+
+.stripe-connect-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(99, 91, 255, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+.stripe-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.stripe-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.stripe-logo {
+  height: 26px;
+  width: auto;
+}
+.stripe-title-wrapper h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+  color: #fff;
+}
+.stripe-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #f87171; /* red for not connected */
+  background: rgba(248, 113, 113, 0.1);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+}
+.stripe-status.connected {
+  color: #4ade80; /* green for connected */
+  background: rgba(74, 222, 128, 0.1);
+}
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+.stripe-body p {
+  color: #e2e8f0;
+  line-height: 1.5;
+}
+.stripe-btn {
+  text-transform: none;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
 
 @media (max-width: 768px) {
   .settings-card { padding: 1.5rem; }

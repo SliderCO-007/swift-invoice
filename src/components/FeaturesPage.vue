@@ -8,11 +8,11 @@
 
           <div class="feature-row">
             <div class="feature-text">
-              <h2>Modern Payment Integration</h2>
-              <p>Accelerate your cash flow. Embed branded Venmo QR codes directly into your invoices, offering your clients a seamless, modern payment experience.</p>
+              <h2>Direct Online Payments</h2>
+              <p>Accelerate your cash flow. Accept credit card payments securely through our integrated Stripe checkout, or embed a branded Venmo QR code for quick mobile payments.</p>
               <ul class="feature-bullets">
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Clickable QR codes on PDF</li>
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Seamless mobile payment flow</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Secure credit card checkout</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Clickable payment links & QR codes</li>
               </ul>
             </div>
             <div class="feature-image">
@@ -27,7 +27,7 @@
               <h2>Agency-Quality Templates</h2>
               <p>Make a lasting impression. Select from our library of versatile designs and fully customize them to align with your professional brand standards.</p>
               <ul class="feature-bullets">
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>3 High-conversion designs</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>4 High-conversion designs</li>
                 <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Live preview while editing</li>
               </ul>
             </div>
@@ -80,7 +80,7 @@ import Trustpilot from './TrustpilotWidget.vue';
 
 useMeta(
   'Features | ScanGo Invoice',
-  'Discover all the powerful features of ScanGo Invoice. Professional templates, Venmo QR codes, PDF downloads, and integrated email delivery.',
+  'Discover all the powerful features of ScanGo Invoice. Professional templates, direct online payments, Venmo QR codes, PDF downloads, and integrated email delivery.',
 );
 </script>
 

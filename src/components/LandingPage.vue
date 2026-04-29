@@ -8,14 +8,10 @@
               <div class="d-sm-none mb-6">
                 <span class="mobile-brand">ScanGo Invoice</span>
               </div>
-              <h1 class="hero-title">Professional Invoicing,</h1>
-              <h1 class="hero-title"><span class="text-gradient">Made Effortless</span></h1>
-              <p class="hero-subtitle">Create polished invoices, streamline billing, and accept secure QR payments — all in one simple, modern platform.<br/><br/>The only invoicing tool with branded Venmo QR codes built in. Get paid instantly!</p>
+              <h1 class="hero-title">Get Paid Online</h1>
+              <h1 class="hero-title"><span class="text-gradient">Fast, Simple, and Professional</span></h1>
+              <p class="hero-subtitle">Create invoices in seconds and let your customers pay instantly using credit/debit cards, Apple Pay, Google Pay, or ACH through Stripe.<br/><br/>Prefer lower fees? Add your Venmo Business ID to create a custom QR code. Get paid instantly!</p>
               <div class="d-flex flex-column flex-sm-row flex-wrap ga-4 mt-8 align-center justify-center justify-md-start">
-                <v-btn to="/register" color="white" class="text-black font-weight-bold px-10 cta-btn" size="x-large" rounded="xl" :block="mobile">
-                  <v-icon left size="24" class="mr-2">mdi-email-outline</v-icon>
-                  Start Invoicing for Free
-                </v-btn>
                 <v-btn @click="handleGoogleSignIn" :loading="loading" variant="outlined" color="white" class="font-weight-bold px-10 cta-btn outline-btn" size="x-large" rounded="xl" :block="mobile">
                   <svg class="mr-2" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -23,7 +19,11 @@
                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                   </svg>
-                  Sign up with Google
+                  Start Free with Google
+                </v-btn>
+                <v-btn to="/register" color="white" class="text-black font-weight-bold px-10 cta-btn" size="x-large" rounded="xl" :block="mobile">
+                  <v-icon left size="24" class="mr-2">mdi-email-outline</v-icon>
+                  Or continue with email
                 </v-btn>
               </div>
               <p class="mt-4 text-caption text-sm-body-2 text-blue-grey-lighten-2 d-flex align-center justify-center justify-md-start">
@@ -31,7 +31,7 @@
                 Get started for free. No credit card required.
               </p>
               <div class="mt-6 d-flex justify-center justify-md-start">
-                <v-btn @click="trackDownload('hero_button')" href="/ScanGo_Invoice_Venmo_Setup_Guide.pdf" target="_blank" rel="noopener noreferrer" color="primary" variant="tonal" rounded="xl" class="font-weight-bold px-6" size="large">
+                <v-btn @click="trackDownload('hero_button')" href="/__ScanGo Invoice + Stripe Connect.pdf" target="_blank" rel="noopener noreferrer" color="primary" variant="tonal" rounded="xl" class="font-weight-bold px-6" size="large">
                   <v-icon left class="mr-2">mdi-download</v-icon>
                   Download Setup Guide
                 </v-btn>
@@ -56,7 +56,12 @@
             </div>
             <div class="hero-image">
               <img src="/branded_hero_v7.png" class="hero-static" alt="A deconstructed workspace with an invoice and dashboard.">
-              <img src="/ScanGo_create_mobile.gif" class="hero-gif" alt="App Preview Animation">
+              <div class="iphone-frame-wrapper">
+                <div class="iphone-frame">
+                  <div class="notch"></div>
+                  <img src="/ScanGo_create_mobile.gif" class="hero-gif" alt="App Preview Animation">
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -104,35 +109,54 @@
 
       <section id="how-it-works" class="how-it-works">
         <div class="container">
-          <div class="text-center mb-10">
+          <div class="text-center mb-16">
             <h2 class="section-title">How It Works</h2>
-            <p class="section-subtitle">A simpler workflow designed for speed.</p>
+            <p class="section-subtitle">A simpler workflow designed for speed and fast payments.</p>
           </div>
 
-          <div class="glass-panel d-flex flex-column flex-lg-row align-center justify-space-between mx-auto" style="max-width: 1100px; padding: 2rem; margin-bottom: 0 !important; border-radius: 28px !important;">
-            <div class="d-flex flex-column flex-sm-row align-center mb-6 mb-lg-0">
-              <span class="step-chip" style="font-size: 1.15rem; padding: 1rem 1.8rem;">
-                <v-icon size="small" class="mr-2" color="primary">mdi-pencil-outline</v-icon>
-                1. Input Details
-              </span>
-              <v-icon color="grey-darken-1" class="mx-4 my-3 my-sm-0" size="large">mdi-arrow-right</v-icon>
-              <span class="step-chip" style="font-size: 1.15rem; padding: 1rem 1.8rem;">
-                <v-icon size="small" class="mr-2" color="primary">mdi-palette-outline</v-icon>
-                2. Customize Design
-              </span>
-              <v-icon color="grey-darken-1" class="mx-4 my-3 my-sm-0 d-none d-lg-inline" size="large">mdi-arrow-right</v-icon>
-            </div>
-            
-            <div class="d-flex flex-column flex-sm-row align-center text-center text-sm-left" style="background: rgba(0,0,0,0.15); border-radius: 20px; padding: 1.25rem; border: 1px solid rgba(255,255,255,0.05);">
-              <div class="pe-sm-6">
-                <div class="text-primary font-weight-bold text-uppercase mb-1" style="font-size: 0.8rem; letter-spacing: 1px;">Step 3</div>
-                <h3 class="font-weight-bold text-white mb-2" style="font-size: 1.25rem; line-height: 1.2;">Send & Get Paid Instantly</h3>
-                <p class="text-body-2 text-grey-lighten-1 mb-0" style="line-height: 1.5; max-width: 260px;">
-                  Email the invoice with a clickable Venmo QR code your clients can scan or tap to pay immediately.
-                </p>
+          <div class="how-it-works-grid">
+            <!-- Step 1 -->
+            <div class="step-card d-flex flex-column text-center">
+              <div class="step-number">1</div>
+              <div class="step-icon-wrapper mx-auto mb-6">
+                <v-icon size="48" color="primary">mdi-file-document-edit-outline</v-icon>
               </div>
-              <div class="mt-4 mt-sm-0 flex-shrink-0">
-                <img src="/venmo-qr-with-logo.png" alt="QR Code Payment Flow" style="width: 85px; height: auto; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.3);" />
+              <h3 class="text-h5 font-weight-bold text-white mb-4">Connect or Create Your Stripe Account</h3>
+              <p class="text-body-1 text-grey-lighten-1 mb-0">
+                Unlock online payments instantly — cards, Apple Pay, Google Pay, and ACH.
+              </p>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step-card d-flex flex-column text-center">
+              <div class="step-number">2</div>
+              <div class="step-icon-wrapper mx-auto mb-6">
+                <v-icon size="48" color="primary">mdi-palette-swatch-outline</v-icon>
+              </div>
+              <h3 class="text-h5 font-weight-bold text-white mb-4">Create Your Invoice</h3>
+              <p class="text-body-1 text-grey-lighten-1 mb-0">
+                Add your customer, items, and total. ScanGo formats a clean, professional PDF automatically.
+              </p>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step-card feature-step-card d-flex flex-column text-center">
+              <div class="step-number highlight-number">3</div>
+              <div class="step-icon-wrapper highlight-wrapper mx-auto mb-6">
+                <v-icon size="48" color="white">mdi-cash-fast</v-icon>
+              </div>
+              <h3 class="text-h5 font-weight-bold text-white mb-4">Get Paid Your Way</h3>
+              <p class="text-body-1 text-grey-lighten-1 mb-8">
+                Customers choose their preferred method.
+You get paid fast — directly into your <strong>Stripe</strong> account or <strong>Venmo</strong>.
+              </p>
+              <div class="payment-methods d-flex justify-center align-center ga-4 flex-wrap">
+                 <div class="payment-pill stripe">
+                    <v-icon left size="small">mdi-credit-card-outline</v-icon> Credit Card
+                 </div>
+                 <div class="payment-pill venmo">
+                    <v-icon left size="small">mdi-qrcode-scan</v-icon> Venmo QR
+                 </div>
               </div>
             </div>
           </div>
@@ -165,6 +189,32 @@
           </div>
         </div>
       </section>
+
+      <section class="final-cta pb-16 pt-8">
+        <div class="container">
+          <div class="cta-card text-center mx-auto pa-2 pa-md-8">
+            <h2 class="text-h3 font-weight-bold text-white mb-4">Start Getting Paid Faster Today</h2>
+            <p class="text-h6 text-grey-lighten-1 mb-10 mx-auto" style="max-width: 600px;">
+              Create your first invoice in under 60 seconds and give your customers the flexibility to pay online or via Venmo.
+            </p>
+            <div class="d-flex flex-column flex-sm-row flex-wrap ga-4 mt-8 align-center justify-center">
+                <v-btn @click="handleGoogleSignIn" :loading="loading" variant="outlined" color="white" class="font-weight-bold px-10 cta-btn outline-btn" size="x-large" rounded="xl" :block="mobile">
+                  <svg class="mr-2" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                  </svg>
+                  Start Free with Google
+                </v-btn>
+                <v-btn to="/register" color="white" class="text-black font-weight-bold px-10 cta-btn" size="x-large" rounded="xl" :block="mobile">
+                  <v-icon left size="24" class="mr-2">mdi-email-outline</v-icon>
+                  Or continue with email
+                </v-btn>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
 
     <footer class="footer">
@@ -172,7 +222,7 @@
         <Trustpilot />
         <p>&copy; 2026 ScanGo Invoice. All rights reserved. | <a
             href="mailto:support@scangoinvoice.com">support@scangoinvoice.com</a> | <router-link to="/privacy">Privacy
-            Policy</router-link> | <router-link to="/terms">Terms of Service</router-link> | <a @click="trackDownload('footer_link')" href="/ScanGo_Invoice_Venmo_Setup_Guide.pdf" target="_blank" rel="noopener noreferrer">Setup Guide</a></p>
+            Policy</router-link> | <router-link to="/terms">Terms of Service</router-link> | <a @click="trackDownload('footer_link')" href="/__ScanGo Invoice + Stripe Connect.pdf" target="_blank" rel="noopener noreferrer">Setup Guide</a></p>
       </div>
     </footer>
 
@@ -256,20 +306,12 @@ const trackDownload = (location) => {
 };
 
 const faqs = ref([
-  { question: "How do I create a professional invoice quickly with ScanGo Invoice?", answer: "ScanGo Invoice lets you build a polished, branded invoice in minutes.<br/><br/>Choose a template, customize your colors and logo, and send a flawless PDF instantly — no design skills or setup required.<br/><br/>It’s built for freelancers, contractors, and small businesses who want clean, modern invoices without the complexity of traditional billing software." },
-  { question: "Can I add a Venmo QR code to my invoices?", answer: "Yes. ScanGo Invoice automatically generates a branded Venmo QR code and embeds it directly into your invoice.<br/><br/>Clients can scan or click the QR code to pay instantly, giving you a fast, modern payment experience that accelerates cash flow." },
-  { question: "Are the QR codes on ScanGo invoices clickable in the PDF?", answer: "They are. Every invoice includes a fully clickable QR code that works on desktop and mobile.<br/><br/>Clients can tap the code in the PDF or scan it with their phone — whichever is easier — making payment frictionless." },
-  { question: "What’s the easiest way to accept mobile payments from clients?", answer: "ScanGo Invoice integrates Venmo QR payments directly into your invoice design.<br/><br/>Your clients don't need to manually type in your username or payment details — they simply scan the code with their phone to open Venmo and submit payment.<br/><br/>It’s one of the fastest ways to get paid for freelance work, services, or project‑based billing." },
-  { question: "What invoice templates does ScanGo Invoice offer?", answer: "You get four agency‑quality templates — Classic, Modern, Corporate, and Solid.<br/><br/>Each template is fully customizable with your brand colors, logo, and layout preferences.<br/><br/>The live preview ensures your invoice looks exactly right before you send it." },
-  { question: "Can I send invoices directly to clients from ScanGo Invoice?", answer: "Yes. With integrated PDF and email delivery, you can generate a high‑fidelity invoice and send it to your client’s inbox with a single click.<br/><br/>No exporting, no attachments to manage, no switching apps." },
-  { question: "Will my invoices look clean and professional when printed?", answer: "Absolutely. ScanGo Invoice uses high‑fidelity PDF rendering, ensuring crisp text, accurate colors, and a polished layout whether viewed digitally or printed." },
-  { question: "Is ScanGo Invoice good for freelancers and small businesses?", answer: "Yes. ScanGo Invoice is designed for freelancers, contractors, consultants, agencies, and service providers who want a simple, modern invoicing workflow.<br/><br/>You can create unlimited invoices for unlimited clients without dealing with bloated accounting software." },
-  { question: "Do my clients need a Venmo account to pay me?", answer: "Only if they choose to pay through Venmo.<br/><br/>Your invoice still supports any payment method you normally accept — Venmo is simply an optional, fast, mobile‑friendly way to get paid." },
-  { question: "Can I customize invoice colors to match my brand?", answer: "Yes. Every template supports full color customization, so your invoices always look consistent with your brand identity.<br/><br/>Your logo, colors, and layout stay intact across every invoice you send." },
-  { question: "How does ScanGo Invoice handle email deliverability?", answer: "Invoices are sent using optimized email formatting to reduce spam‑filter issues.<br/><br/>If a client misses an invoice, you can resend it instantly from your dashboard." },
-  { question: "How do I preview my invoice before sending it?", answer: "ScanGo Invoice includes a quick preview, so you always see what your client will see.<br/><br/>No surprises, no formatting issues, no guesswork." },
-  { question: "Is my data secure when using ScanGo Invoice?", answer: "Your invoice data, client details, and payment links are handled using modern security best practices.<br/><br/>Nothing is shared or stored beyond what’s required to generate and deliver your invoices." },
-  { question: "What makes ScanGo Invoice different from other invoice generators?", answer: "ScanGo Invoice focuses on speed, simplicity, and modern payment integration.<br/><br/>You get:<br/><ul class='mt-2 mb-2'><li class='ml-4'>Branded Venmo QR codes</li><li class='ml-4'>Clickable QR payments inside PDFs</li><li class='ml-4'>Agency‑quality templates</li><li class='ml-4'>One‑click email delivery</li><li class='ml-4'>A clean, minimal interface</li></ul>No clutter. No accounting bloat. Just beautiful invoices and faster payments." },
+  { question: "What is the primary payment method on ScanGo?", answer: "Online payments through Stripe — including cards, Apple Pay, Google Pay, and ACH." },
+  { question: "Can customers still pay with Venmo?", answer: "Yes. Just enter your Venmo business id in your user settings and every invoice will include your branded Venmo QR code as a lower‑fee backup option." },
+  { question: "Do I need a Stripe account?", answer: "Yes — but you can create or link one directly inside ScanGo." },
+  { question: "Do customers need a ScanGo or Stripe account?", answer: "No. They simply click the payment link or scan the QR code." },
+  { question: "Where do payouts go?", answer: "Directly to your Stripe account or Venmo, depending on which method you configure." },
+  { question: "Is ScanGo secure?", answer: "Yes. Payments are processed through Stripe and Venmo, and all invoice data is encrypted." },
 ]);
 
 const showDashboardPreview = ref(false);
@@ -322,7 +364,7 @@ const faqSchema = {
 
 useMeta(
   'ScanGo Invoice | Simple Digital Invoicing',
-  'Create, download, and track professional invoices for a simple monthly or yearly price. ScanGo Invoice is packed with features to help you get paid faster. Perfect tool for small businesses and individuals looking to streamline their invoice management.',
+  'Create, download, and track professional invoices for a simple monthly or yearly price. ScanGo Invoice will generate a custom QR code to accept payment direction to your Stripe account, bank account, or Venmo account. Perfect tool for small businesses and individuals looking to streamline their invoice management.',
   faqSchema
 );
 
@@ -420,18 +462,50 @@ main section[id] {
   display: block;
 }
 
-.hero-image .hero-gif {
+.iphone-frame-wrapper {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  border-radius: 32px;
-  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
-  object-fit: contain;
-  opacity: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   animation: fadeOutGif 1.5s ease-in-out forwards;
   animation-delay: 14s; /* Set to approximate gif duration */
+}
+
+.iphone-frame {
+  position: relative;
+  height: 90%;
+  max-height: 800px;
+  aspect-ratio: 9 / 19.5;
+  background-color: #000;
+  border-radius: 36px;
+  border: 10px solid #1e293b;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 2px #334155;
+  overflow: hidden;
+}
+
+.iphone-frame .notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40%;
+  height: 24px;
+  background-color: #1e293b;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  z-index: 20;
+}
+
+.hero-image .hero-gif {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 26px; /* Inner radius */
+  display: block;
 }
 
 @keyframes fadeOutGif {
@@ -542,72 +616,109 @@ main section[id] {
   background-color: #0c1522;
 }
 
-.compact-steps {
+.how-it-works-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+@media (min-width: 960px) {
+  .how-it-works-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+}
+
+.step-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(10px) !important;
+  border-radius: 12px !important;
+  color: #fff !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+  overflow: visible !important;
+  margin-top: 2rem !important;
+  padding: 3rem 2rem 2rem 2rem !important;
+  height: 100%;
+}
+
+.step-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4) !important;
+}
+
+.step-number {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 48px;
+  background: #1e293b;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 50%;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(10px);
-  padding: 2rem;
-  border-radius: 32px;
-  max-width: 900px;
-  margin: 0 auto;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-}
-
-@media (min-width: 768px) {
-  .compact-steps {
-    flex-direction: row;
-    padding: 1.5rem 3rem;
-    border-radius: 100px;
-  }
-}
-
-.compact-title {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.25rem;
+  font-weight: bold;
   color: #fff;
-  margin: 0 0 1.5rem 0;
-  white-space: nowrap;
+  z-index: 2;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
-@media (min-width: 768px) {
-  .compact-title {
-    margin: 0 2rem 0 0;
-  }
+.highlight-number {
+  background: linear-gradient(135deg, #4ade80, #06b6d4);
+  border: none;
+  box-shadow: 0 4px 15px rgba(74, 222, 128, 0.4);
 }
 
-.steps-row {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-@media (min-width: 768px) {
-  .steps-row {
-    flex-direction: row;
-    gap: 0;
-  }
-}
-
-.step-chip {
-  display: flex;
-  align-items: center;
-  font-size: 1.05rem;
-  color: #e2e8f0;
-  font-weight: 600;
+.step-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
   background: rgba(255, 255, 255, 0.05);
-  padding: 0.6rem 1.25rem;
-  border-radius: 50px;
-  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.step-chip:hover {
-  background: rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
+.highlight-wrapper {
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.2), rgba(6, 182, 212, 0.2));
+  border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+.feature-step-card {
+  border: 1px solid rgba(74, 222, 128, 0.3) !important;
+  background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(74,222,128,0.05) 100%) !important;
+}
+
+.payment-methods {
+  margin-top: auto;
+}
+
+.payment-pill {
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.payment-pill.stripe {
+  background: rgba(99, 91, 255, 0.15);
+  color: #a5a0ff;
+  border: 1px solid rgba(99, 91, 255, 0.3);
+}
+
+.payment-pill.venmo {
+  background: rgba(0, 140, 255, 0.15);
+  color: #66b5ff;
+  border: 1px solid rgba(0, 140, 255, 0.3);
 }
 
 /* FAQ Section */
@@ -671,6 +782,27 @@ main section[id] {
 .glow-btn:hover {
   box-shadow: 0 12px 35px rgba(25, 118, 210, 0.6);
   transform: translateY(-2px);
+}
+
+/* Final CTA */
+.final-cta {
+  background-color: transparent;
+}
+
+.cta-card {
+  background: linear-gradient(145deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.7));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.cta-link {
+  transition: color 0.3s ease;
+}
+
+.cta-link:hover {
+  color: #fff !important;
 }
 
 /* Footer */
