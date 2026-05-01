@@ -45,7 +45,7 @@ const outstandingTotal = computed(() => {
 });
 
 const totalInvoicesCount = computed(() => 
-    invoices.value.filter(i => i.status && i.status.toLowerCase() !== 'quote').length
+    invoices.value.filter(i => i.status && i.status.toLowerCase() !== 'estimate').length
 );
 
 

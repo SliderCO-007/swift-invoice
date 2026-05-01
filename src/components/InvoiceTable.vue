@@ -20,7 +20,7 @@ const router = useRouter();
 const statusOrder = {
   'Overdue': 1,
   'Pending': 2,
-  'Quote': 3,
+  'Estimate': 3,
   'Paid': 4,
   'Draft': 5,
 };
@@ -64,7 +64,7 @@ const getStatusColor = (status) => {
     case 'paid': return 'green-darken-2';
     case 'pending': return 'orange-darken-2';
     case 'overdue': return 'red-darken-2';
-    case 'quote': return 'blue-darken-1';
+    case 'estimate': return 'blue-darken-1';
     case 'draft': return 'grey-darken-1';
     default: return 'grey';
   }

@@ -41,7 +41,6 @@ function createFreshInvoice() {
     dueDate: new Date(),
     notes: 'Thank you for your business!',
     taxRate: 0,
-    includeVenmoQr: false,
     style: 'classic',
     primaryColor: '#1a3a52',
   };
@@ -244,7 +243,7 @@ onUnmounted(() => {
         <div class="form-section responsive-grid">
           <div>
             <h3>Invoice Status</h3>
-            <v-radio-group v-model="invoice.status" inline><v-radio label="Pending" value="pending"></v-radio><v-radio label="Quote" value="quote"></v-radio></v-radio-group>
+            <v-radio-group v-model="invoice.status" inline><v-radio label="Pending" value="pending"></v-radio><v-radio label="Estimate" value="estimate"></v-radio></v-radio-group>
           </div>
           <div>
             <h3>Invoice Style</h3>
@@ -260,10 +259,6 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <div class="form-section">
-          <h3>Payment Options</h3>
-          <v-switch v-model="invoice.includeVenmoQr" label="Include QR Code" color="primary"></v-switch>
-        </div>
 
         <div class="form-section responsive-grid">
           <div><v-textarea label="Notes" v-model="invoice.notes" variant="solo"></v-textarea></div>

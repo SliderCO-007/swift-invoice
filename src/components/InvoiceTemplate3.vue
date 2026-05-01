@@ -24,8 +24,6 @@ const total = computed(() => props.invoice.total || 0)
 const paymentUrl = computed(() => {
   if (props.userProfile?.chargesEnabled && props.invoice?.id) {
     return `${window.location.origin}/pay/${props.invoice.id}`
-  } else if (props.invoice.includeVenmoQr && props.settings?.company?.venmoUsername) {
-    return `https://venmo.com/${props.settings.company.venmoUsername}`
   }
   return null
 })
@@ -33,9 +31,8 @@ const paymentUrl = computed(() => {
 const paymentQrImageUrl = computed(() => {
   if (props.userProfile?.chargesEnabled && props.invoice?.id) {
     return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&ecc=H&data=${encodeURIComponent(paymentUrl.value)}`
-  } else {
-    return props.settings?.company?.venmoQrUrl
   }
+  return null
 })
 
 
@@ -149,12 +146,12 @@ const formatCurrency = (value) => {
             <p>{{ invoice.notes }}</p>
           </div>
           <div
-            v-if="(invoice.includeVenmoQr || userProfile?.chargesEnabled) && paymentQrImageUrl"
+            v-if="userProfile?.chargesEnabled && paymentQrImageUrl"
             class="payment-qr-code qr-section"
           >
-            <h3>{{ userProfile?.chargesEnabled ? 'Scan or click to pay Online Securely' : 'Scan or click to pay' }}</h3>
+            <h3>Scan or click to pay Online Securely</h3>
             <a :href="paymentUrl" target="_blank" rel="noopener noreferrer" style="position: relative; display: inline-block;">
-              <img :src="paymentQrImageUrl" :alt="userProfile?.chargesEnabled ? 'Pay via Stripe' : 'Pay via Venmo'" class="qr-code" crossorigin="anonymous" style="display: block;" />
+              <img :src="paymentQrImageUrl" alt="Pay via Stripe" class="qr-code" crossorigin="anonymous" style="display: block;" />
               <img v-if="userProfile?.chargesEnabled && settings?.company?.logoUrl" :src="settings.company.logoUrl" crossorigin="anonymous" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 28%; height: 28%; object-fit: contain; background: white; border-radius: 4px; padding: 2px;" />
             </a>
           </div>

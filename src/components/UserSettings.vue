@@ -37,10 +37,8 @@ const previewLoading = ref(false);
 const previewMessage = ref('');
 const previewError = ref('');
 
-const isHelpDialogVisible = ref(false);
-
 const localSettings = ref({
-  company: { name: '', email: '', address1: '', address2: '', city: '', state: '', zip: '', logoUrl: '', venmoUsername: '', venmoQrUrl: '', primaryColor: '#1a3a52' },
+  company: { name: '', email: '', address1: '', address2: '', city: '', state: '', zip: '', logoUrl: '', primaryColor: '#1a3a52' },
   taxRate: 0,
   currency: 'USD',
 });
@@ -52,9 +50,6 @@ const isSubscribed = computed(() => {
 watch(settings, (newSettings) => {
   if (newSettings) {
     localSettings.value = JSON.parse(JSON.stringify(newSettings));
-    if (!localSettings.value.company.venmoUsername) {
-        localSettings.value.company.venmoUsername = '';
-    }
     logoPreview.value = newSettings.company.logoUrl;
   }
 }, { deep: true, immediate: true });
@@ -76,7 +71,7 @@ const onFileChange = (e, type) => {
 const handleSave = async () => {
   await saveUserSettings(localSettings.value, logoFile.value);
   if (!error.value) {
-    successMessage.value = 'Settings saved successfully! Your Venmo QR Code will be updated shortly.';
+    successMessage.value = 'Settings saved successfully!';
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setTimeout(() => { successMessage.value = '' }, 5000);
   }
@@ -193,7 +188,7 @@ const goToPricing = () => {
               <div class="stripe-header">
                 <div class="stripe-title-wrapper">
                   <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" class="stripe-logo" crossorigin="anonymous" />
-                  <h4>Accept Payments with Stripe</h4>
+                  <h4>Online Payment Collection</h4>
                 </div>
                 <div class="stripe-status" :class="{ 'connected': connectStatus.chargesEnabled }">
                   <span class="status-indicator"></span>
@@ -203,13 +198,13 @@ const goToPricing = () => {
               
               <div class="stripe-body">
                 <p v-if="connectStatus.chargesEnabled">
-                  Your Stripe account is successfully connected. Customers can now pay your invoices directly using credit cards or other Stripe payment methods.
+                  ScanGo Invoice is fully connected. Your customers can now pay invoices instantly using credit cards, Apple Pay, Google Pay, and more.
                 </p>
                 <p v-else-if="connectStatus.connected">
-                  Your Stripe account is connected, but we need more information before you can accept payments. Please resume onboarding.
+                  Your payment account is connected, but we need a bit more information before ScanGo can start collecting payments. Please resume onboarding.
                 </p>
                 <p v-else>
-                  Connect your Stripe account to let your customers pay invoices directly from a secure payment page. (A 0.5% platform fee applies to payments processed).
+                  Connect your payment account to let ScanGo Invoice collect payments directly from your customers via a secure, branded payment page. (A 0.5% platform fee applies).
                 </p>
                 
                 <v-btn 
@@ -224,26 +219,7 @@ const goToPricing = () => {
               </div>
             </div>
 
-            <div class="form-grid mt-6">
-                <div class="form-group full-width">
-                    <label for="venmoUsername" class="venmo-label">
-                        Venmo Fallback Username
-                        <v-tooltip location="top">
-                          <template v-slot:activator="{ props }">
-                            <v-icon v-bind="props" @click.stop.prevent="" size="small" class="help-icon">mdi-help-circle-outline</v-icon>
-                          </template>
-                          <span>If Stripe is not connected, a Venmo QR code will be generated on your invoices using this handle.</span>
-                        </v-tooltip>
-                    </label>
-                    <v-text-field
-                      id="venmoUsername"
-                      v-model="localSettings.company.venmoUsername"
-                      placeholder="YourVenmoHandle"
-                      variant="solo"
-                      prepend-inner-icon="mdi-at"
-                    ></v-text-field>
-                </div>
-            </div>
+
         </div>
 
         <footer class="settings-footer">
@@ -253,20 +229,6 @@ const goToPricing = () => {
       </form>
     </div>
 
-    <v-dialog v-model="isHelpDialogVisible" max-width="500px">
-        <v-card class="help-dialog-card">
-            <v-card-title class="headline">Automatic Venmo QR Code</v-card-title>
-            <v-card-text>
-                By entering your <strong>Venmo username or business profile</strong>, we will automatically generate a custom QR code for you.
-                <br/><br/>
-                This QR code will be placed on your invoices, making it easy for your customers to pay you. If you have a company logo uploaded, it will be automatically placed in the center of the QR code.
-            </v-card-text>
-            <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="indigo-darken-3" text @click="isHelpDialogVisible = false">Got it</v-btn>
-            </v-card-actions>
-        </v-card>
-    </v-dialog>
 
   </div>
 </template>
@@ -302,7 +264,6 @@ const goToPricing = () => {
 .success-notification { width: 100%; text-align: center; color: #4ade80; margin-bottom: 1.5rem; }
 .error-notification { color: #f87171; }
 
-.venmo-label { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-weight: 600; color: #e2e8f0; font-size: 0.875rem; }
 .help-icon { color: #94a3b8; }
 .help-dialog-card { padding: 1rem; background-color: #1e293b; color: #f1f5f9; }
 .help-dialog-card .headline { font-weight: 600; color: #fff; }

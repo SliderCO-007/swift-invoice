@@ -106,6 +106,12 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/pay/demo',
+    name: 'DemoPayment',
+    component: () => import('../components/DemoPayment.vue'),
+    meta: { requiresAuth: false }
+  },
+  {
     path: '/pay/:invoiceId',
     name: 'PublicPayment',
     component: () => import('../components/PublicPayment.vue'),

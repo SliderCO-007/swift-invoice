@@ -1,14 +1,14 @@
 # ScanGo Invoice Blueprint
 
 ## Overview
-ScanGo Invoice is a modern, responsive Vue.js application that allows users to create, send, and track professional invoices. It features multiple invoice templates, PDF generation, instant payments via Venmo QR codes, and a generous free tier for users.
+ScanGo Invoice is a modern, responsive Vue.js application that allows users to create, send, and track professional invoices. It features multiple invoice templates, PDF generation, and instant online payments via Stripe Connect.
 
 ## Application Architecture & Design System
 - **Core Functionality:** User authentication, invoice creation with line items, tax calculation, client management.
-- **Templates:** Classic, Modern, and Corporate invoice styles.
+- **Templates:** Classic, Modern, Corporate, and Solid invoice styles.
 - **Features:** 
-  - Venmo QR code integration for instant payments.
-  - "Scan or click to pay" feature for QR codes.
+  - Stripe Connect integration for instant online payments (credit cards, Apple Pay, Google Pay, ACH).
+  - "Scan or click to pay" QR code powered by Stripe (shown only when merchant's Stripe account has charges enabled).
   - PDF generation and email sending.
   - Simple client and item management.
 - **Design System (v2 Dark Theme):** 
@@ -18,14 +18,17 @@ ScanGo Invoice is a modern, responsive Vue.js application that allows users to c
   - **Glassmorphism:** Cards, dialogs, and panels utilize slightly transparent white backgrounds (`rgba(255, 255, 255, 0.03)`), borders (`rgba(255, 255, 255, 0.08)`), and backdrops (`blur(16px)`).
   - **Glow & Interactions:** Soft drop shadows (`rgba(0,0,0,0.4)`) and glowing interactive elements using the primary brand color to build depth.
 
-## Current Action Plan: Update Landing Page FAQs
+## Current Action Plan: Remove Venmo as a Payment Option
 
 ### Goal
-Update the Frequently Asked Questions (FAQs) content on the landing page to accurately reflect current features, such as Stripe payment processing, Venmo backup, and account requirements.
+Remove all Venmo-related functionality from the application in preparation for a new feature set.
 
 ### Steps
-1. **Update Content (`LandingPage.vue`)**: Modified the `faqs` reactive reference within the setup script to contain the new set of six targeted questions and answers.
-2. **Schema Integration**: Because the `faqSchema` maps directly over the `faqs.value` array, updating the `faqs` reference automatically updates the JSON-LD schema generated for SEO without requiring structural changes to `faqSchema`.
+1. **`useUserSettings.js`**: Removed `venmoQrUrl` and `venmoUsername` from the default settings object. Removed the `generateVenmoQR` Firebase Function call from `saveUserSettings`. Cleaned up unused `functions` and `httpsCallable` imports.
+2. **`UserSettings.vue`**: Removed the Venmo Fallback Username form field, the Venmo help dialog, the `.venmo-label` CSS class, and the `isHelpDialogVisible` ref. Updated success message.
+3. **`InvoiceEditor.vue`**: Removed `includeVenmoQr` from the `createFreshInvoice` data model and removed the "Payment Options" section with the QR code toggle switch.
+4. **`InvoiceTemplate.vue`** (Classic), **`InvoiceTemplate2.vue`** (Modern), **`InvoiceTemplate3.vue`** (Corporate), **`InvoiceTemplate4.vue`** (Solid): Simplified `paymentUrl` and `paymentQrImageUrl` computed properties to only handle Stripe. Updated `v-if` on the QR block to only show when `chargesEnabled`. Removed all Venmo-specific alt text and labels.
+5. **`LandingPage.vue`**: Updated hero subtitle, "Get Paid Your Way" step card (replaced Venmo QR pill with ACH/Bank pill), final CTA text, FAQs (removed Venmo FAQ, updated payout/security answers), and SEO meta description. Removed `.payment-pill.venmo` CSS rule.
 
 ### Status
-- **Completed**: The landing page now displays the updated, Stripe-and-Venmo-focused FAQs both visually on the page and systematically within the page metadata.
+- **Completed**: All Venmo references have been removed from the frontend codebase. Payment functionality now exclusively uses Stripe Connect.

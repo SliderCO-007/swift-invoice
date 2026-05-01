@@ -10,7 +10,7 @@
               </div>
               <h1 class="hero-title">Get Paid Online</h1>
               <h1 class="hero-title"><span class="text-gradient">Fast, Simple, and Professional</span></h1>
-              <p class="hero-subtitle">Create invoices in seconds and let your customers pay instantly using credit/debit cards, Apple Pay, Google Pay, or ACH through Stripe.<br/><br/>Prefer lower fees? Add your Venmo Business ID to create a custom QR code. Get paid instantly!</p>
+              <p class="hero-subtitle">Create invoices in seconds and let your customers pay instantly using credit/debit cards, Apple Pay, Google Pay, or ACH — all from a secure ScanGo payment page, directly into your account.</p>
               <div class="d-flex flex-column flex-sm-row flex-wrap ga-4 mt-8 align-center justify-center justify-md-start">
                 <v-btn @click="handleGoogleSignIn" :loading="loading" variant="outlined" color="white" class="font-weight-bold px-10 cta-btn outline-btn" size="x-large" rounded="xl" :block="mobile">
                   <svg class="mr-2" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -121,9 +121,9 @@
               <div class="step-icon-wrapper mx-auto mb-6">
                 <v-icon size="48" color="primary">mdi-file-document-edit-outline</v-icon>
               </div>
-              <h3 class="text-h5 font-weight-bold text-white mb-4">Connect or Create Your Stripe Account</h3>
+              <h3 class="text-h5 font-weight-bold text-white mb-4">Enable Instant Online Payments</h3>
               <p class="text-body-1 text-grey-lighten-1 mb-0">
-                Unlock online payments instantly — cards, Apple Pay, Google Pay, and ACH.
+                Connect your payment account in minutes and start accepting cards, Apple Pay, Google Pay, and ACH — all through ScanGo Invoice.
               </p>
             </div>
 
@@ -135,7 +135,7 @@
               </div>
               <h3 class="text-h5 font-weight-bold text-white mb-4">Create Your Invoice</h3>
               <p class="text-body-1 text-grey-lighten-1 mb-0">
-                Add your customer, items, and total. ScanGo formats a clean, professional PDF automatically.
+                Add your customer, items, and total. ScanGo formats a clean, professional PDF automatically to email to your customer.
               </p>
             </div>
 
@@ -148,14 +148,14 @@
               <h3 class="text-h5 font-weight-bold text-white mb-4">Get Paid Your Way</h3>
               <p class="text-body-1 text-grey-lighten-1 mb-8">
                 Customers choose their preferred method.
-You get paid fast — directly into your <strong>Stripe</strong> account or <strong>Venmo</strong>.
+You get paid fast — funds land directly into your account.
               </p>
               <div class="payment-methods d-flex justify-center align-center ga-4 flex-wrap">
                  <div class="payment-pill stripe">
                     <v-icon left size="small">mdi-credit-card-outline</v-icon> Credit Card
                  </div>
-                 <div class="payment-pill venmo">
-                    <v-icon left size="small">mdi-qrcode-scan</v-icon> Venmo QR
+                 <div class="payment-pill stripe">
+                    <v-icon left size="small">mdi-bank-outline</v-icon> ACH / Bank
                  </div>
               </div>
             </div>
@@ -195,7 +195,7 @@ You get paid fast — directly into your <strong>Stripe</strong> account or <str
           <div class="cta-card text-center mx-auto pa-2 pa-md-8">
             <h2 class="text-h3 font-weight-bold text-white mb-4">Start Getting Paid Faster Today</h2>
             <p class="text-h6 text-grey-lighten-1 mb-10 mx-auto" style="max-width: 600px;">
-              Create your first invoice in under 60 seconds and give your customers the flexibility to pay online or via Venmo.
+              Create your first invoice in under 60 seconds and give your customers a fast, secure way to pay online — no accounts required.
             </p>
             <div class="d-flex flex-column flex-sm-row flex-wrap ga-4 mt-8 align-center justify-center">
                 <v-btn @click="handleGoogleSignIn" :loading="loading" variant="outlined" color="white" class="font-weight-bold px-10 cta-btn outline-btn" size="x-large" rounded="xl" :block="mobile">
@@ -306,12 +306,11 @@ const trackDownload = (location) => {
 };
 
 const faqs = ref([
-  { question: "What is the primary payment method on ScanGo?", answer: "Online payments through Stripe — including cards, Apple Pay, Google Pay, and ACH." },
-  { question: "Can customers still pay with Venmo?", answer: "Yes. Just enter your Venmo business id in your user settings and every invoice will include your branded Venmo QR code as a lower‑fee backup option." },
-  { question: "Do I need a Stripe account?", answer: "Yes — but you can create or link one directly inside ScanGo." },
-  { question: "Do customers need a ScanGo or Stripe account?", answer: "No. They simply click the payment link or scan the QR code." },
-  { question: "Where do payouts go?", answer: "Directly to your Stripe account or Venmo, depending on which method you configure." },
-  { question: "Is ScanGo secure?", answer: "Yes. Payments are processed through Stripe and Venmo, and all invoice data is encrypted." },
+  { question: "How do customers pay on ScanGo?", answer: "Customers receive a payment link or scan a QR code on the invoice. They pay using credit/debit cards, Apple Pay, Google Pay, or ACH — no app or account needed." },
+  { question: "Do I need a separate payment account?", answer: "Yes — ScanGo connects to your existing payment account or helps you set one up. It only takes a few minutes from your Settings page." },
+  { question: "Do customers need a ScanGo account to pay?", answer: "No. They simply click the payment link or scan the QR code on the invoice." },
+  { question: "Where do payouts go?", answer: "Directly into your bank account, typically within 2 business days." },
+  { question: "Is ScanGo secure?", answer: "Yes. All payments are processed through Stripe and all invoice data is encrypted." },
 ]);
 
 const showDashboardPreview = ref(false);
@@ -364,7 +363,7 @@ const faqSchema = {
 
 useMeta(
   'ScanGo Invoice | Simple Digital Invoicing',
-  'Create, download, and track professional invoices for a simple monthly or yearly price. ScanGo Invoice will generate a custom QR code to accept payment direction to your Stripe account, bank account, or Venmo account. Perfect tool for small businesses and individuals looking to streamline their invoice management.',
+  'Create, download, and track professional invoices for a simple monthly or yearly price. ScanGo Invoice generates branded payment links and QR codes so customers can pay instantly — no app required. Perfect for small businesses and freelancers.',
   faqSchema
 );
 
@@ -715,11 +714,6 @@ main section[id] {
   border: 1px solid rgba(99, 91, 255, 0.3);
 }
 
-.payment-pill.venmo {
-  background: rgba(0, 140, 255, 0.15);
-  color: #66b5ff;
-  border: 1px solid rgba(0, 140, 255, 0.3);
-}
 
 /* FAQ Section */
 .faq-section {

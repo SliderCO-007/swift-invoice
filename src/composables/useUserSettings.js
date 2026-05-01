@@ -1,15 +1,14 @@
 import { ref, watchEffect } from 'vue';
 import { doc, setDoc, getDoc, onSnapshot } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage, functions } from './useFirebase'; // Import the centralized 'functions' instance
+import { db, storage } from './useFirebase';
 import { currentUser } from './useAuth';
-import { httpsCallable } from 'firebase/functions'; // Only import httpsCallable
 
 function getInitialSettings() {
   return {
     company: {
       name: '', email: '', address1: '', address2: '', city: '', state: '', zip: '',
-      logoUrl: '', venmoQrUrl: '', venmoUsername: '', primaryColor: '#1a3a52'
+      logoUrl: '', primaryColor: '#1a3a52'
     },
     taxRate: 0,
     invoiceCounter: 0,
@@ -102,8 +101,6 @@ const saveUserSettings = async (newSettings, logoFile) => {
   error.value = null;
 
   try {
-    const newVenmoUsername = newSettings.company.venmoUsername;
-
     let logoUrl = newSettings.company.logoUrl;
     if (logoFile) {
       const logoStorageRef = storageRef(storage, `logos/${user.uid}/${logoFile.name}`);
@@ -118,14 +115,6 @@ const saveUserSettings = async (newSettings, logoFile) => {
     
     const docRef = doc(db, 'userSettings', user.uid);
     await setDoc(docRef, settingsToSave, { merge: true });
-
-    // If a Venmo username is present, generate the QR code.
-    if (newVenmoUsername) {
-      console.log('Venmo username present. Calling generateVenmoQR...');
-      // Use the imported 'functions' instance directly
-      const generateVenmoQR = httpsCallable(functions, 'generateVenmoQR');
-      await generateVenmoQR({ venmoUsername: newVenmoUsername });
-    }
 
   } catch (err) {
     console.error("Fatal error saving user settings: ", err);

@@ -9,7 +9,7 @@
           <div class="feature-row">
             <div class="feature-text">
               <h2>Direct Online Payments</h2>
-              <p>Accelerate your cash flow. Accept credit card payments securely through our integrated Stripe checkout, or embed a branded Venmo QR code for quick mobile payments.</p>
+              <p>Accelerate your cash flow. Accept credit card payments, Apple Pay, Google Pay, and ACH directly through ScanGo Invoice's secure checkout — no redirect, no third-party app required.</p>
               <ul class="feature-bullets">
                 <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Secure credit card checkout</li>
                 <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Clickable payment links & QR codes</li>
@@ -17,7 +17,20 @@
             </div>
             <div class="feature-image">
               <div class="mockup-card qr-mockup">
-                <img src="/venmo-qr-with-logo.png" alt="Venmo QR Code with Logo" class="qr-img" />
+                <div class="qr-wrapper">
+                  <img
+                    src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&ecc=H&data=https%3A%2F%2Fscangoinvoice.com%2Fpay%2Fdemo"
+                    alt="Scan to see a demo payment page"
+                    class="qr-img"
+                    crossorigin="anonymous"
+                  />
+                  <img
+                    src="/Logo.png"
+                    alt="ScanGo Logo"
+                    class="qr-logo-overlay"
+                  />
+                </div>
+                <p class="qr-caption">Scan to see a live demo</p>
               </div>
             </div>
           </div>
@@ -80,7 +93,7 @@ import Trustpilot from './TrustpilotWidget.vue';
 
 useMeta(
   'Features | ScanGo Invoice',
-  'Discover all the powerful features of ScanGo Invoice. Professional templates, direct online payments, Venmo QR codes, PDF downloads, and integrated email delivery.',
+  'Discover all the powerful features of ScanGo Invoice. Professional templates, direct online payments, branded payment QR codes, PDF downloads, and integrated email delivery.',
 );
 </script>
 
@@ -217,11 +230,39 @@ useMeta(
   max-width: 250px;
 }
 
+.qr-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
 .qr-img {
   width: 100%;
   height: auto;
   border-radius: 12px;
   display: block;
+}
+
+.qr-logo-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 22%;
+  height: 22%;
+  object-fit: contain;
+  background: white;
+  border-radius: 6px;
+  padding: 3px;
+}
+
+.qr-caption {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-align: center;
+  letter-spacing: 0.04em;
 }
 
 .qr-mockup:hover {

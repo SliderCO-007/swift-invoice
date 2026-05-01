@@ -198,7 +198,7 @@ const deleteInvoice = async (id) => {
   color: #721C24;
 }
 
-.status-quote {
+.status-estimate {
   background-color: #D6EAF8;
   color: #2874A6;
 }

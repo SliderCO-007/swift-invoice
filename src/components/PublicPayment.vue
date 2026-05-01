@@ -77,6 +77,7 @@ const handlePay = async () => {
     <div v-else-if="invoice" class="payment-card">
       <div class="company-header">
         <h2>{{ invoice.companyName }}</h2>
+        <p class="header-sub">Secure Payment Portal</p>
       </div>
       
       <div class="invoice-summary">
@@ -127,6 +128,12 @@ const handlePay = async () => {
           >
             Pay {{ formattedTotal }}
           </v-btn>
+          <div class="method-icons">
+            <v-icon size="28" class="method-icon">mdi-credit-card-outline</v-icon>
+            <v-icon size="28" class="method-icon">mdi-apple</v-icon>
+            <v-icon size="28" class="method-icon">mdi-google</v-icon>
+            <v-icon size="28" class="method-icon">mdi-bank-outline</v-icon>
+          </div>
           <div class="secure-badge">
             <v-icon size="small" class="mr-1">mdi-lock</v-icon>
             Payments are securely processed by Stripe
@@ -138,14 +145,17 @@ const handlePay = async () => {
 </template>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 .payment-container {
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #f8fafc;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   padding: 2rem;
   font-family: 'Inter', sans-serif;
+  position: relative;
 }
 
 .loading-state, .error-state {
@@ -166,16 +176,23 @@ const handlePay = async () => {
 }
 
 .company-header {
-  background: #1e293b;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   color: white;
   padding: 2rem;
   text-align: center;
 }
 
 .company-header h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.header-sub {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
 }
 
 .invoice-summary {
@@ -281,10 +298,21 @@ const handlePay = async () => {
 
 .pay-btn {
   text-transform: none;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0;
   font-size: 1.1rem;
-  border-radius: 8px;
+  border-radius: 10px !important;
+}
+
+.method-icons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.method-icon {
+  color: #94a3b8;
 }
 
 .secure-badge {

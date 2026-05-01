@@ -37,7 +37,7 @@ exports.sendWelcomeEmail = onDocumentCreated("users/{userId}", async (event) => 
                     <h2 style="color: #f8fafc; font-size: 18px; margin-top: 0; margin-bottom: 16px;">Here's what you can do right away:</h2>
                     <ul style="color: #cbd5e1; font-size: 15px; line-height: 1.8; margin: 0; padding-left: 20px;">
                         <li>📝 <strong>Create Professional Invoices:</strong> Stand out with clean, customizable invoices generated in seconds.</li>
-                        <li>📱 <strong>Accept Online Payments:</strong> Get paid directly via credit card using our secure Stripe Connect integration or your custom branded Venmo QR code.</li>
+                        <li>📱 <strong>Accept Online Payments:</strong> Get paid instantly via credit card, Apple Pay, Google Pay, and ACH — all through ScanGo Invoice's secure, branded payment page.</li>
                         <li>📊 <strong>Business Insights:</strong> Track paid, pending, and overdue invoices easily.</li>
                         <li>📈 <strong>End-to-End Business Tracking:</strong> Manage your billing lifecycle seamlessly from first contact to final payment.</li>
                     </ul>

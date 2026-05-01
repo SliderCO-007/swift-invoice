@@ -182,15 +182,12 @@ const generatePDF = async (outputType = 'save') => {
     
     let qrRect = null
     let qrUrl = null
-    const qrCodeEl = iframeDoc.querySelector('.venmo-qr-code img, .venmo-qr-code-modern img, .qr-section img, .payment-qr-code img')
-    const qrAnchorEl = iframeDoc.querySelector('.venmo-qr-code a, .venmo-qr-code-modern a, .qr-section a, .payment-qr-code a')
+    const qrCodeEl = iframeDoc.querySelector('.qr-section img, .payment-qr-code img')
+    const qrAnchorEl = iframeDoc.querySelector('.qr-section a, .payment-qr-code a')
     
     if (qrCodeEl && qrAnchorEl && qrAnchorEl.href) {
       qrRect = qrCodeEl.getBoundingClientRect()
       qrUrl = qrAnchorEl.href
-    } else if (qrCodeEl && invoice.value.includeVenmoQr && settings.value?.company?.venmoUsername) {
-      qrRect = qrCodeEl.getBoundingClientRect()
-      qrUrl = `https://venmo.com/${settings.value.company.venmoUsername}`
     }
     const scaleFactor = imgWidth / contentRect.width
 
@@ -423,7 +420,7 @@ const safeInvoice = computed(() => {
 
           <div class="actions">
             <v-btn
-              v-if="safeInvoice.status === 'Quote'"
+              v-if="safeInvoice.status === 'Estimate'"
               @click="confirmPendingDialog = true"
               color="orange"
               large
@@ -561,7 +558,7 @@ const safeInvoice = computed(() => {
       <v-card>
         <v-card-title class="text-h5">Confirm</v-card-title>
         <v-card-text
-          >Are you sure you want to convert this quote to a pending invoice?</v-card-text
+          >Are you sure you want to convert this estimate to a pending invoice?</v-card-text
         >
         <v-card-actions>
           <v-spacer></v-spacer>

@@ -24,8 +24,6 @@ const total = computed(() => props.invoice.total || 0)
 const paymentUrl = computed(() => {
   if (props.userProfile?.chargesEnabled && props.invoice?.id) {
     return `${window.location.origin}/pay/${props.invoice.id}`
-  } else if (props.invoice.includeVenmoQr && props.settings?.company?.venmoUsername) {
-    return `https://venmo.com/${props.settings.company.venmoUsername}`
   }
   return null
 })
@@ -33,9 +31,8 @@ const paymentUrl = computed(() => {
 const paymentQrImageUrl = computed(() => {
   if (props.userProfile?.chargesEnabled && props.invoice?.id) {
     return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&ecc=H&data=${encodeURIComponent(paymentUrl.value)}`
-  } else {
-    return props.settings?.company?.venmoQrUrl
   }
+  return null
 })
 
 
@@ -139,15 +136,14 @@ const formatCurrency = (value) => {
           <p>{{ invoice.notes }}</p>
         </div>
         <div
-          v-if="(invoice.includeVenmoQr || userProfile?.chargesEnabled) && paymentQrImageUrl"
-          class="payment-qr-code venmo-qr-code"
+          v-if="userProfile?.chargesEnabled && paymentQrImageUrl"
+          class="payment-qr-code"
         >
           <h2>Scan or click to pay</h2>
           <a :href="paymentUrl" target="_blank" rel="noopener noreferrer" style="position: relative; display: inline-block;">
-            <img :src="paymentQrImageUrl" :alt="userProfile?.chargesEnabled ? 'Pay via Stripe' : 'Pay via Venmo'" crossorigin="anonymous" style="display: block;" />
+            <img :src="paymentQrImageUrl" alt="Pay via ScanGo Invoice" crossorigin="anonymous" style="display: block;" />
             <img v-if="userProfile?.chargesEnabled && settings?.company?.logoUrl" :src="settings.company.logoUrl" crossorigin="anonymous" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 28%; height: 28%; object-fit: contain; background: white; border-radius: 4px; padding: 2px;" />
           </a>
-          <p v-if="!userProfile?.chargesEnabled && invoice.includeVenmoQr">Venmo</p>
           <p v-if="userProfile?.chargesEnabled">Pay Online Securely</p>
         </div>
       </div>
@@ -255,7 +251,7 @@ const formatCurrency = (value) => {
 
 .client-details h2,
 .invoice-notes h2,
-.venmo-qr-code h2 {
+.payment-qr-code h2 {
   font-size: 1.1em;
   font-weight: 600;
   color: var(--text-color, #111827);
@@ -328,19 +324,19 @@ const formatCurrency = (value) => {
   color: #555;
 }
 
-.venmo-qr-code {
+.payment-qr-code {
   text-align: center;
 }
 
-.venmo-qr-code img {
-  max-width: 120px; /* Adjust size as needed */
+.payment-qr-code img {
+  max-width: 120px;
   margin-bottom: 0.5rem;
 }
 
-.venmo-qr-code p {
+.payment-qr-code p {
   font-weight: 600;
   font-size: 0.9em;
-  color: #007bff; /* Venmo blue */
+  color: var(--primary-color, #4a90e2);
 }
 
 .totals {
