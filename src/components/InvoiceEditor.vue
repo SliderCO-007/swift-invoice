@@ -126,6 +126,14 @@ const initializeInvoice = async () => {
       invoice.value.primaryColor = settings.value.company?.primaryColor || '#1a3a52';
     }
 
+    // Invoice bridge: check for project prefill data passed via router state
+    const prefill = history.state?.invoicePrefill;
+    if (prefill) {
+      if (prefill.client) Object.assign(invoice.value.client, prefill.client);
+      if (prefill.items?.length) invoice.value.items = prefill.items;
+      if (prefill.notes) invoice.value.notes = prefill.notes;
+    }
+
     if (!invoice.value.items.length) {
       addItem(); // Always start with one item line
     }

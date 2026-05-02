@@ -56,5 +56,18 @@ service cloud.firestore {
         // The user must be the owner of the settings.
         allow read, create, update: if isOwner(userId);
     }
+
+    match /projects/{projectId} {
+      // Only the owner may read, update, or delete their own projects.
+      allow read, update, delete: if isOwner(resource.data.userId);
+      // Only authenticated users may create a project, and it must be their own.
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+
+      // Entries subcollection — only the project owner may access.
+      match /entries/{entryId} {
+        allow read, write, create, delete: if request.auth != null &&
+          get(/databases/$(database)/documents/projects/$(projectId)).data.userId == request.auth.uid;
+      }
+    }
   }
 }

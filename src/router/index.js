@@ -123,6 +123,10 @@ const routes = [
     component: () => import('../components/InvoiceList.vue'),
     meta: { requiresAuth: true }
   },
+  { path: '/projects',          name: 'Projects',      component: () => import('../components/ProjectsView.vue'),  meta: { requiresAuth: true } },
+  { path: '/projects/new',      name: 'ProjectNew',    component: () => import('../components/ProjectEditor.vue'), meta: { requiresAuth: true } },
+  { path: '/projects/:id',      name: 'ProjectDetail', component: () => import('../components/ProjectDetail.vue'), meta: { requiresAuth: true } },
+  { path: '/projects/:id/edit', name: 'ProjectEdit',   component: () => import('../components/ProjectEditor.vue'), meta: { requiresAuth: true } },
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',

@@ -10,7 +10,7 @@
               </div>
               <h1 class="hero-title">Get Paid Online</h1>
               <h1 class="hero-title"><span class="text-gradient">Fast, Simple, and Professional</span></h1>
-              <p class="hero-subtitle">Create invoices in seconds and let your customers pay instantly using credit/debit cards, Apple Pay, Google Pay, or ACH — all from a secure ScanGo payment page, directly into your account.</p>
+              <p class="hero-subtitle">Create invoices in seconds, track billable time and expenses by project, and let your customers pay instantly via credit card, Apple Pay, Google Pay, or ACH — all from a secure ScanGo payment page, directly into your account.</p>
               <div class="d-flex flex-column flex-sm-row flex-wrap ga-4 mt-8 align-center justify-center justify-md-start">
                 <v-btn @click="handleGoogleSignIn" :loading="loading" variant="outlined" color="white" class="font-weight-bold px-10 cta-btn outline-btn" size="x-large" rounded="xl" :block="mobile">
                   <svg class="mr-2" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -148,7 +148,7 @@
               <h3 class="text-h5 font-weight-bold text-white mb-4">Get Paid Your Way</h3>
               <p class="text-body-1 text-grey-lighten-1 mb-8">
                 Customers choose their preferred method.
-You get paid fast — funds land directly into your account.
+                You get paid fast — funds land directly into your account.
               </p>
               <div class="payment-methods d-flex justify-center align-center ga-4 flex-wrap">
                  <div class="payment-pill stripe">
@@ -157,6 +157,29 @@ You get paid fast — funds land directly into your account.
                  <div class="payment-pill stripe">
                     <v-icon left size="small">mdi-bank-outline</v-icon> ACH / Bank
                  </div>
+              </div>
+            </div>
+
+            <!-- Step 4 (Pro) -->
+            <div class="step-card feature-step-card d-flex flex-column text-center">
+              <div class="step-number highlight-number">4</div>
+              <div class="step-icon-wrapper highlight-wrapper mx-auto mb-6">
+                <v-icon size="48" color="white">mdi-folder-clock-outline</v-icon>
+              </div>
+              <h3 class="text-h5 font-weight-bold text-white mb-4">Track Work, Invoice Instantly</h3>
+              <p class="text-body-1 text-grey-lighten-1 mb-8">
+                Log billable hours and expenses under a project. When the work is done, convert it to a pre-filled invoice in one click — no manual data entry.
+              </p>
+              <div class="payment-methods d-flex justify-center align-center ga-4 flex-wrap">
+                <div class="payment-pill pro-pill">
+                  <v-icon left size="small">mdi-clock-outline</v-icon> Time Tracking
+                </div>
+                <div class="payment-pill pro-pill">
+                  <v-icon left size="small">mdi-receipt-outline</v-icon> Expense Receipts
+                </div>
+                <div class="payment-pill pro-pill">
+                  <v-icon left size="small">mdi-lightning-bolt</v-icon> 1-Click Invoice
+                </div>
               </div>
             </div>
           </div>
@@ -310,6 +333,7 @@ const faqs = ref([
   { question: "Do I need a separate payment account?", answer: "Yes — ScanGo connects to your existing payment account or helps you set one up. It only takes a few minutes from your Settings page." },
   { question: "Do customers need a ScanGo account to pay?", answer: "No. They simply click the payment link or scan the QR code on the invoice." },
   { question: "Where do payouts go?", answer: "Directly into your bank account, typically within 2 business days." },
+  { question: "Can I track project time and expenses?", answer: "Yes — on the Monthly or Annual plan you can create projects, log billable hours and expenses (with receipt photos), and convert them directly to a pre-filled invoice with one click. Labor and expenses are automatically rolled up into clean line items." },
   { question: "Is ScanGo secure?", answer: "Yes. All payments are processed through Stripe and all invoice data is encrypted." },
 ]);
 
@@ -363,7 +387,7 @@ const faqSchema = {
 
 useMeta(
   'ScanGo Invoice | Simple Digital Invoicing',
-  'Create, download, and track professional invoices for a simple monthly or yearly price. ScanGo Invoice generates branded payment links and QR codes so customers can pay instantly — no app required. Perfect for small businesses and freelancers.',
+  'Create, download, and track professional invoices for a simple monthly or yearly price. ScanGo Invoice generates branded payment links and QR codes so customers can pay instantly — no app required. Track billable projects and convert them to invoices in one click. Perfect for small businesses and freelancers.',
   faqSchema
 );
 
@@ -624,7 +648,7 @@ main section[id] {
 
 @media (min-width: 960px) {
   .how-it-works-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 2rem;
   }
 }
@@ -712,6 +736,12 @@ main section[id] {
   background: rgba(99, 91, 255, 0.15);
   color: #a5a0ff;
   border: 1px solid rgba(99, 91, 255, 0.3);
+}
+
+.payment-pill.pro-pill {
+  background: rgba(74, 222, 128, 0.1);
+  color: #86efac;
+  border: 1px solid rgba(74, 222, 128, 0.3);
 }
 
 

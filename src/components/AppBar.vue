@@ -27,6 +27,7 @@ const guestNav = [
 
 const authNav = [
   { title: 'Dashboard', to: '/dashboard', icon: 'mdi-view-dashboard-outline' },
+  { title: 'Projects',  to: '/projects',  icon: 'mdi-folder-multiple-outline' },
   { title: 'Customers', to: '/customers', icon: 'mdi-account-group-outline' },
   { title: 'Items', to: '/items', icon: 'mdi-package-variant-closed' },
   { title: 'Settings', to: '/settings', icon: 'mdi-cog-outline' },

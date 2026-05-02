@@ -1,7 +1,7 @@
 # ScanGo Invoice Blueprint
 
 ## Overview
-ScanGo Invoice is a modern, responsive Vue.js application that allows users to create, send, and track professional invoices. It features multiple invoice templates, PDF generation, and instant online payments via Stripe Connect.
+ScanGo Invoice is a modern, responsive Vue.js application that allows users to create, send, and track professional invoices. It features multiple invoice templates, PDF generation, instant online payments via Stripe Connect, and a full project time/expense tracking workflow.
 
 ## Application Architecture & Design System
 - **Core Functionality:** User authentication, invoice creation with line items, tax calculation, client management.
@@ -11,6 +11,7 @@ ScanGo Invoice is a modern, responsive Vue.js application that allows users to c
   - "Scan or click to pay" QR code powered by Stripe (shown only when merchant's Stripe account has charges enabled).
   - PDF generation and email sending.
   - Simple client and item management.
+  - **Project Tracking** (paid plans only): create projects, log billable/non-billable time entries and expenses with receipt photos, then convert directly to a pre-filled invoice.
 - **Design System (v2 Dark Theme):** 
   - The application has been upgraded to a premium, glassmorphic dark theme.
   - **Base Background:** Deep navy `#111d2f` perfectly matching the hero image.
@@ -18,17 +19,25 @@ ScanGo Invoice is a modern, responsive Vue.js application that allows users to c
   - **Glassmorphism:** Cards, dialogs, and panels utilize slightly transparent white backgrounds (`rgba(255, 255, 255, 0.03)`), borders (`rgba(255, 255, 255, 0.08)`), and backdrops (`blur(16px)`).
   - **Glow & Interactions:** Soft drop shadows (`rgba(0,0,0,0.4)`) and glowing interactive elements using the primary brand color to build depth.
 
-## Current Action Plan: Remove Venmo as a Payment Option
+## Project Tracking Feature (v3)
 
-### Goal
-Remove all Venmo-related functionality from the application in preparation for a new feature set.
+### New Files
+- `src/composables/useProjects.js` — Singleton composable: project CRUD, subcollection entry CRUD, receipt upload to Firebase Storage, `buildInvoicePayload` bridge.
+- `src/components/ProjectsView.vue` — `/projects` list page with subscription gate, status filter tabs (All/Active/Completed/Archived), and a responsive card grid.
+- `src/components/ProjectEditor.vue` — `/projects/new` and `/projects/:id/edit` create/edit form.
+- `src/components/ProjectDetail.vue` — `/projects/:id` working view with Time and Expenses tabs, inline forms, billable toggles, receipt upload, edit modal, and "Convert to Invoice" button.
+- `src/components/ReceiptViewer.vue` — Shared receipt lightbox dialog with download link.
 
-### Steps
-1. **`useUserSettings.js`**: Removed `venmoQrUrl` and `venmoUsername` from the default settings object. Removed the `generateVenmoQR` Firebase Function call from `saveUserSettings`. Cleaned up unused `functions` and `httpsCallable` imports.
-2. **`UserSettings.vue`**: Removed the Venmo Fallback Username form field, the Venmo help dialog, the `.venmo-label` CSS class, and the `isHelpDialogVisible` ref. Updated success message.
-3. **`InvoiceEditor.vue`**: Removed `includeVenmoQr` from the `createFreshInvoice` data model and removed the "Payment Options" section with the QR code toggle switch.
-4. **`InvoiceTemplate.vue`** (Classic), **`InvoiceTemplate2.vue`** (Modern), **`InvoiceTemplate3.vue`** (Corporate), **`InvoiceTemplate4.vue`** (Solid): Simplified `paymentUrl` and `paymentQrImageUrl` computed properties to only handle Stripe. Updated `v-if` on the QR block to only show when `chargesEnabled`. Removed all Venmo-specific alt text and labels.
-5. **`LandingPage.vue`**: Updated hero subtitle, "Get Paid Your Way" step card (replaced Venmo QR pill with ACH/Bank pill), final CTA text, FAQs (removed Venmo FAQ, updated payout/security answers), and SEO meta description. Removed `.payment-pill.venmo` CSS rule.
+### Modified Files
+- `src/router/index.js` — 4 new routes: `/projects`, `/projects/new`, `/projects/:id`, `/projects/:id/edit`.
+- `src/components/AppBar.vue` — "Projects" added to `authNav` with `mdi-folder-multiple-outline` icon.
+- `src/components/InvoiceEditor.vue` — Prefill bridge reads `history.state.invoicePrefill` to populate client, items, and notes from a project conversion.
+- `firestore.rules` — Added `projects` and `projects/{projectId}/entries` rules (owner-only access).
+
+### Data Model
+- `projects/{projectId}` — userId, name, clientName, clientId, description, defaultRate, status, totalHours, totalLabor, totalExpenses, createdAt, updatedAt.
+- `projects/{projectId}/entries/{entryId}` — type (time|expense), date, description, billable, hours, rate (time), amount, category, receiptUrl (expense), createdAt.
+- Expense categories auto-saved to `users/{uid}/items` with `type: 'expense-category'` for typeahead reuse.
 
 ### Status
-- **Completed**: All Venmo references have been removed from the frontend codebase. Payment functionality now exclusively uses Stripe Connect.
+- **Completed**: All 9 build steps implemented and verified.

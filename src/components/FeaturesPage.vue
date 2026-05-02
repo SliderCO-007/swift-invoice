@@ -4,7 +4,7 @@
       <section id="features" class="features-alternating">
         <div class="container">
           <h1 class="page-title text-center mb-4">Platform Features</h1>
-          <p class="section-subtitle text-center mb-12">Everything you need to invoice professionally and get paid faster.</p>
+          <p class="section-subtitle text-center mb-12">Everything you need to invoice professionally, track billable work, and get paid faster.</p>
 
           <div class="feature-row">
             <div class="feature-text">
@@ -53,6 +53,43 @@
             </div>
           </div>
 
+          <div class="feature-row reverse">
+            <div class="feature-text">
+              <h2>Project Tracking &amp; Instant Invoicing</h2>
+              <p>Stop guessing what to bill. Log billable hours and job expenses under a named project, then convert all your work into a professional invoice with a single click. Receipts, rates, and categories stay organized — so you don’t have to.</p>
+              <ul class="feature-bullets">
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Log time with a default hourly rate per project</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Capture expense receipts with your phone camera</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>One-click conversion to a pre-filled invoice</li>
+              </ul>
+              <v-chip color="success" variant="tonal" size="small" class="mt-4" prepend-icon="mdi-lock-outline">Monthly &amp; Annual plans</v-chip>
+            </div>
+            <div class="feature-image">
+              <div class="flow-diagram">
+                <div class="flow-step">
+                  <div class="flow-icon">
+                    <v-icon size="32" color="white">mdi-folder-outline</v-icon>
+                  </div>
+                  <span class="flow-label">Create Project</span>
+                </div>
+                <v-icon class="flow-arrow" color="rgba(255,255,255,0.3)">mdi-arrow-right</v-icon>
+                <div class="flow-step">
+                  <div class="flow-icon">
+                    <v-icon size="32" color="white">mdi-clock-plus-outline</v-icon>
+                  </div>
+                  <span class="flow-label">Log Time &amp; Expenses</span>
+                </div>
+                <v-icon class="flow-arrow" color="rgba(255,255,255,0.3)">mdi-arrow-right</v-icon>
+                <div class="flow-step flow-step-highlight">
+                  <div class="flow-icon flow-icon-highlight">
+                    <v-icon size="32" color="white">mdi-file-document-arrow-right</v-icon>
+                  </div>
+                  <span class="flow-label">Invoice Sent</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="feature-row">
             <div class="feature-text">
               <h2>Integrated PDF & Email</h2>
@@ -93,7 +130,7 @@ import Trustpilot from './TrustpilotWidget.vue';
 
 useMeta(
   'Features | ScanGo Invoice',
-  'Discover all the powerful features of ScanGo Invoice. Professional templates, direct online payments, branded payment QR codes, PDF downloads, and integrated email delivery.',
+  'Discover all the powerful features of ScanGo Invoice. Professional templates, direct online payments, project time and expense tracking, one-click invoice conversion, PDF downloads, and integrated email delivery.',
 );
 </script>
 
@@ -356,6 +393,68 @@ useMeta(
 .glow-btn:hover {
   box-shadow: 0 12px 35px rgba(25, 118, 210, 0.6);
   transform: translateY(-2px);
+}
+
+/* Flow Diagram (Project Tracking feature) */
+.flow-diagram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 420px;
+}
+
+.flow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.flow-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.flow-icon-highlight {
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.25), rgba(6, 182, 212, 0.25));
+  border-color: rgba(74, 222, 128, 0.4);
+  box-shadow: 0 0 20px rgba(74, 222, 128, 0.2);
+}
+
+.flow-diagram:hover .flow-icon {
+  transform: translateY(-4px);
+}
+
+.flow-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-align: center;
+  letter-spacing: 0.03em;
+}
+
+.flow-step-highlight .flow-label {
+  color: #86efac;
+}
+
+.flow-arrow {
+  flex-shrink: 0;
+  margin-bottom: 1.5rem;
 }
 
 /* Footer */

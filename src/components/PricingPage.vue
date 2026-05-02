@@ -66,12 +66,12 @@ onMounted(() => {
 <template>
   <div class="pricing-page">
     <v-container class="pa-4 pa-md-8">
-      <v-responsive max-width="900" class="mx-auto text-center">
+      <v-responsive max-width="1000" class="mx-auto text-center">
         <h1 class="text-h3 text-md-h2 font-weight-bold mb-4">Choose Your Plan</h1>
         <p class="text-body-1 text-medium-emphasis mb-8">
           Start for free and scale up as you grow. No hidden fees, no surprises.
         </p>
-         <v-alert
+        <v-alert
           v-if="error"
           type="error"
           class="mb-8"
@@ -83,77 +83,208 @@ onMounted(() => {
       </v-responsive>
 
       <v-row justify="center" align="stretch">
-        <!-- Free Plan -->
+
+        <!-- ── FREE PLAN ─────────────────────────────────────────── -->
         <v-col cols="12" md="4">
-          <v-card class="d-flex flex-column h-100 pa-4" outlined>
-             <v-chip color="secondary" class="align-self-center" label>
-                No Credit Card Required
-              </v-chip>
-            <v-card-title class="text-h4 font-weight-medium text-center mt-2">Free</v-card-title>
-            <v-card-subtitle class="text-center text-body-1 mb-4">A perfect start for freelancers</v-card-subtitle>
-            
-            <v-card-text class="flex-grow-1 d-flex flex-column text-center">
-              <div class="d-flex justify-center align-start mb-6">
-                <span class="text-h2 font-weight-bold">$0</span>
-                <span class="text-h5 font-weight-medium mt-2">/month</span>
+          <v-card class="pricing-card d-flex flex-column h-100" outlined>
+            <div class="plan-badge-row">
+              <v-chip color="secondary" label size="small">No Credit Card Required</v-chip>
+            </div>
+            <v-card-title class="plan-name text-center mt-2">Free</v-card-title>
+            <v-card-subtitle class="plan-tagline text-center">A perfect start for freelancers</v-card-subtitle>
+
+            <div class="plan-price text-center my-4">
+              <span class="price-amount">$0</span>
+              <span class="price-period">/month</span>
+            </div>
+
+            <v-divider class="my-2 mx-4" style="border-color:rgba(255,255,255,0.08);" />
+
+            <v-card-text class="flex-grow-1 pt-4">
+              <p class="feature-section-label">Invoicing</p>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>3 invoices total</span>
               </div>
-              <div class="mt-auto">
-                <v-list-item>
-                  <v-list-item-title class="text-body-1">3 free invoices</v-list-item-title>
-                </v-list-item>
-                <v-list-item>
-                  <v-list-item-title class="text-body-1">Unlimited Customers</v-list-item-title>
-                </v-list-item>
-                <v-list-item>
-                  <v-list-item-title class="text-body-1">Unlimited Items</v-list-item-title>
-                </v-list-item>
-                <v-list-item>
-                  <v-list-item-title class="text-body-1">Download invoices as PDFs</v-list-item-title>
-                </v-list-item>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>Unlimited customers</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>Unlimited saved line items</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>4 professional templates</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>Download invoices as PDF</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>Custom branding &amp; logo</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>Tax rate &amp; discount fields</span>
+              </div>
+
+              <p class="feature-section-label mt-4">Payments</p>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>Stripe Connect integration</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>Credit card, Apple &amp; Google Pay</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>ACH bank transfer</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>Scannable QR code on invoice</span>
+              </div>
+
+              <p class="feature-section-label mt-4">Communication</p>
+              <div class="feature-item muted">
+                <v-icon size="18" color="rgba(255,255,255,0.2)">mdi-close-circle</v-icon>
+                <span>Email invoices to clients</span>
+              </div>
+
+              <p class="feature-section-label mt-4">Project Tracking</p>
+              <div class="feature-item muted">
+                <v-icon size="18" color="rgba(255,255,255,0.2)">mdi-close-circle</v-icon>
+                <span>Project &amp; time tracking</span>
+              </div>
+              <div class="feature-item muted">
+                <v-icon size="18" color="rgba(255,255,255,0.2)">mdi-close-circle</v-icon>
+                <span>Expense capture with receipts</span>
+              </div>
+              <div class="feature-item muted">
+                <v-icon size="18" color="rgba(255,255,255,0.2)">mdi-close-circle</v-icon>
+                <span>One-click project-to-invoice</span>
+              </div>
+
+              <p class="feature-section-label mt-4">Support</p>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>Email support</span>
               </div>
             </v-card-text>
 
             <v-card-actions class="pa-4">
-              <v-btn
-                block
-                variant="outlined"
-                color="primary"
-                size="large"
-                to="/register"
-              >
+              <v-btn block variant="outlined" color="primary" size="large" to="/register">
                 Start Invoicing for Free
               </v-btn>
             </v-card-actions>
           </v-card>
         </v-col>
 
-        <!-- Monthly Plan -->
+        <!-- ── MONTHLY PLAN ───────────────────────────────────────── -->
         <v-col cols="12" md="4">
-          <v-card class="d-flex flex-column h-100 pa-4" outlined>
-            <v-chip color="secondary" class="align-self-center" label>
-                Same cost as a Latte
-            </v-chip>
-            <v-card-title class="text-h4 font-weight-medium text-center mt-2">Monthly</v-card-title>
-            <v-card-subtitle class="text-center text-body-1 mb-4">For maximum flexibility</v-card-subtitle>
-            
-            <v-card-text class="flex-grow-1 d-flex flex-column text-center">
-              <div class="d-flex justify-center align-start mb-6">
-                <span class="text-h2 font-weight-bold">$9</span>
-                <span class="text-h5 font-weight-medium mt-2">/month</span>
+          <v-card class="pricing-card d-flex flex-column h-100" outlined>
+            <div class="plan-badge-row">
+              <v-chip color="secondary" label size="small">Same cost as a Latte</v-chip>
+            </div>
+            <v-card-title class="plan-name text-center mt-2">Monthly</v-card-title>
+            <v-card-subtitle class="plan-tagline text-center">For maximum flexibility</v-card-subtitle>
+
+            <div class="plan-price text-center my-4">
+              <span class="price-amount">$9</span>
+              <span class="price-period">/month</span>
+            </div>
+
+            <v-divider class="my-2 mx-4" style="border-color:rgba(255,255,255,0.08);" />
+
+            <v-card-text class="flex-grow-1 pt-4">
+              <p class="feature-section-label">Invoicing</p>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span><strong>Unlimited</strong> invoices</span>
               </div>
-              <div class="mt-auto">
-                <v-list-item>
-                  <v-list-item-title class="text-body-1">Unlimited Invoices</v-list-item-title>
-                </v-list-item>
-                <v-list-item>
-                  <v-list-item-title class="text-body-1">Unlimited Customers</v-list-item-title>
-                </v-list-item>
-                <v-list-item>
-                  <v-list-item-title class="text-body-1">Email invoices directly to clients</v-list-item-title>
-                </v-list-item>
-                <v-list-item>
-                  <v-list-item-title class="text-body-1">Weekly summary reports</v-list-item-title>
-                </v-list-item>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>Unlimited customers</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>Unlimited saved line items</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>4 professional templates</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>Download invoices as PDF</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>Custom branding &amp; logo</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>Tax rate &amp; discount fields</span>
+              </div>
+
+              <p class="feature-section-label mt-4">Payments</p>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>Stripe Connect integration</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>Credit card, Apple &amp; Google Pay</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>ACH bank transfer</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>Scannable QR code on invoice</span>
+              </div>
+
+              <p class="feature-section-label mt-4">Communication</p>
+              <div class="feature-item highlight-feature">
+                <v-icon size="18" color="primary">mdi-check-circle</v-icon>
+                <span>Email invoices directly to clients</span>
+              </div>
+              <div class="feature-item highlight-feature">
+                <v-icon size="18" color="primary">mdi-check-circle</v-icon>
+                <span>Weekly revenue summary reports</span>
+              </div>
+
+              <p class="feature-section-label mt-4">Project Tracking</p>
+              <div class="feature-item highlight-feature">
+                <v-icon size="18" color="primary">mdi-check-circle</v-icon>
+                <span>Unlimited projects</span>
+              </div>
+              <div class="feature-item highlight-feature">
+                <v-icon size="18" color="primary">mdi-check-circle</v-icon>
+                <span>Time logging with hourly rates</span>
+              </div>
+              <div class="feature-item highlight-feature">
+                <v-icon size="18" color="primary">mdi-check-circle</v-icon>
+                <span>Expense capture with receipt photos</span>
+              </div>
+              <div class="feature-item highlight-feature">
+                <v-icon size="18" color="primary">mdi-check-circle</v-icon>
+                <span>One-click project-to-invoice</span>
+              </div>
+              <div class="feature-item highlight-feature">
+                <v-icon size="18" color="primary">mdi-check-circle</v-icon>
+                <span>Billable / non-billable entry tracking</span>
+              </div>
+
+              <p class="feature-section-label mt-4">Support</p>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>Priority email support</span>
               </div>
             </v-card-text>
 
@@ -172,33 +303,100 @@ onMounted(() => {
           </v-card>
         </v-col>
 
-        <!-- Yearly Plan -->
+        <!-- ── YEARLY PLAN ────────────────────────────────────────── -->
         <v-col cols="12" md="4">
-          <v-card class="d-flex flex-column h-100 pa-4" color="primary" dark>
-             <v-chip color="white" text-color="primary" class="align-self-center" label>
-                Save 2 months
-              </v-chip>
-            <v-card-title class="text-h4 font-weight-medium text-center mt-2">Yearly</v-card-title>
-            <v-card-subtitle class="text-center text-body-1 mb-4">Best value for your business</v-card-subtitle>
+          <v-card class="pricing-card pricing-card-featured d-flex flex-column h-100" color="primary" dark>
+            <div class="plan-badge-row">
+              <v-chip color="white" text-color="primary" label size="small">Save 2 months</v-chip>
+            </div>
+            <v-card-title class="plan-name text-center mt-2">Yearly</v-card-title>
+            <v-card-subtitle class="plan-tagline text-center" style="color:rgba(255,255,255,0.75);">Best value for your business</v-card-subtitle>
 
-            <v-card-text class="flex-grow-1 d-flex flex-column text-center">
-              <div class="d-flex justify-center align-start mb-6">
-                <span class="text-h2 font-weight-bold">$90</span>
-                <span class="text-h5 font-weight-medium mt-2">/year</span>
+            <div class="plan-price text-center my-4">
+              <span class="price-amount">$90</span>
+              <span class="price-period">/year</span>
+              <p class="price-note">equivalent to $7.50/mo</p>
+            </div>
+
+            <v-divider class="my-2 mx-4" style="border-color:rgba(255,255,255,0.2);" />
+
+            <v-card-text class="flex-grow-1 pt-4">
+              <div class="feature-item">
+                <v-icon size="18" color="white">mdi-check-circle</v-icon>
+                <span><strong>Everything in Monthly</strong></span>
               </div>
-              <div class="mt-auto">
-                <v-list-item>
-                  <v-list-item-title class="text-body-1">Everything in Monthly</v-list-item-title>
-                </v-list-item>
-                <v-list-item>
-                  <v-list-item-title class="text-body-1">Priority Support</v-list-item-title>
-                </v-list-item>
-                <v-list-item>
-                  <v-list-item-title class="text-body-1">Export all invoices (CSV)</v-list-item-title>
-                </v-list-item>
+
+              <p class="feature-section-label mt-4" style="color:rgba(255,255,255,0.5);">Invoicing</p>
+              <div class="feature-item">
+                <v-icon size="18" color="white">mdi-check-circle</v-icon>
+                <span>Unlimited invoices &amp; estimates</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="white">mdi-check-circle</v-icon>
+                <span>Unlimited customers &amp; line items</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="white">mdi-check-circle</v-icon>
+                <span>Custom branding &amp; logo</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="white">mdi-check-circle</v-icon>
+                <span>Export all invoices (CSV)</span>
+              </div>
+
+              <p class="feature-section-label mt-4" style="color:rgba(255,255,255,0.5);">Payments</p>
+              <div class="feature-item">
+                <v-icon size="18" color="white">mdi-check-circle</v-icon>
+                <span>Stripe Connect — all payment methods</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="white">mdi-check-circle</v-icon>
+                <span>Branded QR code on every invoice</span>
+              </div>
+
+              <p class="feature-section-label mt-4" style="color:rgba(255,255,255,0.5);">Communication</p>
+              <div class="feature-item">
+                <v-icon size="18" color="white">mdi-check-circle</v-icon>
+                <span>Email invoices directly to clients</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="white">mdi-check-circle</v-icon>
+                <span>Weekly revenue summary reports</span>
+              </div>
+
+              <p class="feature-section-label mt-4" style="color:rgba(255,255,255,0.5);">Project Tracking</p>
+              <div class="feature-item">
+                <v-icon size="18" color="white">mdi-check-circle</v-icon>
+                <span>Unlimited projects</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="white">mdi-check-circle</v-icon>
+                <span>Time logging with hourly rates</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="white">mdi-check-circle</v-icon>
+                <span>Expense capture with receipt photos</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="white">mdi-check-circle</v-icon>
+                <span>One-click project-to-invoice</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="white">mdi-check-circle</v-icon>
+                <span>Billable / non-billable tracking</span>
+              </div>
+
+              <p class="feature-section-label mt-4" style="color:rgba(255,255,255,0.5);">Support</p>
+              <div class="feature-item">
+                <v-icon size="18" color="white">mdi-check-circle</v-icon>
+                <span>Priority support</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="white">mdi-check-circle</v-icon>
+                <span>Early access to new features</span>
               </div>
             </v-card-text>
-            
+
             <v-card-actions class="pa-4">
               <v-btn
                 block
@@ -208,11 +406,12 @@ onMounted(() => {
                 :disabled="loading"
                 @click="handleSubscribe('yearly', priceIds.yearly)"
               >
-                Choose Yearly
+                Choose Yearly &amp; Save
               </v-btn>
             </v-card-actions>
           </v-card>
         </v-col>
+
       </v-row>
     </v-container>
   </div>
@@ -224,39 +423,107 @@ onMounted(() => {
   background-color: #111d2f;
   color: #f1f5f9;
   min-height: 100vh;
+  padding-top: 80px;
 }
 
 .pricing-page .text-medium-emphasis {
   color: #94a3b8 !important;
 }
 
-.v-card {
-  border-radius: 12px;
+/* Card base */
+.pricing-card {
+  border-radius: 16px !important;
   background: rgba(255, 255, 255, 0.03) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   backdrop-filter: blur(16px);
   color: #f1f5f9 !important;
   box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
   transition: all 0.3s ease-in-out !important;
+  padding: 1.25rem;
 }
 
-.v-card:hover {
-  transform: translateY(-5px) !important;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.4) !important;
+.pricing-card:hover {
+  transform: translateY(-6px) !important;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4) !important;
 }
 
-:deep(.v-list-item) {
-  background: transparent !important;
-  color: inherit !important;
+.pricing-card-featured {
+  border: 1px solid rgba(255,255,255,0.25) !important;
+  box-shadow: 0 20px 60px rgba(25, 118, 210, 0.25) !important;
 }
 
-:deep(.v-list-item-title) {
-  white-space: normal !important;
-  display: -webkit-box !important;
-  -webkit-line-clamp: 2 !important;
-  line-clamp: 2 !important;
-  -webkit-box-orient: vertical !important;
-  overflow: hidden !important;
+/* Plan header */
+.plan-badge-row {
+  display: flex;
+  justify-content: center;
+  padding-top: 0.75rem;
+}
+
+.plan-name {
+  font-size: 1.75rem !important;
+  font-weight: 700 !important;
+  color: #fff !important;
+  justify-content: center;
+}
+
+.plan-tagline {
+  font-size: 0.9rem !important;
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+/* Price display */
+.plan-price {
+  padding: 0.5rem 0;
+}
+
+.price-amount {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+
+.price-period {
+  font-size: 1.1rem;
+  color: #94a3b8;
+  margin-left: 0.25rem;
+}
+
+.price-note {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.5);
+  margin: 0.25rem 0 0;
+}
+
+/* Feature list */
+.feature-section-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+  margin: 0 0 0.5rem;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.3rem 0;
+  font-size: 0.9rem;
+  color: #e2e8f0;
+}
+
+.feature-item.muted {
+  color: rgba(255,255,255,0.25);
+  text-decoration: line-through;
+  text-decoration-color: rgba(255,255,255,0.1);
+}
+
+.feature-item.highlight-feature {
+  color: #fff;
+  font-weight: 500;
 }
 
 :deep(.v-btn) {
