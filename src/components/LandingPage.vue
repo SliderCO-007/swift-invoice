@@ -5,8 +5,9 @@
         <div class="container">
           <div class="hero-grid">
             <div class="hero-content">
-              <div class="d-sm-none mb-6">
-                <span class="mobile-brand">ScanGo Invoice</span>
+              <div class="d-sm-none mb-8 d-flex align-center justify-center">
+                <img src="/Logo.png" alt="ScanGo Logo" style="height: 44px; width: auto; filter: drop-shadow(0 4px 8px rgba(6,182,212,0.3));" class="mr-3" />
+                <span class="mobile-brand" style="letter-spacing: -1px;"><span class="text-gradient">ScanGo</span> Invoice</span>
               </div>
               <h1 class="hero-title">Get Paid Online</h1>
               <h1 class="hero-title"><span class="text-gradient">Fast, Simple, and Professional</span></h1>
@@ -37,7 +38,7 @@
                 </v-btn>
               </div>
               <div class="mt-8 d-flex flex-column flex-sm-row align-center justify-center justify-md-start ga-4">
-                <div class="d-flex align-center cursor-pointer" @click="scrollToReviews">
+                <div class="d-flex align-center cursor-pointer" @click="router.push('/reviews')">
                   <div class="avatar-group mr-4">
                     <v-avatar size="36" class="avatar-item font-weight-bold text-white bg-indigo-darken-1">S</v-avatar>
                     <v-avatar size="36" class="avatar-item font-weight-bold text-white bg-pink-darken-1">M</v-avatar>
@@ -56,10 +57,10 @@
             </div>
             <div class="hero-image">
               <img src="/branded_hero_v7.png" class="hero-static" alt="A deconstructed workspace with an invoice and dashboard.">
-              <div class="iphone-frame-wrapper">
+              <div class="iphone-frame-wrapper" :key="animationKey">
                 <div class="iphone-frame">
                   <div class="notch"></div>
-                  <img src="/ScanGo_create_mobile.gif" class="hero-gif" alt="App Preview Animation">
+                  <img :src="heroGifSrc" class="hero-gif" alt="App Preview Animation">
                 </div>
               </div>
             </div>
@@ -67,45 +68,7 @@
         </div>
       </section>
 
-      <!-- Social Proof / Reviews Section -->
-      <section id="reviews" class="social-proof">
-        <div class="container">
-          <div class="d-flex justify-center mb-10 mx-auto" style="border-radius: 12px; background: rgba(255, 255, 255, 0.02); padding: 1rem 2rem; border: 1px solid rgba(255, 255, 255, 0.05); max-width: fit-content;">
-            <Trustpilot style="min-width: 250px;" />
-          </div>
-          <v-carousel
-            hide-delimiters
-            show-arrows="hover"
-            cycle
-            interval="5000"
-            height="320"
-            class="bg-transparent"
-          >
-            <v-carousel-item
-              v-for="(review, index) in reviews"
-              :key="index"
-            >
-              <div class="d-flex justify-center align-center fill-height pa-4">
-                <div class="review-card" @click="openReview(review)">
-                  <div class="review-header">
-                    <v-avatar color="primary" size="48" class="mr-3 text-h6 font-weight-bold text-white">
-                      {{ review.name.charAt(0) }}
-                    </v-avatar>
-                    <div>
-                      <h4 class="reviewer-name text-h6">{{ review.name }}</h4>
-                      <p class="reviewer-business">{{ review.business }}</p>
-                    </div>
-                  </div>
-                  <div class="review-stars">
-                    <v-icon color="warning" size="small" v-for="n in 5" :key="n">mdi-star</v-icon>
-                  </div>
-                  <p class="review-text">"{{ review.review }}"</p>
-                </div>
-              </div>
-            </v-carousel-item>
-          </v-carousel>
-        </div>
-      </section>
+
 
       <section id="how-it-works" class="how-it-works">
         <div class="container">
@@ -131,38 +94,17 @@
             <div class="step-card d-flex flex-column text-center">
               <div class="step-number">2</div>
               <div class="step-icon-wrapper mx-auto mb-6">
-                <v-icon size="48" color="primary">mdi-palette-swatch-outline</v-icon>
+                <v-icon size="48" color="primary">mdi-account-multiple-outline</v-icon>
               </div>
-              <h3 class="text-h5 font-weight-bold text-white mb-4">Create Your Invoice</h3>
+              <h3 class="text-h5 font-weight-bold text-white mb-4">Add Customers & Products</h3>
               <p class="text-body-1 text-grey-lighten-1 mb-0">
-                Add your customer, items, and total. ScanGo formats a clean, professional PDF automatically to email to your customer.
+                Save time by setting up your client details and frequently sold items or services in advance. Select them from a dropdown to generate future invoices in seconds.
               </p>
             </div>
 
-            <!-- Step 3 -->
+            <!-- Step 3 (Pro) -->
             <div class="step-card feature-step-card d-flex flex-column text-center">
               <div class="step-number highlight-number">3</div>
-              <div class="step-icon-wrapper highlight-wrapper mx-auto mb-6">
-                <v-icon size="48" color="white">mdi-cash-fast</v-icon>
-              </div>
-              <h3 class="text-h5 font-weight-bold text-white mb-4">Get Paid Your Way</h3>
-              <p class="text-body-1 text-grey-lighten-1 mb-8">
-                Customers choose their preferred method.
-                You get paid fast — funds land directly into your account.
-              </p>
-              <div class="payment-methods d-flex justify-center align-center ga-4 flex-wrap">
-                 <div class="payment-pill stripe">
-                    <v-icon left size="small">mdi-credit-card-outline</v-icon> Credit Card
-                 </div>
-                 <div class="payment-pill stripe">
-                    <v-icon left size="small">mdi-bank-outline</v-icon> ACH / Bank
-                 </div>
-              </div>
-            </div>
-
-            <!-- Step 4 (Pro) -->
-            <div class="step-card feature-step-card d-flex flex-column text-center">
-              <div class="step-number highlight-number">4</div>
               <div class="step-icon-wrapper highlight-wrapper mx-auto mb-6">
                 <v-icon size="48" color="white">mdi-folder-clock-outline</v-icon>
               </div>
@@ -180,6 +122,27 @@
                 <div class="payment-pill pro-pill">
                   <v-icon left size="small">mdi-lightning-bolt</v-icon> 1-Click Invoice
                 </div>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="step-card feature-step-card d-flex flex-column text-center">
+              <div class="step-number highlight-number">4</div>
+              <div class="step-icon-wrapper highlight-wrapper mx-auto mb-6">
+                <v-icon size="48" color="white">mdi-cash-fast</v-icon>
+              </div>
+              <h3 class="text-h5 font-weight-bold text-white mb-4">Get Paid Your Way</h3>
+              <p class="text-body-1 text-grey-lighten-1 mb-8">
+                Customers choose their preferred method.
+                You get paid fast — funds land directly into your account.
+              </p>
+              <div class="payment-methods d-flex justify-center align-center ga-4 flex-wrap">
+                 <div class="payment-pill stripe">
+                    <v-icon left size="small">mdi-credit-card-outline</v-icon> Credit Card
+                 </div>
+                 <div class="payment-pill stripe">
+                    <v-icon left size="small">mdi-bank-outline</v-icon> ACH / Bank
+                 </div>
               </div>
             </div>
           </div>
@@ -279,47 +242,37 @@
       </div>
     </div>
 
-    <!-- Review Modal -->
-    <div v-if="selectedReview" class="modal-overlay" @click.self="selectedReview = null">
-      <div class="modal-content review-modal-content" @click="mobile ? selectedReview = null : null">
-        <div class="review-header mb-4">
-          <v-avatar color="primary" size="48" class="mr-3 text-h6 font-weight-bold text-white">
-            {{ selectedReview.name.charAt(0) }}
-          </v-avatar>
-          <div>
-            <h4 class="reviewer-name-large">{{ selectedReview.name }}</h4>
-            <p class="reviewer-business-large">{{ selectedReview.business }}</p>
-          </div>
-        </div>
-        <div class="review-stars mb-4">
-          <v-icon color="warning" size="small" v-for="n in 5" :key="n">mdi-star</v-icon>
-        </div>
-        <p class="review-text-full">"{{ selectedReview.review }}"</p>
-        <v-btn @click="selectedReview = null" icon class="modal-close">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-            <path fill="currentColor"
-              d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z" />
-          </svg>
-        </v-btn>
-      </div>
-    </div>
+
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuth, currentUser } from '../composables/useAuth.js';
 import { useMeta } from '../composables/useMeta';
 import { useDisplay } from 'vuetify';
 import { event } from 'vue-gtag';
 import Trustpilot from './TrustpilotWidget.vue';
-import reviewsData from '../assets/reviews.json';
 
 const { mobile } = useDisplay();
 const router = useRouter();
 const { loading, googleLogin } = useAuth();
-const reviews = ref(reviewsData);
+
+const heroGifSrc = ref('/ScanGo_create_mobile.gif');
+const animationKey = ref(0);
+let gifInterval;
+
+onMounted(() => {
+  gifInterval = setInterval(() => {
+    heroGifSrc.value = '/ScanGo_create_mobile.gif?t=' + Date.now();
+    animationKey.value++;
+  }, 18000); // 14s (gif duration) + 2s pause
+});
+
+onUnmounted(() => {
+  if (gifInterval) clearInterval(gifInterval);
+});
 
 const trackDownload = (location) => {
   event('download_setup_guide', {
@@ -340,12 +293,6 @@ const faqs = ref([
 const showDashboardPreview = ref(false);
 const showMobilePreview = ref(false);
 const isMobilePreviewLoading = ref(false);
-const selectedReview = ref(null);
-
-const openReview = (review) => {
-  selectedReview.value = review;
-};
-
 const openMobilePreview = () => {
   isMobilePreviewLoading.value = true;
   showMobilePreview.value = true;
@@ -353,13 +300,6 @@ const openMobilePreview = () => {
 
 const closeMobilePreview = () => {
   showMobilePreview.value = false;
-};
-
-const scrollToReviews = () => {
-  const el = document.getElementById('reviews');
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth' });
-  }
 };
 
 const handleGoogleSignIn = async () => {
@@ -536,102 +476,7 @@ main section[id] {
   100% { opacity: 0; visibility: hidden; }
 }
 
-/* Social Proof Section */
-.social-proof {
-  padding: 1rem 0 3rem 0;
-  background-color: transparent;
-  overflow: hidden;
-  position: relative;
-  z-index: 2;
-  margin-top: -2rem; /* Pull up closer to the hero section */
-}
 
-.review-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(10px);
-  padding: 2rem;
-  border-radius: 16px;
-  max-width: 600px;
-  width: 100%;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  cursor: pointer;
-  margin: 0 auto;
-}
-
-.review-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-}
-
-.review-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.reviewer-name {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #fff;
-  margin: 0;
-  line-height: 1.2;
-}
-
-.reviewer-business {
-  font-size: 0.75rem;
-  color: #94a3b8;
-  margin: 0;
-  margin-top: 0.2rem;
-}
-
-.review-stars {
-  margin-bottom: 0.8rem;
-  display: flex;
-  gap: 2px;
-}
-
-.review-text {
-  font-size: 0.95rem;
-  color: #e2e8f0;
-  line-height: 1.5;
-  font-style: italic;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Review Modal Styles */
-.review-modal-content {
-  max-width: 500px;
-  width: 90%;
-  padding: 2.5rem;
-  text-align: left;
-}
-
-.reviewer-name-large {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #fff;
-  margin: 0;
-}
-
-.reviewer-business-large {
-  font-size: 0.9rem;
-  color: #94a3b8;
-  margin: 0;
-}
-
-.review-text-full {
-  font-size: 1.1rem;
-  color: #e2e8f0;
-  line-height: 1.7;
-  font-style: italic;
-}
 
 /* How It Works Section */
 .how-it-works {
@@ -1057,7 +902,8 @@ main section[id] {
   }
 
   .mobile-brand {
-    font-size: 2.0rem;
+    font-size: 2.2rem;
+    letter-spacing: -0.5px !important;
   }
 
   .hero-subtitle {

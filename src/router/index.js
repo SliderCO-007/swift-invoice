@@ -15,6 +15,11 @@ const routes = [
     component: () => import('../components/FeaturesPage.vue'),
   },
   {
+    path: '/reviews',
+    name: 'Reviews',
+    component: () => import('../components/ReviewsPage.vue'),
+  },
+  {
     path: '/privacy',
     name: 'Privacy',
     component: () => import('../components/PrivacyPolicy.vue'),
