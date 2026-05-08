@@ -6,7 +6,7 @@
           <div class="hero-grid">
             <div class="hero-content">
               <div class="d-sm-none mb-8 d-flex align-center justify-center">
-                <img src="/Logo.png" alt="ScanGo Logo" style="height: 44px; width: auto; filter: drop-shadow(0 4px 8px rgba(6,182,212,0.3));" class="mr-3" />
+                <img src="/Logo.png" alt="ScanGo Logo" style="height: 44px; width: auto; filter: drop-shadow(0 4px 8px rgba(6,182,212,0.3));" class="mr-1" />
                 <span class="mobile-brand" style="letter-spacing: -1px;"><span class="text-gradient">ScanGo</span> Invoice</span>
               </div>
               <h1 class="hero-title">Get Paid Online</h1>
@@ -57,12 +57,6 @@
             </div>
             <div class="hero-image">
               <img src="/branded_hero_v7.png" class="hero-static" alt="A deconstructed workspace with an invoice and dashboard.">
-              <div class="iphone-frame-wrapper" :key="animationKey">
-                <div class="iphone-frame">
-                  <div class="notch"></div>
-                  <img :src="heroGifSrc" class="hero-gif" alt="App Preview Animation">
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -225,29 +219,11 @@
       </div>
     </div>
 
-    <!-- Mobile Preview Modal -->
-    <div v-if="showMobilePreview" class="modal-overlay" @click.self="closeMobilePreview">
-      <div class="modal-content">
-        <div v-if="isMobilePreviewLoading" class="loader-container">
-          <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
-        </div>
-        <img v-show="!isMobilePreviewLoading" src="/ScanGo_create_mobile.gif" alt="Mobile Preview"
-          @load="isMobilePreviewLoading = false" />
-        <v-btn @click="closeMobilePreview" icon class="modal-close">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-            <path fill="currentColor"
-              d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z" />
-          </svg>
-        </v-btn>
-      </div>
-    </div>
-
-
   </div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted, onUnmounted } from 'vue';
+import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuth, currentUser } from '../composables/useAuth.js';
 import { useMeta } from '../composables/useMeta';
@@ -258,21 +234,6 @@ import Trustpilot from './TrustpilotWidget.vue';
 const { mobile } = useDisplay();
 const router = useRouter();
 const { loading, googleLogin } = useAuth();
-
-const heroGifSrc = ref('/ScanGo_create_mobile.gif');
-const animationKey = ref(0);
-let gifInterval;
-
-onMounted(() => {
-  gifInterval = setInterval(() => {
-    heroGifSrc.value = '/ScanGo_create_mobile.gif?t=' + Date.now();
-    animationKey.value++;
-  }, 18000); // 14s (gif duration) + 2s pause
-});
-
-onUnmounted(() => {
-  if (gifInterval) clearInterval(gifInterval);
-});
 
 const trackDownload = (location) => {
   event('download_setup_guide', {
@@ -291,16 +252,6 @@ const faqs = ref([
 ]);
 
 const showDashboardPreview = ref(false);
-const showMobilePreview = ref(false);
-const isMobilePreviewLoading = ref(false);
-const openMobilePreview = () => {
-  isMobilePreviewLoading.value = true;
-  showMobilePreview.value = true;
-};
-
-const closeMobilePreview = () => {
-  showMobilePreview.value = false;
-};
 
 const handleGoogleSignIn = async () => {
   await googleLogin();
@@ -423,57 +374,6 @@ main section[id] {
   border-radius: 32px;
   box-shadow: 0 30px 80px rgba(0,0,0,0.5);
   display: block;
-}
-
-.iphone-frame-wrapper {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  animation: fadeOutGif 1.5s ease-in-out forwards;
-  animation-delay: 14s; /* Set to approximate gif duration */
-}
-
-.iphone-frame {
-  position: relative;
-  height: 90%;
-  max-height: 800px;
-  aspect-ratio: 9 / 19.5;
-  background-color: #000;
-  border-radius: 36px;
-  border: 10px solid #1e293b;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 2px #334155;
-  overflow: hidden;
-}
-
-.iphone-frame .notch {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 40%;
-  height: 24px;
-  background-color: #1e293b;
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
-  z-index: 20;
-}
-
-.hero-image .hero-gif {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 26px; /* Inner radius */
-  display: block;
-}
-
-@keyframes fadeOutGif {
-  0% { opacity: 1; }
-  100% { opacity: 0; visibility: hidden; }
 }
 
 

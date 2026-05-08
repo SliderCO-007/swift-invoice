@@ -11,6 +11,8 @@ function getInitialSettings() {
       logoUrl: '', primaryColor: '#1a3a52'
     },
     taxRate: 0,
+    defaultDiscount: 0,
+    defaultDiscountType: 'percentage',
     invoiceCounter: 0,
     currency: 'USD',
   };

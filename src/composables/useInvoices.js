@@ -81,8 +81,19 @@ const useInvoices = () => {
 
   const calculateTotal = (invoice) => {
     const subtotal = (invoice.items || []).reduce((acc, item) => acc + (item.quantity || 0) * (item.price || 0), 0);
-    const taxAmount = subtotal * ((invoice.taxRate || 0) / 100);
-    return subtotal + taxAmount;
+    
+    let discountAmount = 0;
+    if (invoice.discount) {
+      if (invoice.discountType === 'percentage') {
+        discountAmount = subtotal * (Number(invoice.discount) / 100);
+      } else {
+        discountAmount = Number(invoice.discount);
+      }
+    }
+    
+    const postDiscountSubtotal = subtotal - discountAmount;
+    const taxAmount = postDiscountSubtotal * ((invoice.taxRate || 0) / 100);
+    return postDiscountSubtotal + taxAmount;
   };
 
   const getInvoice = async (id) => {

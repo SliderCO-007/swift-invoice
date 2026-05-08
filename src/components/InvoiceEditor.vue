@@ -41,6 +41,8 @@ function createFreshInvoice() {
     dueDate: new Date(),
     notes: 'Thank you for your business!',
     taxRate: 0,
+    discount: 0,
+    discountType: 'percentage',
     style: 'classic',
     primaryColor: '#1a3a52',
   };
@@ -58,8 +60,14 @@ const formattedDueDate = computed({
 });
 
 const subtotal = computed(() => (invoice.value.items || []).reduce((acc, item) => acc + (item.quantity || 0) * (item.price || 0), 0));
-const taxAmount = computed(() => subtotal.value * ((Number(invoice.value.taxRate) || 0) / 100));
-const total = computed(() => subtotal.value + taxAmount.value);
+const discountAmount = computed(() => {
+  if (!invoice.value.discount) return 0;
+  return invoice.value.discountType === 'percentage'
+    ? subtotal.value * (Number(invoice.value.discount) / 100)
+    : Number(invoice.value.discount);
+});
+const taxAmount = computed(() => (subtotal.value - discountAmount.value) * ((Number(invoice.value.taxRate) || 0) / 100));
+const total = computed(() => subtotal.value - discountAmount.value + taxAmount.value);
 const itemDescriptions = computed(() => items.value.map(i => i.description));
 
 // --- Methods ---
@@ -75,7 +83,7 @@ const saveInvoice = async () => {
     return;
   }
 
-  const invoiceData = { ...invoice.value, subtotal: subtotal.value, taxAmount: taxAmount.value, total: total.value };
+  const invoiceData = { ...invoice.value, subtotal: subtotal.value, discountAmount: discountAmount.value, taxAmount: taxAmount.value, total: total.value };
 
   try {
     const finalInvoiceId = invoiceId.value === 'new' 
@@ -121,6 +129,8 @@ const initializeInvoice = async () => {
     if (settings.value) {
       invoice.value.sender = { ...invoice.value.sender, ...(settings.value.company || {}) };
       invoice.value.taxRate = settings.value.taxRate || 0;
+      invoice.value.discount = settings.value.defaultDiscount || 0;
+      invoice.value.discountType = settings.value.defaultDiscountType || 'percentage';
       invoice.value.notes = settings.value.defaultNotes || invoice.value.notes;
       invoice.value.style = settings.value.defaultStyle || invoice.value.style;
       invoice.value.primaryColor = settings.value.company?.primaryColor || '#1a3a52';
@@ -271,9 +281,14 @@ onUnmounted(() => {
         <div class="form-section responsive-grid">
           <div><v-textarea label="Notes" v-model="invoice.notes" variant="solo"></v-textarea></div>
           <div>
+            <v-row>
+              <v-col cols="6"><v-text-field label="Discount" type="number" v-model.number="invoice.discount" variant="solo" density="comfortable"></v-text-field></v-col>
+              <v-col cols="6"><v-select label="Type" :items="[{title: '%', value: 'percentage'}, {title: '$', value: 'flat'}]" v-model="invoice.discountType" variant="solo" density="comfortable"></v-select></v-col>
+            </v-row>
             <v-text-field label="Tax Rate (%)" type="number" v-model.number="invoice.taxRate" variant="solo" density="comfortable"></v-text-field>
             <div class="totals-summary">
               <p>Subtotal: <span>${{ subtotal.toFixed(2) }}</span></p>
+              <p v-if="discountAmount > 0">Discount: <span>-${{ discountAmount.toFixed(2) }}</span></p>
               <p>Tax: <span>${{ taxAmount.toFixed(2) }}</span></p>
               <p class="font-weight-bold">Total: <span class="font-weight-bold">${{ total.toFixed(2) }}</span></p>
             </div>
@@ -294,10 +309,10 @@ onUnmounted(() => {
           <v-toolbar-title>Invoice Preview</v-toolbar-title>
         </v-toolbar>
         <div class="preview-content">
-          <InvoiceTemplate v-if="invoice.style === 'classic'" :invoice="{...invoice, subtotal, taxAmount, total}" :settings="settings" />
-          <InvoiceTemplate2 v-else-if="invoice.style === 'modern'" :invoice="{...invoice, subtotal, taxAmount, total}" :settings="settings" />
-          <InvoiceTemplate3 v-else-if="invoice.style === 'corporate'" :invoice="{...invoice, subtotal, taxAmount, total}" :settings="settings" />
-          <InvoiceTemplate4 v-else-if="invoice.style === 'solid'" :invoice="{...invoice, subtotal, taxAmount, total}" :settings="settings" />
+          <InvoiceTemplate v-if="invoice.style === 'classic'" :invoice="{...invoice, subtotal, discountAmount, taxAmount, total}" :settings="settings" />
+          <InvoiceTemplate2 v-else-if="invoice.style === 'modern'" :invoice="{...invoice, subtotal, discountAmount, taxAmount, total}" :settings="settings" />
+          <InvoiceTemplate3 v-else-if="invoice.style === 'corporate'" :invoice="{...invoice, subtotal, discountAmount, taxAmount, total}" :settings="settings" />
+          <InvoiceTemplate4 v-else-if="invoice.style === 'solid'" :invoice="{...invoice, subtotal, discountAmount, taxAmount, total}" :settings="settings" />
         </div>
       </v-card>
     </v-dialog>

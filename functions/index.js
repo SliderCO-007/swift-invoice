@@ -94,10 +94,10 @@ exports.stripeWebhook = onRequest(async (req, res) => {
     // Initialize stripe safely inside try block to catch secret loading issues
     const apiKey = stripeSecretKey.value();
     const webhookSecret = stripeWebhookSecret.value();
-    
+
     if (!apiKey || !webhookSecret) {
-        console.error("Missing Stripe API Key or Webhook Secret.");
-        return res.status(500).send("Server Configuration Error");
+      console.error("Missing Stripe API Key or Webhook Secret.");
+      return res.status(500).send("Server Configuration Error");
     }
 
     stripe = require("stripe")(apiKey);
@@ -108,7 +108,7 @@ exports.stripeWebhook = onRequest(async (req, res) => {
     console.error(`Webhook signature verification failed: ${err.message}`);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
-  
+
   const handleCheckoutSessionCompleted = async (session) => {
     const uid = session.client_reference_id;
     if (!uid) {
@@ -132,17 +132,17 @@ exports.stripeWebhook = onRequest(async (req, res) => {
       const stripeCustomerId = subscription.customer;
       const usersQuery = db.collection('users').where('stripeCustomerId', '==', stripeCustomerId);
       const userSnapshot = await usersQuery.get();
-      
+
       if (userSnapshot.empty) {
         console.warn(`Could not find user with Stripe customer ID: ${stripeCustomerId}`);
         return;
       }
-      
+
       // Fix: Await all updates instead of unhandled Promise execution in forEach
-      const updatePromises = userSnapshot.docs.map((doc) => 
+      const updatePromises = userSnapshot.docs.map((doc) =>
         doc.ref.update({ subscriptionStatus: 'free' })
       );
-      
+
       await Promise.all(updatePromises);
       console.log(`Successfully downgraded subscription for Stripe customer ID: ${stripeCustomerId}`);
     } catch (err) {
@@ -165,10 +165,10 @@ exports.stripeWebhook = onRequest(async (req, res) => {
     // Always enthusiastically confirm receipt 
     return res.status(200).send({ received: true });
 
-  } catch(err) {
-      console.error('Unhandled webhook error in event processing:', err);
-      // Let Stripe know there was an application error so it can optionally retry
-      return res.status(500).send(`Webhook Application Error: ${err.message}`);
+  } catch (err) {
+    console.error('Unhandled webhook error in event processing:', err);
+    // Let Stripe know there was an application error so it can optionally retry
+    return res.status(500).send(`Webhook Application Error: ${err.message}`);
   }
 });
 
@@ -176,67 +176,67 @@ exports.stripeWebhook = onRequest(async (req, res) => {
  * Attaches a client-generated PDF to an email and sends it.
  */
 exports.sendInvoiceEmail = onCall({ enforceAppCheck: false }, async (request) => {
-    const { auth, data } = request;
+  const { auth, data } = request;
 
-    // 1. Authentication & Authorization
-    if (!auth) {
-        console.error("Authentication failed: No auth object present.");
-        throw new HttpsError('unauthenticated', 'Authentication is required.');
+  // 1. Authentication & Authorization
+  if (!auth) {
+    console.error("Authentication failed: No auth object present.");
+    throw new HttpsError('unauthenticated', 'Authentication is required.');
+  }
+  const userDoc = await db.collection('users').doc(auth.uid).get();
+  if (!userDoc.exists || userDoc.data().subscriptionStatus !== 'active') {
+    console.error("Authorization failed: User does not have a valid subscription.");
+    throw new HttpsError('permission-denied', 'A Pro or Business plan is required to send invoices.');
+  }
+
+  // 2. Data Validation
+  const { invoiceId, recipientEmail, subject, message, pdfBase64 } = data;
+  if (!invoiceId || !recipientEmail || !subject || !message || !pdfBase64) {
+    console.error("Data validation failed: Missing required fields.");
+    throw new HttpsError('invalid-argument', 'Required fields (invoiceId, recipientEmail, subject, message, pdfBase64) are missing.');
+  }
+
+  try {
+    // 3. Fetch Invoice for Validation and Filename
+    const invoiceRef = db.collection('invoices').doc(invoiceId);
+    const invoiceDoc = await invoiceRef.get();
+
+    if (!invoiceDoc.exists) {
+      console.error(`Invoice not found for ID: ${invoiceId}`);
+      throw new HttpsError('not-found', 'Invoice not found.');
     }
-    const userDoc = await db.collection('users').doc(auth.uid).get();
-    if (!userDoc.exists || userDoc.data().subscriptionStatus !== 'active') {
-        console.error("Authorization failed: User does not have a valid subscription.");
-        throw new HttpsError('permission-denied', 'A Pro or Business plan is required to send invoices.');
+    const invoiceData = invoiceDoc.data();
+    if (invoiceData.userId !== auth.uid) {
+      console.error("Permission denied: User does not have permission to send this invoice.");
+      throw new HttpsError('permission-denied', 'You do not have permission to send this invoice.');
     }
 
-    // 2. Data Validation
-    const { invoiceId, recipientEmail, subject, message, pdfBase64 } = data;
-    if (!invoiceId || !recipientEmail || !subject || !message || !pdfBase64) {
-        console.error("Data validation failed: Missing required fields.");
-        throw new HttpsError('invalid-argument', 'Required fields (invoiceId, recipientEmail, subject, message, pdfBase64) are missing.');
+    // 4. Convert Base64 PDF to a Buffer
+    const pdfBuffer = Buffer.from(pdfBase64, 'base64');
+
+    // 5. Send Email with the PDF Attachment
+    const resend = new Resend(resendApiKey.value());
+    await resend.emails.send({
+      from: 'no-reply@scangoinvoice.com',
+      to: recipientEmail,
+      subject: subject,
+      html: message, // Message is already HTML formatted from the client
+      attachments: [{
+        filename: `Invoice-${invoiceData.invoiceNumber}.pdf`,
+        content: pdfBuffer,
+      }],
+    });
+
+    return { success: true, message: `Invoice sent to ${recipientEmail}` };
+
+  } catch (error) {
+    console.error("Error sending invoice email:", error);
+    if (error instanceof HttpsError) throw error;
+    // Check for Resend-specific errors and provide a more detailed message
+    if (error.response) {
+      console.error('Resend API Error:', error.response.body);
+      throw new HttpsError('internal', `Failed to send email via Resend: ${error.response.body.message}`);
     }
-
-    try {
-        // 3. Fetch Invoice for Validation and Filename
-        const invoiceRef = db.collection('invoices').doc(invoiceId);
-        const invoiceDoc = await invoiceRef.get();
-
-        if (!invoiceDoc.exists) {
-            console.error(`Invoice not found for ID: ${invoiceId}`);
-            throw new HttpsError('not-found', 'Invoice not found.');
-        }
-        const invoiceData = invoiceDoc.data();
-        if (invoiceData.userId !== auth.uid) {
-            console.error("Permission denied: User does not have permission to send this invoice.");
-            throw new HttpsError('permission-denied', 'You do not have permission to send this invoice.');
-        }
-
-        // 4. Convert Base64 PDF to a Buffer
-        const pdfBuffer = Buffer.from(pdfBase64, 'base64');
-
-        // 5. Send Email with the PDF Attachment
-        const resend = new Resend(resendApiKey.value());
-        await resend.emails.send({
-            from: 'no-reply@scangoinvoice.com',
-            to: recipientEmail,
-            subject: subject,
-            html: message, // Message is already HTML formatted from the client
-            attachments: [{
-                filename: `Invoice-${invoiceData.invoiceNumber}.pdf`,
-                content: pdfBuffer,
-            }],
-        });
-
-        return { success: true, message: `Invoice sent to ${recipientEmail}` };
-
-    } catch (error) {
-        console.error("Error sending invoice email:", error);
-        if (error instanceof HttpsError) throw error;
-        // Check for Resend-specific errors and provide a more detailed message
-        if (error.response) {
-            console.error('Resend API Error:', error.response.body);
-            throw new HttpsError('internal', `Failed to send email via Resend: ${error.response.body.message}`);
-        }
-        throw new HttpsError('internal', 'An unexpected error occurred while sending the email.');
-    }
+    throw new HttpsError('internal', 'An unexpected error occurred while sending the email.');
+  }
 });

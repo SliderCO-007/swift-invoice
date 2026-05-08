@@ -18,6 +18,7 @@ const props = defineProps({
 })
 
 const subtotal = computed(() => props.invoice.subtotal || 0)
+const discountAmount = computed(() => props.invoice.discountAmount || 0)
 const taxAmount = computed(() => props.invoice.taxAmount || 0)
 const total = computed(() => props.invoice.total || 0)
 
@@ -151,6 +152,10 @@ const formatCurrency = (value) => {
         <div class="total-row">
           <span>Subtotal</span>
           <span>{{ formatCurrency(subtotal) }}</span>
+        </div>
+        <div class="total-row" v-if="discountAmount > 0">
+          <span>Discount</span>
+          <span>-{{ formatCurrency(discountAmount) }}</span>
         </div>
         <div class="total-row" v-if="invoice.taxRate > 0">
           <span>Tax ({{ invoice.taxRate }}%)</span>

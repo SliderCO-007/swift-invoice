@@ -40,6 +40,8 @@ const previewError = ref('');
 const localSettings = ref({
   company: { name: '', email: '', address1: '', address2: '', city: '', state: '', zip: '', logoUrl: '', primaryColor: '#1a3a52' },
   taxRate: 0,
+  defaultDiscount: 0,
+  defaultDiscountType: 'percentage',
   currency: 'USD',
 });
 
@@ -169,6 +171,8 @@ const goToPricing = () => {
             <v-text-field label="State" v-model="localSettings.company.state" placeholder="e.g., CA" variant="solo"></v-text-field>
             <v-text-field label="Zip Code" v-model="localSettings.company.zip" placeholder="e.g., 94016" variant="solo" class="full-width"></v-text-field>
             <v-text-field label="Default Tax Rate (%)" type="number" v-model.number="localSettings.taxRate" placeholder="e.g., 10" variant="solo"></v-text-field>
+            <v-text-field label="Default Discount" type="number" v-model.number="localSettings.defaultDiscount" placeholder="e.g., 10" variant="solo"></v-text-field>
+            <v-select label="Default Discount Type" :items="[{title: 'Percentage (%)', value: 'percentage'}, {title: 'Flat Amount', value: 'flat'}]" v-model="localSettings.defaultDiscountType" variant="solo"></v-select>
             <v-select label="Currency" :items="['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'INR', 'BRL', 'MXN', 'ZAR', 'SGD', 'NZD', 'CHF', 'HKD']" v-model="localSettings.currency" variant="solo"></v-select>
             <div class="form-group branding-group">
                 <label class="color-label">Brand Primary Color</label>
