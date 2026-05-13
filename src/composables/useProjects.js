@@ -6,6 +6,7 @@ import {
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from './useFirebase';
 import { currentUser } from './useAuth.js';
+import { useCustomers } from './useCustomers';
 
 // --- Module-level singleton state ---
 const projects = ref([]);
@@ -196,8 +197,22 @@ const useProjects = () => {
       });
     }
 
+    const { customers } = useCustomers();
+    const customer = project.clientId ? customers.value.find(c => c.id === project.clientId) : null;
+
+    const clientPayload = customer ? {
+      name: customer.name || project.clientName || '',
+      email: customer.email || '',
+      address1: customer.address1 || '',
+      address2: customer.address2 || '',
+      city: customer.city || '',
+      state: customer.state || '',
+      zip: customer.zip || '',
+      phone: customer.phone || ''
+    } : { name: project.clientName || '' };
+
     return {
-      client: { name: project.clientName || '' },
+      client: clientPayload,
       items: lineItems,
       notes: `Project: ${project.name}`,
       status: 'pending',

@@ -9,9 +9,9 @@
                 <img src="/Logo.png" alt="ScanGo Logo" style="height: 44px; width: auto; filter: drop-shadow(0 4px 8px rgba(6,182,212,0.3));" class="mr-1" />
                 <span class="mobile-brand" style="letter-spacing: -1px;"><span class="text-gradient">ScanGo</span> Invoice</span>
               </div>
-              <h1 class="hero-title">Get Paid Online</h1>
-              <h1 class="hero-title"><span class="text-gradient">Fast, Simple, and Professional</span></h1>
-              <p class="hero-subtitle">Create invoices in seconds, track billable time and expenses by project, and let your customers pay instantly via credit card, Apple Pay, Google Pay, or ACH — all from a secure ScanGo payment page, directly into your account.</p>
+              <h1 class="hero-title">Turn Tracked Work into Paid Invoices</h1>
+              <h1 class="hero-title"><span class="text-gradient">in One Click.</span></h1>
+              <p class="hero-subtitle">You’ve done the work; don't spend an extra hour billing for it. Our 'one-click' transition pulls your project data directly into a professional invoice, ready for payment instantly.</p>
               <div class="d-flex flex-column flex-sm-row flex-wrap ga-4 mt-8 align-center justify-center justify-md-start">
                 <v-btn @click="handleGoogleSignIn" :loading="loading" variant="outlined" color="white" class="font-weight-bold px-10 cta-btn outline-btn" size="x-large" rounded="xl" :block="mobile">
                   <svg class="mr-2" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -80,7 +80,7 @@
               </div>
               <h3 class="text-h5 font-weight-bold text-white mb-4">Enable Instant Online Payments</h3>
               <p class="text-body-1 text-grey-lighten-1 mb-0">
-                Connect your payment account in minutes and start accepting cards, Apple Pay, Google Pay, and ACH — all through ScanGo Invoice.
+                Connect or create your payment account in minutes and start accepting cards, Apple Pay, Google Pay, and ACH — all through ScanGo Invoice.
               </p>
             </div>
 
@@ -104,7 +104,7 @@
               </div>
               <h3 class="text-h5 font-weight-bold text-white mb-4">Track Work, Invoice Instantly</h3>
               <p class="text-body-1 text-grey-lighten-1 mb-8">
-                Log billable hours and expenses under a project. When the work is done, convert it to a pre-filled invoice in one click — no manual data entry.
+                Log billable hours and expenses under a project. Scan receipts and save them to the project. When the work is done, convert it to a pre-filled invoice in one click — no manual data entry.
               </p>
               <div class="payment-methods d-flex justify-center align-center ga-4 flex-wrap">
                 <div class="payment-pill pro-pill">

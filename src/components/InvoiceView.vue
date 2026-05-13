@@ -285,12 +285,23 @@ const sendInvoiceEmail = async () => {
     const clientName = invoice.value.client?.name || 'Valued Client'
 
     const emailBody = `
-      <p><b>Invoice from ${companyName}</b></p>
-      <p>Dear ${clientName},</p>
-      <p>Thank you for your business! Your invoice #${invoice.value.invoiceNumber} is attached to this email.</p>
-      <p>Please review the attached PDF for payment details, including available payment options.</p>
-      <br>
-      <p><i>This is an automated email. Please do not reply.</i></p>
+      <div style="font-family: 'Inter', Helvetica, sans-serif; max-width: 600px; margin: 0 auto; background-color: #111d2f; color: #ffffff; padding: 40px; border-radius: 12px; border: 1px solid #1e293b;">
+        <h1 style="color: #60a5fa; margin-bottom: 24px;">Invoice from ${companyName}</h1>
+        <p style="font-size: 16px; line-height: 1.6; color: #e2e8f0;">
+          Dear ${clientName},
+        </p>
+        <p style="font-size: 16px; line-height: 1.6; color: #e2e8f0;">
+          Thank you for your business! Your invoice #${invoice.value.invoiceNumber} is attached to this email.
+        </p>
+        <p style="font-size: 16px; line-height: 1.6; color: #e2e8f0;">
+          Please review the attached PDF for payment details, including available payment options.
+        </p>
+        <hr style="border: none; border-top: 1px solid #334155; margin: 40px 0;">
+        <p style="font-size: 14px; color: #94a3b8; text-align: center; margin: 0;">
+          <i>This is an automated email. Please do not reply.</i><br>
+          — ${companyName}
+        </p>
+      </div>
     `
 
     const sendEmailFunction = httpsCallable(functions, 'sendInvoiceEmail')

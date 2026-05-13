@@ -26,9 +26,9 @@
         <div class="cookie-banner-inner">
           <v-row no-gutters align="center">
             <v-col class="px-3">
-              <div class="text-body-1 text-white">We use cookies to enhance your experience.</div>
+              <div class="text-body-1 text-white">We value your privacy.</div>
               <div class="text-caption" style="color: #94a3b8;">
-                By clicking "Accept", you agree to our cookie policy.
+                We use cookies to analyze traffic and enhance your experience.
               </div>
               <div>
                 <p class="text-caption mt-2">

@@ -1,7 +1,8 @@
 import { ref, watchEffect } from 'vue';
 import { doc, setDoc, getDoc, onSnapshot } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from './useFirebase';
+import { db, storage, functions } from './useFirebase';
+import { httpsCallable } from 'firebase/functions';
 import { currentUser } from './useAuth';
 
 function getInitialSettings() {
@@ -126,6 +127,17 @@ const saveUserSettings = async (newSettings, logoFile) => {
   }
 };
 
+const sendPreviewEmail = async (recipientEmail) => {
+  try {
+    const sendPreviewFn = httpsCallable(functions, 'sendPreviewReport');
+    const response = await sendPreviewFn({ recipientEmail });
+    return response.data.message;
+  } catch (err) {
+    console.error("Error sending preview email:", err);
+    throw err;
+  }
+};
+
 const useUserSettings = () => {
   return {
     settings,
@@ -133,6 +145,7 @@ const useUserSettings = () => {
     error,
     saveUserSettings,
     fetchUserSettings,
+    sendPreviewEmail,
   };
 };
 
