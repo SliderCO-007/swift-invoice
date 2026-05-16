@@ -108,7 +108,8 @@ const useProjects = () => {
     const toJsDate = (val) => {
       if (!val) return null;
       if (typeof val.toDate === 'function') return val.toDate(); // Firestore Timestamp
-      return new Date(val); // string like "2026-05-01" or already a Date
+      if (typeof val === 'string' && val.length === 10 && val.includes('-')) return val; // Keep YYYY-MM-DD as string
+      return new Date(val); // fallback for other formats
     };
 
     const stopEntries = onSnapshot(q, (snapshot) => {
@@ -122,7 +123,11 @@ const useProjects = () => {
             createdAt: toJsDate(data.createdAt),
           };
         })
-        .sort((a, b) => (b.date || 0) - (a.date || 0));
+        .sort((a, b) => {
+          const aTime = a.date instanceof Date ? a.date.getTime() : (typeof a.date === 'string' ? new Date(a.date).getTime() : 0);
+          const bTime = b.date instanceof Date ? b.date.getTime() : (typeof b.date === 'string' ? new Date(b.date).getTime() : 0);
+          return bTime - aTime;
+        });
       entriesLoading.value = false;
     }, (err) => {
       console.error('Failed to fetch entries:', err);

@@ -39,7 +39,10 @@ const isSubmitting    = ref(false);
 const entryError      = ref(null);
 const receiptViewer   = ref({ show: false, url: '' });
 
-const todayStr = () => new Date().toISOString().slice(0, 10);
+const todayStr = () => {
+  const d = new Date();
+  return new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().slice(0, 10);
+};
 
 function freshTimeEntry() {
   return { date: todayStr(), hours: null, rate: Number(project.value?.defaultRate) || 0, description: '', billable: true };
@@ -68,9 +71,19 @@ const showEditModal = ref(false);
 
 const openEdit = (entry) => {
   editingEntry.value = entry;
+  
+  let dStr = todayStr();
+  if (entry.date) {
+    if (typeof entry.date === 'string' && entry.date.length === 10) {
+      dStr = entry.date;
+    } else {
+      dStr = new Date(entry.date).toISOString().slice(0, 10);
+    }
+  }
+  
   editForm.value = {
     ...entry,
-    date: entry.date ? new Date(entry.date).toISOString().slice(0, 10) : todayStr(),
+    date: dStr,
   };
   showEditModal.value = true;
 };
@@ -163,7 +176,14 @@ const convertToInvoice = () => {
 // ── Status helpers ─────────────────────────────────────────────────
 const statusColor = (s) => ({ active: 'success', completed: 'info', archived: 'warning' }[s] || 'default');
 const fmt$  = (v) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(v || 0);
-const fmtDate = (d) => d ? new Date(d).toLocaleDateString() : '—';
+const fmtDate = (d) => {
+  if (!d) return '—';
+  if (typeof d === 'string' && d.length === 10 && d.includes('-')) {
+    const parts = d.split('-');
+    return new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString();
+  }
+  return new Date(d).toLocaleDateString();
+};
 
 // ── Init ───────────────────────────────────────────────────────────
 const init = async () => {
