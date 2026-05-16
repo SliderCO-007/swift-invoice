@@ -57,6 +57,16 @@
             </div>
             <div class="hero-image">
               <img src="/branded_hero_v7.png" class="hero-static" alt="A deconstructed workspace with an invoice and dashboard.">
+              
+              <!-- iPhone GIF Overlay -->
+              <transition name="fade">
+                <div class="iphone-overlay" v-if="showGifOverlay">
+                  <div class="iphone-frame">
+                    <div class="notch"></div>
+                    <img src="/ScanGo_convert_project_02.gif" class="iphone-gif" alt="Project Conversion Demo">
+                  </div>
+                </div>
+              </transition>
             </div>
           </div>
         </div>
@@ -206,24 +216,13 @@
       </div>
     </footer>
 
-    <!-- Dashboard Preview Modal -->
-    <div v-if="showDashboardPreview" class="modal-overlay" @click.self="showDashboardPreview = false">
-      <div class="modal-content">
-        <img src="/dashboardPreview.png" alt="Dashboard Preview" />
-        <v-btn @click="showDashboardPreview = false" icon class="modal-close">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-            <path fill="currentColor"
-              d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z" />
-          </svg>
-        </v-btn>
-      </div>
-    </div>
+
 
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuth, currentUser } from '../composables/useAuth.js';
 import { useMeta } from '../composables/useMeta';
@@ -251,7 +250,13 @@ const faqs = ref([
   { question: "Is ScanGo secure?", answer: "Yes. All payments are processed through Stripe and all invoice data is encrypted." },
 ]);
 
-const showDashboardPreview = ref(false);
+const showGifOverlay = ref(true);
+
+onMounted(() => {
+  setTimeout(() => {
+    showGifOverlay.value = false;
+  }, 122082);
+});
 
 const handleGoogleSignIn = async () => {
   await googleLogin();
@@ -374,6 +379,57 @@ main section[id] {
   border-radius: 32px;
   box-shadow: 0 30px 80px rgba(0,0,0,0.5);
   display: block;
+}
+
+/* iPhone Overlay Styles */
+.iphone-overlay {
+  position: absolute;
+  bottom: -40px;
+  left: -40px;
+  width: 280px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.iphone-frame {
+  position: relative;
+  background: #000;
+  border-radius: 44px;
+  padding: 12px;
+  transform: rotate(8deg);
+  box-shadow: 
+    15px 35px 60px rgba(0, 0, 0, 0.7), 
+    inset 0 0 0 2px #555, 
+    inset 0 0 0 6px #000;
+  will-change: transform;
+}
+
+.notch {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 110px;
+  height: 25px;
+  background: #000;
+  border-bottom-left-radius: 14px;
+  border-bottom-right-radius: 14px;
+  z-index: 2;
+}
+
+.iphone-gif {
+  width: 100%;
+  height: auto;
+  border-radius: 32px; /* inner screen radius */
+  display: block;
+  background: #111;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 1.5s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
 }
 
 
@@ -711,6 +767,12 @@ main section[id] {
     margin-bottom: 2rem;
   }
 
+  .iphone-overlay {
+    width: 220px;
+    bottom: -20px;
+    left: -10px;
+  }
+
   .feature-row {
     grid-template-columns: 1fr;
     text-align: center;
@@ -762,6 +824,25 @@ main section[id] {
   .hero-subtitle {
     font-size: 1rem;
     margin-bottom: 1.5rem;
+  }
+
+  .iphone-overlay {
+    display: block;
+    width: 240px;
+    top: 50%;
+    left: 50%;
+    bottom: auto;
+    transform: translate(-50%, -50%);
+  }
+
+  .iphone-frame {
+    transform: rotate(3deg); /* Less angle on mobile */
+    padding: 8px; /* Slightly thinner bezel for small screens */
+    border-radius: 32px;
+  }
+  
+  .iphone-gif {
+    border-radius: 24px;
   }
 
   .how-it-works {
