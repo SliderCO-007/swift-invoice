@@ -180,4 +180,11 @@ router.beforeEach(async (to, from, next) => {
   }
 });
 
+router.afterEach((to, from) => {
+  // Track page views with Meta Pixel on route changes
+  if (typeof fbq !== 'undefined') {
+    fbq('track', 'PageView');
+  }
+});
+
 export default router;

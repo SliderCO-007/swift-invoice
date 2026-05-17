@@ -11,7 +11,28 @@
               </div>
               <h1 class="hero-title">Turn Tracked Work into Paid Invoices</h1>
               <h1 class="hero-title"><span class="text-gradient">in One Click.</span></h1>
-              <p class="hero-subtitle">You’ve done the work; don't spend an extra hour billing for it. Our 'one-click' transition pulls your project data directly into a professional invoice, ready for payment instantly.</p>
+              <div class="hero-bullets d-flex flex-column ga-3 mb-8 mt-2 ml-4">
+                <div class="d-flex align-center text-h6 text-blue-grey-lighten-1">
+                  <v-icon color="success" class="mr-3">mdi-check-circle</v-icon>
+                  <span>Mobile invoice generator</span>
+                </div>
+                <div class="d-flex align-center text-h6 text-blue-grey-lighten-1">
+                  <v-icon color="success" class="mr-3">mdi-check-circle</v-icon>
+                  <span>Time tracking for freelancers</span>
+                </div>
+                <div class="d-flex align-center text-h6 text-blue-grey-lighten-1">
+                  <v-icon color="success" class="mr-3">mdi-check-circle</v-icon>
+                  <span>Easy expense tracking</span>
+                </div>
+                <div class="d-flex align-center text-h6 text-blue-grey-lighten-1">
+                  <v-icon color="success" class="mr-3">mdi-check-circle</v-icon>
+                  <span>Payment links and QR codes</span>
+                </div>
+                <div class="d-flex align-center text-h6 text-blue-grey-lighten-1">
+                  <v-icon color="success" class="mr-3">mdi-check-circle</v-icon>
+                  <span>Secure payments</span>
+                </div>
+              </div>
               <div class="d-flex flex-column flex-sm-row flex-wrap ga-4 mt-8 align-center justify-center justify-md-start">
                 <v-btn @click="handleGoogleSignIn" :loading="loading" variant="outlined" color="white" class="font-weight-bold px-10 cta-btn outline-btn" size="x-large" rounded="xl" :block="mobile">
                   <svg class="mr-2" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
