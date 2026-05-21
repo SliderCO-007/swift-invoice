@@ -53,9 +53,9 @@
                 Get started for free. No credit card required.
               </p>
               <div class="mt-6 d-flex justify-center justify-md-start">
-                <v-btn @click="trackDownload('hero_button')" href="/__ScanGo Invoice + Stripe Connect.pdf" target="_blank" rel="noopener noreferrer" color="primary" variant="tonal" rounded="xl" class="font-weight-bold px-6" size="large">
-                  <v-icon left class="mr-2">mdi-download</v-icon>
-                  Download Setup Guide
+                <v-btn @click="openVideoModal" class="play-demo-btn px-6" size="large" rounded="xl" :block="mobile">
+                  <v-icon left class="mr-2">mdi-play-circle-outline</v-icon>
+                  Watch 2-Min Demo
                 </v-btn>
               </div>
               <div class="mt-8 d-flex flex-column flex-sm-row align-center justify-center justify-md-start ga-4">
@@ -237,7 +237,30 @@
       </div>
     </footer>
 
-
+    <!-- Video Modal Lightbox -->
+    <v-dialog v-model="videoDialogOpen" max-width="900px" transition="dialog-bottom-transition" z-index="2000">
+      <v-card class="video-modal-card">
+        <div class="video-modal-header d-flex align-center justify-space-between px-6 py-4">
+          <div class="d-flex align-center">
+            <v-icon color="primary" class="mr-2" size="28">mdi-play-circle-outline</v-icon>
+            <span class="text-h6 font-weight-bold text-white">Getting Started with ScanGo</span>
+          </div>
+          <v-btn icon="mdi-close" variant="text" color="white" size="small" @click="closeVideoModal"></v-btn>
+        </div>
+        <v-card-text class="pa-0 bg-black">
+          <div class="video-container">
+            <iframe
+              v-if="videoDialogOpen"
+              :src="`https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&rel=0`"
+              title="ScanGo Invoice Getting Started Video"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+            ></iframe>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
 
   </div>
 </template>
@@ -272,6 +295,20 @@ const faqs = ref([
 ]);
 
 const showGifOverlay = ref(true);
+const videoDialogOpen = ref(false);
+const youtubeId = '6jhI-ZKzkPg';
+
+const openVideoModal = () => {
+  videoDialogOpen.value = true;
+  event('play_getting_started_video', {
+    event_category: 'engagement',
+    event_label: 'hero_button'
+  });
+};
+
+const closeVideoModal = () => {
+  videoDialogOpen.value = false;
+};
 
 onMounted(() => {
   setTimeout(() => {
@@ -334,7 +371,7 @@ main section[id] {
 
 /* Hero Section */
 .hero {
-  padding: 6rem 0;
+  padding: 2rem 0 6rem 0;
   background-color: transparent;
 }
 
@@ -920,5 +957,50 @@ main section[id] {
     padding-left: 1rem !important;
     padding-right: 1rem !important;
   }
+}
+
+/* Premium Video Dialog Styles */
+.video-modal-card {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(20px) !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6) !important;
+}
+
+.video-modal-header {
+  background: rgba(30, 41, 59, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.video-container {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+.video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.play-demo-btn {
+  background: linear-gradient(135deg, #4ade80, #06b6d4) !important;
+  color: #0c1522 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 8px 25px rgba(6, 182, 212, 0.35) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.play-demo-btn:hover {
+  box-shadow: 0 12px 35px rgba(6, 182, 212, 0.55) !important;
+  transform: translateY(-2px) !important;
 }
 </style>

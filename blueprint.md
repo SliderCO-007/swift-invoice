@@ -49,3 +49,16 @@ ScanGo Invoice is a modern, responsive Vue.js application that allows users to c
 ## Enhancements
 ### Landing Page Visuals
 - Added a dynamic iPhone frame overlay to the hero section (`LandingPage.vue`) that plays `ScanGo_convert_project_01.gif`. The animation is configured to loop exactly 3 times before fading out gracefully via Vue transitions.
+
+## Video Player Integration (v4)
+
+### Purpose
+Introduce a high-converting, privacy-respecting "Getting Started" YouTube video modal directly on the landing page so users can see the product in action without being redirected away from the signup funnel.
+
+### Proposed Changes
+#### [MODIFY] [LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Replace "Download Setup Guide" button in the Hero section with "Watch 2-Min Demo" primary brand button.
+- Declare `videoDialogOpen` and `youtubeId` in `<script setup>`.
+- Add custom methods `openVideoModal` and `closeVideoModal` to manage play state and tracking.
+- Embed a `v-dialog` modal containing a responsive, privacy-compliant iframe (`youtube-nocookie.com`) to load and play the video.
+- Add CSS styling for responsive video wrapper and modal card glassmorphism.
