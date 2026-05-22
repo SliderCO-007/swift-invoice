@@ -62,3 +62,50 @@ Introduce a high-converting, privacy-respecting "Getting Started" YouTube video 
 - Add custom methods `openVideoModal` and `closeVideoModal` to manage play state and tracking.
 - Embed a `v-dialog` modal containing a responsive, privacy-compliant iframe (`youtube-nocookie.com`) to load and play the video.
 - Add CSS styling for responsive video wrapper and modal card glassmorphism.
+
+## Freemium Funnel & Onboarding Optimization (v5)
+
+### Purpose
+Maximize learning velocity, drive free plan signups, and seamlessly guide users to realize the value of Project Tracking (billable hours & expense entries) to accelerate Pro subscription upgrades.
+
+### Proposed Changes
+#### [NEW] [OnboardingChecklist.vue](file:///C:/Users/curth/git/swift-invoice/src/components/OnboardingChecklist.vue)
+- Create a beautiful glassmorphic onboarding checklist widget with completed task states stored in local storage per user profile UID.
+- Checklist actions: Create first project, log first entry, convert/preview invoice.
+
+#### [MODIFY] [Dashboard.vue](file:///C:/Users/curth/git/swift-invoice/src/components/Dashboard.vue)
+- Add `<OnboardingChecklist />` at the top of the main workspace dashboard for users on the free tier.
+
+#### [MODIFY] [ProjectsView.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ProjectsView.vue)
+- Replace hard upgrade paywall with a freemium limit (1 active project allowed).
+- Add header banners alerting free users of the "Taste Test" limit.
+- Prevent free users from creating > 1 project and trigger the Upgrade Modal on clicks.
+
+#### [MODIFY] [ProjectDetail.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ProjectDetail.vue)
+- Track time and expense entry count: Limit free users to 3 entries before prompting Pro subscription.
+- Intercept "Convert to Invoice" clicks for free users and redirect them to the upgrade screen.
+
+#### [MODIFY] [ProjectEditor.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ProjectEditor.vue)
+- Prevent free users from accessing the project creation route if they already have one project.
+
+#### [NEW] [AlternativesPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/AlternativesPage.vue)
+- Create comparative marketing layout for Harvest, FreshBooks, and Toggl comparisons.
+- Highlight the dark mode styling and Stripe Connect direct bank pay features.
+
+#### [MODIFY] [router/index.js](file:///C:/Users/curth/git/swift-invoice/src/router/index.js)
+- Register route `/alternatives/:competitor` to render comparison pages.
+
+## Landing Page & Onboarding Funnel CRO Optimization (v6)
+
+### Purpose
+Optimize the landing page and welcome email funnel for high-converting Meta Ads traffic. This is achieved by establishing equal visual prominence for the registration CTAs, demoting the distracting video CTA, deferring heavy GIF loading on mobile to maximize page speed, and adding the quick-start video to the post-signup welcome email.
+
+### Proposed Changes
+#### [MODIFY] [LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Restructure the registration buttons to display Google and Email Sign-in with equal visual prominence, styling both as premium glowing buttons of equal scale and visual weight.
+- Demote the *"Watch 2-Min Demo"* button from its dominant glowing gradient to a clean, understated outlined style.
+- Upgrade hero list items to benefit-driven outcomes rather than dry feature specifications.
+- Set `showGifOverlay` to `false` initially and defer loading the heavy `.gif` until the first user scroll, touch, or click.
+
+#### [MODIFY] [welcomeEmail.js](file:///C:/Users/curth/git/swift-invoice/functions/welcomeEmail.js)
+- Embed a beautifully styled, high-converting callout block containing a button that directs new signups to watch the 2-minute setup guide on YouTube.

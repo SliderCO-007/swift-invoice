@@ -6,85 +6,175 @@
           <div class="hero-grid">
             <div class="hero-content">
               <div class="d-sm-none mb-8 d-flex align-center justify-center">
-                <img src="/Logo.png" alt="ScanGo Logo" style="height: 44px; width: auto; filter: drop-shadow(0 4px 8px rgba(6,182,212,0.3));" class="mr-1" />
-                <span class="mobile-brand" style="letter-spacing: -1px;"><span class="text-gradient">ScanGo</span> Invoice</span>
+                <img
+                  src="/Logo.png"
+                  alt="ScanGo Logo"
+                  style="
+                    height: 44px;
+                    width: auto;
+                    filter: drop-shadow(0 4px 8px rgba(6, 182, 212, 0.3));
+                  "
+                  class="mr-1"
+                />
+                <span class="mobile-brand" style="letter-spacing: -1px"
+                  ><span class="text-gradient">ScanGo</span> Invoice</span
+                >
               </div>
               <h1 class="hero-title">Turn Tracked Work into Paid Invoices</h1>
               <h1 class="hero-title"><span class="text-gradient">in One Click.</span></h1>
               <div class="hero-bullets d-flex flex-column ga-3 mb-8 mt-2 ml-4">
                 <div class="d-flex align-center text-h6 text-blue-grey-lighten-1">
                   <v-icon color="success" class="mr-3">mdi-check-circle</v-icon>
-                  <span>Mobile invoice generator</span>
+                  <span>Create & send professional invoices from your phone in under 60 seconds</span>
                 </div>
                 <div class="d-flex align-center text-h6 text-blue-grey-lighten-1">
                   <v-icon color="success" class="mr-3">mdi-check-circle</v-icon>
-                  <span>Time tracking for freelancers</span>
+                  <span>Track billable hours & project expenses on-the-go (with receipt scanning)</span>
                 </div>
                 <div class="d-flex align-center text-h6 text-blue-grey-lighten-1">
                   <v-icon color="success" class="mr-3">mdi-check-circle</v-icon>
-                  <span>Easy expense tracking</span>
+                  <span>Get paid instantly via Credit Card, Apple Pay, Google Pay, or ACH</span>
                 </div>
                 <div class="d-flex align-center text-h6 text-blue-grey-lighten-1">
                   <v-icon color="success" class="mr-3">mdi-check-circle</v-icon>
-                  <span>Payment links and QR codes</span>
+                  <span>1-Click conversion from project work directly into pre-filled invoices</span>
                 </div>
                 <div class="d-flex align-center text-h6 text-blue-grey-lighten-1">
                   <v-icon color="success" class="mr-3">mdi-check-circle</v-icon>
-                  <span>Secure payments</span>
+                  <span>Secure Stripe-powered deposits straight to your bank in 2 business days</span>
                 </div>
               </div>
-              <div class="d-flex flex-column flex-sm-row flex-wrap ga-4 mt-8 align-center justify-center justify-md-start">
-                <v-btn @click="handleGoogleSignIn" :loading="loading" variant="outlined" color="white" class="font-weight-bold px-10 cta-btn outline-btn" size="x-large" rounded="xl" :block="mobile">
-                  <svg class="mr-2" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              <div
+                class="d-flex flex-column flex-sm-row flex-wrap ga-4 mt-8 align-center justify-center justify-md-start"
+              >
+                <v-btn
+                  @click="handleGoogleSignIn"
+                  :loading="loading"
+                  class="font-weight-bold px-10 cta-btn cta-btn-google"
+                  size="x-large"
+                  rounded="xl"
+                  :block="mobile"
+                >
+                  <svg
+                    class="mr-2"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                      fill="#4285F4"
+                    />
+                    <path
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                      fill="#34A853"
+                    />
+                    <path
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                      fill="#FBBC05"
+                    />
+                    <path
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                      fill="#EA4335"
+                    />
                   </svg>
                   Start Free with Google
                 </v-btn>
-                <v-btn to="/register" color="white" class="text-black font-weight-bold px-10 cta-btn" size="x-large" rounded="xl" :block="mobile">
+                <v-btn
+                  to="/register"
+                  class="font-weight-bold px-10 cta-btn cta-btn-email"
+                  size="x-large"
+                  rounded="xl"
+                  :block="mobile"
+                >
                   <v-icon left size="24" class="mr-2">mdi-email-outline</v-icon>
                   Or continue with email
                 </v-btn>
               </div>
-              <p class="mt-4 text-caption text-sm-body-2 text-blue-grey-lighten-2 d-flex align-center justify-center justify-md-start">
+              <p
+                class="mt-4 text-caption text-sm-body-2 text-blue-grey-lighten-2 d-flex align-center justify-center justify-md-start"
+              >
                 <v-icon size="small" class="mr-1">mdi-check-circle-outline</v-icon>
                 Get started for free. No credit card required.
               </p>
               <div class="mt-6 d-flex justify-center justify-md-start">
-                <v-btn @click="openVideoModal" class="play-demo-btn px-6" size="large" rounded="xl" :block="mobile">
+                <v-btn
+                  @click="openVideoModal"
+                  class="play-demo-btn px-6"
+                  size="large"
+                  rounded="xl"
+                  :block="mobile"
+                >
                   <v-icon left class="mr-2">mdi-play-circle-outline</v-icon>
                   Watch 2-Min Demo
                 </v-btn>
               </div>
-              <div class="mt-8 d-flex flex-column flex-sm-row align-center justify-center justify-md-start ga-4">
-                <div class="d-flex align-center cursor-pointer" @click="router.push('/reviews')">
+              <div
+                class="mt-8 d-flex flex-column flex-sm-row align-center justify-center justify-md-start ga-4"
+              >
+                <div
+                  class="d-flex align-center cursor-pointer"
+                  @click="router.push('/reviews')"
+                >
                   <div class="avatar-group mr-4">
-                    <v-avatar size="36" class="avatar-item font-weight-bold text-white bg-indigo-darken-1">S</v-avatar>
-                    <v-avatar size="36" class="avatar-item font-weight-bold text-white bg-pink-darken-1">M</v-avatar>
-                    <v-avatar size="36" class="avatar-item font-weight-bold text-white bg-teal-darken-1">A</v-avatar>
-                    <v-avatar size="36" class="avatar-item font-weight-bold text-white bg-orange-darken-1">J</v-avatar>
-                    <v-avatar size="36" class="avatar-item last-avatar text-white bg-grey-darken-3"><span class="text-caption font-weight-bold">20k+</span></v-avatar>
+                    <v-avatar
+                      size="36"
+                      class="avatar-item font-weight-bold text-white bg-indigo-darken-1"
+                      >S</v-avatar
+                    >
+                    <v-avatar
+                      size="36"
+                      class="avatar-item font-weight-bold text-white bg-pink-darken-1"
+                      >M</v-avatar
+                    >
+                    <v-avatar
+                      size="36"
+                      class="avatar-item font-weight-bold text-white bg-teal-darken-1"
+                      >A</v-avatar
+                    >
+                    <v-avatar
+                      size="36"
+                      class="avatar-item font-weight-bold text-white bg-orange-darken-1"
+                      >J</v-avatar
+                    >
+                    <v-avatar
+                      size="36"
+                      class="avatar-item last-avatar text-white bg-grey-darken-3"
+                      ><span class="text-caption font-weight-bold">20k+</span></v-avatar
+                    >
                   </div>
                   <div class="text-left">
                     <div class="d-flex align-center">
-                      <v-icon color="warning" size="small" v-for="n in 5" :key="n">mdi-star</v-icon>
+                      <v-icon color="warning" size="small" v-for="n in 5" :key="n"
+                        >mdi-star</v-icon
+                      >
                     </div>
-                    <div class="text-caption text-grey-lighten-1 mt-1 font-weight-medium">Loved by 20,000+ users</div>
+                    <div class="text-caption text-grey-lighten-1 mt-1 font-weight-medium">
+                      Loved by 20,000+ users
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
             <div class="hero-image">
-              <img src="/branded_hero_v7.png" class="hero-static" alt="A deconstructed workspace with an invoice and dashboard.">
-              
+              <img
+                src="/branded_hero_v7.png"
+                class="hero-static"
+                alt="A deconstructed workspace with an invoice and dashboard."
+              />
+
               <!-- iPhone GIF Overlay -->
               <transition name="fade">
                 <div class="iphone-overlay" v-if="showGifOverlay">
                   <div class="iphone-frame">
                     <div class="notch"></div>
-                    <img src="/ScanGo_convert_project_02.gif" class="iphone-gif" alt="Project Conversion Demo">
+                    <img
+                      src="/ScanGo_convert_project_02.gif"
+                      class="iphone-gif"
+                      alt="Project Conversion Demo"
+                    />
                   </div>
                 </div>
               </transition>
@@ -93,13 +183,13 @@
         </div>
       </section>
 
-
-
       <section id="how-it-works" class="how-it-works">
         <div class="container">
           <div class="text-center mb-16">
             <h2 class="section-title">How It Works</h2>
-            <p class="section-subtitle">A simpler workflow designed for speed and fast payments.</p>
+            <p class="section-subtitle">
+              A simpler workflow designed for speed and fast payments.
+            </p>
           </div>
 
           <div class="how-it-works-grid">
@@ -109,9 +199,12 @@
               <div class="step-icon-wrapper mx-auto mb-6">
                 <v-icon size="48" color="primary">mdi-file-document-edit-outline</v-icon>
               </div>
-              <h3 class="text-h5 font-weight-bold text-white mb-4">Enable Instant Online Payments</h3>
+              <h3 class="text-h5 font-weight-bold text-white mb-4">
+                Enable Instant Online Payments
+              </h3>
               <p class="text-body-1 text-grey-lighten-1 mb-0">
-                Connect or create your payment account in minutes and start accepting cards, Apple Pay, Google Pay, and ACH — all through ScanGo Invoice.
+                Connect or create your payment account in minutes and start accepting
+                cards, Apple Pay, Google Pay, and ACH — all through ScanGo Invoice.
               </p>
             </div>
 
@@ -121,9 +214,13 @@
               <div class="step-icon-wrapper mx-auto mb-6">
                 <v-icon size="48" color="primary">mdi-account-multiple-outline</v-icon>
               </div>
-              <h3 class="text-h5 font-weight-bold text-white mb-4">Add Customers & Products</h3>
+              <h3 class="text-h5 font-weight-bold text-white mb-4">
+                Add Customers & Products
+              </h3>
               <p class="text-body-1 text-grey-lighten-1 mb-0">
-                Save time by setting up your client details and frequently sold items or services in advance. Select them from a dropdown to generate future invoices in seconds.
+                Save time by setting up your client details and frequently sold items or
+                services in advance. Select them from a dropdown to generate future
+                invoices in seconds.
               </p>
             </div>
 
@@ -133,11 +230,17 @@
               <div class="step-icon-wrapper highlight-wrapper mx-auto mb-6">
                 <v-icon size="48" color="white">mdi-folder-clock-outline</v-icon>
               </div>
-              <h3 class="text-h5 font-weight-bold text-white mb-4">Track Work, Invoice Instantly</h3>
+              <h3 class="text-h5 font-weight-bold text-white mb-4">
+                Track Work, Invoice Instantly
+              </h3>
               <p class="text-body-1 text-grey-lighten-1 mb-8">
-                Log billable hours and expenses under a project. Scan receipts and save them to the project. When the work is done, convert it to a pre-filled invoice in one click — no manual data entry.
+                Log billable hours and expenses under a project. Scan receipts and save
+                them to the project. When the work is done, convert it to a pre-filled
+                invoice in one click — no manual data entry.
               </p>
-              <div class="payment-methods d-flex justify-center align-center ga-4 flex-wrap">
+              <div
+                class="payment-methods d-flex justify-center align-center ga-4 flex-wrap"
+              >
                 <div class="payment-pill pro-pill">
                   <v-icon left size="small">mdi-clock-outline</v-icon> Time Tracking
                 </div>
@@ -158,16 +261,18 @@
               </div>
               <h3 class="text-h5 font-weight-bold text-white mb-4">Get Paid Your Way</h3>
               <p class="text-body-1 text-grey-lighten-1 mb-8">
-                Customers choose their preferred method.
-                You get paid fast — funds land directly into your account.
+                Customers choose their preferred method. You get paid fast — funds land
+                directly into your account.
               </p>
-              <div class="payment-methods d-flex justify-center align-center ga-4 flex-wrap">
-                 <div class="payment-pill stripe">
-                    <v-icon left size="small">mdi-credit-card-outline</v-icon> Credit Card
-                 </div>
-                 <div class="payment-pill stripe">
-                    <v-icon left size="small">mdi-bank-outline</v-icon> ACH / Bank
-                 </div>
+              <div
+                class="payment-methods d-flex justify-center align-center ga-4 flex-wrap"
+              >
+                <div class="payment-pill stripe">
+                  <v-icon left size="small">mdi-credit-card-outline</v-icon> Credit Card
+                </div>
+                <div class="payment-pill stripe">
+                  <v-icon left size="small">mdi-bank-outline</v-icon> ACH / Bank
+                </div>
               </div>
             </div>
           </div>
@@ -194,9 +299,16 @@
               </v-expansion-panel>
             </v-expansion-panels>
           </div>
-          
+
           <div class="text-center mt-12 mb-12">
-            <v-btn to="/pricing" color="primary" size="x-large" rounded="pill" class="glow-btn">See All Features & Pricing</v-btn>
+            <v-btn
+              to="/pricing"
+              color="primary"
+              size="x-large"
+              rounded="pill"
+              class="glow-btn"
+              >See All Features & Pricing</v-btn
+            >
           </div>
         </div>
       </section>
@@ -204,24 +316,61 @@
       <section class="final-cta pb-16 pt-8">
         <div class="container">
           <div class="cta-card text-center mx-auto pa-2 pa-md-8">
-            <h2 class="text-h3 font-weight-bold text-white mb-4">Start Getting Paid Faster Today</h2>
-            <p class="text-h6 text-grey-lighten-1 mb-10 mx-auto" style="max-width: 600px;">
-              Create your first invoice in under 60 seconds and give your customers a fast, secure way to pay online — no accounts required.
+            <h2 class="text-h3 font-weight-bold text-white mb-4">
+              Start Getting Paid Faster Today
+            </h2>
+            <p class="text-h6 text-grey-lighten-1 mb-10 mx-auto" style="max-width: 600px">
+              Create your first invoice in under 60 seconds and give your customers a
+              fast, secure way to pay online — no accounts required.
             </p>
-            <div class="d-flex flex-column flex-sm-row flex-wrap ga-4 mt-8 align-center justify-center">
-                <v-btn @click="handleGoogleSignIn" :loading="loading" variant="outlined" color="white" class="font-weight-bold px-10 cta-btn outline-btn" size="x-large" rounded="xl" :block="mobile">
-                  <svg class="mr-2" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                  </svg>
-                  Start Free with Google
-                </v-btn>
-                <v-btn to="/register" color="white" class="text-black font-weight-bold px-10 cta-btn" size="x-large" rounded="xl" :block="mobile">
-                  <v-icon left size="24" class="mr-2">mdi-email-outline</v-icon>
-                  Or continue with email
-                </v-btn>
+            <div
+              class="d-flex flex-column flex-sm-row flex-wrap ga-4 mt-8 align-center justify-center"
+            >
+              <v-btn
+                @click="handleGoogleSignIn"
+                :loading="loading"
+                class="font-weight-bold px-10 cta-btn cta-btn-google"
+                size="x-large"
+                rounded="xl"
+                :block="mobile"
+              >
+                <svg
+                  class="mr-2"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    fill="#4285F4"
+                  />
+                  <path
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    fill="#34A853"
+                  />
+                  <path
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                    fill="#FBBC05"
+                  />
+                  <path
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                    fill="#EA4335"
+                  />
+                </svg>
+                Start Free with Google
+              </v-btn>
+              <v-btn
+                to="/register"
+                class="font-weight-bold px-10 cta-btn cta-btn-email"
+                size="x-large"
+                rounded="xl"
+                :block="mobile"
+              >
+                <v-icon left size="24" class="mr-2">mdi-email-outline</v-icon>
+                Or continue with email
+              </v-btn>
             </div>
           </div>
         </div>
@@ -231,21 +380,48 @@
     <footer class="footer">
       <div class="container">
         <Trustpilot />
-        <p>&copy; 2026 ScanGo Invoice. All rights reserved. | <a
-            href="mailto:support@scangoinvoice.com">support@scangoinvoice.com</a> | <router-link to="/privacy">Privacy
-            Policy</router-link> | <router-link to="/terms">Terms of Service</router-link> | <a @click="trackDownload('footer_link')" href="/__ScanGo Invoice + Stripe Connect.pdf" target="_blank" rel="noopener noreferrer">Setup Guide</a></p>
+        <p>
+          &copy; 2026 ScanGo Invoice. All rights reserved. |
+          <a href="mailto:support@scangoinvoice.com">support@scangoinvoice.com</a> |
+          <router-link to="/privacy">Privacy Policy</router-link> |
+          <router-link to="/terms">Terms of Service</router-link> |
+          <a
+            @click="trackDownload('footer_link')"
+            href="/__ScanGo Invoice + Stripe Connect.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Setup Guide</a
+          >
+        </p>
       </div>
     </footer>
 
     <!-- Video Modal Lightbox -->
-    <v-dialog v-model="videoDialogOpen" max-width="900px" transition="dialog-bottom-transition" z-index="2000">
+    <v-dialog
+      v-model="videoDialogOpen"
+      max-width="900px"
+      transition="dialog-bottom-transition"
+      z-index="2000"
+    >
       <v-card class="video-modal-card">
-        <div class="video-modal-header d-flex align-center justify-space-between px-6 py-4">
+        <div
+          class="video-modal-header d-flex align-center justify-space-between px-6 py-4"
+        >
           <div class="d-flex align-center">
-            <v-icon color="primary" class="mr-2" size="28">mdi-play-circle-outline</v-icon>
-            <span class="text-h6 font-weight-bold text-white">Getting Started with ScanGo</span>
+            <v-icon color="primary" class="mr-2" size="28"
+              >mdi-play-circle-outline</v-icon
+            >
+            <span class="text-h6 font-weight-bold text-white"
+              >Getting Started with ScanGo</span
+            >
           </div>
-          <v-btn icon="mdi-close" variant="text" color="white" size="small" @click="closeVideoModal"></v-btn>
+          <v-btn
+            icon="mdi-close"
+            variant="text"
+            color="white"
+            size="small"
+            @click="closeVideoModal"
+          ></v-btn>
         </div>
         <v-card-text class="pa-0 bg-black">
           <div class="video-container">
@@ -261,90 +437,126 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-
   </div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuth, currentUser } from '../composables/useAuth.js';
-import { useMeta } from '../composables/useMeta';
-import { useDisplay } from 'vuetify';
-import { event } from 'vue-gtag';
-import Trustpilot from './TrustpilotWidget.vue';
+import { ref, watch, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuth, currentUser } from '../composables/useAuth.js'
+import { useMeta } from '../composables/useMeta'
+import { useDisplay } from 'vuetify'
+import { event } from 'vue-gtag'
+import Trustpilot from './TrustpilotWidget.vue'
 
-const { mobile } = useDisplay();
-const router = useRouter();
-const { loading, googleLogin } = useAuth();
+const { mobile } = useDisplay()
+const router = useRouter()
+const { loading, googleLogin } = useAuth()
 
 const trackDownload = (location) => {
   event('download_setup_guide', {
     event_category: 'engagement',
-    event_label: location
-  });
-};
+    event_label: location,
+  })
+}
 
 const faqs = ref([
-  { question: "How do customers pay on ScanGo?", answer: "Customers receive a payment link or scan a QR code on the invoice. They pay using credit/debit cards, Apple Pay, Google Pay, or ACH — no app or account needed." },
-  { question: "Do I need a separate payment account?", answer: "Yes — ScanGo connects to your existing payment account or helps you set one up. It only takes a few minutes from your Settings page." },
-  { question: "Do customers need a ScanGo account to pay?", answer: "No. They simply click the payment link or scan the QR code on the invoice." },
-  { question: "Where do payouts go?", answer: "Directly into your bank account, typically within 2 business days." },
-  { question: "Can I track project time and expenses?", answer: "Yes — on the Monthly or Annual plan you can create projects, log billable hours and expenses (with receipt photos), and convert them directly to a pre-filled invoice with one click. Labor and expenses are automatically rolled up into clean line items." },
-  { question: "Is ScanGo secure?", answer: "Yes. All payments are processed through Stripe and all invoice data is encrypted." },
-]);
+  {
+    question: 'How do customers pay on ScanGo?',
+    answer:
+      'Customers receive a payment link or scan a QR code on the invoice. They pay using credit/debit cards, Apple Pay, Google Pay, or ACH — no app or account needed.',
+  },
+  {
+    question: 'Do I need a separate payment account?',
+    answer:
+      'Yes — ScanGo connects to your existing payment account or helps you set one up. It only takes a few minutes from your Settings page.',
+  },
+  {
+    question: 'Do customers need a ScanGo account to pay?',
+    answer: 'No. They simply click the payment link or scan the QR code on the invoice.',
+  },
+  {
+    question: 'Where do payouts go?',
+    answer: 'Directly into your bank account, typically within 2 business days.',
+  },
+  {
+    question: 'Can I track project time and expenses?',
+    answer:
+      'Yes — on the Monthly or Annual plan you can create projects, log billable hours and expenses (with receipt photos), and convert them directly to a pre-filled invoice with one click. Labor and expenses are automatically rolled up into clean line items.',
+  },
+  {
+    question: 'Is ScanGo secure?',
+    answer:
+      'Yes. All payments are processed through Stripe and all invoice data is encrypted.',
+  },
+])
 
-const showGifOverlay = ref(true);
-const videoDialogOpen = ref(false);
-const youtubeId = '6jhI-ZKzkPg';
+const showGifOverlay = ref(false)
+const videoDialogOpen = ref(false)
+const youtubeId = 'q_ebv_earos'
 
 const openVideoModal = () => {
-  videoDialogOpen.value = true;
+  videoDialogOpen.value = true
   event('play_getting_started_video', {
     event_category: 'engagement',
-    event_label: 'hero_button'
-  });
-};
+    event_label: 'hero_button',
+  })
+}
 
 const closeVideoModal = () => {
-  videoDialogOpen.value = false;
-};
+  videoDialogOpen.value = false
+}
 
 onMounted(() => {
-  setTimeout(() => {
-    showGifOverlay.value = false;
-  }, 122082);
-});
+  const triggerGifLoad = () => {
+    if (!showGifOverlay.value) {
+      showGifOverlay.value = true
+      setTimeout(() => {
+        showGifOverlay.value = false
+      }, 122082)
+    }
+    window.removeEventListener('scroll', triggerGifLoad)
+    window.removeEventListener('touchstart', triggerGifLoad)
+    window.removeEventListener('mousemove', triggerGifLoad)
+  }
+
+  window.addEventListener('scroll', triggerGifLoad, { passive: true })
+  window.addEventListener('touchstart', triggerGifLoad, { passive: true })
+  window.addEventListener('mousemove', triggerGifLoad, { passive: true })
+})
 
 const handleGoogleSignIn = async () => {
-  await googleLogin();
-};
+  await googleLogin()
+}
 
-watch(currentUser, (user) => {
-  if (user) {
-    router.push('/dashboard');
-  }
-}, { immediate: true });
+watch(
+  currentUser,
+  (user) => {
+    if (user) {
+      router.push('/dashboard')
+    }
+  },
+  { immediate: true }
+)
 
 const faqSchema = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": faqs.value.map(faq => ({
-    "@type": "Question",
-    "name": faq.question,
-    "acceptedAnswer": {
-      "@type": "Answer",
-      "text": faq.answer
-    }
-  }))
-};
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.value.map((faq) => ({
+    '@type': 'Question',
+    name: faq.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: faq.answer,
+    },
+  })),
+}
 
 useMeta(
   'ScanGo Invoice | Simple Digital Invoicing',
   'Create, download, and track professional invoices for a simple monthly or yearly price. ScanGo Invoice generates branded payment links and QR codes so customers can pay instantly — no app required. Track billable projects and convert them to invoices in one click. Perfect for small businesses and freelancers.',
   faqSchema
-);
-
+)
 </script>
 
 <style scoped>
@@ -435,7 +647,7 @@ main section[id] {
   max-width: 100%;
   height: auto;
   border-radius: 32px;
-  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
   display: block;
 }
 
@@ -455,9 +667,7 @@ main section[id] {
   border-radius: 44px;
   padding: 12px;
   transform: rotate(8deg);
-  box-shadow: 
-    15px 35px 60px rgba(0, 0, 0, 0.7), 
-    inset 0 0 0 2px #555, 
+  box-shadow: 15px 35px 60px rgba(0, 0, 0, 0.7), inset 0 0 0 2px #555,
     inset 0 0 0 6px #000;
   will-change: transform;
 }
@@ -483,14 +693,14 @@ main section[id] {
   background: #111;
 }
 
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 1.5s ease;
 }
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }
-
-
 
 /* How It Works Section */
 .how-it-works {
@@ -539,7 +749,7 @@ main section[id] {
   width: 48px;
   height: 48px;
   background: #1e293b;
-  border: 2px solid rgba(255,255,255,0.1);
+  border: 2px solid rgba(255, 255, 255, 0.1);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -548,7 +758,7 @@ main section[id] {
   font-weight: bold;
   color: #fff;
   z-index: 2;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .highlight-number {
@@ -575,7 +785,11 @@ main section[id] {
 
 .feature-step-card {
   border: 1px solid rgba(74, 222, 128, 0.3) !important;
-  background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(74,222,128,0.05) 100%) !important;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(74, 222, 128, 0.05) 100%
+  ) !important;
 }
 
 .payment-methods {
@@ -602,7 +816,6 @@ main section[id] {
   color: #86efac;
   border: 1px solid rgba(74, 222, 128, 0.3);
 }
-
 
 /* FAQ Section */
 .faq-section {
@@ -798,12 +1011,11 @@ main section[id] {
   right: -10px;
   background-color: #111d2f;
   color: #f1f5f9;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 50%;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   z-index: 10;
 }
-
 
 /* Responsive Styles */
 @media (max-width: 960px) {
@@ -846,7 +1058,7 @@ main section[id] {
   .qr-mockup:hover {
     transform: scale(1.05);
     z-index: 2;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
   }
 
   .template-gallery:hover .template-card:hover,
@@ -898,7 +1110,7 @@ main section[id] {
     padding: 8px; /* Slightly thinner bezel for small screens */
     border-radius: 32px;
   }
-  
+
   .iphone-gif {
     border-radius: 24px;
   }
@@ -925,8 +1137,8 @@ main section[id] {
   }
 
   .mobile-brand {
-  font-size: 3.5rem;
-  font-weight: 800;
+    font-size: 3.5rem;
+    font-weight: 800;
     line-height: 1.2;
   }
 
@@ -992,15 +1204,45 @@ main section[id] {
 }
 
 .play-demo-btn {
-  background: linear-gradient(135deg, #4ade80, #06b6d4) !important;
-  color: #0c1522 !important;
-  font-weight: 700 !important;
-  box-shadow: 0 8px 25px rgba(6, 182, 212, 0.35) !important;
+  background: transparent !important;
+  color: #f1f5f9 !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .play-demo-btn:hover {
-  box-shadow: 0 12px 35px rgba(6, 182, 212, 0.55) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
   transform: translateY(-2px) !important;
+}
+
+.cta-btn-google {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 8px 25px rgba(30, 41, 59, 0.5), 0 0 1px 1px rgba(255, 255, 255, 0.08) !important;
+}
+
+.cta-btn-google:hover {
+  background: linear-gradient(135deg, #334155 0%, #1e293b 100%) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 12px 35px rgba(30, 41, 59, 0.7), 0 0 1px 1px rgba(255, 255, 255, 0.15) !important;
+  transform: translateY(-3px) !important;
+}
+
+.cta-btn-email {
+  background: linear-gradient(135deg, #059669 0%, #0d9488 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(74, 222, 128, 0.2) !important;
+  box-shadow: 0 8px 25px rgba(13, 148, 136, 0.35) !important;
+}
+
+.cta-btn-email:hover {
+  background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%) !important;
+  border-color: rgba(74, 222, 128, 0.4) !important;
+  box-shadow: 0 12px 35px rgba(13, 148, 136, 0.55) !important;
+  transform: translateY(-3px) !important;
 }
 </style>

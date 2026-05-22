@@ -44,6 +44,16 @@ exports.sendWelcomeEmail = onDocumentCreated("users/{userId}", async (event) => 
                     </ul>
                 </div>
 
+                <div style="background-color: #1e293b; padding: 24px; border-radius: 8px; margin: 32px 0; border: 1px solid #334155; text-align: center;">
+                    <h3 style="color: #60a5fa; font-size: 17px; margin-top: 0; margin-bottom: 12px; font-weight: 600;">🎬 Watch our 2-Minute Quick Start Guide</h3>
+                    <p style="color: #cbd5e1; font-size: 15px; margin-bottom: 20px; line-height: 1.6;">
+                        See exactly how to enter your business details, connect your bank, and get started sending paid invoices in under 2 minutes.
+                    </p>
+                    <a href="https://www.youtube.com/watch?v=q_ebv_earos" target="_blank" rel="noopener noreferrer" style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15);">
+                        Watch 2-Min Demo Video
+                    </a>
+                </div>
+
                 <p style="font-size: 16px; line-height: 1.6; color: #e2e8f0; margin-bottom: 32px;">
                     Ready to take control of your invoicing?
                 </p>
