@@ -88,12 +88,8 @@ const goToSettings = () => {
 @media (max-width: 768px) {
     .prompt-content {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
         text-align: center;
-    }
-    .prompt-icon,
-    .prompt-text {
-        align-self: center;
     }
 
     .prompt-text {
