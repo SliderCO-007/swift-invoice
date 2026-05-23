@@ -22,26 +22,69 @@
               </div>
               <h1 class="hero-title">Turn Tracked Work into Paid Invoices</h1>
               <h1 class="hero-title"><span class="text-gradient">in One Click.</span></h1>
-              <div class="hero-bullets d-flex flex-column ga-3 mb-8 mt-2 ml-4">
-                <div class="d-flex align-center text-h6 text-blue-grey-lighten-1">
-                  <v-icon color="success" class="mr-3">mdi-check-circle</v-icon>
-                  <span>Create & send professional invoices from your phone in under 60 seconds</span>
+              <div class="hero-benefits-badges d-flex flex-column ga-3 mb-8 mt-4 ml-0">
+                <div class="benefit-badge">
+                  <div class="badge-icon-container">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <defs>
+                        <linearGradient id="grad-invoice" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#34d399" />
+                          <stop offset="100%" stop-color="#059669" />
+                        </linearGradient>
+                      </defs>
+                      <rect x="5" y="2" width="14" height="20" rx="3" stroke="url(#grad-invoice)" stroke-width="2" />
+                      <line x1="10" y1="20" x2="14" y2="20" stroke="url(#grad-invoice)" stroke-width="2" stroke-linecap="round" />
+                      <rect x="8" y="5" width="8" height="10" rx="1" fill="rgba(52, 211, 153, 0.15)" stroke="url(#grad-invoice)" stroke-width="1.5" />
+                      <line x1="10" y1="8" x2="14" y2="8" stroke="url(#grad-invoice)" stroke-width="1.2" />
+                      <line x1="10" y1="11" x2="13" y2="11" stroke="url(#grad-invoice)" stroke-width="1.2" />
+                    </svg>
+                  </div>
+                  <div class="badge-content">
+                    <div class="badge-title">60s Mobile Invoicing</div>
+                    <div class="badge-subtitle">Create & send professional invoices from your phone in under 60 seconds</div>
+                  </div>
                 </div>
-                <div class="d-flex align-center text-h6 text-blue-grey-lighten-1">
-                  <v-icon color="success" class="mr-3">mdi-check-circle</v-icon>
-                  <span>Track billable hours & project expenses on-the-go (with receipt scanning)</span>
+
+                <div class="benefit-badge">
+                  <div class="badge-icon-container">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <defs>
+                        <linearGradient id="grad-tracking" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#06b6d4" />
+                          <stop offset="100%" stop-color="#0891b2" />
+                        </linearGradient>
+                      </defs>
+                      <circle cx="12" cy="12" r="9" stroke="url(#grad-tracking)" stroke-width="2" />
+                      <path d="M12 7V12L15 13.5" stroke="url(#grad-tracking)" stroke-width="2" stroke-linecap="round" />
+                      <path d="M14 13.5H19V20.5H14V13.5Z" fill="rgba(6, 182, 212, 0.2)" stroke="url(#grad-tracking)" stroke-width="1.5" stroke-linejoin="round" />
+                      <path d="M15 16H18" stroke="url(#grad-tracking)" stroke-width="1" />
+                      <path d="M15 18H17" stroke="url(#grad-tracking)" stroke-width="1" />
+                    </svg>
+                  </div>
+                  <div class="badge-content">
+                    <div class="badge-title">On-the-Go Tracking</div>
+                    <div class="badge-subtitle">Track billable hours & project expenses on-the-go (with receipt photos)</div>
+                  </div>
                 </div>
-                <div class="d-flex align-center text-h6 text-blue-grey-lighten-1">
-                  <v-icon color="success" class="mr-3">mdi-check-circle</v-icon>
-                  <span>Get paid instantly via Credit Card, Apple Pay, Google Pay, or ACH</span>
-                </div>
-                <div class="d-flex align-center text-h6 text-blue-grey-lighten-1">
-                  <v-icon color="success" class="mr-3">mdi-check-circle</v-icon>
-                  <span>1-Click conversion from project work directly into pre-filled invoices</span>
-                </div>
-                <div class="d-flex align-center text-h6 text-blue-grey-lighten-1">
-                  <v-icon color="success" class="mr-3">mdi-check-circle</v-icon>
-                  <span>Secure Stripe-powered deposits straight to your bank in 2 business days</span>
+
+                <div class="benefit-badge">
+                  <div class="badge-icon-container">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <defs>
+                        <linearGradient id="grad-convert" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#fbbf24" />
+                          <stop offset="100%" stop-color="#ea580c" />
+                        </linearGradient>
+                      </defs>
+                      <path d="M4 17V7C4 5.89543 4.89543 5 6 5H14L19 10V17C19 18.1046 18.1046 19 17 19H6C4.89543 19 4 18.1046 4 17Z" stroke="url(#grad-convert)" stroke-width="2" />
+                      <path d="M14 5V10H19" stroke="url(#grad-convert)" stroke-width="2" stroke-linejoin="round" />
+                      <path d="M11 9L7 13H11L9 17L13 13H9L11 9Z" stroke="url(#grad-convert)" stroke-width="1.5" stroke-linejoin="round" fill="rgba(251, 191, 36, 0.2)" />
+                    </svg>
+                  </div>
+                  <div class="badge-content">
+                    <div class="badge-title">1-Click Conversion</div>
+                    <div class="badge-subtitle">1-Click conversion from project work directly into pre-filled invoices</div>
+                  </div>
                 </div>
               </div>
               <div
@@ -624,6 +667,102 @@ main section[id] {
   font-size: 1.25rem;
   margin-bottom: 2.5rem;
   color: #94a3b8;
+}
+
+/* Hero Benefits Badges v7 Style */
+.hero-benefits-badges {
+  width: 100%;
+}
+
+.benefit-badge {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 0.95rem 1.25rem;
+  border-radius: 16px;
+  width: 100%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.benefit-badge:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 30px rgba(6, 182, 212, 0.08), 0 0 1px 1px rgba(255, 255, 255, 0.15) !important;
+}
+
+.badge-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.02);
+}
+
+.benefit-badge:hover .badge-icon-container {
+  background: rgba(255, 255, 255, 0.06);
+  transform: scale(1.05);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.05), 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.badge-content {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.badge-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.15rem;
+  letter-spacing: -0.2px;
+}
+
+.badge-subtitle {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .hero-benefits-badges {
+    gap: 0.75rem !important;
+    margin-top: 1rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+  .benefit-badge {
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    gap: 0.85rem;
+  }
+  .badge-icon-container {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+  }
+  .badge-icon-container svg {
+    width: 20px;
+    height: 20px;
+  }
+  .badge-title {
+    font-size: 0.9rem;
+  }
+  .badge-subtitle {
+    font-size: 0.75rem;
+  }
 }
 
 .cta-btn {
