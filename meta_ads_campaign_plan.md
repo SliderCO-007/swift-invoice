@@ -74,7 +74,7 @@ CTA: Sign Up
 Card 2: Benefit 1 (60s Mobile Invoicing)
 Headline: "Invoices under 60 seconds"
 Description: "Create and send right from your phone."
-![ScanGo App Billing Interface](C:\Users\curth\.gemini\antigravity-cli\brain\67b226a7-89a7-4871-9409-9b3179ca4268\scango_ad_card_2_v2_1779582475666.png)
+![ScanGo App Billing Interface](C:\Users\curth\.gemini\antigravity-cli\brain\67b226a7-89a7-4871-9409-9b3179ca4268\scango_ad_card_2_v3_1779582843415.png)
 CTA: Sign Up
 <!-- slide -->
 Card 3: Benefit 2 (On-the-go Tracking)
@@ -86,7 +86,7 @@ CTA: Sign Up
 Card 4: Benefit 3 (1-Click Conversion & Trust)
 Headline: "1-Click invoice conversion"
 Description: "Join 1,000+ local service pros."
-![ScanGo 5-Star Branding](C:\Users\curth\.gemini\antigravity-cli\brain\67b226a7-89a7-4871-9409-9b3179ca4268\scango_ad_card_4_1779581531182.png)
+![ScanGo 5-Star Branding](C:\Users\curth\.gemini\antigravity-cli\brain\67b226a7-89a7-4871-9409-9b3179ca4268\scango_ad_card_4_v2_1779582998612.png)
 CTA: Sign Up
 ```
 
