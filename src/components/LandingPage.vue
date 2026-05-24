@@ -551,6 +551,14 @@ const closeVideoModal = () => {
 }
 
 onMounted(() => {
+  // Track landing page content view in Meta Pixel
+  if (typeof window.fbq === 'function') {
+    window.fbq('track', 'ViewContent', {
+      content_name: 'Landing Page',
+      content_category: 'Meta Ads'
+    })
+  }
+
   const triggerGifLoad = () => {
     if (!showGifOverlay.value) {
       showGifOverlay.value = true
