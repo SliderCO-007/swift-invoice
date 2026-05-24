@@ -86,7 +86,7 @@ CTA: Sign Up
 Card 4: Benefit 3 (1-Click Conversion & Trust)
 Headline: "1-Click invoice conversion"
 Description: "Join 1,000+ local service pros."
-![ScanGo 5-Star Branding](C:\Users\curth\.gemini\antigravity-cli\brain\67b226a7-89a7-4871-9409-9b3179ca4268\scango_ad_card_4_v2_1779582998612.png)
+![ScanGo 5-Star Branding](C:\Users\curth\.gemini\antigravity-cli\brain\67b226a7-89a7-4871-9409-9b3179ca4268\scango_ad_card_4_v3_1779583323159.png)
 CTA: Sign Up
 ```
 
