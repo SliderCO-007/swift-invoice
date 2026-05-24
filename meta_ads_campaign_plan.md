@@ -68,25 +68,25 @@ This 4-card carousel is designed to walk a busy contractor from **frustration** 
 Card 1: Hook (The Pain Point)
 Headline: "Still waiting on client checks?"
 Description: "Get paid 3x faster with ScanGo."
-![Stressed Contractor Paperwork](C:\Users\curth\.gemini\antigravity-cli\brain\533310ac-282d-46d9-a11c-1d6983a26181\scango_ad_card_1_1779499105939.png)
+![Stressed Contractor Paperwork](C:\Users\curth\.gemini\antigravity-cli\brain\67b226a7-89a7-4871-9409-9b3179ca4268\scango_ad_card_1_1779581490566.png)
 CTA: Sign Up
 <!-- slide -->
 Card 2: Benefit 1 (60s Mobile Invoicing)
 Headline: "Invoices under 60 seconds"
 Description: "Create and send right from your phone."
-![ScanGo App Billing Interface](C:\Users\curth\.gemini\antigravity-cli\brain\533310ac-282d-46d9-a11c-1d6983a26181\scango_ad_card_2_1779499119267.png)
+![ScanGo App Billing Interface](C:\Users\curth\.gemini\antigravity-cli\brain\67b226a7-89a7-4871-9409-9b3179ca4268\scango_ad_card_2_1779581504054.png)
 CTA: Sign Up
 <!-- slide -->
 Card 3: Benefit 2 (On-the-go Tracking)
 Headline: "Track hours & receipt photos"
 Description: "Log time and upload receipts on-site."
-![Client Instant Payment Screen](C:\Users\curth\.gemini\antigravity-cli\brain\533310ac-282d-46d9-a11c-1d6983a26181\scango_ad_card_3_v3_1779499807176.png)
+![Client Instant Payment Screen](C:\Users\curth\.gemini\antigravity-cli\brain\67b226a7-89a7-4871-9409-9b3179ca4268\scango_ad_card_3_1779581517420.png)
 CTA: Sign Up
 <!-- slide -->
 Card 4: Benefit 3 (1-Click Conversion & Trust)
 Headline: "1-Click invoice conversion"
 Description: "Join 1,000+ local service pros."
-![ScanGo 5-Star Branding](C:\Users\curth\.gemini\antigravity-cli\brain\533310ac-282d-46d9-a11c-1d6983a26181\scango_ad_card_4_1779499146259.png)
+![ScanGo 5-Star Branding](C:\Users\curth\.gemini\antigravity-cli\brain\67b226a7-89a7-4871-9409-9b3179ca4268\scango_ad_card_4_1779581531182.png)
 CTA: Sign Up
 ```
 
