@@ -68,7 +68,7 @@ This 4-card carousel is designed to walk a busy contractor from **frustration** 
 Card 1: Hook (The Pain Point)
 Headline: "Still waiting on client checks?"
 Description: "Get paid 3x faster with ScanGo."
-![Stressed Contractor Paperwork](C:\Users\curth\.gemini\antigravity-cli\brain\67b226a7-89a7-4871-9409-9b3179ca4268\scango_ad_card_1_1779581490566.png)
+![Stressed Contractor Paperwork](C:\Users\curth\.gemini\antigravity-cli\brain\67b226a7-89a7-4871-9409-9b3179ca4268\scango_ad_card_1_v2_1779581962130.png)
 CTA: Sign Up
 <!-- slide -->
 Card 2: Benefit 1 (60s Mobile Invoicing)
