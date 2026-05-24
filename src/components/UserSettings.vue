@@ -103,6 +103,14 @@ const handleSendPreview = async () => {
   }
 };
 
+const handleStripeConnect = async () => {
+  // Auto-save form inputs so the user doesn't lose anything
+  await saveUserSettings(localSettings.value, logoFile.value);
+  if (!error.value) {
+    await createConnectAccount();
+  }
+};
+
 const goToPricing = () => {
   router.push({ name: 'Pricing' });
 };
@@ -212,7 +220,7 @@ const goToPricing = () => {
                 </p>
                 
                 <v-btn 
-                  @click="createConnectAccount" 
+                  @click="handleStripeConnect" 
                   :loading="stripeLoading" 
                   color="#635bff" 
                   class="stripe-btn mt-4" 

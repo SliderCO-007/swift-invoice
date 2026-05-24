@@ -81,6 +81,64 @@ exports.getStripeConnectStatus = onCall({ enforceAppCheck: false }, async (reque
       detailsSubmitted: account.details_submitted
     });
 
+    // AUTO-SYNC business details if they are empty in userSettings
+    const settingsRef = db.collection('userSettings').doc(auth.uid);
+    const settingsDoc = await settingsRef.get();
+    
+    const currentSettings = settingsDoc.exists ? settingsDoc.data() : {};
+    const company = currentSettings.company || {};
+    
+    const companyName = company.name || "";
+    const companyEmail = company.email || "";
+    const companyAddress1 = company.address1 || "";
+    const companyAddress2 = company.address2 || "";
+    const companyCity = company.city || "";
+    const companyState = company.state || "";
+    const companyZip = company.zip || "";
+
+    // Pull from Stripe business profile, company fields, or individual fields
+    const stripeName = account.business_profile?.name || account.company?.name || (account.individual ? `${account.individual.first_name} ${account.individual.last_name}` : "");
+    const stripeEmail = account.business_profile?.support_email || account.email || account.individual?.email || "";
+    const stripeAddress = account.company?.address || account.individual?.address || account.business_profile?.support_address || {};
+
+    let needsUpdate = false;
+    const companyUpdate = {};
+
+    if (!companyName && stripeName) {
+      companyUpdate.name = stripeName;
+      needsUpdate = true;
+    }
+    if (!companyEmail && stripeEmail) {
+      companyUpdate.email = stripeEmail;
+      needsUpdate = true;
+    }
+    if (!companyAddress1 && stripeAddress.line1) {
+      companyUpdate.address1 = stripeAddress.line1;
+      needsUpdate = true;
+    }
+    if (!companyAddress2 && stripeAddress.line2) {
+      companyUpdate.address2 = stripeAddress.line2;
+      needsUpdate = true;
+    }
+    if (!companyCity && stripeAddress.city) {
+      companyUpdate.city = stripeAddress.city;
+      needsUpdate = true;
+    }
+    if (!companyState && stripeAddress.state) {
+      companyUpdate.state = stripeAddress.state;
+      needsUpdate = true;
+    }
+    if (!companyZip && stripeAddress.postal_code) {
+      companyUpdate.zip = stripeAddress.postal_code;
+      needsUpdate = true;
+    }
+
+    if (needsUpdate) {
+      const mergedCompany = Object.assign({}, company, companyUpdate);
+      await settingsRef.set({ company: mergedCompany }, { merge: true });
+      console.log(`Auto-filled userSettings from Stripe Connect account details for user: ${auth.uid}`);
+    }
+
     return {
       connected: true,
       accountId: account.id,
