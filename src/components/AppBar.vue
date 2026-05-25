@@ -20,6 +20,7 @@ const handleLogout = async () => {
 
 const guestNav = [
   { title: 'Features', to: '/features', icon: 'mdi-lightbulb-on-outline' },
+  { title: 'About Us', to: '/about', icon: 'mdi-information-outline' },
   { title: 'FAQ', to: '/#faq', icon: 'mdi-help-circle-outline' },
   { title: 'Pricing', to: '/pricing', icon: 'mdi-tag-outline' },
   { title: 'Login', to: '/login', icon: 'mdi-login' },
@@ -62,6 +63,7 @@ const authNav = [
       <div v-else class="d-none d-md-flex align-center">
         <div v-if="!isAuthenticated">
           <v-btn text to="/features" class="font-weight-bold">Features</v-btn>
+          <v-btn text to="/about" class="font-weight-bold">About Us</v-btn>
           <v-btn text to="/#faq" class="font-weight-bold">FAQ</v-btn>
           <v-btn text to="/pricing" class="font-weight-bold">Pricing</v-btn>
           <v-btn text to="/login" class="font-weight-bold">Login</v-btn>

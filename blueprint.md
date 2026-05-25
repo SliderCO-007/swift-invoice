@@ -120,3 +120,44 @@ Optimize the landing page hero section above-the-fold real estate in mobile view
 - Replace vertical `.hero-bullets` with a responsive wrap layout `.hero-benefits-badges` containing 3 premium badges.
 - Design custom, high-end inline SVG icons for mobile invoicing, receipt photo expense tracking, and 1-click invoice conversion.
 - Implement responsive scoped styles using transparent base colors (`rgba(255, 255, 255, 0.03)`), borders (`rgba(255, 255, 255, 0.08)`), blur backdrops (`12px`), and subtle teal glows.
+
+## Stripe Connect Onboarding UX Optimization (v8)
+
+### Purpose
+Eliminate the double data-entry friction and page-redirect state loss when users navigate to Stripe Connect. We implement a two-pronged solution: auto-saving form inputs before leaving to the Stripe onboarding page, and automatically syncing verified merchant profile metadata (company name, address, email) from the connected Stripe account into the Firestore `userSettings` profile upon return.
+
+### Proposed Changes
+#### [MODIFY] [UserSettings.vue](file:///C:/Users/curth/git/swift-invoice/src/components/UserSettings.vue)
+- Create a `handleStripeConnect` method that triggers an explicit `saveUserSettings` call before calling the `createConnectAccount` redirect composable.
+- Bind `handleStripeConnect` to the "Connect with Stripe" template CTA button.
+
+#### [MODIFY] [stripeConnect.js](file:///C:/Users/curth/git/swift-invoice/functions/stripeConnect.js)
+- Enhance the `getStripeConnectStatus` Cloud Function to fetch full account metadata using `stripe.accounts.retrieve()`.
+- Compare the Stripe merchant profile with the user's Firestore `userSettings` document.
+- Auto-fill any empty address, state, city, zip, email, or company name fields in Firestore from the Stripe account metadata using `{ merge: true }`.
+
+## About Us Page Integration (v9)
+
+### Purpose
+Introduce a stunning, responsive, glassmorphic "About Us" page that blends a relatable creator origin story with high-grade systems security, automated tracking capabilities, and Stripe Connect integration details. We integrate this page across key footers and the header AppBar to maximize trust and build organic authority.
+
+### Proposed Changes
+#### [NEW] [AboutUsPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/AboutUsPage.vue)
+- Create a beautiful glassmorphic vue component leveraging a deep navy background (`#111d2f`).
+- Include the hybrid creator/fintech story narrative.
+- Add three interactive values cards highlighting Security, Simplicity, and Speed.
+- Design an elegant Operating Commitments grid (Option B) featuring premium custom SVGs for 100% Independence, Direct Human Support, and Privacy First (avoiding fake profiles to build real organic trust).
+- Embed dynamic sign-up CTAs and full SEO meta tagging using `useMeta`.
+
+#### [MODIFY] [router/index.js](file:///C:/Users/curth/git/swift-invoice/src/router/index.js)
+- Register the `/about` lazy-loaded public route.
+
+#### [MODIFY] [AppBar.vue](file:///C:/Users/curth/git/swift-invoice/src/components/AppBar.vue)
+- Add the `"About"` link to guestNav and render it on both desktop and mobile dropdown structures.
+
+#### [MODIFY] [LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Add a router link to the page footer.
+
+#### [MODIFY] [FeaturesPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/FeaturesPage.vue)
+- Add a router link to the page footer.
+

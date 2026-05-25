@@ -25,6 +25,11 @@ const routes = [
     component: () => import('../components/PrivacyPolicy.vue'),
   },
   {
+    path: '/about',
+    name: 'AboutUs',
+    component: () => import('../components/AboutUsPage.vue'),
+  },
+  {
     path: '/terms',
     name: 'Terms',
     component: () => import('../components/TermsOfService.vue'),

@@ -117,7 +117,7 @@
       <div class="container">
         <Trustpilot />
         <p>&copy; 2026 ScanGo Invoice. All rights reserved. | <a
-            href="mailto:support@scangoinvoice.com">support@scangoinvoice.com</a> | <router-link to="/privacy">Privacy
+            href="mailto:support@scangoinvoice.com">support@scangoinvoice.com</a> | <router-link to="/about">About Us</router-link> | <router-link to="/privacy">Privacy
             Policy</router-link> | <router-link to="/terms">Terms of Service</router-link></p>
       </div>
     </footer>
