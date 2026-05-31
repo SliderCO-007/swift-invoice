@@ -1,0 +1,58 @@
+================================================================================
+SCANGO INVOICE - MANUAL ONBOARDING EMAIL TEMPLATE
+================================================================================
+Use this template for manual outreach to users who signed up but haven't yet 
+set up their company info or created an invoice. Plain-text, highly personal 
+outreach from a personal email address has a much higher response and conversion 
+rate compared to automated, styled HTML emails.
+
+--------------------------------------------------------------------------------
+SUBJECT LINE OPTIONS (Pick one):
+--------------------------------------------------------------------------------
+Option 1 (Highly recommended - personal & high open-rate):
+Subject: quick question about ScanGo
+
+Option 2 (Help & support focused):
+Subject: Help setting up your ScanGo Invoice profile?
+
+Option 3 (Action-oriented):
+Subject: Getting your first invoice sent on ScanGo Invoice
+
+--------------------------------------------------------------------------------
+EMAIL BODY:
+--------------------------------------------------------------------------------
+Hi [User First Name],
+
+I wanted to personally reach out and welcome you to ScanGo Invoice. 
+
+I noticed you signed up recently but haven't had a chance to get your business profile set up or create your first invoice yet. Completely understand how busy things get, so I wanted to make it as easy as possible to get you up and running today.
+
+If you have 3 minutes, here is the quick-start checklist to get your first professional invoice sent:
+
+1. Add your company details (1 minute)
+   This fills in your logo, contact info, and tax details so they display beautifully on your invoices.
+   👉 Set up company profile: https://scangoinvoice.com/settings
+
+2. Generate your first invoice (2 minutes)
+   Enter your client details and items, then generate a beautiful, clean PDF or payment link.
+   👉 Create first invoice: https://scangoinvoice.com/invoice/new
+
+Once those are set up, you'll be able to send professional invoices in seconds and even accept secure credit card, Apple Pay, Google Pay, or ACH payments directly online.
+
+By the way, if you hit a snag or if ScanGo wasn't quite what you were looking for, would you mind letting me know what we could do better? (Just hit reply—I read every email!)
+
+Best,
+
+[Your Name]
+Founder, ScanGo Invoice
+support@scangoinvoice.com
+
+================================================================================
+TIPS FOR SENDING:
+================================================================================
+1. Send this from your personal business email (e.g., curtis@scangoinvoice.com) 
+   rather than a generic "noreply@" or "support@" address.
+2. Replace [User First Name] with their actual name. If they didn't provide 
+   one, use "there" (e.g., "Hi there,").
+3. Keep the styling clean and strictly plain text. Aggressive bolding, massive 
+   fonts, or huge images will trigger spam filters and look automated.

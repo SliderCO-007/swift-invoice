@@ -161,3 +161,91 @@ Introduce a stunning, responsive, glassmorphic "About Us" page that blends a rel
 #### [MODIFY] [FeaturesPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/FeaturesPage.vue)
 - Add a router link to the page footer.
 
+## Mobile Google Sign-In Fallback (v10)
+
+### Purpose
+Resolve the mobile production Google Sign-In bugs (both the immediate popup closures on Chrome/Safari mobile and the `"missing initial state"` error caused by storage-partitioning/third-party cookie blocking on Firefox/Safari mobile). 
+
+Instead of `signInWithRedirect` (which breaks due to storage partitioning in strict privacy environments), we leverage `signInWithPopup` globally. To bypass aggressive mobile pop-up blockers, we implement the **Synchronous Popup Call** pattern. By invoking `signInWithPopup` as the absolute first synchronous line in our click execution thread—before any asynchronous microtasks, yields, or Vue reactive queue ticks—the mobile browser accepts the popup as a direct, trusted user-action result. 
+
+### Proposed Changes
+#### [MODIFY] [useAuth.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useAuth.js)
+- Revert the `getRedirectResult` chain-resolution in the auth state listener to avoid unnecessary page-reload overhead and prevent storage-partitioning issues.
+- Modify `googleLogin` to call `signInWithPopup` synchronously as the very first operation inside the execution context, awaiting its promise resolution subsequently to handle loading states and exceptions.
+
+### Verification Plan
+- Verify that Google Sign-in on desktop successfully triggers a popup.
+- Verify that Google Sign-in on mobile (Safari, Chrome, Firefox) opens the popup synchronously, stays open, and successfully authenticates the user, seamlessly routing them to `/dashboard`.
+
+
+## Manual Onboarding Email Template (v11)
+
+### Purpose
+Provide a high-converting, personalized plain-text email template that the platform owner can manually send to unsubscribed or inactive users. The email is designed to feel genuine, personal, and helpful (written from the founder's perspective), while guiding users directly through the onboarding steps to set up their company details and send their first invoice.
+
+### Proposed Changes
+#### [NEW] [manual_onboarding_email.txt](file:///C:/Users/curth/git/swift-invoice/manual_onboarding_email.txt)
+- Create a plain-text email template featuring:
+  - Personal, high-open-rate subject lines.
+  - A friendly founder outreach tone that lowers barriers and builds trust.
+  - A clear 2-step quick start checklist with direct dashboard links:
+    1. Set up company profile (`/settings`)
+    2. Create first invoice (`/invoice/new`)
+  - A low-friction feedback question to identify why they haven't started yet.
+
+### Verification Plan
+- Verify readability and tone of the plain-text template.
+- Ensure all routing links (`/settings` and `/invoice/new`) align perfectly with `src/router/index.js`.
+
+
+## Instagram Post Campaign: Quote vs. Estimate (v12)
+
+### Purpose
+Create and design a premium, high-engagement Instagram post campaign educating small business owners on the differences between Quotes and Estimates. Provide optimized copy, target hashtags, and a beautiful brand-aligned visual showing a top-down vertical workflow of an Estimate, Client Approval, and final Invoice.
+
+### Proposed Changes
+#### [NEW] [instagram_post_quote_vs_estimate.md](file:///C:/Users/curth/.gemini/antigravity-cli/brain/97c46a2c-ac01-487c-bb74-963f2f6ec142/instagram_post_quote_vs_estimate.md)
+- Write professional copywriting explaining Quotes vs. Estimates clearly.
+- Embed the vertical top-down glassmorphic visual workflow.
+- List 13 high-performance marketing hashtags.
+
+### Verification Plan
+- Verify visual design follows the brand's navy, glassmorphic dark theme and does not use fake click triggers.
+- Check vertical alignment and aspect ratio optimization (1:1 square) for Instagram's grid.
+
+
+## Nosignup Guest Invoice Builder & Delayed Signup (v13)
+
+### Purpose
+Eliminate signup friction from the acquisition funnel by allowing prospective clients to experience the full value of the Invoice Builder immediately. Signup is seamlessly deferred until they attempt high-value actions (Save, Export, Send), using a premium glassmorphic modal with zero form data loss through localized guest state migration.
+
+### Proposed Changes
+
+#### [MODIFY] [router/index.js](file:///C:/Users/curth/git/swift-invoice/src/router/index.js)
+- Modify `/invoice/new` route configuration to set `requiresAuth: false` so guests can access the editor.
+
+#### [MODIFY] [LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Add a prominent primary CTA button: "Create Invoice (No Signup)" that routes immediately to `/invoice/new`.
+- Style it to match the high-fidelity dark navy theme with custom hover animations.
+
+#### [MODIFY] [AppBar.vue](file:///C:/Users/curth/git/swift-invoice/src/components/AppBar.vue)
+- Add a "Create Invoice" guest nav action link in both desktop and mobile guest navigation lists.
+
+#### [MODIFY] [InvoiceEditor.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceEditor.vue)
+- Check `user.value` presence to identify guest state.
+- Add local storage synchronization (`swift_invoice_guest_draft`) to save the active guest progress in real time (via watch) so resets don't erase state.
+- Add a premium sticky alert banner at the top of the editor alerting guests of preview mode.
+- Restrict save and preview export buttons for guest users, intercepting clicks to open the new signup modal.
+- Implement a gorgeous, responsive, glassmorphic auth modal inside the page that allows guests to sign up or log in via Google popup or email/password.
+- On successful authentication, automatically migrate the active `localStorage` guest draft to Firestore using the `createInvoice` composable, clear the draft, and route the user to `/invoice/:id`.
+
+### Verification Plan
+- **Guest Access**: Log out and navigate to `/invoice/new`. Confirm the editor loads fully and initial settings default safely.
+- **Landing Page CTA**: Click "Create Invoice (No Signup)" on the landing page and confirm seamless routing.
+- **Persistence**: Edit fields as a guest, reload the page, and verify all populated values persist.
+- **Auth Modal Intercept**: Click "Save Invoice" as a guest and confirm the beautiful auth modal opens with benefits highlights.
+- **Google & Email Signups**: Perform a signup/login inside the modal and verify the draft data is successfully migrated to Firestore, the guest local draft is cleared, and routing to the invoice details page is successful.
+
+
+
+

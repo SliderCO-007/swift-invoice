@@ -9,7 +9,7 @@ function getInitialSettings() {
   return {
     company: {
       name: '', email: '', address1: '', address2: '', city: '', state: '', zip: '',
-      logoUrl: '', primaryColor: '#1a3a52'
+      logoUrl: '/Logo.png', primaryColor: '#1a3a52'
     },
     taxRate: 0,
     defaultDiscount: 0,

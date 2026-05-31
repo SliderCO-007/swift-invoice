@@ -91,6 +91,16 @@
                 class="d-flex flex-column flex-sm-row flex-wrap ga-4 mt-8 align-center justify-center justify-md-start"
               >
                 <v-btn
+                  to="/invoice/new"
+                  class="font-weight-bold px-10 cta-btn cta-btn-guest"
+                  size="x-large"
+                  rounded="xl"
+                  :block="mobile"
+                >
+                  <v-icon left size="24" class="mr-2">mdi-file-document-edit-outline</v-icon>
+                  Create Invoice (No Sign Up)
+                </v-btn>
+                <v-btn
                   @click="handleGoogleSignIn"
                   :loading="loading"
                   class="font-weight-bold px-10 cta-btn cta-btn-google"
@@ -369,6 +379,16 @@
             <div
               class="d-flex flex-column flex-sm-row flex-wrap ga-4 mt-8 align-center justify-center"
             >
+              <v-btn
+                to="/invoice/new"
+                class="font-weight-bold px-10 cta-btn cta-btn-guest"
+                size="x-large"
+                rounded="xl"
+                :block="mobile"
+              >
+                <v-icon left size="24" class="mr-2">mdi-file-document-edit-outline</v-icon>
+                Create Invoice (No Sign Up)
+              </v-btn>
               <v-btn
                 @click="handleGoogleSignIn"
                 :loading="loading"
@@ -1391,6 +1411,20 @@ main section[id] {
   background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%) !important;
   border-color: rgba(74, 222, 128, 0.4) !important;
   box-shadow: 0 12px 35px rgba(13, 148, 136, 0.55) !important;
+  transform: translateY(-3px) !important;
+}
+
+.cta-btn-guest {
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(34, 211, 238, 0.25) !important;
+  box-shadow: 0 8px 25px rgba(6, 182, 212, 0.45), 0 0 10px rgba(6, 182, 212, 0.2) !important;
+}
+
+.cta-btn-guest:hover {
+  background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%) !important;
+  border-color: rgba(34, 211, 238, 0.45) !important;
+  box-shadow: 0 12px 35px rgba(6, 182, 212, 0.65), 0 0 15px rgba(6, 182, 212, 0.3) !important;
   transform: translateY(-3px) !important;
 }
 </style>

@@ -18,9 +18,21 @@ const setupCustomerListener = (userId) => {
     unsubscribe = null;
   }
 
-  // If no user is logged in, clear the customers list and stop.
+  // If no user is logged in, supply a mock customer for demo and autocomplete preview.
   if (!userId) {
-    customers.value = [];
+    customers.value = [
+      {
+        id: 'mock-john-smith',
+        name: 'John Smith',
+        email: 'john.smith@example.com',
+        phone: '555-0199',
+        address1: '123 Fake Street',
+        address2: 'Suite 100',
+        city: 'Anytown',
+        state: 'NY',
+        zip: '10001'
+      }
+    ];
     loading.value = false;
     return;
   }

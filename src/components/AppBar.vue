@@ -19,6 +19,7 @@ const handleLogout = async () => {
 }
 
 const guestNav = [
+  { title: 'Create Invoice', to: '/invoice/new', icon: 'mdi-file-document-edit-outline' },
   { title: 'Features', to: '/features', icon: 'mdi-lightbulb-on-outline' },
   { title: 'About Us', to: '/about', icon: 'mdi-information-outline' },
   { title: 'FAQ', to: '/#faq', icon: 'mdi-help-circle-outline' },
@@ -67,6 +68,7 @@ const authNav = [
           <v-btn text to="/#faq" class="font-weight-bold">FAQ</v-btn>
           <v-btn text to="/pricing" class="font-weight-bold">Pricing</v-btn>
           <v-btn text to="/login" class="font-weight-bold">Login</v-btn>
+          <v-btn color="primary" variant="flat" to="/invoice/new" class="font-weight-bold ml-2">Create Invoice</v-btn>
           <v-btn outlined color="primary" to="/register" class="font-weight-bold ml-2"
             >Register</v-btn
           >

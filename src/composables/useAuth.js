@@ -117,11 +117,15 @@ const login = async (email, password) => {
 };
 
 const googleLogin = async () => {
+  const provider = new GoogleAuthProvider();
+  // Crucial: Call signInWithPopup synchronously in the main execution thread of the click
+  // to prevent mobile pop-up blockers from aggressively closing the authentication window.
+  const authPromise = signInWithPopup(auth, provider);
+  
   loading.value = true;
   error.value = null;
   try {
-    const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
+    await authPromise;
   } catch (err) {
     error.value = err.message;
     throw err;
