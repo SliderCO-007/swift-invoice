@@ -38,8 +38,8 @@ export default function useStripeConnect() {
     try {
       const createAccountFn = httpsCallable(functions, 'createConnectAccount');
       const response = await createAccountFn({
-        returnUrl: window.location.origin + '/settings',
-        refreshUrl: window.location.origin + '/settings',
+        returnUrl: window.location.origin + '/onboarding',
+        refreshUrl: window.location.origin + '/onboarding',
       });
       if (response.data.url) {
         window.location.href = response.data.url;

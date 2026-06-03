@@ -104,6 +104,12 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/onboarding',
+    name: 'Onboarding',
+    component: () => import('../components/OnboardingWizard.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/invoice/new',
     name: 'InvoiceNew',
     component: () => import('../components/InvoiceEditor.vue'),

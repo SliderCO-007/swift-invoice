@@ -1,11 +1,12 @@
 <script setup>
-import { ref, computed, watch, onUnmounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import useUserSettings from '../composables/useUserSettings';
 import useInvoices from '../composables/useInvoices';
 import { useCustomers } from '../composables/useCustomers';
 import { useItems } from '../composables/useItems';
 import { useAuth, currentUser as user } from '../composables/useAuth.js';
+import useStripeConnect from '../composables/useStripeConnect';
 import InvoiceTemplate from './InvoiceTemplate.vue';
 import InvoiceTemplate2 from './InvoiceTemplate2.vue';
 import InvoiceTemplate3 from './InvoiceTemplate3.vue';
@@ -15,13 +16,20 @@ import { enUS } from 'date-fns/locale';
 import Logo from './Logo.vue';
 
 // --- Composables ---
-const { settings, fetchUserSettings } = useUserSettings();
+const { settings, loading: settingsLoading, fetchUserSettings } = useUserSettings();
 const { createInvoice, getInvoice, updateInvoice } = useInvoices();
 const { customers } = useCustomers(); // Automatically fetches and updates based on auth
 const { items, fetchItems, stopFetching: stopFetchingItems } = useItems();
 const { signup: apiSignup, login: apiLogin, googleLogin: apiGoogleLogin } = useAuth();
+const { connectStatus, fetchConnectStatus } = useStripeConnect();
 const router = useRouter();
 const route = useRoute();
+
+onMounted(async () => {
+  if (user.value) {
+    await fetchConnectStatus();
+  }
+});
 
 // --- Component State ---
 const invoiceId = ref(route.params.id);
@@ -315,6 +323,29 @@ onUnmounted(() => {
         <v-btn v-if="user" :to="{ name: 'Dashboard' }" color="white" variant="flat" class="text-indigo-darken-4 font-weight-bold">Back to Dashboard</v-btn>
         <v-btn v-else to="/" color="white" variant="flat" class="text-indigo-darken-4 font-weight-bold">Back to Home</v-btn>
       </header>
+
+      <!-- Stripe Connect Warning Alert for Authenticated Users -->
+      <v-alert
+        v-if="user && !connectStatus.chargesEnabled && !settingsLoading"
+        type="warning"
+        variant="tonal"
+        class="mb-6 text-left"
+        border="start"
+        style="background: rgba(245, 158, 11, 0.08) !important; border-color: #fbbf24 !important; color: #f1f5f9 !important;"
+        prominent
+      >
+        <template v-slot:prepend>
+          <v-icon color="#fbbf24">mdi-credit-card-outline</v-icon>
+        </template>
+        <template v-slot:text>
+          <div style="color: #f1f5f9;">
+            You will not be able to accept online payments until your payment account connection is completed.
+          </div>
+        </template>
+        <template v-slot:append>
+          <v-btn to="/onboarding?step=2" color="#fbbf24" variant="flat" class="text-black font-weight-bold" style="text-transform: none;">Connect Now</v-btn>
+        </template>
+      </v-alert>
 
       <div v-if="saveError" class="error-container">
         <v-alert type="error" dense outlined closable @click:close="saveError = null">{{ saveError }}</v-alert>

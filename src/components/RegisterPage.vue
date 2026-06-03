@@ -29,7 +29,7 @@ watch(currentUser, (user) => {
     if (route.query.redirect) {
       router.push(route.query.redirect);
     } else {
-      router.push('/dashboard');
+      router.push('/onboarding');
     }
   }
 }, { immediate: true });

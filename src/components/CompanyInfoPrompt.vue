@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const goToSettings = () => {
-  router.push('/settings');
+  router.push('/onboarding');
 };
 </script>
 
@@ -18,7 +18,7 @@ const goToSettings = () => {
         <h4>Complete Your Company Profile</h4>
         <p>Before you can create invoices, please add your company's details, logo, and default tax rate.</p>
       </div>
-      <button @click="goToSettings" class="prompt-action-btn">Go to Settings</button>
+      <button @click="goToSettings" class="prompt-action-btn">Start Onboarding</button>
     </div>
   </div>
 </template>

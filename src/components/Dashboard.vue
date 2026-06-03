@@ -1,9 +1,10 @@
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify';
 import useInvoices from '../composables/useInvoices';
 import useUserSettings from '../composables/useUserSettings';
+import useStripeConnect from '../composables/useStripeConnect';
 import { userProfile } from '../composables/useAuth.js';
 import InvoiceTable from './InvoiceTable.vue';
 import InvoiceStats from './InvoiceStats.vue';
@@ -16,6 +17,11 @@ const { mobile } = useDisplay();
 
 const { invoices, loading: invoicesLoading, error: invoicesError, deleteInvoice } = useInvoices();
 const { settings, loading: settingsLoading, error: settingsError } = useUserSettings();
+const { connectStatus, fetchConnectStatus } = useStripeConnect();
+
+onMounted(async () => {
+  await fetchConnectStatus();
+});
 
 // --- ROBUST INITIAL LOAD TRACKING ---
 const invoicesHaveLoaded = ref(false);
@@ -54,7 +60,7 @@ const createNewInvoice = () => {
   }
   if (!settings.value.company?.name) {
     alert('Please set up your company information before creating an invoice.');
-    router.push('/settings');
+    router.push('/onboarding');
   } else {
     router.push('/invoice/new');
   }
@@ -141,6 +147,27 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
 
       <UpgradePrompt v-if="isFreePlan && !invoiceLimitReached && !settingsLoading" />
       <CompanyInfoPrompt v-if="!settings.company?.name && !settingsLoading" />
+      
+      <v-alert
+        v-if="settings.company?.name && !connectStatus.chargesEnabled && !settingsLoading"
+        type="info"
+        variant="outlined"
+        class="mb-4 text-left"
+        style="border-color: rgba(99, 91, 255, 0.4) !important; color: #f1f5f9 !important;"
+        prominent
+      >
+        <template v-slot:prepend>
+          <v-icon color="#635bff">mdi-credit-card-outline</v-icon>
+        </template>
+        <template v-slot:text>
+          <div style="color: #f1f5f9;">
+            <strong style="color: #fff;">Online Payments Not Connected:</strong> You won't be able to accept online credit card or Apple Pay payments on your invoices until you connect a payment account.
+          </div>
+        </template>
+        <template v-slot:append>
+          <v-btn to="/onboarding?step=2" color="#635bff" variant="flat" style="text-transform: none; font-weight: 600;">Connect Now</v-btn>
+        </template>
+      </v-alert>
 
       <InvoiceStats :invoices="invoices" />
       <DashboardChart :invoices="invoices" class="mt-2" />

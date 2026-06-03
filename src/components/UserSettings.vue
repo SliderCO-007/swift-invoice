@@ -17,9 +17,7 @@ const {
 
 const { 
   connectStatus, 
-  fetchConnectStatus, 
-  createConnectAccount, 
-  loading: stripeLoading 
+  fetchConnectStatus 
 } = useStripeConnect();
 
 onMounted(async () => {
@@ -103,13 +101,7 @@ const handleSendPreview = async () => {
   }
 };
 
-const handleStripeConnect = async () => {
-  // Auto-save form inputs so the user doesn't lose anything
-  await saveUserSettings(localSettings.value, logoFile.value);
-  if (!error.value) {
-    await createConnectAccount();
-  }
-};
+
 
 const goToPricing = () => {
   router.push({ name: 'Pricing' });
@@ -209,29 +201,20 @@ const goToPricing = () => {
               </div>
               
               <div class="stripe-body">
-                <p v-if="connectStatus.chargesEnabled">
-                  ScanGo Invoice is fully connected. Your customers can now pay invoices instantly using credit cards, Apple Pay, Google Pay, and more.
-                </p>
-                <p v-else-if="connectStatus.connected">
-                  Your payment account is connected, but we need a bit more information before ScanGo can start collecting payments. Please resume onboarding.
-                </p>
-                <p v-else>
-                  Connect your payment account to let ScanGo Invoice collect payments directly from your customers via a secure, branded payment page. (A 0.5% platform fee applies).
+                <p>
+                  Stripe Connect is used to securely accept credit cards, Apple Pay, Google Pay, and bank payments directly on your invoices.
                 </p>
                 
                 <v-btn 
-                  @click="handleStripeConnect" 
-                  :loading="stripeLoading" 
-                  color="#635bff" 
+                  to="/onboarding?step=2" 
+                  color="indigo-darken-3" 
                   class="stripe-btn mt-4" 
                   prepend-icon="mdi-credit-card-outline"
                 >
-                  {{ connectStatus.connected && !connectStatus.chargesEnabled ? 'Resume Onboarding' : (connectStatus.chargesEnabled ? 'Go to Stripe Dashboard' : 'Connect with Stripe') }}
+                  Manage Payment Account
                 </v-btn>
               </div>
             </div>
-
-
         </div>
 
         <footer class="settings-footer">

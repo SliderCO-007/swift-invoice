@@ -98,7 +98,7 @@
                   :block="mobile"
                 >
                   <v-icon left size="24" class="mr-2">mdi-file-document-edit-outline</v-icon>
-                  Create Invoice (No Sign Up)
+                  Create Free Invoice
                 </v-btn>
                 <v-btn
                   @click="handleGoogleSignIn"
@@ -387,7 +387,7 @@
                 :block="mobile"
               >
                 <v-icon left size="24" class="mr-2">mdi-file-document-edit-outline</v-icon>
-                Create Invoice (No Sign Up)
+                Create Free Invoice
               </v-btn>
               <v-btn
                 @click="handleGoogleSignIn"
