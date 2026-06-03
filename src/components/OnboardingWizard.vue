@@ -243,10 +243,12 @@ const goToDashboard = () => {
             ></v-select>
             
             <div class="form-group branding-group">
-              <label class="color-label">Brand Color</label>
               <div class="color-input-wrapper">
+                <div class="color-label-inside">
+                  <label class="color-label">Brand Color</label>
+                  <span class="color-hex">{{ localSettings.company.primaryColor }}</span>
+                </div>
                 <input type="color" v-model="localSettings.company.primaryColor" class="color-picker" />
-                <span class="color-hex">{{ localSettings.company.primaryColor }}</span>
               </div>
             </div>
           </div>
@@ -542,42 +544,59 @@ const goToDashboard = () => {
 }
 
 .branding-group { 
-  padding: 0.5rem 0; 
+  padding: 0; 
+}
+
+.color-label-inside { 
+  display: flex; 
+  flex-direction: column; 
+  text-align: left; 
 }
 
 .color-label { 
-  display: block; 
-  margin-bottom: 0.5rem; 
-  font-weight: 600; 
-  color: #e2e8f0; 
-  font-size: 0.875rem; 
+  font-size: 0.75rem; 
+  color: #94a3b8; 
+  margin-bottom: 2px; 
+  font-weight: 500; 
 }
 
 .color-input-wrapper { 
   display: flex; 
+  justify-content: space-between; 
   align-items: center; 
-  gap: 1rem; 
-  background: rgba(255, 255, 255, 0.05); 
-  padding: 0.5rem 1rem; 
+  background: rgba(255, 255, 255, 0.03); 
+  padding: 0 1rem; 
   border-radius: 8px; 
-  border: 1px solid rgba(255, 255, 255, 0.1); 
+  border: 1px solid rgba(255, 255, 255, 0.08); 
+  height: 56px; 
+  box-sizing: border-box; 
 }
 
 .color-picker { 
-  width: 40px; 
-  height: 40px; 
+  width: 85px; 
+  height: 38px; 
   border: none; 
   cursor: pointer; 
   background: transparent; 
   padding: 0; 
-  border-radius: 4px; 
+  border-radius: 6px; 
   overflow: hidden; 
+}
+
+.color-picker::-webkit-color-swatch-wrapper { 
+  padding: 0; 
+}
+
+.color-picker::-webkit-color-swatch { 
+  border: 1px solid rgba(255,255,255,0.25); 
+  border-radius: 6px; 
 }
 
 .color-hex { 
   font-family: monospace; 
-  font-size: 1.1rem; 
+  font-size: 0.95rem; 
   color: #fff; 
+  line-height: 1.2; 
 }
 
 .error-notification { 
