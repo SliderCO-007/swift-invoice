@@ -8,7 +8,7 @@ import { currentUser } from './useAuth';
 function getInitialSettings() {
   return {
     company: {
-      name: '', email: '', address1: '', address2: '', city: '', state: '', zip: '',
+      name: '', email: '', phone: '', address1: '', address2: '', city: '', state: '', zip: '',
       logoUrl: '/Logo.png', primaryColor: '#1a3a52'
     },
     taxRate: 0,

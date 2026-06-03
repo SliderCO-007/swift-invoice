@@ -29,7 +29,7 @@ const saveError = ref('');
 const isSaving = ref(false);
 
 const localSettings = ref({
-  company: { name: '', email: '', address1: '', address2: '', city: '', state: '', zip: '', logoUrl: '', primaryColor: '#1a3a52' },
+  company: { name: '', email: '', phone: '', address1: '', address2: '', city: '', state: '', zip: '', logoUrl: '', primaryColor: '#1a3a52' },
   taxRate: 0,
   currency: 'USD',
 });
@@ -41,6 +41,7 @@ watch(settings, (newSettings) => {
       company: {
         name: newSettings.company?.name || '',
         email: newSettings.company?.email || '',
+        phone: newSettings.company?.phone || '',
         address1: newSettings.company?.address1 || '',
         address2: newSettings.company?.address2 || '',
         city: newSettings.company?.city || '',
@@ -184,6 +185,12 @@ const goToDashboard = () => {
               label="Contact Email" 
               v-model="localSettings.company.email" 
               placeholder="e.g., billing@company.com" 
+              variant="solo"
+            ></v-text-field>
+            <v-text-field 
+              label="Company Phone" 
+              v-model="localSettings.company.phone" 
+              placeholder="e.g., +1 (555) 019-2834" 
               variant="solo"
             ></v-text-field>
             
