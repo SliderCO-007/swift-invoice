@@ -148,26 +148,29 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
       <UpgradePrompt v-if="isFreePlan && !invoiceLimitReached && !settingsLoading" />
       <CompanyInfoPrompt v-if="!settings.company?.name && !settingsLoading" />
       
-      <v-alert
+      <!-- Stripe Connect Prompt for Authenticated Users (Custom Glassmorphic Card) -->
+      <div
         v-if="settings.company?.name && !connectStatus.chargesEnabled && !settingsLoading"
-        type="info"
-        variant="outlined"
-        class="mb-4 text-left"
-        style="border-color: rgba(99, 91, 255, 0.4) !important; color: #f1f5f9 !important;"
-        prominent
+        class="stripe-warning-banner mb-4"
       >
-        <template v-slot:prepend>
-          <v-icon color="#635bff">mdi-credit-card-outline</v-icon>
-        </template>
-        <template v-slot:text>
-          <div style="color: #f1f5f9;">
-            <strong style="color: #fff;">Online Payments Not Connected:</strong> You won't be able to accept online credit card or Apple Pay payments on your invoices until you connect a payment account.
+        <div class="banner-content">
+          <div class="banner-text-wrapper">
+            <v-icon color="#635bff" class="banner-icon mr-3">mdi-credit-card-outline</v-icon>
+            <div class="banner-text">
+              <span class="banner-title">Online Payments Not Connected</span>
+              <p class="banner-desc">You won't be able to accept credit cards, Apple Pay, or ACH payments on your invoices until you connect a payment account.</p>
+            </div>
           </div>
-        </template>
-        <template v-slot:append>
-          <v-btn to="/onboarding?step=2" color="#635bff" variant="flat" style="text-transform: none; font-weight: 600;">Connect Now</v-btn>
-        </template>
-      </v-alert>
+          <v-btn 
+            to="/onboarding?step=2" 
+            color="#635bff" 
+            variant="flat" 
+            class="connect-btn-banner"
+          >
+            Connect Now
+          </v-btn>
+        </div>
+      </div>
 
       <InvoiceStats :invoices="invoices" />
       <DashboardChart :invoices="invoices" class="mt-2" />
@@ -277,11 +280,91 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
   color: #94a3b8 !important;
 }
 
+.stripe-warning-banner {
+  background: rgba(99, 91, 255, 0.04);
+  border: 1px solid rgba(99, 91, 255, 0.2);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(12px);
+  text-align: left;
+}
+
+.banner-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.banner-text-wrapper {
+  display: flex;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.banner-icon {
+  margin-top: 0.15rem;
+  font-size: 28px;
+}
+
+.banner-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.banner-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.25rem;
+}
+
+.banner-desc {
+  font-size: 0.95rem;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.connect-btn-banner {
+  text-transform: none;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 @media (max-width: 600px) {
     .dashboard-container { padding: 0.5rem; }
     .dashboard-header { text-align: center; padding: 1.5rem 0.5rem 0 0.5rem; }
     .welcome-message { font-size: 1.8rem; }
     .invoices-header-desktop { display: none; }
     .dashboard-footer { padding: 2rem 0.5rem 1rem; }
+
+    /* Warning banner mobile adjustments */
+    .stripe-warning-banner {
+      padding: 1.25rem;
+    }
+    .banner-content {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1.25rem;
+    }
+    .banner-text-wrapper {
+      align-items: flex-start;
+    }
+    .banner-icon {
+      font-size: 24px;
+      margin-right: 0.5rem !important;
+    }
+    .banner-title {
+      font-size: 1rem;
+    }
+    .banner-desc {
+      font-size: 0.875rem;
+    }
+    .connect-btn-banner {
+      width: 100%;
+    }
 }
 </style>
