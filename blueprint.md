@@ -290,6 +290,40 @@ Separate Stripe Connect functionality from `UserSettings.vue` to streamline the 
 - **Invoice Editor Intercept**: Verify that loading `/invoice/new` with an account that has no Stripe Connect connection triggers a warning alert.
 
 
+## Social Media & Contact Section Integration (v15)
+
+### Purpose
+Add minimalist Facebook and Instagram links to the website footers and introduce a beautiful, glassmorphic "Contact Us" section containing the support email and social media links. This section will be integrated into the landing page and about us page, and we will update the guest navigation bar with a "Contact" link.
+
+### Proposed Changes
+
+#### [MODIFY] [LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Add a new contact section (`#contact`) before the final CTA section.
+- Use branded, glassmorphic Facebook and Instagram social buttons on the Get in Touch card.
+- Optimize spacing above the "Get in Touch" header on mobile devices.
+
+#### [MODIFY] [AboutUsPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/AboutUsPage.vue)
+- Add the contact section (`#contact`) before the CTA card.
+- Add a standard footer at the bottom of the page (without social links) to match other pages.
+- Use branded, glassmorphic Facebook and Instagram social buttons on the Get in Touch card.
+- Optimize spacing above the "Get in Touch" header on mobile devices.
+
+#### [MODIFY] [FeaturesPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/FeaturesPage.vue)
+- Removed previously added social links and styles from the footer.
+
+#### [MODIFY] [Dashboard.vue](file:///C:/Users/curth/git/swift-invoice/src/components/Dashboard.vue)
+- Removed previously added social links and styles from the footer.
+
+#### [MODIFY] [AppBar.vue](file:///C:/Users/curth/git/swift-invoice/src/components/AppBar.vue)
+- Reverted/removed the "Contact" link from the `guestNav` array.
+- Reverted/removed the "Contact" button from the guest desktop navigation and mobile drawer menu.
+
+### Verification Plan
+- Verify contact section displays beautifully with branded, glassmorphic Facebook and Instagram icons on landing and about pages.
+- Verify no social links appear in the footers of the landing page, about page, features page, or dashboard.
+
+
+
 
 
 

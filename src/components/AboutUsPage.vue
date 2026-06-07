@@ -200,6 +200,31 @@
         </v-row>
       </section>
 
+      <!-- Contact Section -->
+      <section id="contact" class="contact-section text-center">
+        <h2 class="section-title mb-2">Get in Touch</h2>
+        <p class="hero-subtitle mx-auto mb-8">
+          Have questions or need support? Reach out to us directly or connect with us online.
+        </p>
+        <v-card class="contact-card mx-auto pa-6" style="max-width: 500px;">
+          <div class="d-flex flex-column align-center ga-4">
+            <a href="mailto:support@scangoinvoice.com" class="contact-email-link d-flex align-center ga-2 text-decoration-none">
+              <v-icon color="primary" size="24">mdi-email-outline</v-icon>
+              <span class="text-white font-weight-medium">support@scangoinvoice.com</span>
+            </a>
+            <v-divider class="w-100 border-opacity-10 my-2" color="white"></v-divider>
+            <div class="d-flex align-center justify-center ga-6">
+              <a href="https://www.facebook.com/scangoinvoice" target="_blank" rel="noopener noreferrer" class="social-link-facebook" title="Facebook">
+                <v-icon size="24">mdi-facebook</v-icon>
+              </a>
+              <a href="https://www.instagram.com/scangoinvoice" target="_blank" rel="noopener noreferrer" class="social-link-instagram" title="Instagram">
+                <v-icon size="24">mdi-instagram</v-icon>
+              </a>
+            </div>
+          </div>
+        </v-card>
+      </section>
+
       <!-- CTA Section -->
       <section class="cta-section text-center">
         <v-card class="cta-card pa-8 pa-md-12">
@@ -213,6 +238,14 @@
         </v-card>
       </section>
     </v-container>
+
+    <footer class="footer">
+      <div class="footer-container">
+        <p>&copy; 2026 ScanGo Invoice. All rights reserved. | <a
+            href="mailto:support@scangoinvoice.com">support@scangoinvoice.com</a> | <router-link to="/about">About Us</router-link> | <router-link to="/privacy">Privacy
+            Policy</router-link> | <router-link to="/terms">Terms of Service</router-link></p>
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -425,5 +458,115 @@ useMeta(
 .cta-btn:hover {
   transform: scale(1.03);
   box-shadow: 0 0 30px rgba(0, 242, 254, 0.5) !important;
+}
+
+.contact-section {
+  margin-top: 4rem;
+  margin-bottom: 4rem;
+}
+
+@media (max-width: 600px) {
+  .commitments-section {
+    margin-bottom: 1.5rem !important;
+  }
+  .contact-section {
+    margin-top: 0.5rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+  .footer {
+    margin-top: 2rem !important;
+  }
+}
+
+/* Contact & Social Footer Styles */
+.contact-card {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(16px);
+  border-radius: 20px !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3) !important;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.contact-card:hover {
+  border-color: rgba(0, 242, 254, 0.2) !important;
+  box-shadow: 0 20px 45px rgba(0, 242, 254, 0.05) !important;
+}
+
+.contact-email-link {
+  color: #94a3b8;
+  transition: all 0.3s ease;
+  font-size: 1.1rem;
+}
+
+.contact-email-link:hover {
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(0, 242, 254, 0.4);
+}
+
+.social-link-facebook {
+  text-decoration: none !important;
+  color: #1877f2 !important;
+  background: rgba(24, 119, 242, 0.05) !important;
+  border: 1px solid rgba(24, 119, 242, 0.15) !important;
+  backdrop-filter: blur(8px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  padding: 10px;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.social-link-facebook:hover {
+  background: rgba(24, 119, 242, 0.15) !important;
+  border-color: rgba(24, 119, 242, 0.45) !important;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 0 15px rgba(24, 119, 242, 0.4) !important;
+}
+
+.social-link-instagram {
+  text-decoration: none !important;
+  color: #e1306c !important;
+  background: rgba(225, 48, 108, 0.05) !important;
+  border: 1px solid rgba(225, 48, 108, 0.15) !important;
+  backdrop-filter: blur(8px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  padding: 10px;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.social-link-instagram:hover {
+  background: rgba(225, 48, 108, 0.15) !important;
+  border-color: rgba(225, 48, 108, 0.45) !important;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 0 15px rgba(225, 48, 108, 0.4) !important;
+}
+
+.footer {
+  background-color: #0a111c;
+  color: #94a3b8;
+  padding: 2rem 0;
+  text-align: center;
+  margin-top: 4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.footer-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.footer a {
+  color: #f1f5f9;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
 }
 </style>

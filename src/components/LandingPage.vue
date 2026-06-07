@@ -438,6 +438,33 @@
           </div>
         </div>
       </section>
+
+      <!-- Contact Section -->
+      <section id="contact" class="contact-section">
+        <div class="container text-center">
+          <h2 class="text-h4 font-weight-bold text-white mb-2">Get in Touch</h2>
+          <p class="text-body-1 text-grey-lighten-1 mb-8" style="max-width: 600px; margin: 0 auto;">
+            Have questions about integrations, setup, or subscriptions? Drop us a line or follow us on social media.
+          </p>
+          <v-card class="contact-card mx-auto pa-6" style="max-width: 500px;">
+            <div class="d-flex flex-column align-center ga-4">
+              <a href="mailto:support@scangoinvoice.com" class="contact-email-link d-flex align-center ga-2 text-decoration-none">
+                <v-icon color="primary" size="24">mdi-email-outline</v-icon>
+                <span class="text-white font-weight-medium">support@scangoinvoice.com</span>
+              </a>
+              <v-divider class="w-100 border-opacity-10 my-2" color="white"></v-divider>
+              <div class="d-flex align-center justify-center ga-6">
+                <a href="https://www.facebook.com/scangoinvoice" target="_blank" rel="noopener noreferrer" class="social-link-facebook" title="Facebook">
+                  <v-icon size="24">mdi-facebook</v-icon>
+                </a>
+                <a href="https://www.instagram.com/scangoinvoice" target="_blank" rel="noopener noreferrer" class="social-link-instagram" title="Instagram">
+                  <v-icon size="24">mdi-instagram</v-icon>
+                </a>
+              </div>
+            </div>
+          </v-card>
+        </div>
+      </section>
     </main>
 
     <footer class="footer">
@@ -1426,5 +1453,88 @@ main section[id] {
   border-color: rgba(34, 211, 238, 0.45) !important;
   box-shadow: 0 12px 35px rgba(6, 182, 212, 0.65), 0 0 15px rgba(6, 182, 212, 0.3) !important;
   transform: translateY(-3px) !important;
+}
+
+/* Branded Glassmorphic Social Links */
+.social-link-facebook {
+  text-decoration: none !important;
+  color: #1877f2 !important;
+  background: rgba(24, 119, 242, 0.05) !important;
+  border: 1px solid rgba(24, 119, 242, 0.15) !important;
+  backdrop-filter: blur(8px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  padding: 10px;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.social-link-facebook:hover {
+  background: rgba(24, 119, 242, 0.15) !important;
+  border-color: rgba(24, 119, 242, 0.45) !important;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 0 15px rgba(24, 119, 242, 0.4) !important;
+}
+
+.social-link-instagram {
+  text-decoration: none !important;
+  color: #e1306c !important;
+  background: rgba(225, 48, 108, 0.05) !important;
+  border: 1px solid rgba(225, 48, 108, 0.15) !important;
+  backdrop-filter: blur(8px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  padding: 10px;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.social-link-instagram:hover {
+  background: rgba(225, 48, 108, 0.15) !important;
+  border-color: rgba(225, 48, 108, 0.45) !important;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 0 15px rgba(225, 48, 108, 0.4) !important;
+}
+
+.contact-section {
+  position: relative;
+  z-index: 1;
+  padding: 4rem 0;
+}
+
+@media (max-width: 600px) {
+  .final-cta {
+    padding-bottom: 1.5rem !important;
+  }
+  .contact-section {
+    padding: 0.5rem 0 1.5rem 0 !important;
+  }
+}
+
+.contact-card {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(16px);
+  border-radius: 20px !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3) !important;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.contact-card:hover {
+  border-color: rgba(0, 242, 254, 0.2) !important;
+  box-shadow: 0 20px 45px rgba(0, 242, 254, 0.05) !important;
+}
+
+.contact-email-link {
+  color: #94a3b8;
+  transition: all 0.3s ease;
+  font-size: 1.1rem;
+}
+
+.contact-email-link:hover {
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(0, 242, 254, 0.4);
 }
 </style>
