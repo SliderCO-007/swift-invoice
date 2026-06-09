@@ -22,6 +22,9 @@
               </div>
               <h1 class="hero-title">Turn Tracked Work into Paid Invoices</h1>
               <h1 class="hero-title"><span class="text-gradient">in One Click.</span></h1>
+              <p class="hero-subtitle mt-4 mb-6">
+                Digitize your workflow on the go. Snap receipts to track expenses, log project hours, and get paid instantly via customer "Scan-to-Pay" QR codes.
+              </p>
               <div class="hero-benefits-badges d-flex flex-column ga-3 mb-8 mt-4 ml-0">
                 <div class="benefit-badge">
                   <div class="badge-icon-container">
@@ -287,9 +290,7 @@
                 Track Work, Invoice Instantly
               </h3>
               <p class="text-body-1 text-grey-lighten-1 mb-8">
-                Log billable hours and expenses under a project. Scan receipts and save
-                them to the project. When the work is done, convert it to a pre-filled
-                invoice in one click — no manual data entry.
+                Log billable hours and expenses under a project. Photograph and attach receipts to keep your expense records digital. When the work is done, convert it to a pre-filled invoice in one click — no manual data entry.
               </p>
               <div
                 class="payment-methods d-flex justify-center align-center ga-4 flex-wrap"

@@ -85,6 +85,11 @@ const createInitialUserData = async (user) => {
 
   await batch.commit();
   await fetchUserProfile(user.uid);
+
+  // Fire Meta Pixel registration event for tracking ad conversions
+  if (typeof window.fbq === 'function') {
+    window.fbq('track', 'CompleteRegistration');
+  }
 };
 
 
