@@ -25,71 +25,6 @@
               <p class="hero-subtitle mt-4 mb-6">
                 Digitize your workflow on the go. Snap receipts to track expenses, log project hours, and get paid instantly via customer "Scan-to-Pay" QR codes.
               </p>
-              <div class="hero-benefits-badges d-flex flex-column ga-3 mb-8 mt-4 ml-0">
-                <div class="benefit-badge">
-                  <div class="badge-icon-container">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <defs>
-                        <linearGradient id="grad-invoice" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stop-color="#34d399" />
-                          <stop offset="100%" stop-color="#059669" />
-                        </linearGradient>
-                      </defs>
-                      <rect x="5" y="2" width="14" height="20" rx="3" stroke="url(#grad-invoice)" stroke-width="2" />
-                      <line x1="10" y1="20" x2="14" y2="20" stroke="url(#grad-invoice)" stroke-width="2" stroke-linecap="round" />
-                      <rect x="8" y="5" width="8" height="10" rx="1" fill="rgba(52, 211, 153, 0.15)" stroke="url(#grad-invoice)" stroke-width="1.5" />
-                      <line x1="10" y1="8" x2="14" y2="8" stroke="url(#grad-invoice)" stroke-width="1.2" />
-                      <line x1="10" y1="11" x2="13" y2="11" stroke="url(#grad-invoice)" stroke-width="1.2" />
-                    </svg>
-                  </div>
-                  <div class="badge-content">
-                    <div class="badge-title">60s Mobile Invoicing</div>
-                    <div class="badge-subtitle">Create & send professional invoices from your phone in under 60 seconds</div>
-                  </div>
-                </div>
-
-                <div class="benefit-badge">
-                  <div class="badge-icon-container">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <defs>
-                        <linearGradient id="grad-tracking" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stop-color="#06b6d4" />
-                          <stop offset="100%" stop-color="#0891b2" />
-                        </linearGradient>
-                      </defs>
-                      <circle cx="12" cy="12" r="9" stroke="url(#grad-tracking)" stroke-width="2" />
-                      <path d="M12 7V12L15 13.5" stroke="url(#grad-tracking)" stroke-width="2" stroke-linecap="round" />
-                      <path d="M14 13.5H19V20.5H14V13.5Z" fill="rgba(6, 182, 212, 0.2)" stroke="url(#grad-tracking)" stroke-width="1.5" stroke-linejoin="round" />
-                      <path d="M15 16H18" stroke="url(#grad-tracking)" stroke-width="1" />
-                      <path d="M15 18H17" stroke="url(#grad-tracking)" stroke-width="1" />
-                    </svg>
-                  </div>
-                  <div class="badge-content">
-                    <div class="badge-title">On-the-Go Tracking</div>
-                    <div class="badge-subtitle">Track billable hours & project expenses on-the-go (with receipt photos)</div>
-                  </div>
-                </div>
-
-                <div class="benefit-badge">
-                  <div class="badge-icon-container">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <defs>
-                        <linearGradient id="grad-convert" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stop-color="#fbbf24" />
-                          <stop offset="100%" stop-color="#ea580c" />
-                        </linearGradient>
-                      </defs>
-                      <path d="M4 17V7C4 5.89543 4.89543 5 6 5H14L19 10V17C19 18.1046 18.1046 19 17 19H6C4.89543 19 4 18.1046 4 17Z" stroke="url(#grad-convert)" stroke-width="2" />
-                      <path d="M14 5V10H19" stroke="url(#grad-convert)" stroke-width="2" stroke-linejoin="round" />
-                      <path d="M11 9L7 13H11L9 17L13 13H9L11 9Z" stroke="url(#grad-convert)" stroke-width="1.5" stroke-linejoin="round" fill="rgba(251, 191, 36, 0.2)" />
-                    </svg>
-                  </div>
-                  <div class="badge-content">
-                    <div class="badge-title">1-Click Conversion</div>
-                    <div class="badge-subtitle">1-Click conversion from project work directly into pre-filled invoices</div>
-                  </div>
-                </div>
-              </div>
               <div
                 class="d-flex flex-column flex-sm-row flex-wrap ga-4 mt-8 align-center justify-center justify-md-start"
               >
@@ -213,7 +148,9 @@
                   </div>
                 </div>
               </div>
+
             </div>
+
             <div class="hero-image">
               <img
                 src="/branded_hero_v7.png"
@@ -234,6 +171,73 @@
                   </div>
                 </div>
               </transition>
+            </div>
+          </div>
+
+          <!-- Hero Benefits Badges v7 -->
+          <div class="hero-benefits-badges d-flex flex-column ga-3 mb-0 mt-8 ml-0">
+            <div class="benefit-badge">
+              <div class="badge-icon-container">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="grad-invoice" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#34d399" />
+                      <stop offset="100%" stop-color="#059669" />
+                    </linearGradient>
+                  </defs>
+                  <rect x="5" y="2" width="14" height="20" rx="3" stroke="url(#grad-invoice)" stroke-width="2" />
+                  <line x1="10" y1="20" x2="14" y2="20" stroke="url(#grad-invoice)" stroke-width="2" stroke-linecap="round" />
+                  <rect x="8" y="5" width="8" height="10" rx="1" fill="rgba(52, 211, 153, 0.15)" stroke="url(#grad-invoice)" stroke-width="1.5" />
+                  <line x1="10" y1="8" x2="14" y2="8" stroke="url(#grad-invoice)" stroke-width="1.2" />
+                  <line x1="10" y1="11" x2="13" y2="11" stroke="url(#grad-invoice)" stroke-width="1.2" />
+                </svg>
+              </div>
+              <div class="badge-content">
+                <div class="badge-title">60s Mobile Invoicing</div>
+                <div class="badge-subtitle">Create & send professional invoices from your phone in under 60 seconds</div>
+              </div>
+            </div>
+
+            <div class="benefit-badge">
+              <div class="badge-icon-container">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="grad-tracking" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#06b6d4" />
+                      <stop offset="100%" stop-color="#0891b2" />
+                    </linearGradient>
+                  </defs>
+                  <circle cx="12" cy="12" r="9" stroke="url(#grad-tracking)" stroke-width="2" />
+                  <path d="M12 7V12L15 13.5" stroke="url(#grad-tracking)" stroke-width="2" stroke-linecap="round" />
+                  <path d="M14 13.5H19V20.5H14V13.5Z" fill="rgba(6, 182, 212, 0.2)" stroke="url(#grad-tracking)" stroke-width="1.5" stroke-linejoin="round" />
+                  <path d="M15 16H18" stroke="url(#grad-tracking)" stroke-width="1" />
+                  <path d="M15 18H17" stroke="url(#grad-tracking)" stroke-width="1" />
+                </svg>
+              </div>
+              <div class="badge-content">
+                <div class="badge-title">On-the-Go Tracking</div>
+                <div class="badge-subtitle">Track billable hours & project expenses on-the-go (with receipt photos)</div>
+              </div>
+            </div>
+
+            <div class="benefit-badge">
+              <div class="badge-icon-container">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="grad-convert" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#fbbf24" />
+                      <stop offset="100%" stop-color="#ea580c" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M4 17V7C4 5.89543 4.89543 5 6 5H14L19 10V17C19 18.1046 18.1046 19 17 19H6C4.89543 19 4 18.1046 4 17Z" stroke="url(#grad-convert)" stroke-width="2" />
+                  <path d="M14 5V10H19" stroke="url(#grad-convert)" stroke-width="2" stroke-linejoin="round" />
+                  <path d="M11 9L7 13H11L9 17L13 13H9L11 9Z" stroke="url(#grad-convert)" stroke-width="1.5" stroke-linejoin="round" fill="rgba(251, 191, 36, 0.2)" />
+                </svg>
+              </div>
+              <div class="badge-content">
+                <div class="badge-title">1-Click Conversion</div>
+                <div class="badge-subtitle">1-Click conversion from project work directly into pre-filled invoices</div>
+              </div>
             </div>
           </div>
         </div>
@@ -729,6 +733,21 @@ main section[id] {
 /* Hero Benefits Badges v7 Style */
 .hero-benefits-badges {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 960px) {
+  .hero-benefits-badges {
+    flex-direction: row !important;
+    gap: 1.5rem !important;
+    margin-top: 3rem !important;
+  }
+  .benefit-badge {
+    flex: 1 1 0px;
+    width: auto !important;
+  }
 }
 
 .benefit-badge {

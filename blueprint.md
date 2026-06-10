@@ -409,3 +409,19 @@ Declutter and optimize the workspace dashboard by removing bulky stats cards and
 #### [MODIFY] [LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
 - Update `.hero-grid` to set `align-items: start` instead of `align-items: center` to ensure the hero image is aligned to the top and sits above the fold in desktop views.
 - Set `v-if="false"` on the `.iphone-overlay` block to temporarily disable the iPhone GIF mockup overlay until a new visual asset showcasing the new updates is created.
+
+## Landing Page Above-the-Fold Badges Reordering (v19)
+
+### Purpose
+Resolve the desktop view fold issue where the large vertical hero benefit badges pushed the primary call-to-actions (CTA buttons) below the fold. By repositioning the benefits badges out of the narrow left-column grid layout and placing them horizontally below the 2-column hero grid section, we maintain critical above-the-fold prominence for the CTA block while presenting the benefits in a beautiful, widescreen 3-column format on desktop.
+
+### Proposed Changes
+
+#### [MODIFY] [LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Move `.hero-benefits-badges` markup from the bottom of the `.hero-content` left column to the bottom of the `.hero` section (outside the `.hero-grid` card but inside the container).
+- Add CSS media queries for `.hero-benefits-badges` and `.benefit-badge` to display horizontally (`flex-direction: row`, `flex: 1 1 0px`) for screens 960px and wider, while retaining the vertical stack on mobile/tablet viewports.
+
+### Verification Plan
+- **Desktop View:** Verify that the primary signup buttons (Google, Email) and secondary video button are clearly visible above the fold. Verify the benefits badges appear horizontally spanning the container width below the main grid.
+- **Mobile View:** Verify that the layout remains responsive, with the badges stacked vertically at the bottom of the hero section.
+
