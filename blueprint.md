@@ -406,3 +406,7 @@ Declutter and optimize the workspace dashboard by removing bulky stats cards and
 - **Desktop Grid**: Check that desktop rendering displays the wide tabular view with sorting and CSV exporting.
 - **Mobile Accordion**: Switch to mobile emulation and confirm that tapping an invoice item reveals the sliding detailed drawer with proper action buttons.
 
+#### [MODIFY] [LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Update `.hero-grid` to set `align-items: start` instead of `align-items: center` to ensure the hero image is aligned to the top and sits above the fold in desktop views.
+
+
