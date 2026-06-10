@@ -7,13 +7,13 @@ import useUserSettings from '../composables/useUserSettings';
 import useStripeConnect from '../composables/useStripeConnect';
 import { userProfile } from '../composables/useAuth.js';
 import InvoiceTable from './InvoiceTable.vue';
-import InvoiceStats from './InvoiceStats.vue';
 import CompanyInfoPrompt from './CompanyInfoPrompt.vue';
 import UpgradePrompt from './UpgradePrompt.vue';
 import DashboardChart from './DashboardChart.vue';
 
 const router = useRouter();
 const { mobile } = useDisplay();
+const activeTab = ref('invoices');
 
 const { invoices, loading: invoicesLoading, error: invoicesError, deleteInvoice } = useInvoices();
 const { settings, loading: settingsLoading, error: settingsError } = useUserSettings();
@@ -172,61 +172,55 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
         </div>
       </div>
 
-      <InvoiceStats :invoices="invoices" />
-      <DashboardChart :invoices="invoices" class="mt-2" />
+      <!-- Dashboard Tab System -->
+      <v-tabs v-model="activeTab" bg-color="transparent" color="primary" class="mb-4" align-tabs="center">
+        <v-tab value="invoices" class="text-capitalize font-weight-bold">
+          <v-icon start class="mr-1">mdi-file-document-outline</v-icon>
+          Invoices
+        </v-tab>
+        <v-tab value="analytics" class="text-capitalize font-weight-bold">
+          <v-icon start class="mr-1">mdi-chart-line</v-icon>
+          Analytics
+        </v-tab>
+      </v-tabs>
 
-      <main class="dashboard-content">
-        <div v-if="hasError" class="error-container">
-          <v-alert type="error" dense outlined>
-            There was an error loading your dashboard. Please refresh the page.
-          </v-alert>
-        </div>
+      <v-window v-model="activeTab">
+        <!-- Invoices Workspace -->
+        <v-window-item value="invoices">
+          <main class="dashboard-content">
+            <div v-if="hasError" class="error-container">
+              <v-alert type="error" dense outlined>
+                There was an error loading your dashboard. Please refresh the page.
+              </v-alert>
+            </div>
 
-        <div v-else>
-          <div v-if="invoicesLoading && !invoices.length" class="loading-container">
-            <v-progress-circular indeterminate size="48" color="primary"></v-progress-circular>
-            <p>Loading invoices...</p>
+            <div v-else>
+              <div v-if="invoicesLoading && !invoices.length" class="loading-container">
+                <v-progress-circular indeterminate size="48" color="primary"></v-progress-circular>
+                <p>Loading invoices...</p>
+              </div>
+              <div v-else-if="!invoices.length && !isDataLoading" class="no-invoices-container">
+                <img src="/no_invoices.svg" alt="No Invoices Illustration" class="no-invoices-illustration" />
+                <h3 class="text-h5 font-weight-medium">Start Your Journey</h3>
+                <p class="text-body-1 text-grey-darken-1 mt-2 mb-6">Ready to get paid? Create your first invoice and take control of your billing.</p>
+                <v-btn color="primary" @click="createNewInvoice" size="large" class="mt-4" rounded="lg">
+                  <v-icon start>mdi-plus</v-icon>
+                  Create Your First Invoice
+                </v-btn>
+              </div>
+
+              <InvoiceTable v-else :invoices="invoices" @delete-invoice="openDeleteDialog" @edit-invoice="editInvoice"/>
+            </div>
+          </main>
+        </v-window-item>
+
+        <!-- Analytics Overview -->
+        <v-window-item value="analytics">
+          <div class="analytics-content pa-2">
+            <DashboardChart :invoices="invoices" class="mt-2" />
           </div>
-          <div v-else-if="!invoices.length && !isDataLoading" class="no-invoices-container">
-            <img src="/no_invoices.svg" alt="No Invoices Illustration" class="no-invoices-illustration" />
-            <h3 class="text-h5 font-weight-medium">Start Your Journey</h3>
-            <p class="text-body-1 text-grey-darken-1 mt-2 mb-6">Ready to get paid? Create your first invoice and take control of your billing.</p>
-            <v-btn color="primary" @click="createNewInvoice" size="large" class="mt-4" rounded="lg">
-              <v-icon start>mdi-plus</v-icon>
-              Create Your First Invoice
-            </v-btn>
-          </div>
-
-          <InvoiceTable v-else-if="!mobile" :invoices="invoices" @delete-invoice="openDeleteDialog" @edit-invoice="editInvoice"/>
-
-          <div v-else class="pa-2">
-            <v-card v-for="invoice in invoices" :key="invoice.id" class="mb-4" elevation="2" rounded="xl">
-              <v-card-text class="pa-4">
-                <div class="d-flex justify-space-between align-center mb-4">
-                  <span class="text-h6 font-weight-bold text-grey-darken-3">{{ invoice.client?.name || 'N/A' }}</span>
-                  <v-chip :color="getStatusInfo(invoice.status).color" text-color="white" label small>
-                    <v-icon start :icon="getStatusInfo(invoice.status).icon" size="small"></v-icon>
-                    {{ invoice.status ? invoice.status.toLowerCase() : '' }}
-                  </v-chip>
-                </div>
-                <div class="d-flex justify-space-between align-end mb-3">
-                  <div class="text-medium-emphasis">
-                    <span>Invoice {{ formatInvoiceNumber(invoice.invoiceNumber) }}</span><br>
-                    <span>Due: {{ formatDate(invoice.dueDate) }}</span>
-                  </div>
-                  <span class="font-weight-bold text-h5 text-grey-darken-4">{{ formatCurrency(invoice.total) }}</span>
-                </div>
-              </v-card-text>
-              <v-divider></v-divider>
-              <v-card-actions class="pa-3">
-                <v-spacer></v-spacer>
-                <v-btn variant="text" class="text-capitalize" @click="editInvoice(invoice.id)">View / Edit</v-btn>
-                <v-btn color="red-darken-1" variant="text" class="text-capitalize" @click="openDeleteDialog(invoice.id)">Delete</v-btn>
-              </v-card-actions>
-            </v-card>
-          </div>
-        </div>
-      </main>
+        </v-window-item>
+      </v-window>
 
       <v-fab icon="mdi-plus" location="bottom right" size="64" color="primary" app appear @click="createNewInvoice" title="Create New Invoice" class="fab-button" :disabled="isDataLoading || invoiceLimitReached"></v-fab>
 

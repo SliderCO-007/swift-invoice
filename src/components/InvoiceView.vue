@@ -12,6 +12,8 @@ import InvoiceTemplate from './InvoiceTemplate.vue'
 import InvoiceTemplate2 from './InvoiceTemplate2.vue'
 import InvoiceTemplate3 from './InvoiceTemplate3.vue'
 import InvoiceTemplate4 from './InvoiceTemplate4.vue'
+import InvoiceTemplate5 from './InvoiceTemplate5.vue'
+import InvoiceTemplate6 from './InvoiceTemplate6.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -427,6 +429,24 @@ const safeInvoice = computed(() => {
               />
               <span>Solid</span>
             </label>
+            <label class="style-option">
+              <input
+                type="radio"
+                value="creative"
+                v-model="invoice.style"
+                @change="updateStyle"
+              />
+              <span>Creative Sidebar</span>
+            </label>
+            <label class="style-option">
+              <input
+                type="radio"
+                value="tech"
+                v-model="invoice.style"
+                @change="updateStyle"
+              />
+              <span>Tech Grid</span>
+            </label>
           </div>
 
           <div class="actions">
@@ -537,6 +557,20 @@ const safeInvoice = computed(() => {
       />
       <InvoiceTemplate4
         v-else-if="safeInvoice.style === 'solid'"
+        ref="invoicePaper"
+        :invoice="safeInvoice"
+        :settings="settings"
+        :userProfile="userProfile"
+      />
+      <InvoiceTemplate5
+        v-else-if="safeInvoice.style === 'creative'"
+        ref="invoicePaper"
+        :invoice="safeInvoice"
+        :settings="settings"
+        :userProfile="userProfile"
+      />
+      <InvoiceTemplate6
+        v-else-if="safeInvoice.style === 'tech'"
         ref="invoicePaper"
         :invoice="safeInvoice"
         :settings="settings"

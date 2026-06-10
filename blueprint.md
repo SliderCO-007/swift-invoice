@@ -345,8 +345,64 @@ Improve the landing page and registration conversion rates by:
 - **Copy Match:** Verify the landing page displays the new subheadline and the updated Step 3 text correctly.
 
 
+## Invoice Templates Expansion (v17)
 
+### Purpose
+Add two new premium invoice templates to expand visual choices for users:
+1. **Creative Sidebar (creative)**: An asymmetrical split-column layout. A solid-tinted left sidebar containing the company logo in the upper left, status badge, invoice number, issue/due dates, client details, and the Stripe QR payment code. The spacious right pane contains the sender's contact details, items table, notes, and totals.
+2. **Tech Grid (tech)**: A modern, tech-themed blueprint grid layout featuring monospace and clean geometric typography, sharp grid lines, status code indicators, and data-table boxes.
+Both templates dynamically adapt to the user's primary/brand color for visual accents (e.g. sidebar tints, borders, table headers).
 
+### Proposed Changes
 
+#### [NEW] [InvoiceTemplate5.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceTemplate5.vue)
+- Create the Creative Sidebar template with a responsive grid layout.
+- Handle logo in upper left sidebar, client billing details, QR pay code, and sender details.
+- Use dynamic primary color RGB conversion to theme elements.
 
+#### [NEW] [InvoiceTemplate6.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceTemplate6.vue)
+- Create the Tech Grid template with Google Fonts Space Grotesk and Share Tech Mono imports.
+- Render double grid lines, blocky status labels, monospace numbers, and technical headers.
+- Support all invoice calculation fields, notes, logo, and Stripe QR pay code.
+
+#### [MODIFY] [InvoiceEditor.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceEditor.vue)
+- Register style choices `'creative'` and `'tech'` in the template selection radio group.
+- Update style primary color visibility check to include `'creative'` and `'tech'`.
+- Import and render `InvoiceTemplate5` and `InvoiceTemplate6` inside the Preview modal.
+
+#### [MODIFY] [InvoiceView.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceView.vue)
+- Add radio controls for `'creative'` and `'tech'` inside the owner's style selector.
+- Import and render `InvoiceTemplate5` and `InvoiceTemplate6` in the active invoice template view.
+
+### Verification Plan
+- **Template Selection**: Go to the Invoice Editor and verify that "Creative Sidebar" and "Tech Grid" appear as options and show the primary color picker when selected.
+- **Dynamic Color**: Modify the theme color and confirm the accents on both templates update in real-time.
+- **Responsive Layout**: Resize screen to mobile size and verify the sidebar shifts to a stacked column layout and the tech grid wraps legibly.
+- **PDF Generation**: Click "Download PDF" on both templates and verify that the HTML iframe cloning, canvas generation, and clickable QR overlay remain fully operational.
+
+## Dashboard Layout Optimization (v18)
+
+### Purpose
+Declutter and optimize the workspace dashboard by removing bulky stats cards and splitting the interface into a tabbed layout, while introducing a fully custom responsive accordion table for invoice management.
+
+### Proposed Changes
+
+#### [MODIFY] [Dashboard.vue](file:///C:/Users/curth/git/swift-invoice/src/components/Dashboard.vue)
+- Remove `InvoiceStats` import and its rendering block.
+- Declare `activeTab` ref to toggle between Invoices and Analytics views.
+- Render Invoices in Tab 1, showing the unified `InvoiceTable` component.
+- Render the monthly revenue `DashboardChart` in Tab 2.
+- Remove redundant mobile invoice card loop from the layout.
+
+#### [MODIFY] [InvoiceTable.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceTable.vue)
+- Rewrite database table to be fully custom, responsive, and styled with glassmorphic elements.
+- On desktop: Render a clean, wide tabular view.
+- On mobile: Render a list of compact row elements showing Client, Total, and Status.
+- Implement click-expand row toggling using Vue `<v-expand-transition>` to display details (Issue/Due Dates) and Action buttons.
+
+### Verification Plan
+- **Tab Toggling**: Visit the Dashboard and check that you can toggle between the "Invoices" tab and "Analytics" tab.
+- **Removed Stats**: Confirm that the statistics cards are gone from the dashboard.
+- **Desktop Grid**: Check that desktop rendering displays the wide tabular view with sorting and CSV exporting.
+- **Mobile Accordion**: Switch to mobile emulation and confirm that tapping an invoice item reveals the sliding detailed drawer with proper action buttons.
 

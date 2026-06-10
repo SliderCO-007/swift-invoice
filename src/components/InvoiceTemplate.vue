@@ -73,7 +73,7 @@ const formatCurrency = (value) => {
         />
         <h1 v-else class="invoice-title">{{ invoice.sender.name }}</h1>
         <p :class="['invoice-status', `status-${invoice.status.toLowerCase()}`]">
-          {{ invoice.status }}
+          STATUS: {{ invoice.status.toUpperCase() }}
         </p>
       </div>
       <div class="sender-details">
@@ -181,7 +181,7 @@ const formatCurrency = (value) => {
 .invoice-paper {
   background: var(--white-color, #fff);
   border-radius: 12px;
-  padding: 2.5rem;
+  padding: 2rem 2.5rem 2.5rem 2.5rem;
   box-shadow: var(--shadow-md);
   font-family: 'Poppins', sans-serif;
   color: #333;
@@ -194,9 +194,10 @@ const formatCurrency = (value) => {
 }
 
 .company-logo {
+  display: block;
   max-height: 60px;
   max-width: 180px;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .invoice-main-header {
@@ -204,8 +205,8 @@ const formatCurrency = (value) => {
   justify-content: space-between;
   align-items: flex-start;
   border-bottom: 2px solid #eee;
-  padding-bottom: 2rem;
-  margin-bottom: 2rem;
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.25rem;
 }
 
 .invoice-title {
@@ -221,7 +222,7 @@ const formatCurrency = (value) => {
   font-size: 0.75em;
   font-weight: 600;
   text-transform: uppercase;
-  margin-top: 1rem;
+  margin-top: 0.4rem;
   display: inline-block;
   letter-spacing: 0.5px;
 }
@@ -250,7 +251,7 @@ const formatCurrency = (value) => {
 .invoice-meta-details {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
   font-size: 0.85em;
 }
 

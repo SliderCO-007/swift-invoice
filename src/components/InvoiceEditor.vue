@@ -11,6 +11,8 @@ import InvoiceTemplate from './InvoiceTemplate.vue';
 import InvoiceTemplate2 from './InvoiceTemplate2.vue';
 import InvoiceTemplate3 from './InvoiceTemplate3.vue';
 import InvoiceTemplate4 from './InvoiceTemplate4.vue';
+import InvoiceTemplate5 from './InvoiceTemplate5.vue';
+import InvoiceTemplate6 from './InvoiceTemplate6.vue';
 import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import Logo from './Logo.vue';
@@ -436,9 +438,9 @@ onUnmounted(() => {
           </div>
           <div>
             <h3>Invoice Style</h3>
-            <v-radio-group v-model="invoice.style" inline><v-radio label="Classic" value="classic"></v-radio><v-radio label="Modern" value="modern"></v-radio><v-radio label="Corporate" value="corporate"></v-radio><v-radio label="Solid" value="solid"></v-radio></v-radio-group>
+            <v-radio-group v-model="invoice.style" inline><v-radio label="Classic" value="classic"></v-radio><v-radio label="Modern" value="modern"></v-radio><v-radio label="Corporate" value="corporate"></v-radio><v-radio label="Solid" value="solid"></v-radio><v-radio label="Creative Sidebar" value="creative"></v-radio><v-radio label="Tech Grid" value="tech"></v-radio></v-radio-group>
             
-            <div v-if="invoice.style === 'corporate' || invoice.style === 'solid'" class="custom-color-picker mt-2">
+            <div v-if="['corporate', 'solid', 'creative', 'tech'].includes(invoice.style)" class="custom-color-picker mt-2">
               <label class="color-label">Theme Color</label>
               <div class="color-input-wrapper">
                 <input type="color" v-model="invoice.primaryColor" class="color-picker" />
@@ -491,6 +493,8 @@ onUnmounted(() => {
           <InvoiceTemplate2 v-else-if="invoice.style === 'modern'" :invoice="{...invoice, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
           <InvoiceTemplate3 v-else-if="invoice.style === 'corporate'" :invoice="{...invoice, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
           <InvoiceTemplate4 v-else-if="invoice.style === 'solid'" :invoice="{...invoice, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
+          <InvoiceTemplate5 v-else-if="invoice.style === 'creative'" :invoice="{...invoice, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
+          <InvoiceTemplate6 v-else-if="invoice.style === 'tech'" :invoice="{...invoice, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
         </div>
       </v-card>
     </v-dialog>
