@@ -221,9 +221,9 @@
                 alt="A deconstructed workspace with an invoice and dashboard."
               />
 
-              <!-- iPhone GIF Overlay -->
+              <!-- iPhone GIF Overlay (Omitted temporarily until new updates GIF is available) -->
               <transition name="fade">
-                <div class="iphone-overlay" v-if="showGifOverlay">
+                <div class="iphone-overlay" v-if="false">
                   <div class="iphone-frame">
                     <div class="notch"></div>
                     <img
