@@ -56,7 +56,6 @@ const formatCurrency = (val) =>
           <p class="projects-subtitle">Track time and expenses, then convert to an invoice.</p>
         </div>
         <v-btn
-          v-if="isPaidUser"
           color="primary"
           :to="{ name: 'ProjectNew' }"
           prepend-icon="mdi-plus"
@@ -65,99 +64,95 @@ const formatCurrency = (val) =>
         >New Project</v-btn>
       </header>
 
-      <!-- Upgrade gate -->
-      <template v-if="!isPaidUser">
-        <UpgradePrompt />
-        <div class="lock-message">
-          <v-icon icon="mdi-lock-outline" size="64" color="rgba(255,255,255,0.2)" />
-          <p class="text-body-1 mt-4" style="color:#94a3b8;">
-            Project tracking is available on the <strong style="color:#f1f5f9;">Monthly</strong> or <strong style="color:#f1f5f9;">Annual</strong> plan.
+      <!-- Free Plan Project Alert Banner -->
+      <div v-if="!isPaidUser" class="free-projects-banner mb-6">
+        <v-icon icon="mdi-information-outline" color="primary" class="mr-3" />
+        <div class="banner-text">
+          <strong>Project tracking is fully enabled on your Free Plan!</strong> 
+          Upgrade to a paid subscription to unlock direct email sending and unlimited invoicing.
+        </div>
+        <v-btn to="/pricing" color="primary" variant="flat" size="small" class="ml-auto rounded-pill">Upgrade</v-btn>
+      </div>
+
+      <!-- Status filter tabs -->
+      <div class="filter-tabs">
+        <button
+          v-for="tab in tabs"
+          :key="tab.value"
+          :class="['filter-tab', { active: filterTab === tab.value }]"
+          @click="filterTab = tab.value"
+        >{{ tab.label }}</button>
+      </div>
+
+      <!-- Loading skeleton -->
+      <div v-if="loading" class="project-grid">
+        <v-skeleton-loader v-for="n in 4" :key="n" type="card" class="skeleton-card" />
+      </div>
+
+      <!-- Empty state -->
+      <div v-else-if="filteredProjects.length === 0" class="empty-state">
+        <v-icon icon="mdi-folder-open-outline" size="72" color="rgba(255,255,255,0.15)" />
+        <p class="mt-4" style="color:#94a3b8;">No {{ filterTab === 'all' ? '' : filterTab + ' ' }}projects yet.</p>
+        <v-btn
+          v-if="filterTab === 'all'"
+          :to="{ name: 'ProjectNew' }"
+          color="primary"
+          variant="tonal"
+          class="mt-4"
+          prepend-icon="mdi-plus"
+        >Create your first project</v-btn>
+      </div>
+
+      <!-- Project grid -->
+      <div v-else class="project-grid">
+        <div
+          v-for="project in filteredProjects"
+          :key="project.id"
+          class="project-card"
+          @click="router.push({ name: 'ProjectDetail', params: { id: project.id } })"
+        >
+          <div class="project-card-header">
+            <div>
+              <span class="project-name">{{ project.name }}</span>
+              <v-chip
+                :color="statusColor(project.status)"
+                size="small"
+                class="ml-2"
+                variant="tonal"
+              >{{ project.status }}</v-chip>
+            </div>
+            <v-icon icon="mdi-chevron-right" color="rgba(255,255,255,0.3)" />
+          </div>
+
+          <p class="project-client">
+            <v-icon icon="mdi-account-outline" size="14" class="mr-1" />
+            {{ project.clientName || 'No client' }}
+          </p>
+
+          <p v-if="project.description" class="project-description">
+            {{ project.description }}
+          </p>
+
+          <div class="project-chips">
+            <span class="info-chip">
+              <v-icon icon="mdi-clock-outline" size="14" class="mr-1" />
+              {{ (project.totalHours || 0).toFixed(1) }} hrs
+            </span>
+            <span class="info-chip">
+              <v-icon icon="mdi-receipt-outline" size="14" class="mr-1" />
+              {{ formatCurrency(project.totalExpenses) }}
+            </span>
+            <span class="info-chip highlight">
+              <v-icon icon="mdi-currency-usd" size="14" class="mr-1" />
+              {{ formatCurrency((project.totalLabor || 0) + (project.totalExpenses || 0)) }} billable
+            </span>
+          </div>
+
+          <p class="project-updated">
+            Updated {{ project.updatedAt ? new Date(project.updatedAt).toLocaleDateString() : '—' }}
           </p>
         </div>
-      </template>
-
-      <!-- Paid content -->
-      <template v-else>
-        <!-- Status filter tabs -->
-        <div class="filter-tabs">
-          <button
-            v-for="tab in tabs"
-            :key="tab.value"
-            :class="['filter-tab', { active: filterTab === tab.value }]"
-            @click="filterTab = tab.value"
-          >{{ tab.label }}</button>
-        </div>
-
-        <!-- Loading skeleton -->
-        <div v-if="loading" class="project-grid">
-          <v-skeleton-loader v-for="n in 4" :key="n" type="card" class="skeleton-card" />
-        </div>
-
-        <!-- Empty state -->
-        <div v-else-if="filteredProjects.length === 0" class="empty-state">
-          <v-icon icon="mdi-folder-open-outline" size="72" color="rgba(255,255,255,0.15)" />
-          <p class="mt-4" style="color:#94a3b8;">No {{ filterTab === 'all' ? '' : filterTab + ' ' }}projects yet.</p>
-          <v-btn
-            v-if="filterTab === 'all'"
-            :to="{ name: 'ProjectNew' }"
-            color="primary"
-            variant="tonal"
-            class="mt-4"
-            prepend-icon="mdi-plus"
-          >Create your first project</v-btn>
-        </div>
-
-        <!-- Project grid -->
-        <div v-else class="project-grid">
-          <div
-            v-for="project in filteredProjects"
-            :key="project.id"
-            class="project-card"
-            @click="router.push({ name: 'ProjectDetail', params: { id: project.id } })"
-          >
-            <div class="project-card-header">
-              <div>
-                <span class="project-name">{{ project.name }}</span>
-                <v-chip
-                  :color="statusColor(project.status)"
-                  size="small"
-                  class="ml-2"
-                  variant="tonal"
-                >{{ project.status }}</v-chip>
-              </div>
-              <v-icon icon="mdi-chevron-right" color="rgba(255,255,255,0.3)" />
-            </div>
-
-            <p class="project-client">
-              <v-icon icon="mdi-account-outline" size="14" class="mr-1" />
-              {{ project.clientName || 'No client' }}
-            </p>
-
-            <p v-if="project.description" class="project-description">
-              {{ project.description }}
-            </p>
-
-            <div class="project-chips">
-              <span class="info-chip">
-                <v-icon icon="mdi-clock-outline" size="14" class="mr-1" />
-                {{ (project.totalHours || 0).toFixed(1) }} hrs
-              </span>
-              <span class="info-chip">
-                <v-icon icon="mdi-receipt-outline" size="14" class="mr-1" />
-                {{ formatCurrency(project.totalExpenses) }}
-              </span>
-              <span class="info-chip highlight">
-                <v-icon icon="mdi-currency-usd" size="14" class="mr-1" />
-                {{ formatCurrency((project.totalLabor || 0) + (project.totalExpenses || 0)) }} billable
-              </span>
-            </div>
-
-            <p class="project-updated">
-              Updated {{ project.updatedAt ? new Date(project.updatedAt).toLocaleDateString() : '—' }}
-            </p>
-          </div>
-        </div>
-      </template>
+      </div>
 
     </div>
   </div>
@@ -347,6 +342,23 @@ const formatCurrency = (val) =>
   text-align: center;
 }
 
+.free-projects-banner {
+  display: flex;
+  align-items: center;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.banner-text {
+  flex: 1;
+}
+
 @media (max-width: 640px) {
   .projects-container,
   .projects-card {
@@ -359,6 +371,16 @@ const formatCurrency = (val) =>
 
   .project-grid {
     grid-template-columns: 1fr;
+  }
+
+  .free-projects-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .free-projects-banner .v-btn {
+    margin-left: 0 !important;
+    margin-top: 0.5rem;
+    width: 100%;
   }
 }
 </style>

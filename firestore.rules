@@ -47,8 +47,8 @@ service cloud.firestore {
           !userExists(request.auth.uid) ||
           // OR, allow creation if the user has an active subscription.
           getUserData(request.auth.uid).subscriptionStatus == 'active' ||
-          // OR, allow if the user is on the free plan and has created less than 3 invoices.
-          (getUserData(request.auth.uid).get('subscriptionStatus', 'free') == 'free' && getUserData(request.auth.uid).get('invoiceCount', 0) < 3)
+          // OR, allow if the user is on the free plan and has created less than 5 invoices.
+          (getUserData(request.auth.uid).get('subscriptionStatus', 'free') == 'free' && getUserData(request.auth.uid).get('invoiceCount', 0) < 5)
       );
     }
     

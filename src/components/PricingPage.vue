@@ -15,7 +15,7 @@ const selectedPlan = ref(null);
 
 useMeta(
   'ScanGo Invoice | Pricing',
-  'ScanGo Invoice offers flexible pricing plans to fit your needs. Start for free with 3 invoices, or upgrade to monthly or yearly plans for unlimited invoicing and advanced features. All plans include professional invoice templates, client management, and secure payment options.',
+  'ScanGo Invoice offers flexible pricing plans to fit your needs. Start for free with 5 invoices, or upgrade to monthly or yearly plans for unlimited invoicing and advanced features. All plans include professional invoice templates, client management, and secure payment options.',
 );
 
 // Mapping of plan names to their corresponding Price IDs
@@ -104,7 +104,7 @@ onMounted(() => {
               <p class="feature-section-label">Invoicing</p>
               <div class="feature-item">
                 <v-icon size="18" color="success">mdi-check-circle</v-icon>
-                <span>3 invoices total</span>
+                <span>5 invoices total</span>
               </div>
               <div class="feature-item">
                 <v-icon size="18" color="success">mdi-check-circle</v-icon>
@@ -156,16 +156,16 @@ onMounted(() => {
               </div>
 
               <p class="feature-section-label mt-4">Project Tracking</p>
-              <div class="feature-item muted">
-                <v-icon size="18" color="rgba(255,255,255,0.2)">mdi-close-circle</v-icon>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
                 <span>Project &amp; time tracking</span>
               </div>
-              <div class="feature-item muted">
-                <v-icon size="18" color="rgba(255,255,255,0.2)">mdi-close-circle</v-icon>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
                 <span>Expense capture with receipts</span>
               </div>
-              <div class="feature-item muted">
-                <v-icon size="18" color="rgba(255,255,255,0.2)">mdi-close-circle</v-icon>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
                 <span>One-click project-to-invoice</span>
               </div>
 

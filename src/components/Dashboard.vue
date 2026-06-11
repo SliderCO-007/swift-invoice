@@ -47,7 +47,7 @@ const isInitialLoad = computed(() => !invoicesHaveLoaded.value || !settingsHaveL
 
 const hasError = computed(() => invoicesError.value || settingsError.value);
 const isFreePlan = computed(() => userProfile.value?.subscriptionStatus === 'free');
-const invoiceLimitReached = computed(() => isFreePlan.value && userProfile.value?.invoiceCount >= 3);
+const invoiceLimitReached = computed(() => isFreePlan.value && userProfile.value?.invoiceCount >= 5);
 const isDataLoading = computed(() => invoicesLoading.value || settingsLoading.value);
 
 const dialogDelete = ref(false);

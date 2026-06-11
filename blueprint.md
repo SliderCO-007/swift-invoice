@@ -457,3 +457,36 @@ Introduce line-item level tax customization to accommodate different tax regulat
 - **Templates Presentation**: Review all 6 templates in the preview/view page and ensure "(No Tax)" is elegantly rendered for non-taxable items.
 
 
+## Free Tier Limits Expansion & Projects Access (v21)
+
+### Purpose
+Entice new users to register by increasing the free tier invoice limit from 3 to 5 and fully enabling the project tracking features (unlimited projects, hours, and expense captures) for the free plan. Display an inline alert banner on the Projects list for free plan users reminding them of Pro upgrades (e.g. direct email sending, unlimited invoices) without blocking project creation/management.
+
+### Proposed Changes
+
+#### [MODIFY] [firestore.rules](file:///C:/Users/curth/git/swift-invoice/firestore.rules)
+- Update the invoice creation rules to allow free tier users to write up to 5 invoices (check `invoiceCount < 5` instead of `invoiceCount < 3`).
+
+#### [MODIFY] [useInvoices.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useInvoices.js)
+- Update `createInvoice` limit check to throw limit error when `invoiceCount >= 5` (instead of `invoiceCount >= 3`).
+
+#### [MODIFY] [Dashboard.vue](file:///C:/Users/curth/git/swift-invoice/src/components/Dashboard.vue)
+- Update `invoiceLimitReached` computed property to check `invoiceCount >= 5` (instead of `invoiceCount >= 3`).
+
+#### [MODIFY] [PricingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/PricingPage.vue)
+- Update marketing descriptions on the Free tier card from `3 invoices` to `5 invoices`.
+- Mark project-tracking features on the Free tier card as enabled (active icons, remove muted class).
+
+#### [MODIFY] [ProjectsView.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ProjectsView.vue)
+- Remove the hard upgrade gate panel and Lock message overlay.
+- Display a new glassmorphic inline banner warning at the top of the projects list when `!isPaidUser`, highlighting that project tracking is active and directing them to upgrade to Pro to unlock direct email sending and unlimited invoices.
+- Render the "New Project" button for all users.
+
+### Verification Plan
+- **Backend Rules**: Test creating up to 5 invoices on a free account. Confirm that the 5th invoice saves successfully, and the 6th invoice is blocked by the database rules and editor transactions.
+- **Project Access on Free Account**: Log in with a free account and access `/projects`. Confirm the projects list renders without a locking overlay. Verify that you can create, view, edit, and convert projects without locks.
+- **Projects UI Banner**: Check that the projects page renders the new inline alert banner indicating "Project tracking is active" and directing users to upgrade for email sending and unlimited invoices.
+- **Pricing Copy**: Verify the pricing page correctly highlights "5 invoices" and shows "Project & time tracking" as checked/enabled for the Free tier.
+
+
+
