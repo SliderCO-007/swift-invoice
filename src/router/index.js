@@ -192,10 +192,39 @@ router.beforeEach(async (to, from, next) => {
 });
 
 router.afterEach((to, from) => {
+  // Clear the chunk reload target on successful navigation
+  try {
+    sessionStorage.removeItem('chunk-reload-target');
+  } catch (e) {
+    console.error('sessionStorage is not available:', e);
+  }
+
   // Track page views with Meta Pixel on route changes
   if (typeof fbq !== 'undefined') {
     fbq('track', 'PageView');
   }
 });
 
+router.onError((error, to) => {
+  const isChunkError = /Failed to fetch dynamically imported module|Importing a module script failed|error loading dynamically imported module/i.test(error.message);
+  
+  if (isChunkError) {
+    try {
+      const reloadTarget = sessionStorage.getItem('chunk-reload-target');
+      if (reloadTarget !== to.fullPath) {
+        sessionStorage.setItem('chunk-reload-target', to.fullPath);
+        window.location.reload();
+      } else {
+        console.error('Failed to load chunk after reload:', error);
+        alert("We had trouble loading the latest updates. Please check your internet connection and try refreshing the page.");
+      }
+    } catch (e) {
+      // Fallback if sessionStorage is disabled or blocked (e.g., incognito security policy)
+      console.error('sessionStorage is not available for reload guard:', e);
+      window.location.reload();
+    }
+  }
+});
+
 export default router;
+

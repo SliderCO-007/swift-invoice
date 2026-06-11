@@ -488,5 +488,33 @@ Entice new users to register by increasing the free tier invoice limit from 3 to
 - **Projects UI Banner**: Check that the projects page renders the new inline alert banner indicating "Project tracking is active" and directing users to upgrade for email sending and unlimited invoices.
 - **Pricing Copy**: Verify the pricing page correctly highlights "5 invoices" and shows "Project & time tracking" as checked/enabled for the Free tier.
 
+## Chunk Load Error Handling (v22)
 
+### Purpose
+Resolve dynamic import errors (`TypeError: Failed to fetch dynamically imported module`) that occur in production when a new build is deployed and users with active sessions attempt to navigate to a lazy-loaded route (such as Features). This is done by catching chunk load failures in Vue Router, checking if we have already attempted a reload via `sessionStorage` (to avoid infinite reload loops in case of true network failure), and forcing a page reload to pull down the newly deployed assets.
+
+### Proposed Changes
+
+#### [MODIFY] [router/index.js](file:///C:/Users/curth/git/swift-invoice/src/router/index.js)
+- Update `router.afterEach` to clear the `chunk-reload-target` from `sessionStorage` upon successful navigation.
+- Implement `router.onError` to catch dynamic import chunk errors.
+- Store the failed route's `to.fullPath` in `sessionStorage` as a reload target, reload the page on the first failure, and show a user-friendly alert message if a second consecutive failure occurs to prevent reload loops.
+
+### Verification Plan
+- **Mock Chunk Failure:** In local development, simulate a chunk import failure by modifying a route to point to a non-existent chunk or throw an import error, then check if `router.onError` catches it, sets `sessionStorage` correctly, and triggers a reload.
+- **Loop Prevention:** Verify that if the error persists after a reload, the reload loop is blocked and a friendly alert is displayed to the user instead.
+- **Normal Navigation:** Verify that normal route navigation works properly and clears the `sessionStorage` key in `router.afterEach`.
+
+## Pricing Page Templates Count Update (v23)
+
+### Purpose
+Ensure that the templates count listed on the Pricing Page reflects the correct total number of templates available to users (which is 6, following the addition of the Creative Sidebar and Tech Grid templates in v17).
+
+### Proposed Changes
+
+#### [MODIFY] [PricingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/PricingPage.vue)
+- Update the templates count text in both the Free and Monthly plans features lists from "4 professional templates" to "6 professional templates".
+
+### Verification Plan
+- **Visual Check:** Navigate to the Pricing Page (`/pricing`) and verify that the Free tier card and the Monthly tier card both show "6 professional templates" in their features lists.
 

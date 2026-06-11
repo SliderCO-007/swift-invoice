@@ -116,7 +116,7 @@ onMounted(() => {
               </div>
               <div class="feature-item">
                 <v-icon size="18" color="success">mdi-check-circle</v-icon>
-                <span>4 professional templates</span>
+                <span>6 professional templates</span>
               </div>
               <div class="feature-item">
                 <v-icon size="18" color="success">mdi-check-circle</v-icon>
@@ -216,7 +216,7 @@ onMounted(() => {
               </div>
               <div class="feature-item">
                 <v-icon size="18" color="success">mdi-check-circle</v-icon>
-                <span>4 professional templates</span>
+                <span>6 professional templates</span>
               </div>
               <div class="feature-item">
                 <v-icon size="18" color="success">mdi-check-circle</v-icon>
