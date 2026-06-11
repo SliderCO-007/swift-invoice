@@ -152,7 +152,10 @@ const primaryRgb = computed(() => {
         </thead>
         <tbody>
           <tr v-for="(item, index) in invoice.items" :key="index" :style="{ borderBottom: `1px solid rgba(${primaryRgb}, 0.1)` }">
-            <td class="col-desc">{{ item.description }}</td>
+            <td class="col-desc">
+              {{ item.description }}
+              <span v-if="invoice.taxRate > 0 && item.taxable === false" style="font-size: 0.7rem; opacity: 0.65; margin-left: 0.25rem; border: 1px solid rgba(128,128,128,0.3); padding: 1px 4px; border-radius: 3px; font-weight: normal; display: inline-block; vertical-align: middle;">No Tax</span>
+            </td>
             <td class="col-qty text-center font-mono">{{ item.quantity }}</td>
             <td class="col-price text-right font-mono">{{ formatCurrency(item.price) }}</td>
             <td class="col-total text-right font-mono font-weight-bold">{{ formatCurrency(item.quantity * item.price) }}</td>
@@ -389,6 +392,16 @@ const primaryRgb = computed(() => {
   font-size: 0.8em;
   letter-spacing: 0.5px;
   text-align: left;
+}
+
+.tech-items-table th.text-center,
+.tech-items-table td.text-center {
+  text-align: center;
+}
+
+.tech-items-table th.text-right,
+.tech-items-table td.text-right {
+  text-align: right;
 }
 
 .tech-items-table td {

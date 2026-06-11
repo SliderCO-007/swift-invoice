@@ -89,18 +89,30 @@ const formattedDueDate = computed({
 });
 
 const subtotal = computed(() => (invoice.value.items || []).reduce((acc, item) => acc + (item.quantity || 0) * (item.price || 0), 0));
+const taxableSubtotal = computed(() => (invoice.value.items || []).reduce((acc, item) => {
+  const isTaxable = item.taxable !== false;
+  return acc + (isTaxable ? (item.quantity || 0) * (item.price || 0) : 0);
+}, 0));
 const discountAmount = computed(() => {
   if (!invoice.value.discount) return 0;
   return invoice.value.discountType === 'percentage'
     ? subtotal.value * (Number(invoice.value.discount) / 100)
     : Number(invoice.value.discount);
 });
-const taxAmount = computed(() => (subtotal.value - discountAmount.value) * ((Number(invoice.value.taxRate) || 0) / 100));
+const taxAmount = computed(() => {
+  const rate = Number(invoice.value.taxRate) || 0;
+  if (rate === 0) return 0;
+  const sub = subtotal.value;
+  if (sub === 0) return 0;
+  const ratio = taxableSubtotal.value / sub;
+  const postDiscountTaxableSubtotal = taxableSubtotal.value - (discountAmount.value * ratio);
+  return Math.max(0, postDiscountTaxableSubtotal) * (rate / 100);
+});
 const total = computed(() => subtotal.value - discountAmount.value + taxAmount.value);
 const itemDescriptions = computed(() => items.value.map(i => i.description));
 
 // --- Methods ---
-const addItem = () => invoice.value.items.push({ description: '', quantity: 1, price: 0 });
+const addItem = () => invoice.value.items.push({ description: '', quantity: 1, price: 0, taxable: true });
 const removeItem = (index) => invoice.value.items.splice(index, 1);
 
 const saveInvoice = async () => {
@@ -209,6 +221,11 @@ const initializeInvoice = async () => {
         const parsed = JSON.parse(draftJson);
         if (parsed.issueDate) parsed.issueDate = new Date(parsed.issueDate);
         if (parsed.dueDate) parsed.dueDate = new Date(parsed.dueDate);
+        if (parsed.items) {
+          parsed.items.forEach(item => {
+            if (item.taxable === undefined) item.taxable = true;
+          });
+        }
         invoice.value = parsed;
         return;
       } catch (err) {
@@ -232,6 +249,11 @@ const initializeInvoice = async () => {
       // Ensure Firestore Timestamps are converted to JS Date objects
       if (invoice.value.issueDate?.toDate) invoice.value.issueDate = invoice.value.issueDate.toDate();
       if (invoice.value.dueDate?.toDate) invoice.value.dueDate = invoice.value.dueDate.toDate();
+      if (invoice.value.items) {
+        invoice.value.items.forEach(item => {
+          if (item.taxable === undefined) item.taxable = true;
+        });
+      }
     }
   } else {
     // NEW INVOICE MODE
@@ -252,7 +274,12 @@ const initializeInvoice = async () => {
     const prefill = history.state?.invoicePrefill;
     if (prefill) {
       if (prefill.client) Object.assign(invoice.value.client, prefill.client);
-      if (prefill.items?.length) invoice.value.items = prefill.items;
+      if (prefill.items?.length) {
+        invoice.value.items = prefill.items.map(item => ({
+          ...item,
+          taxable: item.taxable !== false
+        }));
+      }
       if (prefill.notes) invoice.value.notes = prefill.notes;
     }
 
@@ -418,14 +445,21 @@ onUnmounted(() => {
           <h3>Items</h3>
           <div v-for="(item, index) in invoice.items" :key="index" class="item-row">
             <v-row align="center">
-              <v-col cols="12" md="6">
+              <v-col cols="12" md="5">
                 <v-combobox v-model="item.description" :items="itemDescriptions" label="Select or type to add an item" variant="solo" density="comfortable" @update:model-value="(desc) => handleDescriptionUpdate(item, desc)" clearable>
                   <template v-slot:no-data><v-list-item><v-list-item-title>No items found. <router-link to="/items">Add one?</router-link></v-list-item-title></v-list-item></template>
                 </v-combobox>
               </v-col>
-              <v-col cols="6" md="2"><v-text-field type="number" label="Quantity" v-model.number="item.quantity" density="comfortable" variant="solo"></v-text-field></v-col>
-              <v-col cols="6" md="2"><v-text-field type="number" label="Price" v-model.number="item.price" density="comfortable" variant="solo"></v-text-field></v-col>
-              <v-col cols="12" md="2" class="d-flex align-center justify-center"><v-btn icon @click="removeItem(index)" variant="text" color="red-lighten-2"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg></v-btn></v-col>
+              <v-col cols="4" md="2"><v-text-field type="number" label="Quantity" v-model.number="item.quantity" density="comfortable" variant="solo"></v-text-field></v-col>
+              <v-col cols="4" md="2"><v-text-field type="number" label="Price" v-model.number="item.price" density="comfortable" variant="solo"></v-text-field></v-col>
+              <v-col cols="4" md="2" class="d-flex align-center justify-center">
+                <v-checkbox v-model="item.taxable" label="Tax" color="primary" density="comfortable" hide-details class="mt-0"></v-checkbox>
+              </v-col>
+              <v-col cols="12" md="1" class="d-flex align-center justify-center">
+                <v-btn icon @click="removeItem(index)" variant="text" color="red-lighten-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
+                </v-btn>
+              </v-col>
             </v-row>
           </div>
           <v-btn @click="addItem" color="primary" variant="tonal" class="mt-4" block>+ Add New Item</v-btn>

@@ -81,6 +81,10 @@ const useInvoices = () => {
 
   const calculateTotal = (invoice) => {
     const subtotal = (invoice.items || []).reduce((acc, item) => acc + (item.quantity || 0) * (item.price || 0), 0);
+    const taxableSubtotal = (invoice.items || []).reduce((acc, item) => {
+      const isTaxable = item.taxable !== false;
+      return acc + (isTaxable ? (item.quantity || 0) * (item.price || 0) : 0);
+    }, 0);
     
     let discountAmount = 0;
     if (invoice.discount) {
@@ -92,7 +96,15 @@ const useInvoices = () => {
     }
     
     const postDiscountSubtotal = subtotal - discountAmount;
-    const taxAmount = postDiscountSubtotal * ((invoice.taxRate || 0) / 100);
+    
+    const rate = Number(invoice.taxRate) || 0;
+    let taxAmount = 0;
+    if (rate > 0 && subtotal > 0) {
+      const ratio = taxableSubtotal / subtotal;
+      const postDiscountTaxableSubtotal = taxableSubtotal - (discountAmount * ratio);
+      taxAmount = Math.max(0, postDiscountTaxableSubtotal) * (rate / 100);
+    }
+    
     return postDiscountSubtotal + taxAmount;
   };
 

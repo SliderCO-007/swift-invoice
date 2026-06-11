@@ -115,6 +115,7 @@ const formatCurrency = (value) => {
           <tr v-for="(item, index) in invoice.items" :key="index">
             <td data-label="Description">
               <span>{{ item.description }}</span>
+              <span v-if="invoice.taxRate > 0 && item.taxable === false" style="font-size: 0.7rem; opacity: 0.65; margin-left: 0.25rem; border: 1px solid rgba(128,128,128,0.3); padding: 1px 4px; border-radius: 3px; font-weight: normal; display: inline-block; vertical-align: middle;">No Tax</span>
             </td>
             <td data-label="Qty">
               <span>{{ item.quantity }}</span>

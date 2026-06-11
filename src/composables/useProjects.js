@@ -192,6 +192,7 @@ const useProjects = () => {
         description: `Labor — ${totalHours.toFixed(2)} hrs @ ${project.name}`,
         quantity: 1,
         price: laborTotal,
+        taxable: false,
       });
     }
     if (expensesTotal > 0) {
@@ -199,6 +200,7 @@ const useProjects = () => {
         description: `Expenses — ${project.name}`,
         quantity: 1,
         price: expensesTotal,
+        taxable: true,
       });
     }
 

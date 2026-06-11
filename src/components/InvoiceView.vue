@@ -346,9 +346,31 @@ const safeInvoice = computed(() => {
     (acc, item) => acc + (item.quantity || 0) * (item.price || 0),
     0
   )
+  const taxableSubtotal = (invoice.value.items || []).reduce(
+    (acc, item) => acc + (item.taxable !== false ? (item.quantity || 0) * (item.price || 0) : 0),
+    0
+  )
+
+  let discountAmount = 0
+  if (invoice.value.discount) {
+    if (invoice.value.discountType === 'percentage') {
+      discountAmount = subtotal * (Number(invoice.value.discount) / 100)
+    } else {
+      discountAmount = Number(invoice.value.discount)
+    }
+  }
+
+  const postDiscountSubtotal = subtotal - discountAmount
   const taxRate = Number(invoice.value.taxRate) || 0
-  const taxAmount = subtotal * (taxRate / 100)
-  const total = subtotal + taxAmount
+  
+  let taxAmount = 0
+  if (taxRate > 0 && subtotal > 0) {
+    const ratio = taxableSubtotal / subtotal
+    const postDiscountTaxableSubtotal = taxableSubtotal - (discountAmount * ratio)
+    taxAmount = Math.max(0, postDiscountTaxableSubtotal) * (taxRate / 100)
+  }
+
+  const total = postDiscountSubtotal + taxAmount
 
   let status = invoice.value.status || ''
   status = status.charAt(0).toUpperCase() + status.slice(1)
@@ -356,6 +378,7 @@ const safeInvoice = computed(() => {
   return {
     ...invoice.value,
     subtotal,
+    discountAmount,
     taxAmount,
     total,
     status,

@@ -425,3 +425,35 @@ Resolve the desktop view fold issue where the large vertical hero benefit badges
 - **Desktop View:** Verify that the primary signup buttons (Google, Email) and secondary video button are clearly visible above the fold. Verify the benefits badges appear horizontally spanning the container width below the main grid.
 - **Mobile View:** Verify that the layout remains responsive, with the badges stacked vertically at the bottom of the hero section.
 
+
+## Line Item Tax Customization (v20)
+
+### Purpose
+Introduce line-item level tax customization to accommodate different tax regulations for labor/services versus expenses/goods. Support item tax toggling in the invoice editor (defaulting to taxable) and default to labor as non-taxable and expenses as taxable during one-click project-to-invoice conversion.
+
+### Proposed Changes
+
+#### [MODIFY] [useInvoices.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useInvoices.js)
+- Update `calculateTotal` to compute tax only on the taxable subtotal of items (`item.taxable !== false`), pro-rating the invoice-wide discount across taxable and non-taxable items.
+
+#### [MODIFY] [InvoiceEditor.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceEditor.vue)
+- Add `taxable: true` by default to fresh line items.
+- Update `taxAmount` computed property to calculate tax only on the taxable subtotal, pro-rating the invoice discount.
+- Render an inline "Tax" checkbox next to the Price field for each line item in the items list.
+
+#### [MODIFY] [useProjects.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useProjects.js)
+- Update `buildInvoicePayload` to explicitly set `taxable: false` for the generated Labor item, and `taxable: true` for the generated Expenses item.
+
+#### [MODIFY] [InvoiceView.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceView.vue)
+- Update the `safeInvoice` computed property to compute tax only on the taxable subtotal, pro-rating the invoice discount.
+
+#### [MODIFY] [Templates](file:///C:/Users/curth/git/swift-invoice/src/components/)
+- Modify all six invoice template components ([InvoiceTemplate.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceTemplate.vue), [InvoiceTemplate2.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceTemplate2.vue), [InvoiceTemplate3.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceTemplate3.vue), [InvoiceTemplate4.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceTemplate4.vue), [InvoiceTemplate5.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceTemplate5.vue), [InvoiceTemplate6.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceTemplate6.vue)) to render a compact, clean "(No Tax)" indicator next to the item unit price/total if `invoice.taxRate > 0` and `item.taxable === false`.
+
+### Verification Plan
+- **Invoice Conversion**: Trigger "Convert to Invoice" from a project. Confirm that the Labor line item has the "Tax" checkbox unchecked, and the Expenses line item has it checked.
+- **Invoice Editor UI**: Add manual line items and verify they default to taxable (checkbox checked). Toggle the checkbox and verify that the Tax and Total calculations update dynamically.
+- **Mixed Tax Calculation**: Verify calculation correctness when tax is 10% and discount is flat or percentage.
+- **Templates Presentation**: Review all 6 templates in the preview/view page and ensure "(No Tax)" is elegantly rendered for non-taxable items.
+
+
