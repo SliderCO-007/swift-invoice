@@ -109,7 +109,7 @@ const taxAmount = computed(() => {
   return Math.max(0, postDiscountTaxableSubtotal) * (rate / 100);
 });
 const total = computed(() => subtotal.value - discountAmount.value + taxAmount.value);
-const itemDescriptions = computed(() => items.value.map(i => i.description));
+const itemDescriptions = computed(() => items.value.filter(i => i.type !== 'expense-category' && i.description).map(i => i.description));
 
 // --- Methods ---
 const addItem = () => invoice.value.items.push({ description: '', quantity: 1, price: 0, taxable: true });
