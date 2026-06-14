@@ -32,6 +32,7 @@ const authNav = [
   { title: 'Projects',  to: '/projects',  icon: 'mdi-folder-multiple-outline' },
   { title: 'Customers', to: '/customers', icon: 'mdi-account-group-outline' },
   { title: 'Items', to: '/items', icon: 'mdi-package-variant-closed' },
+  { title: 'Reports', to: '/reports', icon: 'mdi-file-chart-outline' },
   { title: 'Settings', to: '/settings', icon: 'mdi-cog-outline' },
   { title: 'Upgrade', to: '/pricing', icon: 'mdi-arrow-up-bold-circle' },
 ]

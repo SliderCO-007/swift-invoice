@@ -238,7 +238,7 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
       </v-dialog>
 
       <footer class="dashboard-footer">
-        <p>&copy; 2026 ScanGo Invoice. All rights reserved. | <a href="mailto:support@scangoinvoice.com">support@scangoinvoice.com</a></p>
+        <p>&copy; 2026 ScanGo Invoice. All rights reserved. | <a href="mailto:support@scangoinvoice.com">support@scangoinvoice.com</a> | <router-link to="/guide">User Guide</router-link></p>
       </footer>
     </div>
   </div>

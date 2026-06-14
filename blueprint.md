@@ -518,3 +518,115 @@ Ensure that the templates count listed on the Pricing Page reflects the correct 
 ### Verification Plan
 - **Visual Check:** Navigate to the Pricing Page (`/pricing`) and verify that the Free tier card and the Monthly tier card both show "6 professional templates" in their features lists.
 
+
+## Monthly Sales Reporting Feature (v24)
+
+### Purpose
+Introduce a dedicated, premium glassmorphic "Reports" page allowing users to view, analyze, and export monthly sales reports. This feature provides direct visibility into key sales metrics (total sales, tax collected, total invoices, average invoice value, number of invoices) for any selected month, featuring a daily sales trend chart and detailed invoice tables. It supports downloading/exporting reports as CSV and formatted print-ready PDFs.
+
+### Proposed Changes
+
+#### [NEW] [ReportsView.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ReportsView.vue)
+- Create a beautiful, glassmorphic page matching the deep navy background (`#111d2f`).
+- Add dropdown filters to select the month (January-December) and the year (based on dynamic list of recent years).
+- Display a responsive grid of 5 cards with subtle teal/blue glows for:
+  - **Total Sales**: sum of all invoices excluding drafts in the selected month.
+  - **Tax Collected**: sum of calculated tax for those invoices.
+  - **Average Invoice Value**: total sales divided by the number of invoices.
+  - **Number of Invoices**: total count of invoices.
+  - **Paid vs Outstanding Breakdown**: comparison of collected revenue vs. outstanding/pending revenue.
+- Add a daily sales trend chart using Chart.js to visualize daily revenue collection/sales within the selected month.
+- Render a table displaying all invoices for the selected month, with columns for Invoice Number, Date, Customer, Status, Tax, and Total.
+- Implement action buttons:
+  - **Export to CSV**: Generates a CSV showing Invoice #, Date, Customer Name, Status, Tax Amount, Discount, and Total.
+  - **Export/Download PDF**: Generates a beautiful, print-ready PDF using `jsPDF` or browser's print options, containing a clean header with company name, the metrics, and the detailed invoice table.
+
+#### [MODIFY] [router/index.js](file:///C:/Users/curth/git/swift-invoice/src/router/index.js)
+- Register the `/reports` route: `{ path: '/reports', name: 'Reports', component: () => import('../components/ReportsView.vue'), meta: { requiresAuth: true } }`.
+
+#### [MODIFY] [AppBar.vue](file:///C:/Users/curth/git/swift-invoice/src/components/AppBar.vue)
+- Add "Reports" (`/reports`) to the `authNav` list with the icon `mdi-file-chart-outline`.
+
+### Verification Plan
+- **Navigation**: Log in and verify that the "Reports" option appears in the navigation menu and routes successfully to `/reports`.
+- **Filtering**: Change the month and year filters and confirm that the key metrics, chart, and invoices list update dynamically.
+- **CSV Export**: Click "Export CSV" and confirm that a CSV file containing the selected month's invoices is downloaded with correct data.
+- **PDF Export**: Click "Download PDF" and confirm that a formatted PDF containing the monthly report summary and invoice breakdown is downloaded correctly.
+
+
+## Application Documentation Update (v25)
+
+### Purpose
+Replace the generic, template-generated developer documentation in README.md with a comprehensive, professional, and detailed documentation guide for ScanGo Invoice. Additionally, create an AI-friendly llms.txt index file in the project's root for rapid codebase onboarding of developer agents.
+
+### Proposed Changes
+
+#### [MODIFY] [README.md](file:///C:/Users/curth/git/swift-invoice/README.md)
+- Write full, professional documentation detailing:
+  - Project Overview and Key Features (Invoice Generation, Stripe Connect, Project Tracking, Reports).
+  - Technology Stack (Vue 3, Vite, Vuetify, Firebase Auth/Firestore/Storage/Functions).
+  - Quick Start guide for local development.
+  - Project directory structure.
+  - Core database schema details (Users, User Settings, Invoices, Projects, Entries).
+  - Deployment details.
+
+#### [NEW] [llms.txt](file:///C:/Users/curth/git/swift-invoice/llms.txt)
+- Create a modern `llms.txt` file listing core files, folder purposes, and key concepts for agent/RAG indexing.
+
+### Verification Plan
+- **README Check**: Verify that the new README format looks correct, covers all technical sections, and has clickable links.
+- **llms.txt Check**: Ensure `llms.txt` is structured correctly per AI guidelines.
+
+
+## User Documentation Guide (v26)
+
+### Purpose
+Provide clear, step-by-step user-facing documentation to answer common end-user questions regarding key features of ScanGo Invoice: invoice creation, updating business details, managing customers and items directories, exporting invoice files, and viewing/generating sales reports.
+
+### Proposed Changes
+
+#### [NEW] [USER_GUIDE.md](file:///C:/Users/curth/git/swift-invoice/USER_GUIDE.md)
+- Create a comprehensive user guide document in the project root covering:
+  - **Creating Invoices**: Step-by-step instructions on choosing templates, selecting clients, adding line items, configuring discounts/taxes, and sending.
+  - **Updating Business Information**: Guide to managing details under Settings and Onboarding (name, addresses, currency, uploading logo, theme colors).
+  - **Managing Customers and Items**: How to manage clients and catalog items for quick reuse.
+  - **Exporting Invoice Data**: Instructions on exporting list spreadsheets (CSV) and downloading invoice PDFs.
+  - **Generating Reports**: Guide to using the new Reports tab to filter sales monthly/yearly, interpret metrics, and export data.
+
+### Verification Plan
+- **Content Audit**: Verify that USER_GUIDE.md answers all 5 specified user flows with clear, friendly, and step-by-step instructions.
+
+
+## Web User Guide Page Integration (v27)
+
+### Purpose
+Integrate the user documentation directly into the application by creating a beautiful, dedicated `/guide` route rendering the guide contents inside interactive glassmorphic panels. It features a real-time topic filter/search bar and is linked in both authenticated and guest headers/footers to maximize user enablement.
+
+### Proposed Changes
+
+#### [NEW] [UserGuidePage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/UserGuidePage.vue)
+- Create a dedicated user guide page with the deep navy background (`#111d2f`) and glassmorphic panels.
+- Add an interactive real-time search field at the top to filter guides by keyword.
+- Use Vuetify's expansion panels (`<v-expansion-panels>`) to structure the 5 core topics: Invoices, Settings, Customer/Items, Exporting, and Reports.
+- Render styled bullet points, code-styled fields, and icons for intuitive visual aid.
+
+#### [MODIFY] [router/index.js](file:///C:/Users/curth/git/swift-invoice/src/router/index.js)
+- Register the `/guide` public route: `{ path: '/guide', name: 'UserGuide', component: () => import('../components/UserGuidePage.vue'), meta: { requiresAuth: false } }`.
+
+#### [MODIFY] [AppBar.vue](file:///C:/Users/curth/git/swift-invoice/src/components/AppBar.vue)
+- Add "Guide" to the `guestNav` array and the `authNav` array to make it visible in header menus.
+
+#### [MODIFY] [LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Add a footer route link to the User Guide.
+
+#### [MODIFY] [Dashboard.vue](file:///C:/Users/curth/git/swift-invoice/src/components/Dashboard.vue)
+- Add a footer route link to the User Guide.
+
+#### [MODIFY] [AboutUsPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/AboutUsPage.vue)
+- Add a footer route link to the User Guide.
+
+### Verification Plan
+- **Route Access**: Go to `/guide` as both guest and logged-in user; verify page loads correctly.
+- **Search Filtering**: Type a keyword (like "Stripe" or "PDF") and verify that non-matching panels collapse/hide dynamically.
+- **Navigation Links**: Verify that clicking "Guide" in navigation bars or footers successfully routes the user to the Guide.
+

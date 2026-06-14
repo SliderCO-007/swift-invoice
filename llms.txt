@@ -1,0 +1,28 @@
+# ScanGo Invoice
+> A premium, glassmorphic Vue 3 + Vite invoicing and project time-tracking application.
+
+## Core Files & Entry Points
+- [src/main.js](file:///C:/Users/curth/git/swift-invoice/src/main.js): Application entry point; initializes Vuetify, Router, Head, Google Analytics, and mounts the Vue application after Firebase Auth is confirmed ready.
+- [src/App.vue](file:///C:/Users/curth/git/swift-invoice/src/App.vue): Root layout.
+- [src/router/index.js](file:///C:/Users/curth/git/swift-invoice/src/router/index.js): Route map, navigation guards, and dynamic dynamic chunk reload fallback handlers.
+- [src/style.css](file:///C:/Users/curth/git/swift-invoice/src/style.css): Core design system colors, custom cards styling, and Poppins font imports.
+
+## Folder Organization
+- [src/components/](file:///C:/Users/curth/git/swift-invoice/src/components/): Vue SFCs containing views and features.
+  - [Dashboard.vue](file:///C:/Users/curth/git/swift-invoice/src/components/Dashboard.vue): Unified invoicing workflow and analytics.
+  - [InvoiceEditor.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceEditor.vue): Layout builder for designing and previewing invoices.
+  - [ReportsView.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ReportsView.vue): Sales reporting dashboards, trends, CSV and PDF download actions.
+  - [ProjectsView.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ProjectsView.vue) & [ProjectDetail.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ProjectDetail.vue): Billable hours and expense receipt tracking modules.
+- [src/composables/](file:///C:/Users/curth/git/swift-invoice/src/composables/): Reactive API hooks and global state management.
+  - [useAuth.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useAuth.js): Sessions state, registration, and Google logins.
+  - [useInvoices.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useInvoices.js): Real-time invoice CRUD and calculations.
+  - [useProjects.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useProjects.js): Time tracking database collections CRUD.
+  - [useUserSettings.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useUserSettings.js): Profile parameters, logos storage, and currency selections.
+- [functions/](file:///C:/Users/curth/git/swift-invoice/functions/): Cloud functions handling backend processes (Stripe Webhooks, mail templates).
+
+## Key Architecture Concepts
+1. **Singleton Composables Pattern**: Reactive state variables (e.g. `const invoices = ref([])`) are instantiated outside the hook closure functions. This creates a lightweight, shareable global store across all component bindings without the overhead of Pinia.
+2. **Glassmorphism Theme**: Cards use slight transparency backgrounds (`rgba(255, 255, 255, 0.03)`), soft borders (`rgba(255, 255, 255, 0.08)`), and backdrops (`blur(16px)`) to form depth against deep navy colors (`#111d2f`).
+3. **Synchronous Popup Pattern**: To bypass mobile browser blockers, Google login initiates `signInWithPopup` as the absolute first synchronous operation in click-handling threads before any async tick.
+4. **Client Property Mapping**: Customer/client data on invoices is mapped under `invoice.client.name` (nested object) rather than a flat property.
+5. **Tax Calculations**: Taxes are computed only on the taxable subtotal of items (`item.taxable !== false`) and prorated with invoice-wide discount ratios.
