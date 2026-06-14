@@ -22,6 +22,7 @@ const {
   loading: stripeLoading 
 } = useStripeConnect();
 
+const appOrigin = window.location.origin;
 const currentStep = ref(1);
 const logoFile = ref(null);
 const logoPreview = ref(null);
@@ -301,6 +302,21 @@ const goToDashboard = () => {
             </div>
             <div class="callout-text">
               <strong>Important:</strong> You will not be able to accept online payments on your invoices until you create or connect a payment account.
+            </div>
+          </div>
+
+          <div v-if="!connectStatus.connected" class="stripe-website-tip">
+            <div class="tip-icon-wrapper">
+              <v-icon color="#38bdf8" size="small">mdi-lightbulb-on-outline</v-icon>
+            </div>
+            <div class="tip-content">
+              <strong>Don't have a business website?</strong>
+              <div class="tip-text">
+                Stripe requires a website during setup. If you don't have one, you can enter your business <strong>Facebook/Instagram page</strong>, your <strong>Yelp/Thumbtack profile</strong>, or copy and paste our platform fallback:
+                <div class="fallback-url-box">
+                  <code>{{ appOrigin }}</code>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -817,6 +833,54 @@ const goToDashboard = () => {
 .dashboard-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(92, 107, 192, 0.4);
+}
+
+.stripe-website-tip {
+  display: flex;
+  gap: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-top: 1.25rem;
+  text-align: left;
+}
+
+.tip-icon-wrapper {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.tip-content {
+  font-size: 0.88rem;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+.tip-content strong {
+  color: #e2e8f0;
+}
+
+.tip-text {
+  margin-top: 0.25rem;
+}
+
+.fallback-url-box {
+  margin-top: 0.5rem;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.4rem 0.75rem;
+  border-radius: 4px;
+  display: inline-block;
+  font-family: monospace;
+}
+
+.fallback-url-box code {
+  color: #38bdf8 !important;
+  font-size: 0.85rem;
+  user-select: all;
+  background: transparent !important;
+  padding: 0 !important;
 }
 
 @media (max-width: 768px) {
