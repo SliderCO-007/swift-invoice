@@ -630,3 +630,26 @@ Integrate the user documentation directly into the application by creating a bea
 - **Search Filtering**: Type a keyword (like "Stripe" or "PDF") and verify that non-matching panels collapse/hide dynamically.
 - **Navigation Links**: Verify that clicking "Guide" in navigation bars or footers successfully routes the user to the Guide.
 
+
+## Stripe Connect Loading UX Optimization (v28)
+
+### Purpose
+Resolve the issue where the dashboard loads before the Stripe Connect status is fully validated, causing the "Online Payments Not Connected" alert to briefly flash to users who are actually connected. We will replace the full-screen spinner with a matching dashboard-wide skeleton loader, wait for the Stripe Connect check to complete alongside other loaders, and show a friendly reload screen if the Stripe Connect check fails or takes too long (e.g., more than 7 seconds).
+
+### Proposed Changes
+
+#### [MODIFY] [Dashboard.vue](file:///C:/Users/curth/git/swift-invoice/src/components/Dashboard.vue)
+- Import `loading` (aliased to `stripeLoading`) and `error` (aliased to `stripeError`) from `useStripeConnect()`.
+- Add local state `stripeStatusHaveLoaded` ref to track the finalization of the Stripe status fetch.
+- Add `initialLoadTimeout` ref to signal when loading has failed or timed out.
+- Set up a 7-second timeout check in `onMounted`. If the check doesn't finish or fails with an error, show a custom error screen prompting the user to reload the page.
+- Update `isInitialLoad` to require that invoices, settings, and Stripe Connect status have all completed loading.
+- Add `stripeLoading` to the `isDataLoading` computed variable.
+- Replace the page-loading-container spinner with a simplified skeleton dashboard layout (featuring only the header and main content table placeholders, excluding optional warning banner and tab indicator placeholders), and add a custom failure/timeout screen with a reload button.
+- Add glassmorphic styling for the skeleton loaders to keep the interface premium and brand-aligned.
+
+### Verification Plan
+- **Normal Loading State**: Verify that logging in displays a layout-matching skeleton dashboard until loading finishes, with no flashing "Online Payments Not Connected" banner for verified accounts.
+- **Error/Timeout Handling**: Artificially mock a slow network delay or check failure, and confirm that a beautiful, user-friendly timeout message with a reload button is presented after 7 seconds.
+
+

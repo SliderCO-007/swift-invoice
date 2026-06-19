@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify';
 import useInvoices from '../composables/useInvoices';
@@ -17,15 +17,14 @@ const activeTab = ref('invoices');
 
 const { invoices, loading: invoicesLoading, error: invoicesError, deleteInvoice } = useInvoices();
 const { settings, loading: settingsLoading, error: settingsError } = useUserSettings();
-const { connectStatus, fetchConnectStatus } = useStripeConnect();
-
-onMounted(async () => {
-  await fetchConnectStatus();
-});
+const { connectStatus, fetchConnectStatus, loading: stripeLoading, error: stripeError } = useStripeConnect();
 
 // --- ROBUST INITIAL LOAD TRACKING ---
 const invoicesHaveLoaded = ref(false);
 const settingsHaveLoaded = ref(false);
+const stripeStatusHaveLoaded = ref(false);
+const initialLoadTimeout = ref(false);
+let timeoutId = null;
 
 // Watch the loading status from the invoices composable
 watch(invoicesLoading, (isLoading) => {
@@ -41,14 +40,50 @@ watch(settingsLoading, (isLoading) => {
   }
 }, { immediate: true });
 
-// The initial load is complete only when both data sources have loaded.
-const isInitialLoad = computed(() => !invoicesHaveLoaded.value || !settingsHaveLoaded.value);
+onMounted(async () => {
+  // Start a timeout timer (7 seconds)
+  timeoutId = setTimeout(() => {
+    if (!stripeStatusHaveLoaded.value) {
+      initialLoadTimeout.value = true;
+      console.warn("Stripe Connect status loading timed out.");
+    }
+  }, 7000);
+
+  try {
+    await fetchConnectStatus();
+  } catch (err) {
+    console.error("Error loading Stripe status:", err);
+  } finally {
+    stripeStatusHaveLoaded.value = true;
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  // If Stripe Connect loading resulted in an error, trigger the timeout reload screen
+  if (stripeError.value) {
+    initialLoadTimeout.value = true;
+  }
+});
+
+onBeforeUnmount(() => {
+  if (timeoutId) {
+    clearTimeout(timeoutId);
+  }
+});
+
+const reloadPage = () => {
+  window.location.reload();
+};
+
+// The initial load is complete only when all data sources (invoices, settings, and Stripe status) have loaded.
+const isInitialLoad = computed(() => !invoicesHaveLoaded.value || !settingsHaveLoaded.value || !stripeStatusHaveLoaded.value);
 // --- END ROBUST LOADING STATE ---
 
 const hasError = computed(() => invoicesError.value || settingsError.value);
 const isFreePlan = computed(() => userProfile.value?.subscriptionStatus === 'free');
 const invoiceLimitReached = computed(() => isFreePlan.value && userProfile.value?.invoiceCount >= 5);
-const isDataLoading = computed(() => invoicesLoading.value || settingsLoading.value);
+const isDataLoading = computed(() => invoicesLoading.value || settingsLoading.value || stripeLoading.value);
 
 const dialogDelete = ref(false);
 const itemToDeleteId = ref(null);
@@ -116,9 +151,37 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
 
 <template>
   <div>
-    <div v-if="isInitialLoad" class="page-loading-container">
-      <v-progress-circular indeterminate size="64" color="primary"></v-progress-circular>
-      <p>Loading your workspace...</p>
+    <!-- Skeleton Loading State -->
+    <div v-if="isInitialLoad && !initialLoadTimeout" class="dashboard-container skeleton-loading">
+      <header class="dashboard-header mb-6">
+        <div>
+          <v-skeleton-loader type="heading" max-width="250px" class="bg-transparent mb-2"></v-skeleton-loader>
+          <v-skeleton-loader type="subtitle" max-width="180px" class="bg-transparent"></v-skeleton-loader>
+        </div>
+      </header>
+
+      <!-- Skeleton for Invoices list table -->
+      <v-skeleton-loader type="table-heading, table-thead, table-tbody" class="rounded-xl"></v-skeleton-loader>
+    </div>
+
+    <!-- Timeout / Load Failure Error State -->
+    <div v-else-if="initialLoadTimeout" class="page-loading-container px-4 text-center">
+      <v-icon size="80" color="#ff5252" class="mb-4">mdi-alert-circle-outline</v-icon>
+      <h3 class="text-h4 font-weight-bold mb-2">Unable to Load Workspace</h3>
+      <p class="text-body-1 text-grey-lighten-1 mb-6" style="max-width: 480px; line-height: 1.6;">
+        We encountered a delay while retrieving your payment account verification status. Please reload the page to try again.
+      </p>
+      <v-btn 
+        color="primary" 
+        @click="reloadPage" 
+        size="large" 
+        rounded="lg" 
+        class="px-6 font-weight-bold"
+        elevation="2"
+      >
+        <v-icon start class="mr-2">mdi-reload</v-icon>
+        Reload Page
+      </v-btn>
     </div>
 
     <div v-else class="dashboard-container">
@@ -248,6 +311,22 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
 <style scoped>
 .page-loading-container { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; gap: 1.5rem; background-color: #111d2f; color: #f1f5f9; }
 .dashboard-container { padding: 1rem; background-color: #111d2f; min-height: 100vh; color: #f1f5f9; }
+
+/* Skeleton Loading Premium Dark Glassmorphic Theme Overrides */
+.skeleton-loading :deep(.v-skeleton-loader) {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(16px);
+}
+.skeleton-loading :deep(.v-skeleton-loader__bone) {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+.skeleton-loading :deep(.bg-transparent) {
+  background: transparent !important;
+  border: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
 .dashboard-header { padding: 1rem 1rem 0 1rem; }
 .welcome-message { font-size: 2.2rem; font-weight: 700; color: #fff; }
 .date-display { font-size: 1rem; color: #94A3B8; }
