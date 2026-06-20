@@ -27,12 +27,6 @@ const { connectStatus, fetchConnectStatus } = useStripeConnect();
 const router = useRouter();
 const route = useRoute();
 
-onMounted(async () => {
-  if (user.value) {
-    await fetchConnectStatus();
-  }
-});
-
 // --- Component State ---
 const invoiceId = ref(route.params.id);
 const invoice = ref(createFreshInvoice());
@@ -40,6 +34,7 @@ const selectedCustomer = ref(null);
 const showPreview = ref(false);
 const isProcessing = ref(false);
 const saveError = ref(null);
+const stripeStatusHaveLoaded = ref(false);
 
 // --- Auth Modal & Guest State ---
 const showAuthModal = ref(false);
@@ -290,14 +285,25 @@ const initializeInvoice = async () => {
 };
 
 // --- Watchers & Lifecycle ---
-watch(user, (newUser, oldUser) => {
+watch(user, async (newUser, oldUser) => {
   if (newUser) {
     if (isMigrating.value) {
       return;
     }
     initializeInvoice();
+    
+    // Fetch Stripe Connect status when user becomes defined/authenticated
+    stripeStatusHaveLoaded.value = false;
+    try {
+      await fetchConnectStatus();
+    } catch (err) {
+      console.error("Error loading Stripe status:", err);
+    } finally {
+      stripeStatusHaveLoaded.value = true;
+    }
   } else {
     initializeInvoice();
+    stripeStatusHaveLoaded.value = true; // Guest users do not need payment status loading
     if (oldUser && route.name !== 'Home' && route.name !== 'Login') {
       router.push('/');
     }
@@ -355,7 +361,7 @@ onUnmounted(() => {
 
       <!-- Stripe Connect Warning Alert for Authenticated Users -->
       <v-alert
-        v-if="user && !connectStatus.chargesEnabled && !settingsLoading"
+        v-if="user && !connectStatus.chargesEnabled && !settingsLoading && stripeStatusHaveLoaded"
         type="warning"
         variant="tonal"
         class="mb-6 text-left"

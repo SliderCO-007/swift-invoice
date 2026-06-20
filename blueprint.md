@@ -653,3 +653,22 @@ Resolve the issue where the dashboard loads before the Stripe Connect status is 
 - **Error/Timeout Handling**: Artificially mock a slow network delay or check failure, and confirm that a beautiful, user-friendly timeout message with a reload button is presented after 7 seconds.
 
 
+## Stripe Connect Loading UX Optimization for Invoice Editor (v29)
+
+### Purpose
+Resolve the issue where the Stripe Connect warning banner briefly flashes inside the invoice creator/editor (`InvoiceEditor.vue`) when loading the page or changing authentication states. This happens because the warning banner check runs immediately when settings finish loading, while the Stripe verification status fetch is still in progress asynchronously. We will track the Stripe status loading state and prevent the warning alert from showing until the fetch has finished.
+
+### Proposed Changes
+
+#### [MODIFY] [InvoiceEditor.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceEditor.vue)
+- Add a reactive boolean ref `stripeStatusHaveLoaded` to track whether the Stripe status verification has finished loading.
+- Move the asynchronous `fetchConnectStatus()` call out of the `onMounted` hook and place it inside the `user` watcher. This ensures that the Stripe Connect check is always triggered dynamically when the user authentication finishes loading, preventing a race condition where direct page accesses bypass the check.
+- Set `stripeStatusHaveLoaded` to `false` when a fetch starts, and set it to `true` inside a `finally` block once the fetch resolves (or immediately to `true` if the user is a guest since no account status check is needed).
+- Update the Stripe Connect Warning Alert `v-if` condition to include `stripeStatusHaveLoaded` as a dependency. This keeps the alert hidden until we are absolutely certain of the user's Stripe status.
+
+### Verification Plan
+- **Normal Loading (Authenticated User)**: Navigate to `/invoice/new` as a logged-in user with a verified Stripe account. Confirm that the yellow Stripe Connect warning alert does not show up at all, even briefly.
+- **Incomplete Setup (Authenticated User)**: Navigate to `/invoice/new` as a logged-in user who has not connected their Stripe account. Confirm that the Stripe Connect warning alert renders correctly after a short delay (once loading finishes) and is not hidden permanently.
+- **Guest Access**: Open `/invoice/new` as a guest. Confirm that no warning alert flashes or renders since guest mode doesn't check Stripe status.
+
+
