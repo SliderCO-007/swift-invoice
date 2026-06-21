@@ -324,6 +324,28 @@ watch(selectedCustomer, (newCustomer) => {
   }
 });
 
+const openDatePicker = (event) => {
+  const element = event.currentTarget || event.target;
+  if (!element) return;
+  const input = element.querySelector('input[type="date"]') || element.closest('.v-text-field')?.querySelector('input[type="date"]') || element;
+  if (input && input.tagName === 'INPUT' && input.type === 'date') {
+    if (typeof input.showPicker === 'function') {
+      try {
+        input.showPicker();
+      } catch (err) {
+        console.warn("showPicker failed, fallback to click:", err);
+        try {
+          input.click();
+        } catch (e) {}
+      }
+    } else {
+      try {
+        input.click();
+      } catch (e) {}
+    }
+  }
+};
+
 onUnmounted(() => {
   stopFetchingItems(); // Clean up item listener when component is destroyed
 });
@@ -440,10 +462,10 @@ onUnmounted(() => {
 
         <div class="form-section responsive-grid">
           <div>
-            <v-text-field label="Issue Date" type="date" v-model="formattedIssueDate" variant="solo" density="comfortable"></v-text-field>
+            <v-text-field label="Issue Date" type="date" v-model="formattedIssueDate" variant="solo" density="comfortable" @click="openDatePicker" @focus="openDatePicker"></v-text-field>
           </div>
           <div>
-            <v-text-field label="Due Date" type="date" v-model="formattedDueDate" variant="solo" density="comfortable"></v-text-field>
+            <v-text-field label="Due Date" type="date" v-model="formattedDueDate" variant="solo" density="comfortable" @click="openDatePicker" @focus="openDatePicker"></v-text-field>
           </div>
         </div>
 

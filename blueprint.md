@@ -686,3 +686,19 @@ Align the cancellation URL passed to Stripe Checkout with the app's routing conf
 - **Stripe Checkout Cancel Flow**: Generate a payment link for a dummy invoice, navigate to it, click "Pay online," and on the Stripe payment page, click the "Back" or "Cancel" button. Confirm it successfully routes back to the correct public payment page (`/pay/:invoiceId`) instead of a 404 page.
 
 
+## Mobile Firefox Date Picker Interaction Fix (v31)
+
+### Purpose
+Resolve the issue in mobile Firefox (and Firefox responsive design mode) where clicking or focusing the Issue Date and Due Date fields does not display the native calendar popup. This occurs because Vuetify wraps native inputs with multiple overlay components that intercept the click events. We will attach custom click and focus event handlers to the date inputs that programmatically trigger the HTML5 native `.showPicker()` API.
+
+### Proposed Changes
+
+#### [MODIFY] [InvoiceEditor.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceEditor.vue)
+- Add a helper function `openDatePicker(event)` to trigger `.showPicker()` on the target input element, with a `.click()` fallback.
+- Bind `@click="openDatePicker"` and `@focus="openDatePicker"` to both the "Issue Date" and "Due Date" `<v-text-field>` elements in the template.
+
+### Verification Plan
+- **Mobile Emulator (Firefox)**: Open Firefox's Responsive Design Mode (mimicking mobile viewports). Click/tap the Issue Date and Due Date text fields; confirm the native calendar picker opens immediately.
+- **Focus Navigation (Keyboard)**: Navigate the form fields using the Tab key. When the focus hits the Issue Date and Due Date fields, confirm the native date picker popup opens automatically.
+
+
