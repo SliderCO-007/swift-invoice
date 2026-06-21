@@ -672,3 +672,17 @@ Resolve the issue where the Stripe Connect warning banner briefly flashes inside
 - **Guest Access**: Open `/invoice/new` as a guest. Confirm that no warning alert flashes or renders since guest mode doesn't check Stripe status.
 
 
+## Stripe Checkout Cancel Redirect Path Alignment (v30)
+
+### Purpose
+Align the cancellation URL passed to Stripe Checkout with the app's routing configuration. Currently, cancelling a checkout redirect sends the user to `/payment/:invoiceId`, which is a non-existent route in the frontend application resulting in a 404 page. The correct route is `/pay/:invoiceId`. We will update the composable's `cancelUrl` parameter to point to the correct `/pay/:invoiceId` route.
+
+### Proposed Changes
+
+#### [MODIFY] [useStripeConnect.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useStripeConnect.js)
+- Update the `cancelUrl` value in `createPaymentSession` to use `/pay/` instead of `/payment/`.
+
+### Verification Plan
+- **Stripe Checkout Cancel Flow**: Generate a payment link for a dummy invoice, navigate to it, click "Pay online," and on the Stripe payment page, click the "Back" or "Cancel" button. Confirm it successfully routes back to the correct public payment page (`/pay/:invoiceId`) instead of a 404 page.
+
+

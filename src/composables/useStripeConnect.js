@@ -76,7 +76,7 @@ export default function useStripeConnect() {
       const response = await createSessionFn({
         invoiceId,
         successUrl: window.location.origin + `/payment-success?type=invoice&invoiceId=${invoiceId}`,
-        cancelUrl: window.location.origin + `/payment/${invoiceId}`,
+        cancelUrl: window.location.origin + `/pay/${invoiceId}`,
       });
       if (response.data.url) {
         window.location.href = response.data.url;
