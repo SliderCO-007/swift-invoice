@@ -28,7 +28,14 @@ export default function useStripeConnect() {
     } catch (err) {
       console.error('Error fetching Stripe Connect status:', err);
       // Client-side fallback if backend functions are not yet deployed/updated
-      if (err.message?.includes('No such account') || err.message?.includes('resource_missing')) {
+      const errMsg = err.message || "";
+      if (
+        errMsg.includes('No such account') || 
+        errMsg.includes('resource_missing') || 
+        errMsg.includes('does not have access to account') || 
+        errMsg.includes('account does not exist') || 
+        errMsg.includes('revoked')
+      ) {
         connectStatus.value.invalidAccount = true;
       } else {
         error.value = err.message;
