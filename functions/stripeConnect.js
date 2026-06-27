@@ -147,6 +147,16 @@ exports.getStripeConnectStatus = onCall({ enforceAppCheck: false }, async (reque
     };
   } catch (error) {
     console.error("Error retrieving Connect account:", error);
+    // Check if the account was deleted in Stripe
+    if (error.code === 'resource_missing' || error.statusCode === 404 || error.message?.includes('No such account') || error.raw?.code === 'resource_missing') {
+      console.warn(`Stripe Connect account ${accountId} not found in Stripe. Returning invalidAccount status.`);
+      return {
+        connected: false,
+        invalidAccount: true,
+        chargesEnabled: false,
+        detailsSubmitted: false,
+      };
+    }
     throw new HttpsError('internal', error.message);
   }
 });

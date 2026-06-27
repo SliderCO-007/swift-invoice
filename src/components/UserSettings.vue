@@ -195,7 +195,7 @@ const goToPricing = () => {
                 </div>
                 <div class="stripe-status" :class="{ 'connected': connectStatus.chargesEnabled }">
                   <span class="status-indicator"></span>
-                  {{ connectStatus.chargesEnabled ? 'Connected & Verified' : (connectStatus.connected ? 'Pending Verification' : 'Not Connected') }}
+                  {{ connectStatus.invalidAccount ? 'Connection Error' : (connectStatus.chargesEnabled ? 'Connected & Verified' : (connectStatus.connected ? 'Pending Verification' : 'Not Connected')) }}
                 </div>
               </div>
               

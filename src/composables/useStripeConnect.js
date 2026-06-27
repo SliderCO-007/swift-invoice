@@ -11,6 +11,7 @@ export default function useStripeConnect() {
     accountId: null,
     chargesEnabled: false,
     detailsSubmitted: false,
+    invalidAccount: false,
   });
 
   const fetchConnectStatus = async () => {
@@ -26,7 +27,12 @@ export default function useStripeConnect() {
       return response.data;
     } catch (err) {
       console.error('Error fetching Stripe Connect status:', err);
-      error.value = err.message;
+      // Client-side fallback if backend functions are not yet deployed/updated
+      if (err.message?.includes('No such account') || err.message?.includes('resource_missing')) {
+        connectStatus.value.invalidAccount = true;
+      } else {
+        error.value = err.message;
+      }
     } finally {
       loading.value = false;
     }

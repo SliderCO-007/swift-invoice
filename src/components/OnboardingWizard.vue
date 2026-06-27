@@ -289,6 +289,13 @@ const goToDashboard = () => {
             </div>
           </div>
 
+          <div v-if="connectStatus.invalidAccount" class="stripe-status-banner error mb-4">
+            <v-icon color="#f87171" class="mr-2">mdi-alert-circle-outline</v-icon>
+            <div>
+              <strong>Stripe Account Issue:</strong> Your previous Stripe connection is invalid or has been deleted in Stripe. Please click "Connect with Stripe" below to reconnect your account.
+            </div>
+          </div>
+
           <div v-if="connectStatus.connected && !connectStatus.chargesEnabled" class="stripe-status-banner warning">
             <span class="pulse-indicator orange"></span>
             <div>
@@ -694,6 +701,12 @@ const goToDashboard = () => {
   background: rgba(245, 158, 11, 0.1);
   border: 1px solid rgba(245, 158, 11, 0.3);
   color: #fbbf24;
+}
+
+.stripe-status-banner.error {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #f87171;
 }
 
 .stripe-warning-callout {

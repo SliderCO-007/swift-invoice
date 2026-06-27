@@ -213,7 +213,7 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
       
       <!-- Stripe Connect Prompt for Authenticated Users (Custom Glassmorphic Card) -->
       <div
-        v-if="settings.company?.name && !connectStatus.chargesEnabled && !settingsLoading"
+        v-if="settings.company?.name && !connectStatus.chargesEnabled && !connectStatus.invalidAccount && !settingsLoading"
         class="stripe-warning-banner mb-4"
       >
         <div class="banner-content">
@@ -231,6 +231,30 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
             class="connect-btn-banner"
           >
             Connect Now
+          </v-btn>
+        </div>
+      </div>
+
+      <!-- Stripe Connect Error Banner (Deleted/Invalid Stripe Account) -->
+      <div
+        v-if="connectStatus.invalidAccount"
+        class="stripe-error-banner mb-4"
+      >
+        <div class="banner-content">
+          <div class="banner-text-wrapper">
+            <v-icon color="#ff5252" class="banner-icon mr-3">mdi-alert-circle-outline</v-icon>
+            <div class="banner-text">
+              <span class="banner-title text-red">Stripe Payment Account Issue</span>
+              <p class="banner-desc">There is an issue with your connected Stripe payment account. It appears to have been deleted or disabled in Stripe. Please contact support at <a href="mailto:support@scangoinvoice.com" class="support-link">support@scangoinvoice.com</a> or reconnect your account.</p>
+            </div>
+          </div>
+          <v-btn 
+            to="/onboarding?step=2" 
+            color="#ff5252" 
+            variant="flat" 
+            class="connect-btn-banner text-none"
+          >
+            Reconnect Stripe
           </v-btn>
         </div>
       </div>
@@ -363,6 +387,21 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
   text-align: left;
 }
 
+.stripe-error-banner {
+  background: rgba(244, 67, 54, 0.05);
+  border: 1px solid rgba(244, 67, 54, 0.2);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(12px);
+  text-align: left;
+}
+
+.support-link {
+  color: #ff8a80 !important;
+  text-decoration: underline !important;
+}
+
 .banner-content {
   display: flex;
   justify-content: space-between;
@@ -415,7 +454,7 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
     .dashboard-footer { padding: 2rem 0.5rem 1rem; }
 
     /* Warning banner mobile adjustments */
-    .stripe-warning-banner {
+    .stripe-warning-banner, .stripe-error-banner {
       padding: 1.25rem;
     }
     .banner-content {

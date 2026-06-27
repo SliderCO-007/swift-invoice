@@ -702,3 +702,57 @@ Resolve the issue in mobile Firefox (and Firefox responsive design mode) where c
 - **Focus Navigation (Keyboard)**: Navigate the form fields using the Tab key. When the focus hits the Issue Date and Due Date fields, confirm the native date picker popup opens automatically.
 
 
+## Text-to-Pay SMS Compliance Implementation (v32)
+
+### Purpose
+Ensure full compliance with TCPA laws and carrier rules (CTIA & TCR) for text-to-pay transactional SMS functionality. This feature will prevent unsolicited message dispatch, shift compliance liability dynamically, and provide audit-ready consent flows to speed up future carrier validation.
+
+### Proposed Changes
+
+#### Flow 1: Your Merchants signing up for ScanGo
+*If you want to text your merchants directly (e.g., account alerts):*
+* **Design/UI:** Place an unchecked checkbox on the signup or profile page next to the phone number input with a clear compliance disclosure statement.
+
+#### Flow 2: Your Merchants texting their Customers (Text-to-Pay)
+*Since you cannot control what your merchants do offline, you must protect your platform from compliance violations:*
+* **Invoice Editor / Send View:** In your invoice creation screen, when a merchant inputs their customer's phone number to send a text-to-pay link, display a small helper notice:
+  > "By checking this box, you confirm that your customer has explicitly consented to receive transactional text messages from your business."
+* **Enforcement:** Enforce that the merchant must click this checkbox before the system allows them to trigger the SMS. This shifts compliance liability and shows carrier auditors that your platform actively prevents unsolicited messaging.
+
+### Verification Plan
+* **Merchant Signup Opt-In:** Confirm the SMS checkbox on the signup page is unchecked by default. Verify that submitting the form registers the consent state in Firestore.
+* **Consent Enforcement:** Try sending an invoice payment link via SMS without checking the customer consent box. Verify that the "Send SMS" button is disabled/greyed out, and attempting to force it returns a validation error.
+
+
+## Stripe Deleted/Invalid Account Handling (v33)
+
+### Purpose
+Resolve the issue where a deleted/invalid Stripe Connect ID stored in Firestore causes `stripe.accounts.retrieve` to throw a `resource_missing` (or 404) error, which crashes the dashboard load process. Instead of throwing a fatal error and blocking the dashboard, we will catch the account retrieval failure, return an `invalidAccount` flag to the client, and display a prominent warning banner on the dashboard advising the user to contact support or reconnect their Stripe account.
+
+### Proposed Changes
+
+#### [MODIFY] [stripeConnect.js](file:///C:/Users/curth/git/swift-invoice/functions/stripeConnect.js)
+- In the `getStripeConnectStatus` Cloud Function, wrap `stripe.accounts.retrieve` inside a try-catch block.
+- Catch the specific Stripe error when the account is not found (e.g. `error.code === 'resource_missing'`, `error.statusCode === 404`, `error.message.includes('No such account')`, or `error.raw?.code === 'resource_missing'`).
+- If caught, instead of throwing an `HttpsError('internal')`, return a successful payload `{ connected: false, invalidAccount: true, chargesEnabled: false, detailsSubmitted: false }`.
+
+#### [MODIFY] [useStripeConnect.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useStripeConnect.js)
+- Initialize `invalidAccount: false` in the default `connectStatus` reference.
+- Add client-side error fallback check inside the `catch` block of `fetchConnectStatus` to intercept `No such account` or `resource_missing` errors. This guarantees the dashboard loads successfully even if the updated backend Cloud Functions are not yet deployed.
+
+#### [MODIFY] [Dashboard.vue](file:///C:/Users/curth/git/swift-invoice/src/components/Dashboard.vue)
+- Update the standard Stripe Connect banner `v-if` to only show if `!connectStatus.chargesEnabled && !connectStatus.invalidAccount`.
+- Render a new glassmorphic error banner styled in red if `connectStatus.invalidAccount` is true. The banner will state there is an issue with their Stripe account, advise them to contact support, and offer a "Reconnect Stripe" button.
+
+#### [MODIFY] [UserSettings.vue](file:///C:/Users/curth/git/swift-invoice/src/components/UserSettings.vue)
+- Update the Stripe status text to render `'Connection Error'` if `connectStatus.invalidAccount` is true.
+
+#### [MODIFY] [OnboardingWizard.vue](file:///C:/Users/curth/git/swift-invoice/src/components/OnboardingWizard.vue)
+- Render an error status banner advising the user of the Stripe account issue if `connectStatus.invalidAccount` is true.
+- Add `.stripe-status-banner.error` CSS class styling to match standard warning classes but with red borders/backgrounds.
+
+### Verification Plan
+- **Mock Account Not Found Error**: Temporarily mock `stripe.accounts.retrieve` to throw an error with `code: 'resource_missing'`. Verify that the dashboard loads successfully without triggering the "Unable to Load Workspace" screen.
+- **Verify Dashboard Banner**: Verify that a red, glassmorphic "Stripe Payment Account Issue" banner is displayed on the dashboard with a "Reconnect Stripe" button and support email.
+- **Verify Settings Page**: Verify that the Stripe status badge displays "Connection Error" in red.
+- **Verify Onboarding Wizard**: Verify that the onboarding wizard displays a status banner informing them of the Stripe account issue and prompts them to connect again.
