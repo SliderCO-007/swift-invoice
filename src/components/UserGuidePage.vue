@@ -146,7 +146,32 @@ const filteredSections = computed(() => {
 });
 
 // Auto-expand panels matching search query
-const activePanels = ref(Array.from({ length: sections.length }, (_, i) => i));
+const activePanels = ref(sections.map(s => s.id));
+
+// Watch search query to auto-expand matching panels
+watch(searchQuery, (newQuery) => {
+  if (!newQuery) {
+    activePanels.value = sections.map(s => s.id);
+    return;
+  }
+  const query = newQuery.toLowerCase();
+  activePanels.value = sections
+    .filter(sec => 
+      sec.title.toLowerCase().includes(query) || 
+      sec.steps.some(step => 
+        step.title.toLowerCase().includes(query) || 
+        step.desc.toLowerCase().includes(query)
+      )
+    )
+    .map(s => s.id);
+});
+
+const renderMarkdown = (text) => {
+  if (!text) return '';
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`(.*?)`/g, '<code>$1</code>');
+};
 
 const navigateHome = () => {
   router.push('/dashboard');
@@ -194,6 +219,7 @@ const navigateHome = () => {
         <v-expansion-panel
           v-for="(section, idx) in filteredSections"
           :key="section.id"
+          :value="section.id"
           class="guide-panel mb-4"
         >
           <v-expansion-panel-title class="panel-title py-4">
@@ -219,7 +245,7 @@ const navigateHome = () => {
                 </div>
                 <div class="step-content">
                   <h4 class="step-title text-subtitle-1 font-weight-bold mb-1">{{ step.title }}</h4>
-                  <p class="step-desc text-body-2 text-medium-emphasis" v-html="step.desc"></p>
+                  <p class="step-desc text-body-2 text-medium-emphasis" v-html="renderMarkdown(step.desc)"></p>
                 </div>
               </div>
             </div>
