@@ -36,7 +36,7 @@ service cloud.firestore {
         request.resource.data.uid == userId
       );
       
-      allow update: if isOwner(userId);
+      allow update: if isOwner(userId) || (request.auth != null && resource.data.orgId == request.auth.uid);
       
       // A user's organization owns these customers and items.
       match /customers/{customerId} {

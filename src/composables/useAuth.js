@@ -128,11 +128,15 @@ const createInitialUserData = async (user) => {
     const batch = writeBatch(db);
     const userRef = doc(db, 'users', user.uid);
     
+    // Determine user name, default to email username or email if name not provided
+    const userName = registeredName.value.trim() || user.displayName || user.email;
+    registeredName.value = ''; // Reset after use
+    
     // Create the user profile
     batch.set(userRef, {
       uid: user.uid,
       email: user.email,
-      name: user.displayName || 'New User',
+      name: userName,
       photoURL: user.photoURL || null,
       createdAt: serverTimestamp(),
       subscriptionStatus: role === 'owner' ? 'free' : 'member', // members inherit owner's sub status dynamically
@@ -197,12 +201,16 @@ const createInitialUserData = async (user) => {
 
 // --- AUTH ACTIONS ---
 
-const signup = async (email, password) => {
+const registeredName = ref('');
+
+const signup = async (email, password, name = '') => {
   loading.value = true;
   error.value = null;
+  registeredName.value = name;
   try {
     await createUserWithEmailAndPassword(auth, email, password);
   } catch (err) {
+    registeredName.value = '';
     error.value = err.message;
     throw err; 
   } finally {

@@ -1,7 +1,7 @@
 import { ref, watch } from 'vue';
 import { 
   collection, query, where, onSnapshot, doc, addDoc, 
-  writeBatch, serverTimestamp, arrayRemove 
+  writeBatch, serverTimestamp, arrayRemove, updateDoc 
 } from 'firebase/firestore';
 import { db } from './useFirebase';
 import { userProfile } from './useAuth';
@@ -150,12 +150,36 @@ export const useOrganization = () => {
     }
   };
 
+  const updateMember = async (memberUid, name, email) => {
+    const profile = userProfile.value;
+    if (!profile) throw new Error("Not authenticated.");
+    if (profile.role !== 'owner') throw new Error("Only organization owners can update member profiles.");
+
+    try {
+      loading.value = true;
+      error.value = null;
+
+      const memberUserRef = doc(db, 'users', memberUid);
+      await updateDoc(memberUserRef, {
+        name: name.trim(),
+        email: email.toLowerCase().trim()
+      });
+    } catch (err) {
+      console.error("Error updating member profile:", err);
+      error.value = `Failed to update member profile: ${err.message}`;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
   return {
     teamMembers,
     invitations,
     loading,
     error,
     inviteMember,
-    revokeMember
+    revokeMember,
+    updateMember
   };
 };

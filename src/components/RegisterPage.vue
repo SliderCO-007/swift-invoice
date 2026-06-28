@@ -4,6 +4,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { useAuth, currentUser } from '../composables/useAuth.js';
 import Logo from './Logo.vue';
 
+const name = ref('');
 const email = ref('');
 const password = ref('');
 const showPassword = ref(false);
@@ -15,7 +16,7 @@ const { loading, error, signup, googleLogin } = useAuth();
 
 // --- Actions ---
 const handleSignup = async () => {
-  await signup(email.value, password.value);
+  await signup(email.value, password.value, name.value);
 };
 
 const handleGoogleSignIn = async () => {
@@ -48,6 +49,10 @@ watch(currentUser, (user) => {
 
       <form @submit.prevent="handleSignup">
         <fieldset :disabled="loading" class="form-fieldset">
+          <div class="form-group">
+            <label for="name">Full Name (Optional)</label>
+            <input type="text" id="name" v-model="name" placeholder="John Doe" />
+          </div>
           <div class="form-group">
             <label for="email">Email</label>
             <input type="email" id="email" v-model="email" required placeholder="you@example.com" />

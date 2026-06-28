@@ -12,6 +12,7 @@ const {
   error: orgError,
   inviteMember,
   revokeMember,
+  updateMember,
 } = useOrganization();
 
 const inviteEmail = ref("");
@@ -59,6 +60,41 @@ const handleRevoke = async (uid, name) => {
     await revokeMember(uid);
   } catch (err) {
     alert(`Failed to remove member: ${err.message}`);
+  }
+};
+
+const showEditModal = ref(false);
+const editingMemberId = ref(null);
+const editName = ref("");
+const editEmail = ref("");
+const editLoading = ref(false);
+const editError = ref("");
+
+const openEditModal = (member) => {
+  editingMemberId.value = member.id;
+  editName.value = member.name || "";
+  editEmail.value = member.email || "";
+  editError.value = "";
+  showEditModal.value = true;
+};
+
+const handleUpdateMember = async () => {
+  if (!editName.value.trim() || !editEmail.value.trim()) {
+    editError.value = "Name and email are required.";
+    return;
+  }
+  
+  editLoading.value = true;
+  editError.value = "";
+  
+  try {
+    await updateMember(editingMemberId.value, editName.value, editEmail.value);
+    showEditModal.value = false;
+    editingMemberId.value = null;
+  } catch (err) {
+    editError.value = err.message || "Failed to update member.";
+  } finally {
+    editLoading.value = false;
   }
 };
 </script>
@@ -202,6 +238,17 @@ const handleRevoke = async (uid, name) => {
                 <td>
                   <v-btn
                     v-if="member.role !== 'owner'"
+                    @click="openEditModal(member)"
+                    color="indigo-lighten-2"
+                    variant="text"
+                    size="small"
+                    prepend-icon="mdi-pencil-outline"
+                    class="mr-2"
+                  >
+                    Edit
+                  </v-btn>
+                  <v-btn
+                    v-if="member.role !== 'owner'"
                     @click="handleRevoke(member.uid, member.name)"
                     color="red-darken-4"
                     variant="text"
@@ -255,6 +302,49 @@ const handleRevoke = async (uid, name) => {
           </table>
         </div>
       </div>
+      <!-- Edit Member Dialog -->
+      <v-dialog v-model="showEditModal" max-width="500px">
+        <v-card class="edit-dialog-card">
+          <v-card-title class="d-flex justify-space-between align-center px-6 pt-6">
+            <span class="text-h5 font-weight-bold text-white">Edit Member Details</span>
+            <v-btn icon="mdi-close" variant="text" @click="showEditModal = false" color="white"></v-btn>
+          </v-card-title>
+          
+          <v-card-text class="px-6 py-4">
+            <v-alert v-if="editError" type="error" variant="outlined" class="mb-4">{{ editError }}</v-alert>
+            
+            <v-text-field
+              v-model="editName"
+              label="Full Name"
+              type="text"
+              required
+              density="comfortable"
+              variant="outlined"
+              class="mb-3"
+            ></v-text-field>
+            
+            <v-text-field
+              v-model="editEmail"
+              label="Email Address"
+              type="email"
+              required
+              density="comfortable"
+              variant="outlined"
+            ></v-text-field>
+          </v-card-text>
+          
+          <v-card-actions class="px-6 pb-6 pt-2">
+            <v-spacer></v-spacer>
+            <v-btn variant="text" @click="showEditModal = false" color="white" class="mr-2">Cancel</v-btn>
+            <v-btn
+              color="indigo-darken-3"
+              variant="flat"
+              :loading="editLoading"
+              @click="handleUpdateMember"
+            >Save Changes</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </div>
   </div>
 </template>
@@ -462,5 +552,13 @@ const handleRevoke = async (uid, name) => {
   .invite-btn {
     width: 100%;
   }
+}
+
+.edit-dialog-card {
+  background: #111d2f !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 12px !important;
+  color: #f1f5f9 !important;
+  backdrop-filter: blur(16px);
 }
 </style>
