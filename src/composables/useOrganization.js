@@ -55,7 +55,7 @@ const setupOrgListeners = (orgId) => {
 
 // Auto-listen when user profile loads or changes
 watch(userProfile, (newProfile) => {
-  if (newProfile) {
+  if (newProfile && newProfile.role === 'owner') {
     setupOrgListeners(newProfile.orgId || newProfile.id);
   } else {
     setupOrgListeners(null);
