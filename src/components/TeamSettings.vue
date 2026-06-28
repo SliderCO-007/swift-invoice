@@ -1,53 +1,60 @@
 <script setup>
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { useOrganization } from '../composables/useOrganization';
-import { userProfile } from '../composables/useAuth.js';
+import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
+import { useOrganization } from "../composables/useOrganization";
+import { userProfile } from "../composables/useAuth.js";
 
 const router = useRouter();
-const { 
-  teamMembers, 
-  invitations, 
-  loading: orgLoading, 
-  error: orgError, 
-  inviteMember, 
-  revokeMember 
+const {
+  teamMembers,
+  invitations,
+  loading: orgLoading,
+  error: orgError,
+  inviteMember,
+  revokeMember,
 } = useOrganization();
 
-const inviteEmail = ref('');
+const inviteEmail = ref("");
 const inviteLoading = ref(false);
-const inviteSuccess = ref('');
-const inviteErr = ref('');
+const inviteSuccess = ref("");
+const inviteErr = ref("");
 
 const isOwner = computed(() => {
-  return userProfile.value?.role === 'owner';
+  return userProfile.value?.role === "owner";
 });
 
 const isPaid = computed(() => {
-  return userProfile.value?.subscriptionStatus === 'active';
+  return userProfile.value?.subscriptionStatus === "active";
 });
 
 const handleInvite = async () => {
   if (!inviteEmail.value) return;
   inviteLoading.value = true;
-  inviteSuccess.value = '';
-  inviteErr.value = '';
-  
+  inviteSuccess.value = "";
+  inviteErr.value = "";
+
   try {
     await inviteMember(inviteEmail.value);
     inviteSuccess.value = `Invitation successfully sent to ${inviteEmail.value}!`;
-    inviteEmail.value = '';
-    setTimeout(() => { inviteSuccess.value = '' }, 5000);
+    inviteEmail.value = "";
+    setTimeout(() => {
+      inviteSuccess.value = "";
+    }, 5000);
   } catch (err) {
-    inviteErr.value = err.message || 'Failed to send invitation.';
+    inviteErr.value = err.message || "Failed to send invitation.";
   } finally {
     inviteLoading.value = false;
   }
 };
 
 const handleRevoke = async (uid, name) => {
-  if (!confirm(`Are you sure you want to remove ${name || 'this member'} from your organization?`)) return;
-  
+  if (
+    !confirm(
+      `Are you sure you want to remove ${name || "this member"} from your organization?`,
+    )
+  )
+    return;
+
   try {
     await revokeMember(uid);
   } catch (err) {
@@ -62,21 +69,36 @@ const handleRevoke = async (uid, name) => {
       <header class="settings-header">
         <div>
           <h1>Access Denied</h1>
-          <p>You must be the organization owner to view and manage team seats.</p>
+          <p>
+            You must be the organization owner to view and manage team seats.
+          </p>
         </div>
-        <v-btn @click="router.push({ name: 'Dashboard' })" class="back-btn" color="white" variant="flat">
+        <v-btn
+          @click="router.push({ name: 'Dashboard' })"
+          class="back-btn"
+          color="white"
+          variant="flat"
+        >
           &larr; Back to Dashboard
         </v-btn>
       </header>
     </div>
-    
+
     <div v-else class="settings-card">
       <header class="settings-header">
         <div>
           <h1>Team Management</h1>
-          <p>Invite team members to log project hours and scan receipts, and manage active seats.</p>
+          <p>
+            Invite team members to log project hours and scan receipts, and
+            manage active seats.
+          </p>
         </div>
-        <v-btn @click="router.push({ name: 'Dashboard' })" class="back-btn" color="white" variant="flat">
+        <v-btn
+          @click="router.push({ name: 'Dashboard' })"
+          class="back-btn"
+          color="white"
+          variant="flat"
+        >
           &larr; Back to Dashboard
         </v-btn>
       </header>
@@ -86,8 +108,16 @@ const handleRevoke = async (uid, name) => {
         <v-icon color="amber" class="mr-2">mdi-shield-alert-outline</v-icon>
         <div>
           <h4>Upgrade to Pro to Invite Team Members</h4>
-          <p>Multi-user seat functionality is a premium feature. Upgrade your subscription to start collaborating with your team.</p>
-          <v-btn @click="router.push({ name: 'Pricing' })" class="upgrade-btn mt-2" color="indigo-darken-1" size="small">
+          <p>
+            Multi-user seat functionality is a premium feature. Upgrade your
+            subscription to start collaborating with your team.
+          </p>
+          <v-btn
+            @click="router.push({ name: 'Pricing' })"
+            class="upgrade-btn mt-2"
+            color="indigo-darken-1"
+            size="small"
+          >
             Upgrade Now
           </v-btn>
         </div>
@@ -96,8 +126,11 @@ const handleRevoke = async (uid, name) => {
       <!-- Invite Member Form -->
       <div v-if="isPaid" class="team-section invite-section">
         <h3>Invite a New Member</h3>
-        <p class="section-desc">Invited users will receive access to log hours and expenses for your projects. They will not see invoicing or financial summaries.</p>
-        
+        <p class="section-desc">
+          Invited users will receive access to log hours and expenses for your
+          projects. They will not see invoicing or financial summaries.
+        </p>
+
         <form @submit.prevent="handleInvite" class="invite-form mt-4">
           <div class="invite-input-group">
             <v-text-field
@@ -121,8 +154,12 @@ const handleRevoke = async (uid, name) => {
             </v-btn>
           </div>
         </form>
-        <div v-if="inviteSuccess" class="success-notification mt-2">{{ inviteSuccess }}</div>
-        <div v-if="inviteErr" class="error-notification mt-2">{{ inviteErr }}</div>
+        <div v-if="inviteSuccess" class="success-notification mt-2">
+          {{ inviteSuccess }}
+        </div>
+        <div v-if="inviteErr" class="error-notification mt-2">
+          {{ inviteErr }}
+        </div>
       </div>
 
       <!-- Active Team Members -->
@@ -149,15 +186,17 @@ const handleRevoke = async (uid, name) => {
                 <td>
                   <div class="member-name">
                     <v-avatar color="indigo-darken-4" size="32" class="mr-2">
-                      <span class="text-caption font-weight-bold">{{ member.name ? member.name.charAt(0).toUpperCase() : 'U' }}</span>
+                      <span class="text-caption font-weight-bold">{{
+                        member.name ? member.name.charAt(0).toUpperCase() : "U"
+                      }}</span>
                     </v-avatar>
-                    <span>{{ member.name || 'Pending User' }}</span>
+                    <span>{{ member.name || "Pending User" }}</span>
                   </div>
                 </td>
                 <td>{{ member.email }}</td>
                 <td>
                   <span class="role-badge" :class="member.role">
-                    {{ member.role === 'owner' ? 'Owner' : 'Member' }}
+                    {{ member.role === "owner" ? "Owner" : "Member" }}
                   </span>
                 </td>
                 <td>
@@ -171,7 +210,9 @@ const handleRevoke = async (uid, name) => {
                   >
                     Remove Member
                   </v-btn>
-                  <span v-else class="text-grey text-caption font-italic">Organization Creator</span>
+                  <span v-else class="text-grey text-caption font-italic"
+                    >Organization Creator</span
+                  >
                 </td>
               </tr>
             </tbody>
@@ -196,16 +237,24 @@ const handleRevoke = async (uid, name) => {
                 <td>{{ invite.email }}</td>
                 <td>
                   <span class="role-badge" :class="invite.status">
-                    {{ invite.status.charAt(0).toUpperCase() + invite.status.slice(1) }}
+                    {{
+                      invite.status.charAt(0).toUpperCase() +
+                      invite.status.slice(1)
+                    }}
                   </span>
                 </td>
-                <td>{{ invite.createdAt ? invite.createdAt.toLocaleDateString() : 'N/A' }}</td>
+                <td>
+                  {{
+                    invite.createdAt
+                      ? invite.createdAt.toLocaleDateString()
+                      : "N/A"
+                  }}
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
-
     </div>
   </div>
 </template>
@@ -319,7 +368,8 @@ const handleRevoke = async (uid, name) => {
   border-collapse: collapse;
   text-align: left;
 }
-.team-table th, .team-table td {
+.team-table th,
+.team-table td {
   padding: 0.75rem 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   color: #e2e8f0;
@@ -380,11 +430,27 @@ const handleRevoke = async (uid, name) => {
 }
 
 @media (max-width: 768px) {
-  .settings-card { padding: 1.5rem; }
-  .settings-header { flex-direction: column; align-items: flex-start; }
-  .settings-header h1 { font-size: 1.8rem; }
-  .back-btn { margin-top: 1rem; width: 100%; text-align: center; }
-  .invite-input-group { flex-direction: column; align-items: stretch; }
-  .invite-btn { width: 100%; }
+  .settings-card {
+    padding: 1.5rem;
+  }
+  .settings-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .settings-header h1 {
+    font-size: 1.8rem;
+  }
+  .back-btn {
+    margin-top: 1rem;
+    width: 100%;
+    text-align: center;
+  }
+  .invite-input-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .invite-btn {
+    width: 100%;
+  }
 }
 </style>
