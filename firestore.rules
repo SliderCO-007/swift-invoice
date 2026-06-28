@@ -73,7 +73,16 @@ service cloud.firestore {
          'assignedMembers' in resource.data && 
          request.auth.uid in resource.data.assignedMembers)
       );
-      allow create, update, delete: if request.auth != null && isOrgOwner(resource.data.orgId);
+      allow create: if request.auth != null && isOrgOwner(request.resource.data.orgId);
+      allow delete: if request.auth != null && isOrgOwner(resource.data.orgId);
+      allow update: if request.auth != null && (
+        isOrgOwner(resource.data.orgId) || (
+          isOrgMember(resource.data.orgId) && 
+          'assignedMembers' in resource.data && 
+          request.auth.uid in resource.data.assignedMembers &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['totalHours', 'totalLabor', 'totalExpenses', 'updatedAt'])
+        )
+      );
 
       // Entries subcollection
       match /entries/{entryId} {
