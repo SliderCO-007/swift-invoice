@@ -325,6 +325,10 @@ onUnmounted(() => { stopEntries(); stopItems(); });
               <div class="entry-main">
                 <span class="entry-date">{{ fmtDate(entry.date) }}</span>
                 <span class="entry-desc">{{ entry.description || '—' }}</span>
+                <span v-if="entry.createdByName" class="entry-author" style="font-size: 0.75rem; color: #94a3b8; display: inline-flex; align-items: center; margin-top: 2px;">
+                  <v-icon icon="mdi-account" size="10" class="mr-1" />
+                  By: {{ entry.createdByName }}
+                </span>
               </div>
               <div class="entry-right">
                 <span class="entry-stat">{{ Number(entry.hours).toFixed(2) }} hrs</span>
@@ -397,6 +401,10 @@ onUnmounted(() => { stopEntries(); stopItems(); });
               <div class="entry-main">
                 <span class="entry-date">{{ fmtDate(entry.date) }}</span>
                 <span class="entry-desc">{{ entry.category ? `[${entry.category}] ` : '' }}{{ entry.description || '—' }}</span>
+                <span v-if="entry.createdByName" class="entry-author" style="font-size: 0.75rem; color: #94a3b8; display: inline-flex; align-items: center; margin-top: 2px;">
+                  <v-icon icon="mdi-account" size="10" class="mr-1" />
+                  By: {{ entry.createdByName }}
+                </span>
               </div>
               <div class="entry-right">
                 <span class="entry-subtotal">{{ fmt$(entry.amount) }}</span>

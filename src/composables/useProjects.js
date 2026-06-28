@@ -195,6 +195,8 @@ const useProjects = () => {
     await addDoc(collection(db, 'projects', projectId, 'entries'), {
       ...entryData,
       receiptUrl,
+      createdBy: userId,
+      createdByName: userProfile.value?.name || userProfile.value?.email || 'Unknown',
       createdAt: serverTimestamp(),
     });
   };
