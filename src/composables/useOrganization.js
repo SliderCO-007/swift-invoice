@@ -123,23 +123,6 @@ export const useOrganization = () => {
         subscriptionStatus: 'free'
       });
 
-      // 3. Ensure a default organization document exists for them
-      const memberOrgRef = doc(db, 'organizations', memberUid);
-      batch.set(memberOrgRef, {
-        ownerId: memberUid,
-        members: [memberUid],
-        createdAt: serverTimestamp()
-      }, { merge: true });
-
-      // 4. Ensure a default settings document exists for them
-      const memberSettingsRef = doc(db, 'userSettings', memberUid);
-      batch.set(memberSettingsRef, {
-        company: { name: '', address: '', email: '', phone: '' },
-        invoiceSettings: { defaultDueDateDays: 30, defaultTaxRate: 0 },
-        updatedAt: serverTimestamp(),
-        invoiceCounter: 0
-      }, { merge: true });
-
       await batch.commit();
     } catch (err) {
       console.error("Error revoking member:", err);

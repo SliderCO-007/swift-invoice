@@ -90,6 +90,39 @@ const fetchUserProfile = async (userId) => {
         profile.role = role;
       }
       
+      // Ensure organization and settings exist for owners (e.g. if they were recently revoked and became standalone owners)
+      if (profile.role === 'owner') {
+        const orgRef = doc(db, 'organizations', userId);
+        const orgSnap = await getDoc(orgRef);
+        
+        const settingsRef = doc(db, 'userSettings', userId);
+        const settingsSnap = await getDoc(settingsRef);
+        
+        if (!orgSnap.exists() || !settingsSnap.exists()) {
+          console.log("Initializing missing owner documents for:", userId);
+          const initBatch = writeBatch(db);
+          
+          if (!orgSnap.exists()) {
+            initBatch.set(orgRef, {
+              ownerId: userId,
+              members: [userId],
+              createdAt: serverTimestamp()
+            });
+          }
+          
+          if (!settingsSnap.exists()) {
+            initBatch.set(settingsRef, {
+              company: { name: '', address: '', email: '', phone: '' },
+              invoiceSettings: { defaultDueDateDays: 30, defaultTaxRate: 0 },
+              updatedAt: serverTimestamp(),
+              invoiceCounter: 0
+            });
+          }
+          
+          await initBatch.commit();
+        }
+      }
+      
       userProfile.value = profile;
       return profile;
     } else {
