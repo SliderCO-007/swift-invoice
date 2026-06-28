@@ -25,6 +25,7 @@ const error = ref(null);
 let unsubscribe = null;
 
 watchEffect(() => {
+  error.value = null;
   if (unsubscribe) {
     unsubscribe();
     unsubscribe = null;
@@ -61,6 +62,7 @@ watchEffect(() => {
 });
 
 const fetchUserSettings = async () => {
+    error.value = null;
     const profile = userProfile.value;
     if (!profile) {
         settings.value = getInitialSettings();

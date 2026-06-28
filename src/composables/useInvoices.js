@@ -40,6 +40,7 @@ const useInvoices = () => {
 
   const fetchInvoices = async (orgId) => {
     loading.value = true;
+    error.value = null;
     if (unsubscribe) {
         unsubscribe();
         unsubscribe = null;
@@ -76,6 +77,7 @@ const useInvoices = () => {
   };
 
   watch(userProfile, (newProfile) => {
+    error.value = null;
     if (newProfile) {
       fetchInvoices(newProfile.orgId || newProfile.id);
     } else {
