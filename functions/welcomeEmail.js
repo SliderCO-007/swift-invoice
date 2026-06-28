@@ -4,7 +4,7 @@ const { Resend } = require("resend");
 
 const resendApiKey = defineString("RESEND_API_KEY");
 
-exports.sendWelcomeEmail = onDocumentCreated("users/{userId}", async (event) => {
+exports.sendWelcomeEmail = onDocumentCreated({ document: "users/{userId}" }, async (event) => {
     const snapshot = event.data;
     if (!snapshot) {
         console.log("No data associated with the event");
