@@ -49,11 +49,11 @@ service cloud.firestore {
     
     match /invoices/{invoiceId} {
       // An invoice can be read by any member of the organization, but updated/deleted only by the owner.
-      allow read: if request.auth != null && isOrgMember(resource.data.get('orgId', resource.data.userId));
-      allow update, delete: if isOrgOwner(resource.data.get('orgId', resource.data.userId));
+      allow read: if request.auth != null && isOrgMember(resource.data.orgId);
+      allow update, delete: if isOrgOwner(resource.data.orgId);
         
       // An invoice can be created only by the organization owner if they meet plan limits.
-      allow create: if isOrgOwner(request.resource.data.get('orgId', request.resource.data.userId)) && (
+      allow create: if isOrgOwner(request.resource.data.orgId) && (
           !userExists(request.auth.uid) ||
           getUserData(request.auth.uid).subscriptionStatus == 'active' ||
           (getUserData(request.auth.uid).get('subscriptionStatus', 'free') == 'free' && getUserData(request.auth.uid).get('invoiceCount', 0) < 5)
@@ -68,16 +68,16 @@ service cloud.firestore {
 
     match /projects/{projectId} {
       // Any organization member can read the project, but only the owner can update/delete it.
-      allow read: if request.auth != null && isOrgMember(resource.data.get('orgId', resource.data.userId));
-      allow update, delete: if isOrgOwner(resource.data.get('orgId', resource.data.userId));
+      allow read: if request.auth != null && isOrgMember(resource.data.orgId);
+      allow update, delete: if isOrgOwner(resource.data.orgId);
       
       // Only organization owners can create a project.
-      allow create: if request.auth != null && isOrgOwner(request.resource.data.get('orgId', request.resource.data.userId));
+      allow create: if request.auth != null && isOrgOwner(request.resource.data.orgId);
 
       // Entries subcollection — any organization member may access/create entries.
       match /entries/{entryId} {
         allow read, write, create, delete: if request.auth != null &&
-          isOrgMember(get(/databases/$(database)/documents/projects/$(projectId)).data.get('orgId', get(/databases/$(database)/documents/projects/$(projectId)).data.userId));
+          isOrgMember(get(/databases/$(database)/documents/projects/$(projectId)).data.orgId);
       }
     }
 
