@@ -68,6 +68,9 @@ export const useOrganization = () => {
     const profile = userProfile.value;
     if (!profile) throw new Error("Not authenticated.");
     if (profile.role !== 'owner') throw new Error("Only organization owners can invite members.");
+    if (profile.subscriptionStatus !== 'active') {
+      throw new Error("Team collaboration features are only available to paid subscribers. Please upgrade your plan to invite members.");
+    }
 
     const orgId = profile.orgId || profile.id;
     const formattedEmail = email.toLowerCase().trim();

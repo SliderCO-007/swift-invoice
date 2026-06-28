@@ -168,6 +168,10 @@ onMounted(() => {
                 <v-icon size="18" color="success">mdi-check-circle</v-icon>
                 <span>One-click project-to-invoice</span>
               </div>
+              <div class="feature-item muted">
+                <v-icon size="18" color="rgba(255,255,255,0.2)">mdi-close-circle</v-icon>
+                <span>Multi-user team seats &amp; collaboration</span>
+              </div>
 
               <p class="feature-section-label mt-4">Support</p>
               <div class="feature-item">
@@ -280,6 +284,10 @@ onMounted(() => {
                 <v-icon size="18" color="primary">mdi-check-circle</v-icon>
                 <span>Billable / non-billable entry tracking</span>
               </div>
+              <div class="feature-item highlight-feature">
+                <v-icon size="18" color="primary">mdi-check-circle</v-icon>
+                <span>Multi-user team seats &amp; collaboration</span>
+              </div>
 
               <p class="feature-section-label mt-4">Support</p>
               <div class="feature-item">
@@ -384,6 +392,10 @@ onMounted(() => {
               <div class="feature-item">
                 <v-icon size="18" color="white">mdi-check-circle</v-icon>
                 <span>Billable / non-billable tracking</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="white">mdi-check-circle</v-icon>
+                <span>Multi-user team seats &amp; collaboration</span>
               </div>
 
               <p class="feature-section-label mt-4" style="color:rgba(255,255,255,0.5);">Support</p>
