@@ -261,17 +261,24 @@ const handleRevoke = async (uid, name) => {
 
 <style scoped>
 .settings-container {
-  max-width: 900px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+  padding: 1rem;
+  background-color: #111d2f;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  color: #f1f5f9;
 }
 .settings-card {
+  width: 100%;
+  max-width: 800px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
   backdrop-filter: blur(16px);
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
   padding: 2.5rem;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  color: #f1f5f9;
 }
 .access-denied {
   border-color: rgba(239, 68, 68, 0.3);
@@ -373,6 +380,9 @@ const handleRevoke = async (uid, name) => {
   padding: 0.75rem 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   color: #e2e8f0;
+}
+.team-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
 }
 .team-table th {
   font-weight: 600;
