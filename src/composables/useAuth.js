@@ -10,7 +10,7 @@ import {
   verifyPasswordResetCode,
   confirmPasswordReset
 } from 'firebase/auth';
-import { doc, getDoc, serverTimestamp, writeBatch } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, writeBatch, collection, query, where, getDocs, updateDoc, arrayUnion, setDoc } from 'firebase/firestore';
 import { db, auth } from './useFirebase.js';
 
 // --- SHARED SINGLETON STATE ---
@@ -38,6 +38,58 @@ const fetchUserProfile = async (userId) => {
     const docSnap = await getDoc(userRef);
     if (docSnap.exists()) {
       const profile = { id: docSnap.id, ...docSnap.data() };
+      
+      // Legacy user migration check: if they don't have orgId or role, migrate them!
+      if (!profile.orgId || !profile.role) {
+        console.log("Migrating legacy user to organization model...", userId);
+        const orgId = userId;
+        const role = 'owner';
+        
+        // 1. Create organizations/{userId} doc
+        const orgRef = doc(db, 'organizations', orgId);
+        await setDoc(orgRef, {
+          ownerId: userId,
+          members: [userId],
+          createdAt: serverTimestamp()
+        }, { merge: true });
+        
+        // 2. Update user document
+        await updateDoc(userRef, {
+          orgId,
+          role
+        });
+        
+        // 3. Migrate old invoices: query where userId == userId and update them with orgId = userId
+        try {
+          const invoicesColl = collection(db, 'invoices');
+          const invoicesQ = query(invoicesColl, where('userId', '==', userId));
+          const invoicesSnap = await getDocs(invoicesQ);
+          const migrateBatch = writeBatch(db);
+          invoicesSnap.forEach(d => {
+            if (!d.data().orgId) {
+              migrateBatch.update(d.ref, { orgId: userId });
+            }
+          });
+          
+          // Migrate old projects
+          const projectsColl = collection(db, 'projects');
+          const projectsQ = query(projectsColl, where('userId', '==', userId));
+          const projectsSnap = await getDocs(projectsQ);
+          projectsSnap.forEach(d => {
+            if (!d.data().orgId) {
+              migrateBatch.update(d.ref, { orgId: userId });
+            }
+          });
+          
+          await migrateBatch.commit();
+        } catch (migErr) {
+          console.error("Error migrating user documents during org setup:", migErr);
+        }
+        
+        profile.orgId = orgId;
+        profile.role = role;
+      }
+      
       userProfile.value = profile;
       return profile;
     } else {
@@ -54,41 +106,91 @@ const fetchUserProfile = async (userId) => {
 const createInitialUserData = async (user) => {
   if (!user) return;
 
-  const batch = writeBatch(db);
-  const userRef = doc(db, 'users', user.uid);
-  
-  batch.set(userRef, {
-    uid: user.uid,
-    email: user.email,
-    name: user.displayName || 'New User',
-    photoURL: user.photoURL || null,
-    createdAt: serverTimestamp(),
-    subscriptionStatus: 'free', 
-    invoiceCount: 0,           
-  });
+  try {
+    // Check if there is an active, pending invitation for this email
+    const invitationsColl = collection(db, 'invitations');
+    const q = query(invitationsColl, where('email', '==', user.email), where('status', '==', 'pending'));
+    const inviteSnapshot = await getDocs(q);
 
-  const settingsRef = doc(db, "userSettings", user.uid);
-  batch.set(settingsRef, {
-    company: {
-        name: '',
-        address: '',
-        email: '',
-        phone: '',
-    },
-    invoiceSettings: {
-        defaultDueDateDays: 30,
-        defaultTaxRate: 0,
-    },
-    updatedAt: serverTimestamp(),
-    invoiceCounter: 0, 
-  });
+    let orgId = user.uid;
+    let role = 'owner';
+    let inviteDocId = null;
 
-  await batch.commit();
-  await fetchUserProfile(user.uid);
+    if (!inviteSnapshot.empty) {
+      // Find the first pending invitation
+      const inviteDoc = inviteSnapshot.docs[0];
+      const inviteData = inviteDoc.data();
+      orgId = inviteData.orgId;
+      role = inviteData.role || 'member';
+      inviteDocId = inviteDoc.id;
+    }
 
-  // Fire Meta Pixel registration event for tracking ad conversions
-  if (typeof window.fbq === 'function') {
-    window.fbq('track', 'CompleteRegistration');
+    const batch = writeBatch(db);
+    const userRef = doc(db, 'users', user.uid);
+    
+    // Create the user profile
+    batch.set(userRef, {
+      uid: user.uid,
+      email: user.email,
+      name: user.displayName || 'New User',
+      photoURL: user.photoURL || null,
+      createdAt: serverTimestamp(),
+      subscriptionStatus: role === 'owner' ? 'free' : 'member', // members inherit owner's sub status dynamically
+      invoiceCount: 0,
+      orgId,
+      role
+    });
+
+    if (role === 'owner') {
+      // Create settings doc for the owner (since orgSettings is userSettings/{orgId})
+      const settingsRef = doc(db, "userSettings", user.uid);
+      batch.set(settingsRef, {
+        company: {
+            name: '',
+            address: '',
+            email: '',
+            phone: '',
+        },
+        invoiceSettings: {
+            defaultDueDateDays: 30,
+            defaultTaxRate: 0,
+        },
+        updatedAt: serverTimestamp(),
+        invoiceCounter: 0, 
+      });
+
+      // Create the organization document
+      const orgRef = doc(db, 'organizations', user.uid);
+      batch.set(orgRef, {
+        ownerId: user.uid,
+        members: [user.uid],
+        createdAt: serverTimestamp()
+      });
+    } else if (inviteDocId) {
+      // Update invitation document to accept it
+      const inviteRef = doc(db, 'invitations', inviteDocId);
+      batch.update(inviteRef, {
+        status: 'accepted',
+        acceptedBy: user.uid,
+        acceptedAt: serverTimestamp()
+      });
+
+      // Add user to organization members list
+      const orgRef = doc(db, 'organizations', orgId);
+      batch.update(orgRef, {
+        members: arrayUnion(user.uid)
+      });
+    }
+
+    await batch.commit();
+    await fetchUserProfile(user.uid);
+
+    // Fire Meta Pixel registration event for tracking ad conversions
+    if (typeof window.fbq === 'function') {
+      window.fbq('track', 'CompleteRegistration');
+    }
+  } catch (err) {
+    console.error("Error creating initial user data:", err);
   }
 };
 

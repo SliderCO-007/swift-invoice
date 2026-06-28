@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuth, currentUser } from '../composables/useAuth'
+import { useAuth, currentUser, userProfile } from '../composables/useAuth'
 import Logo from './Logo.vue'
 
 const drawer = ref(false)
@@ -27,15 +27,36 @@ const guestNav = [
   { title: 'Login', to: '/login', icon: 'mdi-login' },
 ]
 
-const authNav = [
-  { title: 'Dashboard', to: '/dashboard', icon: 'mdi-view-dashboard-outline' },
-  { title: 'Projects',  to: '/projects',  icon: 'mdi-folder-multiple-outline' },
-  { title: 'Customers', to: '/customers', icon: 'mdi-account-group-outline' },
-  { title: 'Items', to: '/items', icon: 'mdi-package-variant-closed' },
-  { title: 'Reports', to: '/reports', icon: 'mdi-file-chart-outline' },
-  { title: 'Settings', to: '/settings', icon: 'mdi-cog-outline' },
-  { title: 'Upgrade', to: '/pricing', icon: 'mdi-arrow-up-bold-circle' },
-]
+const authNav = computed(() => {
+  const profile = userProfile.value;
+  const role = profile?.role || 'owner';
+  
+  if (role === 'member') {
+    return [
+      { title: 'Dashboard', to: '/dashboard', icon: 'mdi-view-dashboard-outline' },
+      { title: 'Projects',  to: '/projects',  icon: 'mdi-folder-multiple-outline' },
+      { title: 'Guide',     to: '/guide',     icon: 'mdi-help-circle-outline' },
+    ];
+  }
+  
+  // Owner nav
+  const items = [
+    { title: 'Dashboard', to: '/dashboard', icon: 'mdi-view-dashboard-outline' },
+    { title: 'Projects',  to: '/projects',  icon: 'mdi-folder-multiple-outline' },
+    { title: 'Customers', to: '/customers', icon: 'mdi-account-group-outline' },
+    { title: 'Items', to: '/items', icon: 'mdi-package-variant-closed' },
+    { title: 'Reports', to: '/reports', icon: 'mdi-file-chart-outline' },
+    { title: 'Settings', to: '/settings', icon: 'mdi-cog-outline' },
+    { title: 'Team', to: '/team', icon: 'mdi-account-multiple-plus-outline' },
+  ];
+  
+  // Only show Upgrade if not subscribed
+  if (profile?.subscriptionStatus !== 'active') {
+    items.push({ title: 'Upgrade', to: '/pricing', icon: 'mdi-arrow-up-bold-circle' });
+  }
+  
+  return items;
+});
 </script>
 
 <template>

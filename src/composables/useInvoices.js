@@ -4,7 +4,7 @@ import {
   query, where, deleteDoc, runTransaction, setDoc, deleteField, onSnapshot
 } from 'firebase/firestore';
 import { db } from './useFirebase';
-import { currentUser } from './useAuth.js';
+import { currentUser, userProfile } from './useAuth.js';
 
 const invoices = ref([]);
 const loading = ref(true);
@@ -13,12 +13,12 @@ let unsubscribe = null;
 
 const useInvoices = () => {
 
-  const setupInvoiceListener = (userId) => {
+  const setupInvoiceListener = (orgId) => {
     if (unsubscribe) {
       unsubscribe();
     }
     const invoicesCollection = collection(db, 'invoices');
-    const q = query(invoicesCollection, where('userId', '==', userId));
+    const q = query(invoicesCollection, where('orgId', '==', orgId));
 
     unsubscribe = onSnapshot(q, (querySnapshot) => {
       invoices.value = querySnapshot.docs.map(doc => {
@@ -38,14 +38,14 @@ const useInvoices = () => {
     });
   };
 
-  const fetchInvoices = async (userId) => {
+  const fetchInvoices = async (orgId) => {
     loading.value = true;
     if (unsubscribe) {
         unsubscribe();
         unsubscribe = null;
     }
 
-    if (!userId) {
+    if (!orgId) {
       invoices.value = [];
       loading.value = false;
       return;
@@ -53,7 +53,7 @@ const useInvoices = () => {
 
     try {
       const invoicesCollection = collection(db, 'invoices');
-      const q = query(invoicesCollection, where('userId', '==', userId));
+      const q = query(invoicesCollection, where('orgId', '==', orgId));
       const querySnapshot = await getDocs(q);
       invoices.value = querySnapshot.docs.map(doc => {
         const data = doc.data();
@@ -66,7 +66,7 @@ const useInvoices = () => {
           total: calculateTotal(data),
         };
       });
-      setupInvoiceListener(userId);
+      setupInvoiceListener(orgId);
     } catch (err) {
       error.value = 'Failed to fetch invoices.';
       console.error(err);
@@ -75,8 +75,12 @@ const useInvoices = () => {
     }
   };
 
-  watch(currentUser, (newUser) => {
-    fetchInvoices(newUser?.uid);
+  watch(userProfile, (newProfile) => {
+    if (newProfile) {
+      fetchInvoices(newProfile.orgId || newProfile.id);
+    } else {
+      invoices.value = [];
+    }
   }, { immediate: true });
 
   const calculateTotal = (invoice) => {
@@ -114,18 +118,23 @@ const useInvoices = () => {
     try {
       const docRef = doc(db, 'invoices', id);
       const docSnap = await getDoc(docRef);
-      if (docSnap.exists() && docSnap.data().userId === currentUser.value?.uid) {
+      if (docSnap.exists()) {
         const data = docSnap.data();
-        return {
-          id: docSnap.id,
-          ...data,
-          issueDate: data.issueDate?.toDate(),
-          dueDate: data.dueDate?.toDate(),
-          paidAt: data.paidAt?.toDate(),
-        };
-      } else {
-        throw new Error('Invoice not found or permission denied');
+        const profile = userProfile.value;
+        const orgId = profile?.orgId || profile?.id;
+        const invOrgId = data.orgId || data.userId;
+        
+        if (invOrgId === orgId || data.userId === currentUser.value?.uid) {
+          return {
+            id: docSnap.id,
+            ...data,
+            issueDate: data.issueDate?.toDate(),
+            dueDate: data.dueDate?.toDate(),
+            paidAt: data.paidAt?.toDate(),
+          };
+        }
       }
+      throw new Error('Invoice not found or permission denied');
     } catch (err) {
       error.value = `Failed to fetch invoice: ${err.message}`;
       throw err;
@@ -134,15 +143,22 @@ const useInvoices = () => {
     }
   };
 
-  const createInvoice = async (invoiceData, userId) => {
-    if (!userId || !currentUser.value) throw new Error("Authentication required.");
+  const createInvoice = async (invoiceData) => {
+    const profile = userProfile.value;
+    if (!profile) throw new Error("Authentication required.");
+    if (profile.role !== 'owner') {
+      throw new Error("Unauthorized: Only organization owners can create invoices.");
+    }
+    const orgId = profile.orgId || profile.id;
+    const userId = profile.id;
+
     loading.value = true;
     error.value = null;
 
     try {
       const newInvoiceId = await runTransaction(db, async (transaction) => {
-        const userRef = doc(db, "users", userId);
-        const settingsRef = doc(db, "userSettings", userId);
+        const userRef = doc(db, "users", orgId);
+        const settingsRef = doc(db, "userSettings", orgId);
 
         const userDoc = await transaction.get(userRef);
         const settingsDoc = await transaction.get(settingsRef);
@@ -167,7 +183,8 @@ const useInvoices = () => {
         transaction.set(newInvoiceRef, {
           ...invoiceData,
           invoiceNumber,
-          userId: userId,
+          userId: userId, // Creator
+          orgId: orgId,   // Organization
           createdAt: serverTimestamp(),
           svcFeePaid: false,
         });
@@ -178,15 +195,6 @@ const useInvoices = () => {
           transaction.update(userRef, { 
             invoiceCount: newInvoiceCount,
             subscriptionStatus: subscriptionStatus
-          });
-        } else {
-          transaction.set(userRef, {
-            uid: userId,
-            email: currentUser.value.email,
-            name: currentUser.value.displayName || 'New User',
-            createdAt: serverTimestamp(),
-            invoiceCount: 1,
-            subscriptionStatus: 'free'
           });
         }
 
@@ -251,17 +259,26 @@ const useInvoices = () => {
   };
 
   const deleteInvoice = async (id) => {
-    if (!currentUser.value) throw new Error("Authentication required.");
+    const profile = userProfile.value;
+    if (!profile) throw new Error("Authentication required.");
+    if (profile.role !== 'owner') {
+      throw new Error("Unauthorized: Only organization owners can delete invoices.");
+    }
+    const orgId = profile.orgId || profile.id;
+
     loading.value = true;
     try {
       await runTransaction(db, async (transaction) => {
         const invoiceRef = doc(db, 'invoices', id);
-        const userRef = doc(db, 'users', currentUser.value.uid);
+        const userRef = doc(db, 'users', orgId);
 
         const invoiceDoc = await transaction.get(invoiceRef);
         const userDoc = await transaction.get(userRef);
 
-        if (!invoiceDoc.exists() || invoiceDoc.data().userId !== currentUser.value.uid) {
+        const data = invoiceDoc.data();
+        const invOrgId = data?.orgId || data?.userId;
+
+        if (!invoiceDoc.exists() || invOrgId !== orgId) {
           throw new Error("Invoice not found or permission denied.");
         }
 

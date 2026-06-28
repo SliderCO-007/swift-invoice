@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { currentUser, isAuthReady } from '../composables/useAuth.js'; // Import the promise `authIsReady`
+import { currentUser, userProfile, isAuthReady } from '../composables/useAuth.js'; // Import the promise `authIsReady`
 import LandingPage from '../components/LandingPage.vue';
 import CustomersView from '../components/CustomersView.vue';
 
@@ -104,6 +104,12 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/team',
+    name: 'TeamSettings',
+    component: () => import('../components/TeamSettings.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/onboarding',
     name: 'Onboarding',
     component: () => import('../components/OnboardingWizard.vue'),
@@ -188,6 +194,7 @@ router.beforeEach(async (to, from, next) => {
   await isAuthReady;
 
   const user = currentUser.value; // Now this value is guaranteed to be correct.
+  const profile = userProfile.value;
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   const requiresGuest = to.matched.some(record => record.meta.requiresGuest);
 
@@ -198,6 +205,26 @@ router.beforeEach(async (to, from, next) => {
     // If a route is for guests only (like login/register) and the user is logged in, redirect to the dashboard.
     next({ name: 'Dashboard' });
   } else {
+    // Check role-based route access for members
+    if (user && profile && profile.role === 'member') {
+      const ownerOnlyRoutes = [
+        'Settings', 'Onboarding', 'Reports', 'TeamSettings', 
+        'ProjectNew', 'ProjectEdit', 'Customers', 'Items'
+      ];
+      
+      if (ownerOnlyRoutes.includes(to.name)) {
+        console.warn(`User with role 'member' blocked from route: ${to.name}`);
+        next({ name: 'Dashboard' });
+        return;
+      }
+      
+      // Also block from creating guest invoices if logged in as member
+      if (to.name === 'InvoiceNew') {
+        next({ name: 'Dashboard' });
+        return;
+      }
+    }
+    
     // Otherwise, allow navigation.
     next();
   }

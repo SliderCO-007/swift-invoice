@@ -1,7 +1,7 @@
 import { ref, onUnmounted } from 'vue';
-import { collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc, query, where } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc, query } from 'firebase/firestore';
 import { db } from './useFirebase';
-import { currentUser as user } from './useAuth';
+import { userProfile } from './useAuth';
 
 export const useItems = () => {
   const items = ref([]);
@@ -9,9 +9,15 @@ export const useItems = () => {
   const error = ref(null);
   let unsubscribe = null;
 
-  const itemsCollection = user.value ? collection(db, 'users', user.value.uid, 'items') : null;
+  const getItemsCollection = () => {
+    const profile = userProfile.value;
+    if (!profile) return null;
+    const orgId = profile.orgId || profile.id;
+    return collection(db, 'users', orgId, 'items');
+  };
 
   const fetchItems = () => {
+    const itemsCollection = getItemsCollection();
     if (!itemsCollection) {
       error.value = new Error("User not authenticated.");
       loading.value = false;
@@ -32,6 +38,7 @@ export const useItems = () => {
   };
 
   const addItem = async (item) => {
+    const itemsCollection = getItemsCollection();
     if (!itemsCollection) return;
     try {
       await addDoc(itemsCollection, item);
@@ -42,6 +49,7 @@ export const useItems = () => {
   };
 
   const updateItem = async (id, data) => {
+    const itemsCollection = getItemsCollection();
     if (!itemsCollection) return;
     try {
       const itemDoc = doc(itemsCollection, id);
@@ -53,6 +61,7 @@ export const useItems = () => {
   };
 
   const deleteItem = async (id) => {
+    const itemsCollection = getItemsCollection();
     if (!itemsCollection) return;
     try {
       const itemDoc = doc(itemsCollection, id);

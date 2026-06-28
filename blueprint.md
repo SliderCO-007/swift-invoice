@@ -756,3 +756,58 @@ Resolve the issue where a deleted/invalid Stripe Connect ID stored in Firestore 
 - **Verify Dashboard Banner**: Verify that a red, glassmorphic "Stripe Payment Account Issue" banner is displayed on the dashboard with a "Reconnect Stripe" button and support email.
 - **Verify Settings Page**: Verify that the Stripe status badge displays "Connection Error" in red.
 - **Verify Onboarding Wizard**: Verify that the onboarding wizard displays a status banner informing them of the Stripe account issue and prompts them to connect again.
+
+
+## Multi-User Seats & Invitations (v34)
+
+### Purpose
+Implement multi-user seats and team invitation flow for paid subscribers. Owners can invite members by email, and members will inherit organization settings and have restricted read/write access to projects and entries, without access to invoices, settings, reports, or Stripe connections.
+
+### Proposed Changes
+
+#### [MODIFY] [firestore.rules](file:///C:/Users/curth/git/swift-invoice/firestore.rules)
+- Update collections rules for `users`, `userSettings`, `invoices`, `projects`, and `entries` to check for organization member/owner permissions.
+- Create security rules for the new `organizations` and `invitations` collections.
+
+#### [MODIFY] [src/composables/useAuth.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useAuth.js)
+- Update `createInitialUserData` to check for pending invitations by email, accept them, set user's `orgId` to the invited org, and set `role` to `'member'`.
+- If no pending invitation exists, create a new organization `organizations/{userId}` with `ownerId: userId` and `members: [userId]`, setting the user's `orgId` to `userId` and `role` to `'owner'`.
+- In `fetchUserProfile`, automatically migrate legacy users who do not have `orgId` set by creating their organization and updating their user doc.
+
+#### [NEW] [src/composables/useOrganization.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useOrganization.js)
+- A new composable to manage team invitations and members list:
+  - `inviteMember(email)`: Owner creates an invitation.
+  - `revokeMember(uid)`: Owner removes a member from the organization members list and updates the member's user profile.
+  - `fetchTeamMembers()`: Retrieves all users who belong to the same `orgId`.
+  - `fetchInvitations()`: Retrieves pending and accepted invitations for the organization.
+
+#### [MODIFY] [src/composables/useInvoices.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useInvoices.js)
+- Update querying to filter by `orgId` (or fall back to `userId` for safety) instead of individual `userId`.
+- Set `orgId` on invoice creation from the active user's profile metadata.
+
+#### [MODIFY] [src/composables/useProjects.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useProjects.js)
+- Update querying to filter by `orgId` instead of `userId`.
+- Set `orgId` on project creation.
+
+#### [MODIFY] [src/composables/useCustomers.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useCustomers.js)
+- Update customers subcollection path or query to use `orgId` instead of individual user uid.
+- Wait, since customer subcollection was under `users/{userId}/customers`, if we want sharing, we can keep using the organization owner's `orgId` as the parent `users/{orgId}/customers` directory! This is perfect.
+
+#### [MODIFY] [src/composables/useItems.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useItems.js)
+- Update items subcollection path to use `orgId` as parent `users/{orgId}/items` to share frequent items list.
+
+#### [NEW] [src/components/TeamSettings.vue](file:///C:/Users/curth/git/swift-invoice/src/components/TeamSettings.vue)
+- Create a team management panel for Owners, permitting them to invite new users, view pending invitations, and revoke member seats.
+
+#### [MODIFY] [src/router/index.js](file:///C:/Users/curth/git/swift-invoice/src/router/index.js)
+- Add route protection: members cannot visit `/invoice/new`, `/onboarding`, or `/reports`.
+
+#### [MODIFY] [src/components/AppBar.vue](file:///C:/Users/curth/git/swift-invoice/src/components/AppBar.vue)
+- Hide links to Invoices, Settings, Reports for members, rendering only Projects and Guide. Add link to Team Settings for Owners.
+
+### Verification Plan
+- **Legacy User Migration**: Verify old accounts automatically create their organization and inherit `orgId`/`role: owner`.
+- **Invitation Flow**: Owner invites a new email. Verify the invitation creates in Firestore. Sign up as a new user with that email. Verify the account is created with `role: member` and `orgId` of the owner, and added to the organization members array.
+- **Rules Enforcement**: Verify a Member cannot write invoices or edit settings. Verify a Member can create/edit projects and entries.
+- **UI Gating**: Verify Member accounts have a clean dashboard showing only projects and guide, without access to invoices.
+

@@ -3,8 +3,10 @@ import { ref, computed, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import useProjects from '../composables/useProjects';
 import { useItems } from '../composables/useItems';
-import { currentUser } from '../composables/useAuth';
+import { currentUser, userProfile } from '../composables/useAuth';
 import ReceiptViewer from './ReceiptViewer.vue';
+
+const isOwner = computed(() => userProfile.value?.role === 'owner');
 
 const router = useRouter();
 const route  = useRoute();
@@ -225,7 +227,7 @@ onUnmounted(() => { stopEntries(); stopItems(); });
               </span>
             </div>
           </div>
-          <div class="header-actions">
+          <div class="header-actions" v-if="isOwner">
             <v-btn :to="{ name: 'ProjectEdit', params: { id: projectId } }" variant="outlined" color="white" size="small" prepend-icon="mdi-pencil" class="mr-2">Edit</v-btn>
             <v-btn @click="convertToInvoice" color="primary" size="small" prepend-icon="mdi-file-document-arrow-right" rounded="pill">Convert to Invoice</v-btn>
           </div>

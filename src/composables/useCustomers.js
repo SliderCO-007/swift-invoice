@@ -1,7 +1,7 @@
 import { ref, watch } from 'vue';
 import { collection, onSnapshot, query, addDoc, updateDoc, deleteDoc, doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from './useFirebase';
-import { currentUser } from './useAuth';
+import { currentUser, userProfile } from './useAuth';
 
 // --- SHARED STATE (SINGLETON) ---
 const customers = ref([]);
@@ -11,15 +11,15 @@ let unsubscribe = null; // To hold the onSnapshot unsubscribe function
 
 // --- REACTIVE LISTENER SETUP ---
 
-const setupCustomerListener = (userId) => {
+const setupCustomerListener = (orgId) => {
   // If a listener is already active, unsubscribe from it first.
   if (unsubscribe) {
     unsubscribe();
     unsubscribe = null;
   }
 
-  // If no user is logged in, supply a mock customer for demo and autocomplete preview.
-  if (!userId) {
+  // If no organization is set, supply a mock customer for demo and autocomplete preview.
+  if (!orgId) {
     customers.value = [
       {
         id: 'mock-john-smith',
@@ -38,7 +38,7 @@ const setupCustomerListener = (userId) => {
   }
 
   loading.value = true;
-  const customersCollection = collection(db, 'users', userId, 'customers');
+  const customersCollection = collection(db, 'users', orgId, 'customers');
   const q = query(customersCollection);
 
   // Attach the real-time listener.
@@ -55,10 +55,9 @@ const setupCustomerListener = (userId) => {
 
 // --- AUTH STATE WATCHER ---
 
-// Watch for changes in the authenticated user (login/logout).
-// The { immediate: true } option ensures this runs as soon as the app loads.
-watch(currentUser, (newUser) => {
-  setupCustomerListener(newUser?.uid);
+// Watch for changes in the authenticated user profile.
+watch(userProfile, (newProfile) => {
+  setupCustomerListener(newProfile?.orgId || newProfile?.id);
 }, { immediate: true });
 
 
@@ -67,11 +66,12 @@ watch(currentUser, (newUser) => {
 export function useCustomers() {
 
   const addCustomer = async (customerData) => {
-    const user = currentUser.value;
-    if (!user) throw new Error("User not authenticated");
+    const profile = userProfile.value;
+    if (!profile) throw new Error("User not authenticated");
+    const orgId = profile.orgId || profile.id;
 
     try {
-      const customersCollection = collection(db, 'users', user.uid, 'customers');
+      const customersCollection = collection(db, 'users', orgId, 'customers');
       await addDoc(customersCollection, customerData);
     } catch (err) {
       console.error("Error adding customer:", err);
@@ -80,11 +80,12 @@ export function useCustomers() {
   };
 
   const updateCustomer = async (customerId, updatedData) => {
-    const user = currentUser.value;
-    if (!user) throw new Error("User not authenticated");
+    const profile = userProfile.value;
+    if (!profile) throw new Error("User not authenticated");
+    const orgId = profile.orgId || profile.id;
 
     try {
-      const customerDoc = doc(db, 'users', user.uid, 'customers', customerId);
+      const customerDoc = doc(db, 'users', orgId, 'customers', customerId);
       await updateDoc(customerDoc, updatedData);
     } catch (err) {
       console.error("Error updating customer:", err);
@@ -93,11 +94,12 @@ export function useCustomers() {
   };
 
   const deleteCustomer = async (customerId) => {
-    const user = currentUser.value;
-    if (!user) throw new Error("User not authenticated");
+    const profile = userProfile.value;
+    if (!profile) throw new Error("User not authenticated");
+    const orgId = profile.orgId || profile.id;
 
     try {
-      const customerDoc = doc(db, 'users', user.uid, 'customers', customerId);
+      const customerDoc = doc(db, 'users', orgId, 'customers', customerId);
       await deleteDoc(customerDoc);
     } catch (err) {
       console.error("Error deleting customer:", err);

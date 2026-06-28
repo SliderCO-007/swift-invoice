@@ -5,7 +5,7 @@ import {
 } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from './useFirebase';
-import { currentUser } from './useAuth.js';
+import { currentUser, userProfile } from './useAuth.js';
 import { useCustomers } from './useCustomers';
 
 // --- Module-level singleton state ---
@@ -19,12 +19,12 @@ const useProjects = () => {
   // ---------------------------------------------------------------
   // Project listener (mirrors useInvoices pattern)
   // ---------------------------------------------------------------
-  const setupProjectListener = (userId) => {
+  const setupProjectListener = (orgId) => {
     if (unsubscribe) unsubscribe();
 
     const q = query(
       collection(db, 'projects'),
-      where('userId', '==', userId)
+      where('orgId', '==', orgId)
     );
 
     unsubscribe = onSnapshot(q, (snapshot) => {
@@ -44,10 +44,10 @@ const useProjects = () => {
     });
   };
 
-  watch(currentUser, (newUser) => {
-    if (newUser?.uid) {
+  watch(userProfile, (newProfile) => {
+    if (newProfile) {
       loading.value = true;
-      setupProjectListener(newUser.uid);
+      setupProjectListener(newProfile.orgId || newProfile.id);
     } else {
       if (unsubscribe) unsubscribe();
       projects.value = [];
@@ -59,10 +59,18 @@ const useProjects = () => {
   // Project CRUD
   // ---------------------------------------------------------------
   const createProject = async (data) => {
-    if (!currentUser.value?.uid) throw new Error('Authentication required.');
+    const profile = userProfile.value;
+    if (!profile) throw new Error('Authentication required.');
+    if (profile.role !== 'owner') {
+      throw new Error('Unauthorized: Only organization owners can create projects.');
+    }
+    const orgId = profile.orgId || profile.id;
+    const userId = profile.id;
+
     const docRef = await addDoc(collection(db, 'projects'), {
       ...data,
-      userId: currentUser.value.uid,
+      userId: userId, // Creator
+      orgId: orgId,   // Organization
       status: data.status || 'active',
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -78,13 +86,31 @@ const useProjects = () => {
   };
 
   const deleteProject = async (id) => {
-    await deleteDoc(doc(db, 'projects', id));
+    const profile = userProfile.value;
+    if (!profile) throw new Error('Authentication required.');
+    if (profile.role !== 'owner') {
+      throw new Error('Unauthorized: Only organization owners can delete projects.');
+    }
+    const orgId = profile.orgId || profile.id;
+    const snap = await getDoc(doc(db, 'projects', id));
+    if (snap.exists() && (snap.data().orgId || snap.data().userId) === orgId) {
+      await deleteDoc(doc(db, 'projects', id));
+    } else {
+      throw new Error('Permission denied or project not found.');
+    }
   };
 
   const getProject = async (id) => {
     const snap = await getDoc(doc(db, 'projects', id));
     if (!snap.exists()) throw new Error('Project not found.');
-    return { id: snap.id, ...snap.data() };
+    const data = snap.data();
+    const profile = userProfile.value;
+    const orgId = profile?.orgId || profile?.id;
+    const projOrgId = data.orgId || data.userId;
+    if (projOrgId !== orgId && data.userId !== currentUser.value?.uid) {
+      throw new Error('Permission denied.');
+    }
+    return { id: snap.id, ...data };
   };
 
   // ---------------------------------------------------------------

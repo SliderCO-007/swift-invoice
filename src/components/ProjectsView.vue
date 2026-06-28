@@ -13,6 +13,10 @@ const isPaidUser = computed(() =>
   userProfile.value?.subscriptionStatus === 'active'
 );
 
+const isOwner = computed(() =>
+  userProfile.value?.role === 'owner'
+);
+
 const filterTab = computed({
   get: () => router.currentRoute.value.query.status || 'all',
   set: (val) => router.replace({ query: val === 'all' ? {} : { status: val } }),
@@ -56,6 +60,7 @@ const formatCurrency = (val) =>
           <p class="projects-subtitle">Track time and expenses, then convert to an invoice.</p>
         </div>
         <v-btn
+          v-if="isOwner"
           color="primary"
           :to="{ name: 'ProjectNew' }"
           prepend-icon="mdi-plus"
@@ -65,7 +70,7 @@ const formatCurrency = (val) =>
       </header>
 
       <!-- Free Plan Project Alert Banner -->
-      <div v-if="!isPaidUser" class="free-projects-banner mb-6">
+      <div v-if="!isPaidUser && isOwner" class="free-projects-banner mb-6">
         <v-icon icon="mdi-information-outline" color="primary" class="mr-3" />
         <div class="banner-text">
           <strong>Project tracking is fully enabled on your Free Plan!</strong> 
@@ -94,7 +99,7 @@ const formatCurrency = (val) =>
         <v-icon icon="mdi-folder-open-outline" size="72" color="rgba(255,255,255,0.15)" />
         <p class="mt-4" style="color:#94a3b8;">No {{ filterTab === 'all' ? '' : filterTab + ' ' }}projects yet.</p>
         <v-btn
-          v-if="filterTab === 'all'"
+          v-if="filterTab === 'all' && isOwner"
           :to="{ name: 'ProjectNew' }"
           color="primary"
           variant="tonal"

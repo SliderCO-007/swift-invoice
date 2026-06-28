@@ -3,7 +3,7 @@ import { doc, setDoc, getDoc, onSnapshot } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage, functions } from './useFirebase';
 import { httpsCallable } from 'firebase/functions';
-import { currentUser } from './useAuth';
+import { currentUser, userProfile } from './useAuth';
 
 function getInitialSettings() {
   return {
@@ -30,10 +30,11 @@ watchEffect(() => {
     unsubscribe = null;
   }
 
-  const user = currentUser.value;
-  if (user) {
+  const profile = userProfile.value;
+  if (profile) {
     loading.value = true;
-    const docRef = doc(db, 'userSettings', user.uid);
+    const orgId = profile.orgId || profile.id;
+    const docRef = doc(db, 'userSettings', orgId);
     
     unsubscribe = onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
@@ -60,15 +61,16 @@ watchEffect(() => {
 });
 
 const fetchUserSettings = async () => {
-    const user = currentUser.value;
-    if (!user) {
+    const profile = userProfile.value;
+    if (!profile) {
         settings.value = getInitialSettings();
         return settings.value;
     }
     
+    const orgId = profile.orgId || profile.id;
     loading.value = true;
     try {
-        const docRef = doc(db, 'userSettings', user.uid);
+        const docRef = doc(db, 'userSettings', orgId);
         const docSnap = await getDoc(docRef);
         
         if (docSnap.exists()) {
@@ -97,16 +99,18 @@ const fetchUserSettings = async () => {
 };
 
 const saveUserSettings = async (newSettings, logoFile) => {
-  const user = currentUser.value;
-  if (!user) throw new Error("User not authenticated.");
+  const profile = userProfile.value;
+  if (!profile) throw new Error("User not authenticated.");
+  if (profile.role !== 'owner') throw new Error("Unauthorized: Only organization owners can edit settings.");
 
+  const orgId = profile.orgId || profile.id;
   loading.value = true;
   error.value = null;
 
   try {
     let logoUrl = newSettings.company.logoUrl;
     if (logoFile) {
-      const logoStorageRef = storageRef(storage, `logos/${user.uid}/${logoFile.name}`);
+      const logoStorageRef = storageRef(storage, `logos/${orgId}/${logoFile.name}`);
       await uploadBytes(logoStorageRef, logoFile);
       logoUrl = await getDownloadURL(logoStorageRef);
     }
@@ -116,7 +120,7 @@ const saveUserSettings = async (newSettings, logoFile) => {
       company: { ...newSettings.company, logoUrl },
     };
     
-    const docRef = doc(db, 'userSettings', user.uid);
+    const docRef = doc(db, 'userSettings', orgId);
     await setDoc(docRef, settingsToSave, { merge: true });
 
   } catch (err) {

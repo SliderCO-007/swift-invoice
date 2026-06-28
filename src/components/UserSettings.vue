@@ -141,6 +141,14 @@ const goToPricing = () => {
         </div>
       </div>
 
+      <div class="preview-section mt-4">
+        <h3>Team Management</h3>
+        <p>Invite team members to log project hours and scan receipts, and manage active seats.</p>
+        <v-btn @click="router.push({ name: 'TeamSettings' })" class="preview-btn" color="indigo-darken-3">
+          Manage Team
+        </v-btn>
+      </div>
+
       <form @submit.prevent="handleSave" class="settings-form">
         
         <div class="uploaders-section">
