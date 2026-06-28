@@ -3,6 +3,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import useProjects from '../composables/useProjects';
 import { useCustomers } from '../composables/useCustomers';
+import { useOrganization } from '../composables/useOrganization';
 
 const router = useRouter();
 const route  = useRoute();
@@ -12,6 +13,8 @@ const { customers } = useCustomers();
 const isEdit   = computed(() => !!route.params.id);
 const pageTitle = computed(() => isEdit.value ? 'Edit Project' : 'New Project');
 
+const { teamMembers } = useOrganization();
+
 const form = ref({
   name:        '',
   clientName:  '',
@@ -19,6 +22,16 @@ const form = ref({
   description: '',
   defaultRate: 0,
   status:      'active',
+  assignedMembers: []
+});
+
+const teamMembersList = computed(() => {
+  return teamMembers.value
+    .filter(m => m.role !== 'owner')
+    .map(m => ({
+      name: m.name || m.email,
+      uid: m.uid || m.id
+    }));
 });
 
 const selectedCustomer = ref(null);
@@ -38,7 +51,10 @@ onMounted(async () => {
   if (isEdit.value) {
     try {
       const project = await getProject(route.params.id);
-      Object.assign(form.value, project);
+      Object.assign(form.value, {
+        assignedMembers: [],
+        ...project
+      });
     } catch (err) {
       formError.value = 'Could not load project.';
     }
@@ -164,6 +180,25 @@ const cancel = () => {
             <v-radio label="Completed" value="completed" />
             <v-radio label="Archived"  value="archived"  />
           </v-radio-group>
+        </div>
+
+        <!-- Team Assignment -->
+        <div class="field-group mt-4">
+          <label class="field-label">Assign Team Members</label>
+          <v-select
+            v-model="form.assignedMembers"
+            :items="teamMembersList"
+            item-title="name"
+            item-value="uid"
+            multiple
+            chips
+            closable-chips
+            clearable
+            placeholder="Select team members to assign"
+            variant="solo"
+            density="comfortable"
+            hide-details
+          />
         </div>
 
         <!-- Actions -->

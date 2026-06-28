@@ -19,13 +19,24 @@ const useProjects = () => {
   // ---------------------------------------------------------------
   // Project listener (mirrors useInvoices pattern)
   // ---------------------------------------------------------------
-  const setupProjectListener = (orgId) => {
+  const setupProjectListener = (profile) => {
     if (unsubscribe) unsubscribe();
 
-    const q = query(
-      collection(db, 'projects'),
-      where('orgId', '==', orgId)
-    );
+    const orgId = profile.orgId || profile.id;
+    let q;
+
+    if (profile.role === 'member') {
+      q = query(
+        collection(db, 'projects'),
+        where('orgId', '==', orgId),
+        where('assignedMembers', 'array-contains', profile.id)
+      );
+    } else {
+      q = query(
+        collection(db, 'projects'),
+        where('orgId', '==', orgId)
+      );
+    }
 
     unsubscribe = onSnapshot(q, (snapshot) => {
       projects.value = snapshot.docs
@@ -47,7 +58,7 @@ const useProjects = () => {
   watch(userProfile, (newProfile) => {
     if (newProfile) {
       loading.value = true;
-      setupProjectListener(newProfile.orgId || newProfile.id);
+      setupProjectListener(newProfile);
     } else {
       if (unsubscribe) unsubscribe();
       projects.value = [];

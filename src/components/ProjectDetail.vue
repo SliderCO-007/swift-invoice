@@ -4,9 +4,19 @@ import { useRouter, useRoute } from 'vue-router';
 import useProjects from '../composables/useProjects';
 import { useItems } from '../composables/useItems';
 import { currentUser, userProfile } from '../composables/useAuth';
+import { useOrganization } from '../composables/useOrganization';
 import ReceiptViewer from './ReceiptViewer.vue';
 
 const isOwner = computed(() => userProfile.value?.role === 'owner');
+const { teamMembers } = useOrganization();
+
+const assignedMembersNames = computed(() => {
+  if (!project.value?.assignedMembers || !teamMembers.value.length) return [];
+  return project.value.assignedMembers.map(uid => {
+    const member = teamMembers.value.find(m => (m.uid || m.id) === uid);
+    return member ? (member.name || member.email) : 'Unknown User';
+  });
+});
 
 const router = useRouter();
 const route  = useRoute();
@@ -224,6 +234,10 @@ onUnmounted(() => { stopEntries(); stopItems(); });
               <v-chip :color="statusColor(project.status)" size="small" variant="tonal" class="mr-2">{{ project.status }}</v-chip>
               <span class="client-name" v-if="project.clientName">
                 <v-icon icon="mdi-account-outline" size="14" class="mr-1" />{{ project.clientName }}
+              </span>
+              <span v-if="assignedMembersNames.length" class="client-name ml-4">
+                <v-icon icon="mdi-account-group-outline" size="14" class="mr-1" />
+                Assigned: {{ assignedMembersNames.join(', ') }}
               </span>
             </div>
           </div>

@@ -67,17 +67,22 @@ service cloud.firestore {
     }
 
     match /projects/{projectId} {
-      // Any organization member can read the project, but only the owner can update/delete it.
-      allow read: if request.auth != null && isOrgMember(resource.data.orgId);
-      allow update, delete: if isOrgOwner(resource.data.orgId);
-      
-      // Only organization owners can create a project.
-      allow create: if request.auth != null && isOrgOwner(request.resource.data.orgId);
+      allow read: if request.auth != null && (
+        isOrgOwner(resource.data.orgId) ||
+        (isOrgMember(resource.data.orgId) && 
+         'assignedMembers' in resource.data && 
+         request.auth.uid in resource.data.assignedMembers)
+      );
+      allow create, update, delete: if request.auth != null && isOrgOwner(resource.data.orgId);
 
-      // Entries subcollection — any organization member may access/create entries.
+      // Entries subcollection
       match /entries/{entryId} {
-        allow read, write, create, delete: if request.auth != null &&
-          isOrgMember(get(/databases/$(database)/documents/projects/$(projectId)).data.orgId);
+        allow read, write, create, delete: if request.auth != null && (
+          isOrgOwner(get(/databases/$(database)/documents/projects/$(projectId)).data.orgId) ||
+          (isOrgMember(get(/databases/$(database)/documents/projects/$(projectId)).data.orgId) &&
+           'assignedMembers' in get(/databases/$(database)/documents/projects/$(projectId)).data &&
+           request.auth.uid in get(/databases/$(database)/documents/projects/$(projectId)).data.assignedMembers)
+        );
       }
     }
 
