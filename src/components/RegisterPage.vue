@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useAuth, currentUser } from '../composables/useAuth.js';
+import { useAuth, currentUser, userProfile } from '../composables/useAuth.js';
 import Logo from './Logo.vue';
 
 const name = ref('');
@@ -23,12 +23,14 @@ const handleGoogleSignIn = async () => {
   await googleLogin(); // Corrected function name
 };
 
-// --- Watch for successful authentication ---
-// Watch the globally shared currentUser for changes
-watch(currentUser, (user) => {
-  if (user) {
+// --- Watch for successful profile loading and redirect ---
+// Watch userProfile to check user role before redirecting
+watch(userProfile, (profile) => {
+  if (profile) {
     if (route.query.redirect) {
       router.push(route.query.redirect);
+    } else if (profile.role === 'member') {
+      router.push('/projects');
     } else {
       router.push('/onboarding');
     }

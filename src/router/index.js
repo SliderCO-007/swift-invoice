@@ -209,18 +209,18 @@ router.beforeEach(async (to, from, next) => {
     if (user && profile && profile.role === 'member') {
       const ownerOnlyRoutes = [
         'Settings', 'Onboarding', 'Reports', 'TeamSettings', 
-        'ProjectNew', 'ProjectEdit', 'Customers', 'Items'
+        'ProjectNew', 'ProjectEdit', 'Customers', 'Items', 'Dashboard'
       ];
       
       if (ownerOnlyRoutes.includes(to.name)) {
         console.warn(`User with role 'member' blocked from route: ${to.name}`);
-        next({ name: 'Dashboard' });
+        next({ name: 'Projects' });
         return;
       }
       
       // Also block from creating guest invoices if logged in as member
       if (to.name === 'InvoiceNew') {
-        next({ name: 'Dashboard' });
+        next({ name: 'Projects' });
         return;
       }
     }
