@@ -28,20 +28,11 @@
               <div
                 class="d-flex flex-column flex-sm-row flex-wrap ga-4 mt-8 align-center justify-center justify-md-start"
               >
-                <v-btn
-                  to="/invoice/new"
-                  class="font-weight-bold px-10 cta-btn cta-btn-guest"
-                  size="x-large"
-                  rounded="xl"
-                  :block="mobile"
-                >
-                  <v-icon left size="24" class="mr-2">mdi-file-document-edit-outline</v-icon>
-                  Create Free Invoice
-                </v-btn>
+                <!-- Google Button (Primary) -->
                 <v-btn
                   @click="handleGoogleSignIn"
                   :loading="loading"
-                  class="font-weight-bold px-10 cta-btn cta-btn-google"
+                  class="font-weight-bold px-10 cta-btn cta-btn-primary"
                   size="x-large"
                   rounded="xl"
                   :block="mobile"
@@ -73,35 +64,45 @@
                   </svg>
                   Start Free with Google
                 </v-btn>
+
+                <!-- Create Guest Invoice (Secondary Outline) -->
                 <v-btn
-                  to="/register"
-                  class="font-weight-bold px-10 cta-btn cta-btn-email"
+                  to="/invoice/new"
+                  class="font-weight-bold px-10 cta-btn cta-btn-secondary"
                   size="x-large"
                   rounded="xl"
                   :block="mobile"
                 >
-                  <v-icon left size="24" class="mr-2">mdi-email-outline</v-icon>
-                  Or continue with email
+                  <v-icon left size="24" class="mr-2">mdi-file-document-edit-outline</v-icon>
+                  Create Guest Invoice
                 </v-btn>
               </div>
-              <p
-                class="mt-4 text-caption text-sm-body-2 text-blue-grey-lighten-2 d-flex align-center justify-center justify-md-start"
-              >
-                <v-icon size="small" class="mr-1">mdi-check-circle-outline</v-icon>
-                Get started for free. No credit card required.
-              </p>
-              <div class="mt-6 d-flex justify-center justify-md-start">
-                <v-btn
+
+              <!-- Email Link & Demo Button Row -->
+              <div class="mt-6 d-flex flex-column flex-sm-row align-center justify-center justify-md-start ga-6">
+                <router-link to="/register" class="email-signup-link text-body-2 text-blue-grey-lighten-2 text-decoration-none">
+                  <v-icon size="16" class="mr-1">mdi-email-outline</v-icon>
+                  Or sign up with email
+                </router-link>
+
+                <div class="d-none d-sm-block text-blue-grey-darken-3">|</div>
+
+                <a
                   @click="openVideoModal"
-                  class="play-demo-btn px-6"
-                  size="large"
-                  rounded="xl"
-                  :block="mobile"
+                  class="play-demo-link text-body-2 text-blue-grey-lighten-2 text-decoration-none cursor-pointer d-flex align-center"
                 >
-                  <v-icon left class="mr-2">mdi-play-circle-outline</v-icon>
+                  <v-icon size="18" class="mr-1">mdi-play-circle-outline</v-icon>
                   Watch 2-Min Demo
-                </v-btn>
+                </a>
               </div>
+
+              <!-- Risk-reduction info -->
+              <p
+                class="mt-6 text-caption text-sm-body-2 text-blue-grey-lighten-2 d-flex align-center justify-center justify-md-start"
+              >
+                <v-icon size="small" class="mr-1" color="success">mdi-shield-check-outline</v-icon>
+                Free tier includes 1 active project & 3 entries. No credit card required.
+              </p>
               <div
                 class="mt-8 d-flex flex-column flex-sm-row align-center justify-center justify-md-start ga-4"
               >
@@ -237,6 +238,52 @@
               <div class="badge-content">
                 <div class="badge-title">1-Click Conversion</div>
                 <div class="badge-subtitle">1-Click conversion from project work directly into pre-filled invoices</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Social Proof Section -->
+      <section class="social-proof">
+        <div class="container">
+          <div class="social-proof-wrapper">
+            <div class="trust-score-block">
+              <div class="d-flex align-center justify-center justify-md-start mb-2">
+                <span class="text-h4 font-weight-bold text-white mr-3">4.8</span>
+                <div>
+                  <div class="d-flex align-center">
+                    <v-icon color="warning" size="small" v-for="n in 5" :key="n">mdi-star</v-icon>
+                  </div>
+                  <div class="text-caption text-grey-lighten-1 mt-0.5">Trustpilot Rating</div>
+                </div>
+              </div>
+              <p class="text-body-2 text-blue-grey-lighten-2 mb-0">
+                Loved by 20,000+ freelancers and agency owners worldwide.
+              </p>
+            </div>
+            
+            <div class="proof-divider d-none d-md-block"></div>
+            
+            <div class="testimonials-grid">
+              <div class="testimonial-card">
+                <p class="testimonial-text">
+                  "ScanGo saved me hours. I snap expense receipts on site, track my hours, and send a client-ready invoice in one click."
+                </p>
+                <div class="d-flex align-center">
+                  <v-avatar size="28" class="mr-2 bg-indigo-darken-1 text-white text-caption font-weight-bold">S</v-avatar>
+                  <span class="testimonial-author">Sarah M. <span class="author-role">• Consultant</span></span>
+                </div>
+              </div>
+              
+              <div class="testimonial-card">
+                <p class="testimonial-text">
+                  "Clients love the Scan-to-Pay QR code. They scan it on their phone, pay instantly, and the cash lands in my bank in 2 days."
+                </p>
+                <div class="d-flex align-center">
+                  <v-avatar size="28" class="mr-2 bg-pink-darken-1 text-white text-caption font-weight-bold">M</v-avatar>
+                  <span class="testimonial-author">Marcus T. <span class="author-role">• Freelance Developer</span></span>
+                </div>
               </div>
             </div>
           </div>
@@ -1434,46 +1481,147 @@ main section[id] {
   transform: translateY(-2px) !important;
 }
 
-.cta-btn-google {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  box-shadow: 0 8px 25px rgba(30, 41, 59, 0.5), 0 0 1px 1px rgba(255, 255, 255, 0.08) !important;
+.cta-btn-primary {
+  background: linear-gradient(135deg, #4ade80 0%, #06b6d4 100%) !important;
+  color: #0f172a !important;
+  font-weight: 700 !important;
+  border: none !important;
+  box-shadow: 0 8px 30px rgba(6, 182, 212, 0.4), 0 0 15px rgba(74, 222, 128, 0.2) !important;
 }
 
-.cta-btn-google:hover {
-  background: linear-gradient(135deg, #334155 0%, #1e293b 100%) !important;
-  border-color: rgba(255, 255, 255, 0.25) !important;
-  box-shadow: 0 12px 35px rgba(30, 41, 59, 0.7), 0 0 1px 1px rgba(255, 255, 255, 0.15) !important;
+.cta-btn-primary:hover {
+  background: linear-gradient(135deg, #34d399 0%, #22d3ee 100%) !important;
+  box-shadow: 0 12px 35px rgba(6, 182, 212, 0.6), 0 0 20px rgba(74, 222, 128, 0.3) !important;
   transform: translateY(-3px) !important;
 }
 
-.cta-btn-email {
-  background: linear-gradient(135deg, #059669 0%, #0d9488 100%) !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(74, 222, 128, 0.2) !important;
-  box-shadow: 0 8px 25px rgba(13, 148, 136, 0.35) !important;
+.cta-btn-secondary {
+  background: rgba(255, 255, 255, 0.02) !important;
+  color: #f1f5f9 !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  box-shadow: none !important;
 }
 
-.cta-btn-email:hover {
-  background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%) !important;
-  border-color: rgba(74, 222, 128, 0.4) !important;
-  box-shadow: 0 12px 35px rgba(13, 148, 136, 0.55) !important;
+.cta-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
   transform: translateY(-3px) !important;
 }
 
-.cta-btn-guest {
-  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(34, 211, 238, 0.25) !important;
-  box-shadow: 0 8px 25px rgba(6, 182, 212, 0.45), 0 0 10px rgba(6, 182, 212, 0.2) !important;
+.email-signup-link, .play-demo-link {
+  color: #94a3b8 !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
 }
 
-.cta-btn-guest:hover {
-  background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%) !important;
-  border-color: rgba(34, 211, 238, 0.45) !important;
-  box-shadow: 0 12px 35px rgba(6, 182, 212, 0.65), 0 0 15px rgba(6, 182, 212, 0.3) !important;
-  transform: translateY(-3px) !important;
+.email-signup-link:hover, .play-demo-link:hover {
+  color: #ffffff !important;
+  text-shadow: 0 0 8px rgba(6, 182, 212, 0.4) !important;
+}
+
+/* Social Proof Styles */
+.social-proof {
+  padding: 3rem 0;
+  background-color: #111d2f;
+  border-top: 1px solid rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.social-proof-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+@media (min-width: 960px) {
+  .social-proof-wrapper {
+    flex-direction: row;
+    align-items: center;
+  }
+  .trust-score-block {
+    flex: 0 0 280px;
+  }
+  .testimonials-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.trust-score-block {
+  text-align: center;
+}
+
+@media (min-width: 960px) {
+  .trust-score-block {
+    text-align: left;
+  }
+}
+
+.proof-divider {
+  width: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  align-self: stretch;
+  margin: 0 1.5rem;
+}
+
+.testimonials-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.testimonial-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 1.25rem;
+  text-align: left;
+  transition: all 0.3s ease;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.testimonial-text {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #cbd5e1;
+  margin-bottom: 0.75rem !important;
+  font-style: italic;
+}
+
+.testimonial-author {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.author-role {
+  color: #64748b;
+  font-weight: 400;
+}
+
+/* Compact Step Cards for Mobile Scroll Optimization */
+@media (max-width: 768px) {
+  .step-card {
+    padding: 2.25rem 1.25rem 1.25rem 1.25rem !important;
+    margin-top: 1.5rem !important;
+  }
+  .step-icon-wrapper {
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 16px !important;
+    margin-bottom: 1rem !important;
+  }
+  .step-icon-wrapper :deep(.v-icon) {
+    font-size: 36px !important;
+  }
 }
 
 /* Branded Glassmorphic Social Links */

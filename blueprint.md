@@ -811,3 +811,23 @@ Implement multi-user seats and team invitation flow for paid subscribers. Owners
 - **Rules Enforcement**: Verify a Member cannot write invoices or edit settings. Verify a Member can create/edit projects and entries.
 - **UI Gating**: Verify Member accounts have a clean dashboard showing only projects and guide, without access to invoices.
 
+
+## Landing Page CRO Redesign (v35)
+
+### Purpose
+Improve landing page conversion rate from social media traffic to free trial sign-ups by simplifying CTA hierarchy, adding immediate trust signals below the hero fold, and streamlining the mobile scroll experience.
+
+### Proposed Changes
+#### [MODIFY] [LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Reposition CTAs to make "Start Free with Google" the single, high-contrast, glowing primary CTA above the fold. Demote "Create Guest Invoice" to a secondary outlined button, and style "Sign up with email" as a secondary text route link.
+- Add a new "Loved by Founders" reviews section immediately below the Hero section, displaying Trustpilot rating and 2-3 brief customer quotes.
+- Add risk-reduction copy below the CTAs: "No credit card required. Up to 1 active project and 3 entries free forever."
+- Streamline mobile scroll footprint by reducing card padding and spacing in the "How It Works" step grid.
+
+### Verification Plan
+- **Above-the-Fold Visual Check:** Verify that "Start Free with Google" is the primary visual anchor and buttons are clean and uncluttered on mobile.
+- **Social Proof Placement:** Verify that the trust reviews block is visible immediately after scrolling below the hero fold.
+- **Responsive Layout:** Check that all sections look premium on desktop and stack neatly on mobile viewports.
+- **Console Log Check:** Verify no syntax or runtime errors occur on page load.
+
+
