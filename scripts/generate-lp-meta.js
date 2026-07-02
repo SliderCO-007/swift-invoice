@@ -20,13 +20,13 @@ const pages = [
     path: 'lp/weekend-freedom',
     title: 'Reclaim Your Weekends | ScanGo Invoice Simple On-Site Billing',
     description: 'Stop wasting Sunday nights on paperwork. Track project time, snap receipt photos on the go, and convert to invoices in one click. Free up your weekends.',
-    url: 'https://scangoinvoice.com/lp/weekend-freedom'
+    url: 'https://scangoinvoice.com/lp/weekend-freedom/'
   },
   {
     path: 'lp/get-paid-faster',
     title: 'Get Paid 3x Faster | ScanGo Invoice for Contractors & Local Pros',
     description: 'The ultimate mobile invoicing tool for plumbers, contractors, and local service providers. Send professional invoices on the job in under 60 seconds and accept cards/ACH instantly.',
-    url: 'https://scangoinvoice.com/lp/get-paid-faster'
+    url: 'https://scangoinvoice.com/lp/get-paid-faster/'
   }
 ];
 

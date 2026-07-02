@@ -882,6 +882,7 @@ Resolve Meta ad verification and debugger failures (missing `og:url`, `og:type`,
 - Create a post-build utility in Node.js.
 - Read built `dist/index.html`.
 - For `/lp/weekend-freedom` and `/lp/get-paid-faster`, generate separate `index.html` files inside corresponding `dist/lp/*` directories with replaced title, description, and `og:url` values.
+- Append a trailing slash (`/`) to the generated canonical URLs to prevent Firebase Hosting directory 301 redirects from causing circular loops during crawler execution.
 
 #### [MODIFY] [package.json](file:///C:/Users/curth/git/swift-invoice/package.json)
 - Modify the `build` script to execute `node scripts/generate-lp-meta.js` after `vite build`.
