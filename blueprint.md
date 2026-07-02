@@ -867,4 +867,29 @@ Improve conversions from target Meta Ads traffic by creating dedicated landing p
 - **Database Entry Sync:** Register a test user on each of the pages (via Google Sign-in or email registration) and check the Firestore document in the `users` collection to confirm the `signupSource` field is saved with the correct identifier (`lp_contractor` / `lp_weekend` / `lp_standard`).
 
 
+## Landing Page Meta Tags & Open Graph Validation for Meta Ads (v37)
+
+### Purpose
+Resolve Meta ad verification and debugger failures (missing `og:url`, `og:type`, and `fb:app_id`) on the landing page variants (`/lp/weekend-freedom` and `/lp/get-paid-faster`) by implementing a static pre-rendered meta-tag generation script that runs post-build. This ensures crawlers read the correct metadata without needing server-side execution.
+
+### Proposed Changes
+
+#### [MODIFY] [index.html](file:///C:/Users/curth/git/swift-invoice/index.html)
+- Add base Open Graph properties to `<head>`: `og:url` (canonical home page), `og:type` (`website`), and `fb:app_id` (`944354605099455`).
+- Sync `og:title` and `og:description` tags to match the standard landing page metadata.
+
+#### [NEW] [scripts/generate-lp-meta.js](file:///C:/Users/curth/git/swift-invoice/scripts/generate-lp-meta.js)
+- Create a post-build utility in Node.js.
+- Read built `dist/index.html`.
+- For `/lp/weekend-freedom` and `/lp/get-paid-faster`, generate separate `index.html` files inside corresponding `dist/lp/*` directories with replaced title, description, and `og:url` values.
+
+#### [MODIFY] [package.json](file:///C:/Users/curth/git/swift-invoice/package.json)
+- Modify the `build` script to execute `node scripts/generate-lp-meta.js` after `vite build`.
+
+### Verification Plan
+- **Vite Build Run:** Run `npm run build` and ensure the `dist/lp/weekend-freedom/index.html` and `dist/lp/get-paid-faster/index.html` files are generated successfully.
+- **File Inspection:** Verify the generated HTML files contain root-relative script/style paths (`/assets/...`) and the specific Open Graph tags matching their respective landing page variant.
+
+
+
 
