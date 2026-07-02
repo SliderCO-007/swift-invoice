@@ -20,10 +20,10 @@
                   ><span class="text-gradient">ScanGo</span> Invoice</span
                 >
               </div>
-              <h1 class="hero-title">Turn Tracked Work into Paid Invoices</h1>
-              <h1 class="hero-title"><span class="text-gradient">in One Click.</span></h1>
+              <h1 class="hero-title">{{ heroTitleText }}</h1>
+              <h1 class="hero-title"><span class="text-gradient">{{ heroTitleHighlight }}</span></h1>
               <p class="hero-subtitle mt-4 mb-6">
-                Digitize your workflow on the go. Snap receipts to track expenses, log project hours, and get paid instantly via customer "Scan-to-Pay" QR codes.
+                {{ heroSubtitleText }}
               </p>
               <div
                 class="d-flex flex-column flex-sm-row flex-wrap ga-4 mt-8 align-center justify-center justify-md-start"
@@ -101,7 +101,7 @@
                 class="mt-6 text-caption text-sm-body-2 text-blue-grey-lighten-2 d-flex align-center justify-center justify-md-start"
               >
                 <v-icon size="small" class="mr-1" color="success">mdi-shield-check-outline</v-icon>
-                Free tier includes 1 active project & 3 entries. No credit card required.
+                {{ riskReductionText }}
               </p>
               <div
                 class="mt-8 d-flex flex-column flex-sm-row align-center justify-center justify-md-start ga-4"
@@ -177,9 +177,9 @@
 
           <!-- Hero Benefits Badges v7 -->
           <div class="hero-benefits-badges d-flex flex-column ga-3 mb-0 mt-8 ml-0">
-            <div class="benefit-badge">
+            <div class="benefit-badge" v-for="badge in badges" :key="badge.title">
               <div class="badge-icon-container">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg v-if="badge.type === 'invoice'" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <defs>
                     <linearGradient id="grad-invoice" x1="0%" y1="0%" x2="100%" y2="100%">
                       <stop offset="0%" stop-color="#34d399" />
@@ -192,16 +192,7 @@
                   <line x1="10" y1="8" x2="14" y2="8" stroke="url(#grad-invoice)" stroke-width="1.2" />
                   <line x1="10" y1="11" x2="13" y2="11" stroke="url(#grad-invoice)" stroke-width="1.2" />
                 </svg>
-              </div>
-              <div class="badge-content">
-                <div class="badge-title">60s Mobile Invoicing</div>
-                <div class="badge-subtitle">Create & send professional invoices from your phone in under 60 seconds</div>
-              </div>
-            </div>
-
-            <div class="benefit-badge">
-              <div class="badge-icon-container">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg v-else-if="badge.type === 'tracking'" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <defs>
                     <linearGradient id="grad-tracking" x1="0%" y1="0%" x2="100%" y2="100%">
                       <stop offset="0%" stop-color="#06b6d4" />
@@ -214,16 +205,7 @@
                   <path d="M15 16H18" stroke="url(#grad-tracking)" stroke-width="1" />
                   <path d="M15 18H17" stroke="url(#grad-tracking)" stroke-width="1" />
                 </svg>
-              </div>
-              <div class="badge-content">
-                <div class="badge-title">On-the-Go Tracking</div>
-                <div class="badge-subtitle">Track billable hours & project expenses on-the-go (with receipt photos)</div>
-              </div>
-            </div>
-
-            <div class="benefit-badge">
-              <div class="badge-icon-container">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg v-else-if="badge.type === 'convert'" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <defs>
                     <linearGradient id="grad-convert" x1="0%" y1="0%" x2="100%" y2="100%">
                       <stop offset="0%" stop-color="#fbbf24" />
@@ -236,8 +218,8 @@
                 </svg>
               </div>
               <div class="badge-content">
-                <div class="badge-title">1-Click Conversion</div>
-                <div class="badge-subtitle">1-Click conversion from project work directly into pre-filled invoices</div>
+                <div class="badge-title">{{ badge.title }}</div>
+                <div class="badge-subtitle">{{ badge.subtitle }}</div>
               </div>
             </div>
           </div>
@@ -259,30 +241,24 @@
                 </div>
               </div>
               <p class="text-body-2 text-blue-grey-lighten-2 mb-0">
-                Loved by 20,000+ freelancers and agency owners worldwide.
+                {{ trustRatingText }}
               </p>
             </div>
             
             <div class="proof-divider d-none d-md-block"></div>
             
             <div class="testimonials-grid">
-              <div class="testimonial-card">
+              <div class="testimonial-card" v-for="t in testimonials" :key="t.author">
                 <p class="testimonial-text">
-                  "ScanGo saved me hours. I snap expense receipts on site, track my hours, and send a client-ready invoice in one click."
+                  {{ t.text }}
                 </p>
                 <div class="d-flex align-center">
-                  <v-avatar size="28" class="mr-2 bg-indigo-darken-1 text-white text-caption font-weight-bold">S</v-avatar>
-                  <span class="testimonial-author">Sarah M. <span class="author-role">• Consultant</span></span>
-                </div>
-              </div>
-              
-              <div class="testimonial-card">
-                <p class="testimonial-text">
-                  "Clients love the Scan-to-Pay QR code. They scan it on their phone, pay instantly, and the cash lands in my bank in 2 days."
-                </p>
-                <div class="d-flex align-center">
-                  <v-avatar size="28" class="mr-2 bg-pink-darken-1 text-white text-caption font-weight-bold">M</v-avatar>
-                  <span class="testimonial-author">Marcus T. <span class="author-role">• Freelance Developer</span></span>
+                  <v-avatar size="28" :class="['mr-2', t.bgClass, 'text-white', 'text-caption', 'font-weight-bold']">
+                    {{ t.author[0] }}
+                  </v-avatar>
+                  <span class="testimonial-author">
+                    {{ t.author }} <span class="author-role">• {{ t.role }}</span>
+                  </span>
                 </div>
               </div>
             </div>
@@ -585,13 +561,20 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth, currentUser } from '../composables/useAuth.js'
 import { useMeta } from '../composables/useMeta'
 import { useDisplay } from 'vuetify'
 import { event } from 'vue-gtag'
 import Trustpilot from './TrustpilotWidget.vue'
+
+const props = defineProps({
+  variant: {
+    type: String,
+    default: 'standard'
+  }
+})
 
 const { mobile } = useDisplay()
 const router = useRouter()
@@ -603,6 +586,157 @@ const trackDownload = (location) => {
     event_label: location,
   })
 }
+
+// Copy content customization
+const heroTitleText = computed(() => {
+  if (props.variant === 'contractor') {
+    return 'Get Paid 3x Faster. Invoice Clients'
+  } else if (props.variant === 'weekend') {
+    return 'Keep Your Weekends for Yourself.'
+  }
+  return 'Turn Tracked Work into Paid Invoices'
+})
+
+const heroTitleHighlight = computed(() => {
+  if (props.variant === 'contractor') {
+    return 'Directly On-Site.'
+  } else if (props.variant === 'weekend') {
+    return 'Reclaim Your Sundays.'
+  }
+  return 'in One Click.'
+})
+
+const heroSubtitleText = computed(() => {
+  if (props.variant === 'contractor') {
+    return 'Plumbers, contractors, and local service pros: stop chasing unpaid invoices and paperwork. Create professional invoices right from your phone and accept instant mobile payments in under 60 seconds.'
+  } else if (props.variant === 'weekend') {
+    return 'Stop spending your Saturdays and Sundays writing invoices and sorting crumpled receipts. Invoice your clients directly from the field in under 60 seconds and let the cash flow automatically.'
+  }
+  return 'Digitize your workflow on the go. Snap receipts to track expenses, log project hours, and get paid instantly via customer "Scan-to-Pay" QR codes.'
+})
+
+const riskReductionText = computed(() => {
+  if (props.variant === 'contractor') {
+    return 'Plumbers & contractors start free forever. No credit card required.'
+  } else if (props.variant === 'weekend') {
+    return 'Free up your weekends today. No credit card required.'
+  }
+  return 'Free tier includes 1 active project & 3 entries. No credit card required.'
+})
+
+const badges = computed(() => {
+  if (props.variant === 'contractor') {
+    return [
+      {
+        type: 'invoice',
+        title: 'On-the-Job Invoicing',
+        subtitle: 'Bill clients immediately after the job is done before you even start your truck'
+      },
+      {
+        type: 'tracking',
+        title: 'Receipt & Hours Tracking',
+        subtitle: 'Log project hours and upload receipt photos directly from the job site'
+      },
+      {
+        type: 'convert',
+        title: '1-Click Invoice Sync',
+        subtitle: 'Roll all logged labor and expenses straight into a pre-filled client invoice'
+      }
+    ]
+  } else if (props.variant === 'weekend') {
+    return [
+      {
+        type: 'invoice',
+        title: 'Zero Weekend Paperwork',
+        subtitle: 'Never spend another Sunday night formatting templates or chasing client payments'
+      },
+      {
+        type: 'tracking',
+        title: 'Instant On-Site Billing',
+        subtitle: 'Send professional invoices before you leave the job site in under 60 seconds'
+      },
+      {
+        type: 'convert',
+        title: 'Secure Direct Payouts',
+        subtitle: 'Let clients scan to pay with Apple Pay, cards, or ACH, landing directly in your bank account'
+      }
+    ]
+  }
+  return [
+    {
+      type: 'invoice',
+      title: '60s Mobile Invoicing',
+      subtitle: 'Create & send professional invoices from your phone in under 60 seconds'
+    },
+    {
+      type: 'tracking',
+      title: 'On-the-Go Tracking',
+      subtitle: 'Track billable hours & project expenses on-the-go (with receipt photos)'
+    },
+    {
+      type: 'convert',
+      title: '1-Click Conversion',
+      subtitle: '1-Click conversion from project work directly into pre-filled invoices'
+    }
+  ]
+})
+
+const trustRatingText = computed(() => {
+  if (props.variant === 'contractor') {
+    return 'Loved by 1,000+ local service pros worldwide.'
+  } else if (props.variant === 'weekend') {
+    return 'Loved by hundreds of busy business owners.'
+  }
+  return 'Loved by 20,000+ freelancers and agency owners worldwide.'
+})
+
+const testimonials = computed(() => {
+  if (props.variant === 'contractor') {
+    return [
+      {
+        text: '"I send invoices from my truck right after completing the job. My clients scan the QR code and pay before I get home. Absolute game changer."',
+        author: 'Dave K.',
+        role: 'Electrician',
+        bgClass: 'bg-indigo-darken-1'
+      },
+      {
+        text: '"No more sorting through pockets of crumpled receipts or trying to remember my team\'s billable hours at the end of the week. ScanGo does it all."',
+        author: 'Lisa R.',
+        role: 'General Contractor',
+        bgClass: 'bg-pink-darken-1'
+      }
+    ]
+  } else if (props.variant === 'weekend') {
+    return [
+      {
+        text: '"I used to spend Sunday mornings doing billing. Now, I invoice clients on my phone in 60 seconds, and my weekends are 100% mine."',
+        author: 'Tom B.',
+        role: 'Landscaper',
+        bgClass: 'bg-indigo-darken-1'
+      },
+      {
+        text: '"I hated the stress of weekend paperwork. ScanGo lets me track time and snap receipt photos on the go, converting them to invoices instantly."',
+        author: 'Rachel S.',
+        role: 'Interior Designer',
+        bgClass: 'bg-pink-darken-1'
+      }
+    ]
+  }
+  return [
+    {
+      text: '"ScanGo saved me hours. I snap expense receipts on site, track my hours, and send a client-ready invoice in one click."',
+      author: 'Sarah M.',
+      role: 'Consultant',
+      bgClass: 'bg-indigo-darken-1'
+    },
+    {
+      text: '"Clients love the Scan-to-Pay QR code. They scan it on their phone, pay instantly, and the cash lands in my bank in 2 days."',
+      author: 'Marcus T.',
+      role: 'Freelance Developer',
+      bgClass: 'bg-pink-darken-1'
+    }
+  ]
+})
 
 const faqs = ref([
   {
@@ -652,10 +786,15 @@ const closeVideoModal = () => {
 }
 
 onMounted(() => {
+  // Set default signup_source if standard variant is hit and not already set
+  if (props.variant === 'standard' && !sessionStorage.getItem('signup_source')) {
+    sessionStorage.setItem('signup_source', 'lp_standard')
+  }
+
   // Track landing page content view in Meta Pixel
   if (typeof window.fbq === 'function') {
     window.fbq('track', 'ViewContent', {
-      content_name: 'Landing Page',
+      content_name: props.variant === 'standard' ? 'Landing Page' : `LP - ${props.variant}`,
       content_category: 'Meta Ads'
     })
   }
@@ -704,9 +843,21 @@ const faqSchema = {
   })),
 }
 
+const metaTitle = props.variant === 'contractor'
+  ? 'Get Paid 3x Faster | ScanGo Invoice for Contractors & Local Pros'
+  : props.variant === 'weekend'
+    ? 'Reclaim Your Weekends | ScanGo Invoice Simple On-Site Billing'
+    : 'ScanGo Invoice | Simple Digital Invoicing';
+
+const metaDescription = props.variant === 'contractor'
+  ? 'The ultimate mobile invoicing tool for plumbers, contractors, and local service providers. Send professional invoices on the job in under 60 seconds and accept cards/ACH instantly.'
+  : props.variant === 'weekend'
+    ? 'Stop wasting Sunday nights on paperwork. Track project time, snap receipt photos on the go, and convert to invoices in one click. Free up your weekends.'
+    : 'Create, download, and track professional invoices for a simple monthly or yearly price. ScanGo Invoice generates branded payment links and QR codes so customers can pay instantly.';
+
 useMeta(
-  'ScanGo Invoice | Simple Digital Invoicing',
-  'Create, download, and track professional invoices for a simple monthly or yearly price. ScanGo Invoice generates branded payment links and QR codes so customers can pay instantly — no app required. Track billable projects and convert them to invoices in one click. Perfect for small businesses and freelancers.',
+  metaTitle,
+  metaDescription,
   faqSchema
 )
 </script>

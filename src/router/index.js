@@ -10,6 +10,16 @@ const routes = [
     component: LandingPage,
   },
   {
+    path: '/lp/get-paid-faster',
+    name: 'ContractorLandingPage',
+    component: () => import('../components/ContractorLandingPage.vue'),
+  },
+  {
+    path: '/lp/weekend-freedom',
+    name: 'WeekendLandingPage',
+    component: () => import('../components/WeekendLandingPage.vue'),
+  },
+  {
     path: '/features',
     name: 'Features',
     component: () => import('../components/FeaturesPage.vue'),

@@ -831,3 +831,40 @@ Improve landing page conversion rate from social media traffic to free trial sig
 - **Console Log Check:** Verify no syntax or runtime errors occur on page load.
 
 
+## Custom Landing Pages for Ad Variations (v36)
+
+### Purpose
+Improve conversions from target Meta Ads traffic by creating dedicated landing pages for specific ad campaigns (Contractors "Get Paid 3x Faster" hook and "Weekend Freedom" hook). When visitors sign up from these custom pages, their registration source is preserved in the database to trace back campaign effectiveness.
+
+### Proposed Changes
+
+#### [NEW] [ContractorLandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ContractorLandingPage.vue)
+- Create a dedicated container route component for local service pros / contractors.
+- Upon mounting, set the `sessionStorage` key `signup_source` to `'lp_contractor'`.
+- Render the base `<LandingPage variant="contractor" />` component.
+
+#### [NEW] [WeekendLandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/WeekendLandingPage.vue)
+- Create a dedicated container route component focusing on reclaiming weekends and avoiding Sunday night invoicing.
+- Upon mounting, set the `sessionStorage` key `signup_source` to `'lp_weekend'`.
+- Render the base `<LandingPage variant="weekend" />` component.
+
+#### [MODIFY] [LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Add a `variant` prop (values: `'standard' | 'contractor' | 'weekend'`, defaulting to `'standard'`).
+- Use the `variant` prop to dynamically render tailored copywriting, subheadlines, benefit badges, trust reviews, and testimonials.
+- Upon mounting, if `variant === 'standard'`, default the `sessionStorage` key `signup_source` to `'lp_standard'` (if not already set by a container).
+
+#### [MODIFY] [useAuth.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useAuth.js)
+- Read `signup_source` from `sessionStorage` (defaulting to `'lp_standard'`) during `createInitialUserData` profile setup.
+- Store the resolved `signupSource` value under the user's Firestore document.
+
+#### [MODIFY] [router/index.js](file:///C:/Users/curth/git/swift-invoice/src/router/index.js)
+- Register `/lp/get-paid-faster` to lazy-load `ContractorLandingPage.vue`.
+- Register `/lp/weekend-freedom` to lazy-load `WeekendLandingPage.vue`.
+
+### Verification Plan
+- **Route Validation:** Access `/lp/get-paid-faster` and `/lp/weekend-freedom`. Confirm each renders the custom tailored copy, badges, and testimonials.
+- **Session Opt-In:** Verify `sessionStorage` key `signup_source` is set correctly on landing.
+- **Database Entry Sync:** Register a test user on each of the pages (via Google Sign-in or email registration) and check the Firestore document in the `users` collection to confirm the `signupSource` field is saved with the correct identifier (`lp_contractor` / `lp_weekend` / `lp_standard`).
+
+
+

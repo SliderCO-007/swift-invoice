@@ -165,6 +165,14 @@ const createInitialUserData = async (user) => {
     const userName = registeredName.value.trim() || user.displayName || user.email;
     registeredName.value = ''; // Reset after use
     
+    // Retrieve sign up source from session storage to trace back marketing campaigns
+    let signupSource = 'lp_standard';
+    try {
+      signupSource = sessionStorage.getItem('signup_source') || 'lp_standard';
+    } catch (e) {
+      console.error("sessionStorage is not available for signupSource:", e);
+    }
+
     // Create the user profile
     batch.set(userRef, {
       uid: user.uid,
@@ -175,7 +183,8 @@ const createInitialUserData = async (user) => {
       subscriptionStatus: role === 'owner' ? 'free' : 'member', // members inherit owner's sub status dynamically
       invoiceCount: 0,
       orgId,
-      role
+      role,
+      signupSource
     });
 
     if (role === 'owner') {
