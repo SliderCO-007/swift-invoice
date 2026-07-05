@@ -892,5 +892,42 @@ Resolve Meta ad verification and debugger failures (missing `og:url`, `og:type`,
 - **File Inspection:** Verify the generated HTML files contain root-relative script/style paths (`/assets/...`) and the specific Open Graph tags matching their respective landing page variant.
 
 
+## Ideal Customer Profile (ICP) Definition (v38)
+
+### Purpose
+Compile and document the core Ideal Customer Profile (ICP) for ScanGo Invoice, confirming that local service professionals (contractors, plumbers, electricians, landscapers) are our target customers. This profile guides GTM positioning, feature priorities, and marketing campaigns.
+
+### Proposed Changes
+#### [NEW] [ideal_customer_profile.md](file:///C:/Users/curth/.gemini/antigravity-cli/brain/e9f78dc3-9521-4298-86dc-9bb73737c75f/ideal_customer_profile.md)
+- Define demographics, behaviors, and decision-making styles of the on-the-road service professional.
+- Document their core Jobs to Be Done (JTBD) including functional, social, and emotional jobs (e.g., reclaiming weekends).
+- List major pain points (delayed cash flow, receipt loss, unprofessional look) and map them directly to ScanGo Invoice features.
+- Define disqualification criteria to narrow focus away from desk-bound services and mid-market organizations.
+
+### Verification Plan
+- **Content Completeness**: Verify that the profile document fully covers the Demographics, Behaviors, JTBD, Pain Points, Product Alignment, and Disqualification frameworks as specified in the `ideal-customer-profile` skill.
 
 
+## Remove Sent Invitations (v39)
+
+### Purpose
+Add the ability for organization owners to cancel/remove sent invitations. This allows them to revoke pending invitations that were sent by mistake, expired, or are no longer valid, ensuring clean organization management.
+
+### Proposed Changes
+
+#### [MODIFY] [src/composables/useOrganization.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useOrganization.js)
+- Import `deleteDoc` from `firebase/firestore`.
+- Define a new function `deleteInvitation(invitationId)` that checks if the active user is an owner, retrieves the reference for the invitation document, and calls `deleteDoc(inviteRef)`.
+- Return `deleteInvitation` from `useOrganization`.
+
+#### [MODIFY] [src/components/TeamSettings.vue](file:///C:/Users/curth/git/swift-invoice/src/components/TeamSettings.vue)
+- Import `deleteInvitation` from the `useOrganization` composable.
+- Define a `handleDeleteInvitation(invite)` function that prompts the user with a confirmation dialog. If confirmed, it deletes the invitation and displays a transient success notification.
+- Update the "Pending Invitations" table layout:
+  - Add an "Actions" header column on the right side of the row.
+  - In each row, render a red "Cancel Invite" button with a trash-can icon (`mdi-delete-outline`) aligned to the right.
+
+### Verification Plan
+- **Invitation Revocation UI**: Invite a dummy email. Confirm it appears under "Pending Invitations". Click the red "Cancel Invite" button. Confirm that a standard confirmation prompt appears.
+- **Successful Deletion**: Click "OK" on the prompt. Confirm that the invitation document is deleted from Firestore and disappears from the "Pending Invitations" table. Verify the success message is shown.
+- **Cancel Deletion**: Click "Cancel" on the confirmation prompt and confirm the invitation remains.

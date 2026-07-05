@@ -1,7 +1,8 @@
 import { ref, watch } from 'vue';
 import { 
   collection, query, where, onSnapshot, doc, addDoc, 
-  writeBatch, serverTimestamp, arrayRemove, updateDoc 
+  writeBatch, serverTimestamp, arrayRemove, updateDoc,
+  deleteDoc
 } from 'firebase/firestore';
 import { db } from './useFirebase';
 import { userProfile } from './useAuth';
@@ -159,6 +160,26 @@ export const useOrganization = () => {
     }
   };
 
+  const deleteInvitation = async (invitationId) => {
+    const profile = userProfile.value;
+    if (!profile) throw new Error("Not authenticated.");
+    if (profile.role !== 'owner') throw new Error("Only organization owners can delete invitations.");
+
+    try {
+      loading.value = true;
+      error.value = null;
+
+      const inviteRef = doc(db, 'invitations', invitationId);
+      await deleteDoc(inviteRef);
+    } catch (err) {
+      console.error("Error deleting invitation:", err);
+      error.value = `Failed to delete invitation: ${err.message}`;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
   return {
     teamMembers,
     invitations,
@@ -166,6 +187,7 @@ export const useOrganization = () => {
     error,
     inviteMember,
     revokeMember,
-    updateMember
+    updateMember,
+    deleteInvitation
   };
 };

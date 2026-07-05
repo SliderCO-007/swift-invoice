@@ -13,6 +13,7 @@ const {
   inviteMember,
   revokeMember,
   updateMember,
+  deleteInvitation,
 } = useOrganization();
 
 const inviteEmail = ref("");
@@ -95,6 +96,28 @@ const handleUpdateMember = async () => {
     editError.value = err.message || "Failed to update member.";
   } finally {
     editLoading.value = false;
+  }
+};
+
+const handleDeleteInvitation = async (invite) => {
+  if (
+    !confirm(
+      `Are you sure you want to cancel the invitation to ${invite.email}?`
+    )
+  )
+    return;
+
+  try {
+    await deleteInvitation(invite.id);
+    inviteSuccess.value = `Invitation to ${invite.email} was successfully cancelled.`;
+    setTimeout(() => {
+      inviteSuccess.value = "";
+    }, 5000);
+  } catch (err) {
+    inviteErr.value = err.message || "Failed to cancel invitation.";
+    setTimeout(() => {
+      inviteErr.value = "";
+    }, 5000);
   }
 };
 </script>
@@ -277,6 +300,7 @@ const handleUpdateMember = async () => {
                 <th>Email</th>
                 <th>Status</th>
                 <th>Invited Date</th>
+                <th style="text-align: right;">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -296,6 +320,17 @@ const handleUpdateMember = async () => {
                       ? invite.createdAt.toLocaleDateString()
                       : "N/A"
                   }}
+                </td>
+                <td style="text-align: right;">
+                  <v-btn
+                    @click="handleDeleteInvitation(invite)"
+                    color="red-darken-4"
+                    variant="text"
+                    size="small"
+                    prepend-icon="mdi-delete-outline"
+                  >
+                    Cancel Invite
+                  </v-btn>
                 </td>
               </tr>
             </tbody>
