@@ -931,3 +931,33 @@ Add the ability for organization owners to cancel/remove sent invitations. This 
 - **Invitation Revocation UI**: Invite a dummy email. Confirm it appears under "Pending Invitations". Click the red "Cancel Invite" button. Confirm that a standard confirmation prompt appears.
 - **Successful Deletion**: Click "OK" on the prompt. Confirm that the invitation document is deleted from Firestore and disappears from the "Pending Invitations" table. Verify the success message is shown.
 - **Cancel Deletion**: Click "Cancel" on the confirmation prompt and confirm the invitation remains.
+
+
+## Individualized Time and Expense Invoice Conversion (v40)
+
+### Purpose
+Optimize the project-to-invoice conversion workflow to default to generating separate, individual line items on the invoice for each logged time and expense entry, matching the needs of our target contractor/small business owner ICPs. Add a checkbox option on the conversion dialog to optionally combine the entries into single time and expense line items (which restores the old grouped behavior).
+
+### Proposed Changes
+
+#### [MODIFY] [src/composables/useProjects.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useProjects.js)
+- Update `buildInvoicePayload(project, entries, options)` to accept an `options` object defaulting to `{}`.
+- Extract `groupEntries` (default `false`) from the `options` parameter.
+- Implement the default behavior (when `groupEntries === false`) to map each billable time entry to a separate line item with the format: `Labor: [activity description] ([date]) - [hours] hours @ $[rate]/hr`, non-taxable by default.
+- Implement the default behavior to map each billable expense entry to a separate line item with the format: `[category]: [expense description] ([date])`, taxable by default.
+- Implement the fallback behavior (when `groupEntries === true`) to match the legacy grouped behavior (all labor combined into one line item, all expenses combined into another).
+
+#### [MODIFY] [src/components/ProjectDetail.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ProjectDetail.vue)
+- Add new reactive state properties: `showConvertDialog` (default `false`) and `combineEntries` (default `false`).
+- Update `convertToInvoice()` to reset `combineEntries.value = false` and set `showConvertDialog.value = true`.
+- Implement `confirmConvert()` which calls `buildInvoicePayload` passing `{ groupEntries: combineEntries.value }`, closes the dialog, and routes the user to `InvoiceNew`.
+- Add a new `<v-dialog v-model="showConvertDialog">` inside the template featuring:
+  - An informative explanation of the conversion settings.
+  - A `v-switch` or `v-checkbox` linked to `combineEntries` labeled "Combine entries into single line items".
+  - Dialog action buttons ("Cancel" and "Convert") styled with glassmorphism.
+
+### Verification Plan
+- **Default Conversion (Individual)**: Log multiple time and expense entries for a project. Click "Convert to Invoice", leave "Combine entries..." unchecked, and click "Convert". Verify that the generated invoice has separate line items for each entry with correct formatting (e.g., `"Labor: HVAC Repair (2026-07-06) - 4 hours @ $75/hr"` and `"Materials: Copper Piping (2026-07-06)"`) and correct taxable flags.
+- **Combined Conversion (Grouped)**: Click "Convert to Invoice" on a project, check "Combine entries...", and click "Convert". Verify that the generated invoice contains exactly two line items (one for Labor and one for Expenses) matching the old behavior.
+- **Cancellation**: Click "Convert to Invoice", click "Cancel", and verify the dialog closes without initiating any redirect.
+

@@ -45,11 +45,13 @@ const expenseCategories = computed(() => items.value.filter(i => i.type === 'exp
 const { addItem: addItemFn } = useItems();
 
 // ── Entry form state ───────────────────────────────────────────────
-const showTimeForm    = ref(false);
-const showExpenseForm = ref(false);
-const isSubmitting    = ref(false);
-const entryError      = ref(null);
-const receiptViewer   = ref({ show: false, url: '' });
+const showTimeForm      = ref(false);
+const showExpenseForm   = ref(false);
+const isSubmitting      = ref(false);
+const entryError        = ref(null);
+const receiptViewer     = ref({ show: false, url: '' });
+const showConvertDialog = ref(false);
+const combineEntries    = ref(false);
 
 const todayStr = () => {
   const d = new Date();
@@ -181,7 +183,13 @@ const syncProjectTotals = async () => {
 
 // ── Invoice conversion ─────────────────────────────────────────────
 const convertToInvoice = () => {
-  const payload = buildInvoicePayload(project.value, entries.value);
+  combineEntries.value = false;
+  showConvertDialog.value = true;
+};
+
+const confirmConvert = () => {
+  const payload = buildInvoicePayload(project.value, entries.value, { groupEntries: combineEntries.value });
+  showConvertDialog.value = false;
   router.push({ name: 'InvoiceNew', state: { invoicePrefill: payload } });
 };
 
@@ -443,6 +451,41 @@ onUnmounted(() => { stopEntries(); stopItems(); });
           <v-spacer />
           <v-btn @click="showEditModal = false" variant="text">Cancel</v-btn>
           <v-btn @click="saveEdit" color="primary" :loading="isSubmitting">Save</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Convert to Invoice Dialog -->
+    <v-dialog v-model="showConvertDialog" max-width="500">
+      <v-card style="background:#1e2d42; color:#f1f5f9; border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(16px);">
+        <v-card-title class="pa-4 d-flex align-center">
+          <v-icon icon="mdi-file-document-arrow-right" class="mr-2" color="primary" />
+          Convert to Invoice
+        </v-card-title>
+        <v-card-text class="pa-4 pt-0">
+          <p class="mb-4" style="color: #94a3b8; font-size: 0.95rem;">
+            Ready to convert this project's billable time and expenses into a draft invoice? Choose how you want the entries to be formatted.
+          </p>
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 1rem;">
+            <v-switch
+              v-model="combineEntries"
+              label="Combine entries into single line items"
+              color="primary"
+              inset
+              hide-details
+            />
+            <p class="mt-2 mb-0" style="font-size: 0.8rem; color: #94a3b8; line-height: 1.4;">
+              {{ combineEntries 
+                ? 'Creates a single line item for all time entries and another for all expenses.' 
+                : 'Creates a separate line item for each individual logged time and expense entry.' 
+              }}
+            </p>
+          </div>
+        </v-card-text>
+        <v-card-actions class="pa-4">
+          <v-spacer />
+          <v-btn @click="showConvertDialog = false" variant="text" color="white">Cancel</v-btn>
+          <v-btn @click="confirmConvert" color="primary" variant="elevated" rounded="pill">Convert</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

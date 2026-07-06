@@ -217,29 +217,64 @@ const useProjects = () => {
    * Converts a project + its entries into a pre-filled invoice payload.
    * Labor is rolled into one line item; expenses into another.
    */
-  const buildInvoicePayload = (project, entries) => {
+  const buildInvoicePayload = (project, entries, options = {}) => {
+    const { groupEntries = false } = options;
     const billableTime     = entries.filter(e => e.type === 'time'    && e.billable);
     const billableExpenses = entries.filter(e => e.type === 'expense' && e.billable);
 
-    const totalHours    = billableTime.reduce((sum, e) => sum + (Number(e.hours) || 0), 0);
-    const laborTotal    = billableTime.reduce((sum, e) => sum + (Number(e.hours) || 0) * (Number(e.rate) || 0), 0);
-    const expensesTotal = billableExpenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
-
     const lineItems = [];
-    if (laborTotal > 0) {
-      lineItems.push({
-        description: `Labor — ${totalHours.toFixed(2)} hrs @ ${project.name}`,
-        quantity: 1,
-        price: laborTotal,
-        taxable: false,
+
+    if (groupEntries) {
+      const totalHours    = billableTime.reduce((sum, e) => sum + (Number(e.hours) || 0), 0);
+      const laborTotal    = billableTime.reduce((sum, e) => sum + (Number(e.hours) || 0) * (Number(e.rate) || 0), 0);
+      const expensesTotal = billableExpenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+
+      if (laborTotal > 0) {
+        lineItems.push({
+          description: `Labor — ${totalHours.toFixed(2)} hrs @ ${project.name}`,
+          quantity: 1,
+          price: laborTotal,
+          taxable: false,
+        });
+      }
+      if (expensesTotal > 0) {
+        lineItems.push({
+          description: `Expenses — ${project.name}`,
+          quantity: 1,
+          price: expensesTotal,
+          taxable: true,
+        });
+      }
+    } else {
+      // Individual entries behavior (default)
+      billableTime.forEach(e => {
+        const hours = Number(e.hours) || 0;
+        const rate = Number(e.rate) || 0;
+        const lineTotal = hours * rate;
+        
+        if (lineTotal > 0) {
+          lineItems.push({
+            description: `Labor: ${e.description || 'Time Entry'} (${e.date}) - ${hours} hours @ $${rate}/hr`,
+            quantity: 1,
+            price: lineTotal,
+            taxable: false,
+          });
+        }
       });
-    }
-    if (expensesTotal > 0) {
-      lineItems.push({
-        description: `Expenses — ${project.name}`,
-        quantity: 1,
-        price: expensesTotal,
-        taxable: true,
+
+      billableExpenses.forEach(e => {
+        const amount = Number(e.amount) || 0;
+        
+        if (amount > 0) {
+          const category = e.category || 'Expense';
+          const description = e.description || 'Unspecified';
+          lineItems.push({
+            description: `${category}: ${description} (${e.date})`,
+            quantity: 1,
+            price: amount,
+            taxable: true,
+          });
+        }
       });
     }
 
