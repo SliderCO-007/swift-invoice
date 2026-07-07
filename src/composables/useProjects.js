@@ -1,6 +1,6 @@
 import { ref, watch } from 'vue';
 import {
-  collection, doc, getDoc, addDoc, updateDoc, deleteDoc,
+  collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc,
   serverTimestamp, query, where, onSnapshot
 } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -105,6 +105,12 @@ const useProjects = () => {
     const orgId = profile.orgId || profile.id;
     const snap = await getDoc(doc(db, 'projects', id));
     if (snap.exists() && (snap.data().orgId || snap.data().userId) === orgId) {
+      // 1. Cascading delete of all subcollection entries
+      const entriesSnap = await getDocs(collection(db, 'projects', id, 'entries'));
+      const deletePromises = entriesSnap.docs.map(entryDoc => deleteDoc(entryDoc.ref));
+      await Promise.all(deletePromises);
+
+      // 2. Delete parent project document
       await deleteDoc(doc(db, 'projects', id));
     } else {
       throw new Error('Permission denied or project not found.');

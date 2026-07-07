@@ -961,3 +961,38 @@ Optimize the project-to-invoice conversion workflow to default to generating sep
 - **Combined Conversion (Grouped)**: Click "Convert to Invoice" on a project, check "Combine entries...", and click "Convert". Verify that the generated invoice contains exactly two line items (one for Labor and one for Expenses) matching the old behavior.
 - **Cancellation**: Click "Convert to Invoice", click "Cancel", and verify the dialog closes without initiating any redirect.
 
+
+## Project and Expense Category Deletion for Owners (v41)
+
+### Purpose
+Give Organization Owners the ability to delete projects and expense categories. Project deletion must be cascading (deleting all associated time/expense entries under the project) and protected by a safety confirmation modal where the owner must type the project name to confirm. Expense categories will be managed (added, edited, deleted) inside the `ItemsView.vue` component under a tabbed interface, and their deletion will not affect historical entries.
+
+### Proposed Changes
+
+#### [MODIFY] [src/composables/useProjects.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useProjects.js)
+- Import `getDocs` from `firebase/firestore`.
+- Modify `deleteProject(id)` to fetch all documents in the `entries` subcollection of the project using `getDocs` and programmatically delete them via `deleteDoc` before deleting the project document itself.
+
+#### [MODIFY] [src/components/ProjectEditor.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ProjectEditor.vue)
+- Import `userProfile` from `../composables/useAuth` and compute `isOwner`.
+- Import `deleteProject` from `useProjects`.
+- Add reactive state `showDeleteConfirm` (default `false`) and `deleteConfirmName` (default `""`).
+- Add a "Delete Project" button in the `.form-actions` toolbar on the left (visible only in edit mode to owners).
+- Add a `<v-dialog v-model="showDeleteConfirm">` modal requiring the owner to type the project name exactly to enable the permanent delete action.
+- Implement `handleDelete()` to execute cascading project deletion and redirect the owner to the `/projects` page.
+
+#### [MODIFY] [src/components/ItemsView.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ItemsView.vue)
+- Add a tabbed navigation row to toggle `activeTab` between `'items'` (Invoice Items) and `'categories'` (Expense Categories).
+- Create computed properties `standardItems` and `expenseCategories` to split list contents based on `item.type === 'expense-category'`.
+- Toggle columns and table items in `<v-data-table>` and mobile list layout dynamically based on `activeTab`.
+- Update the create/edit dialog fields: hide description and price fields, and show a "Category Name" field instead, when editing or adding an item of type `'expense-category'`.
+- Update standard CRUD callbacks (`saveItem`, `openEditItemDialog`, `openNewItemDialog`) to handle categories seamlessly.
+- Update `exportItemsOutput()` to export the active list category or item fields.
+
+### Verification Plan
+- **Safety Project Deletion**: Navigate to `/projects/:id/edit` as an Owner. Verify the "Delete Project" button is visible. Click it, type a wrong project name, and verify the delete button remains disabled. Type the correct project name, click delete, and verify the project and all its entries are deleted from Firestore and the user is redirected to the projects list.
+- **Member Access Check**: Access `/projects/:id/edit` or `/projects/new` as a member. Verify the route is blocked by the router guard.
+- **Expense Category Management**: Navigate to `/items` (Manage Items). Verify the two tabs are rendered. Add a new expense category under the "Expense Categories" tab. Edit its name. Delete it. Verify these actions succeed and that existing expense logs utilizing this category remain intact.
+- **CSV Export**: Click "Export CSV" on both tabs and verify it generates the correct fields (Description & Price for standard items; Category Name for categories).
+
+

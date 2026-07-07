@@ -4,14 +4,16 @@ import { useRouter, useRoute } from 'vue-router';
 import useProjects from '../composables/useProjects';
 import { useCustomers } from '../composables/useCustomers';
 import { useOrganization } from '../composables/useOrganization';
+import { userProfile } from '../composables/useAuth';
 
 const router = useRouter();
 const route  = useRoute();
-const { createProject, updateProject, getProject } = useProjects();
+const { createProject, updateProject, getProject, deleteProject } = useProjects();
 const { customers } = useCustomers();
 
 const isEdit   = computed(() => !!route.params.id);
 const pageTitle = computed(() => isEdit.value ? 'Edit Project' : 'New Project');
+const isOwner   = computed(() => userProfile.value?.role === 'owner');
 
 const { teamMembers } = useOrganization();
 
@@ -79,6 +81,25 @@ const handleSubmit = async () => {
     }
   } catch (err) {
     formError.value = err.message || 'An error occurred.';
+  } finally {
+    isProcessing.value = false;
+  }
+};
+
+const showDeleteConfirm = ref(false);
+const deleteConfirmName = ref('');
+
+const handleDelete = async () => {
+  if (deleteConfirmName.value !== form.value.name) return;
+  isProcessing.value = true;
+  formError.value = null;
+  try {
+    await deleteProject(route.params.id);
+    showDeleteConfirm.value = false;
+    router.push({ name: 'Projects' });
+  } catch (err) {
+    formError.value = err.message || 'Failed to delete project.';
+    showDeleteConfirm.value = false;
   } finally {
     isProcessing.value = false;
   }
@@ -203,6 +224,15 @@ const cancel = () => {
 
         <!-- Actions -->
         <div class="form-actions">
+          <v-btn
+            v-if="isEdit && isOwner"
+            @click="showDeleteConfirm = true; deleteConfirmName = '';"
+            color="error"
+            variant="outlined"
+            class="mr-auto"
+          >
+            Delete Project
+          </v-btn>
           <v-btn @click="cancel" variant="outlined" color="white" class="mr-2">Cancel</v-btn>
           <v-btn
             @click="handleSubmit"
@@ -217,6 +247,47 @@ const cancel = () => {
       </div>
 
     </div>
+
+    <!-- Delete Project Confirmation Dialog -->
+    <v-dialog v-model="showDeleteConfirm" max-width="500">
+      <v-card style="background:#1e2d42; color:#f1f5f9; border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(16px);">
+        <v-card-title class="pa-4 d-flex align-center" style="color: #f87171;">
+          <v-icon icon="mdi-alert-outline" class="mr-2" color="error" />
+          Delete Project?
+        </v-card-title>
+        <v-card-text class="pa-4 pt-0">
+          <p class="mb-4" style="color: #cbd5e1; font-size: 0.95rem;">
+            This will permanently delete the project <strong>{{ form.name }}</strong> and all associated time and expense entries. This action cannot be undone.
+          </p>
+          <p class="mb-2" style="color: #94a3b8; font-size: 0.85rem;">
+            To confirm, please type the project name below:
+          </p>
+          <v-text-field
+            v-model="deleteConfirmName"
+            variant="solo"
+            density="comfortable"
+            :placeholder="form.name"
+            hide-details
+            class="mb-2"
+          />
+        </v-card-text>
+        <v-card-actions class="pa-4">
+          <v-spacer />
+          <v-btn @click="showDeleteConfirm = false" variant="text" color="white">Cancel</v-btn>
+          <v-btn
+            @click="handleDelete"
+            color="error"
+            variant="elevated"
+            rounded="pill"
+            :disabled="deleteConfirmName !== form.name"
+            :loading="isProcessing"
+          >
+            Permanently Delete
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
   </div>
 </template>
 
