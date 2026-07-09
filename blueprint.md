@@ -1038,6 +1038,7 @@ Introduce a team member hours report under the Reports tab to allow organization
 - Implement `exportHoursCSV()` and `exportHoursPDF()` export handlers.
 - Style metrics cards with custom shadows and text-glows.
 - Embed offscreen print-ready layout `hoursReportPrintArea` for the PDF generator.
+- Configure PDF print margins (jsPDF margin) and container spacing (CSS padding) to exactly 0.5 inch (36pt/36px) instead of the default 40pt/40px.
 
 ### Verification Plan
 - **Report Toggle**: Navigate to `/reports` as an Owner. Confirm the "Sales Report" and "Team Hours Report" tabs are rendered.

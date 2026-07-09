@@ -198,7 +198,7 @@ const exportHoursPDF = async () => {
     
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
-    const margin = 40;
+    const margin = 36;
     const imgWidth = pdfWidth - (margin * 2);
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
     
@@ -469,7 +469,7 @@ const exportPDF = async () => {
     
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
-    const margin = 40;
+    const margin = 36;
     const imgWidth = pdfWidth - (margin * 2);
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
     
@@ -1319,7 +1319,7 @@ const viewInvoice = (id) => {
   width: 700px;
   background: #ffffff;
   color: #333333;
-  padding: 40px;
+  padding: 36px;
   box-sizing: border-box;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
