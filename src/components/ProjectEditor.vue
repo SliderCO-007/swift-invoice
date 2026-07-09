@@ -181,7 +181,7 @@ const cancel = () => {
         </div>
 
         <!-- Default hourly rate -->
-        <div class="field-group field-half">
+        <div v-if="isOwner" class="field-group field-half">
           <label class="field-label">Default Hourly Rate ($)</label>
           <v-text-field
             v-model.number="form.defaultRate"

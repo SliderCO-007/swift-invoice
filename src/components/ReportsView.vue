@@ -2,8 +2,13 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '../composables/useFirebase';
 import useInvoices from '../composables/useInvoices';
 import useUserSettings from '../composables/useUserSettings';
+import useProjects from '../composables/useProjects';
+import { useOrganization } from '../composables/useOrganization';
+import { userProfile } from '../composables/useAuth.js';
 import { exportToCSV } from '../utils/exportCsv';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -25,8 +30,205 @@ const { mobile } = useDisplay();
 
 const { invoices, loading: invoicesLoading, error: invoicesError } = useInvoices();
 const { settings, loading: settingsLoading } = useUserSettings();
+const { projects } = useProjects();
+const { teamMembers } = useOrganization();
 
 const isInitialLoad = computed(() => invoicesLoading.value || settingsLoading.value);
+
+// --- Reports Navigation / Tab state ---
+const activeReportTab = ref('sales');
+
+// --- Team Hours Report state ---
+const selectedMemberId = ref('all');
+const startDate = ref('');
+const endDate = ref('');
+const projectEntries = ref([]);
+const loadingHours = ref(false);
+
+const membersList = computed(() => {
+  const list = [...teamMembers.value];
+  const ownerProfile = userProfile.value;
+  if (ownerProfile && !list.some(m => (m.uid || m.id) === ownerProfile.id)) {
+    list.push({
+      id: ownerProfile.id,
+      uid: ownerProfile.id,
+      name: ownerProfile.name || ownerProfile.email || 'Owner',
+      email: ownerProfile.email,
+      role: 'owner'
+    });
+  }
+  return list.map(m => ({
+    name: `${m.name || m.email || 'Unknown'} (${m.role === 'owner' ? 'Owner' : 'Member'})`,
+    uid: m.uid || m.id
+  })).sort((a, b) => a.name.localeCompare(b.name));
+});
+
+const fetchHoursReportData = async () => {
+  loadingHours.value = true;
+  try {
+    const allEntries = [];
+    const projectList = projects.value;
+    
+    const fetchPromises = projectList.map(async (project) => {
+      const entriesRef = collection(db, 'projects', project.id, 'entries');
+      const q = query(entriesRef, where('type', '==', 'time'));
+      const snap = await getDocs(q);
+      snap.docs.forEach(docSnap => {
+        const data = docSnap.data();
+        allEntries.push({
+          id: docSnap.id,
+          projectId: project.id,
+          projectName: project.name,
+          clientName: project.clientName || 'No Client',
+          ...data,
+          dateStr: data.date,
+          hours: Number(data.hours) || 0,
+          rate: Number(data.rate) || 0,
+          billable: data.billable !== false
+        });
+      });
+    });
+    
+    await Promise.all(fetchPromises);
+    projectEntries.value = allEntries;
+  } catch (err) {
+    console.error("Error fetching hours report data:", err);
+  } finally {
+    loadingHours.value = false;
+  }
+};
+
+watch([activeReportTab, projects], ([newTab, newProjects]) => {
+  if (newTab === 'hours' && newProjects.length > 0) {
+    fetchHoursReportData();
+  }
+}, { immediate: true });
+
+onMounted(() => {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), 1);
+  startDate.value = new Date(start.getTime() - (start.getTimezoneOffset() * 60000)).toISOString().slice(0, 10);
+  endDate.value = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().slice(0, 10);
+});
+
+const filteredHoursEntries = computed(() => {
+  return projectEntries.value.filter(entry => {
+    if (selectedMemberId.value && selectedMemberId.value !== 'all') {
+      if (entry.createdBy !== selectedMemberId.value) return false;
+    }
+    if (startDate.value && entry.dateStr < startDate.value) return false;
+    if (endDate.value && entry.dateStr > endDate.value) return false;
+    return true;
+  }).sort((a, b) => b.dateStr.localeCompare(a.dateStr));
+});
+
+const hoursMetrics = computed(() => {
+  let totalHours = 0;
+  let billableHours = 0;
+  let nonBillableHours = 0;
+  let totalPay = 0;
+  
+  filteredHoursEntries.value.forEach(entry => {
+    const hours = entry.hours || 0;
+    const rate = entry.rate || 0;
+    totalHours += hours;
+    if (entry.billable) {
+      billableHours += hours;
+    } else {
+      nonBillableHours += hours;
+    }
+    totalPay += hours * rate;
+  });
+  
+  return {
+    totalHours,
+    billableHours,
+    nonBillableHours,
+    totalPay
+  };
+});
+
+const exportHoursCSV = () => {
+  if (!filteredHoursEntries.value.length) {
+    alert('No hours data to export.');
+    return;
+  }
+  
+  const rows = filteredHoursEntries.value.map(entry => ({
+    'Date': entry.dateStr || 'N/A',
+    'Team Member': entry.createdByName || 'N/A',
+    'Project': entry.projectName || 'N/A',
+    'Client': entry.clientName || 'N/A',
+    'Description': entry.description || '',
+    'Billable': entry.billable ? 'YES' : 'NO',
+    'Hours': entry.hours.toFixed(2),
+    'Hourly Rate': entry.rate.toFixed(2),
+    'Total Pay': (entry.hours * entry.rate).toFixed(2)
+  }));
+  
+  const selectedMember = membersList.value.find(m => m.uid === selectedMemberId.value);
+  const memberName = selectedMemberId.value === 'all' 
+    ? 'All_Members' 
+    : (selectedMember?.name || 'Member').replace(/[^a-zA-Z0-9]/g, '_');
+  
+  exportToCSV(`Hours_Report_${memberName}_${startDate.value}_to_${endDate.value}.csv`, rows);
+};
+
+const hoursReportPrintArea = ref(null);
+
+const exportHoursPDF = async () => {
+  if (!filteredHoursEntries.value.length) {
+    alert('No hours data to export.');
+    return;
+  }
+
+  pdfLoading.value = true;
+  try {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    const element = hoursReportPrintArea.value;
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff'
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+    
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const margin = 40;
+    const imgWidth = pdfWidth - (margin * 2);
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    
+    let heightLeft = imgHeight;
+    let position = margin;
+    
+    pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+    heightLeft -= pdfHeight;
+    
+    while (heightLeft >= 0) {
+      position = heightLeft - imgHeight + margin;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+      heightLeft -= pdfHeight;
+    }
+    
+    const selectedMember = membersList.value.find(m => m.uid === selectedMemberId.value);
+    const memberName = selectedMemberId.value === 'all' 
+      ? 'All_Members' 
+      : (selectedMember?.name || 'Member').replace(/[^a-zA-Z0-9]/g, '_');
+      
+    pdf.save(`Hours_Report_${memberName}_${startDate.value}_to_${endDate.value}.pdf`);
+  } catch (error) {
+    console.error("Failed to generate PDF report:", error);
+    alert("An error occurred while generating the PDF. Please try again.");
+  } finally {
+    pdfLoading.value = false;
+  }
+};
+
 
 // Months constant
 const months = [
@@ -318,208 +520,404 @@ const viewInvoice = (id) => {
     </div>
 
     <div v-else class="reports-container">
-      <header class="reports-header d-flex flex-column flex-sm-row justify-space-between align-start align-sm-center mb-6">
+      <!-- Tab Header -->
+      <header class="reports-header d-flex flex-column flex-sm-row justify-space-between align-start align-sm-center mb-4">
         <div>
-          <h1 class="page-title">Sales Reports</h1>
-          <p class="subtitle-text">Analyze and export your monthly sales metrics.</p>
+          <h1 class="page-title">{{ activeReportTab === 'sales' ? 'Sales Reports' : 'Team Hours Reports' }}</h1>
+          <p class="subtitle-text">
+            {{ activeReportTab === 'sales' ? 'Analyze and export your monthly sales metrics.' : 'Filter, review, and export team member logged hours.' }}
+          </p>
         </div>
         <div class="d-flex flex-wrap gap-2 mt-4 mt-sm-0">
-          <v-btn
-            color="primary"
-            variant="outlined"
-            prepend-icon="mdi-file-delimited-outline"
-            class="mr-2 action-btn"
-            @click="exportCSV"
-            :disabled="!filteredInvoices.length"
-          >
-            Export CSV
-          </v-btn>
-          <v-btn
-            color="primary"
-            variant="flat"
-            prepend-icon="mdi-file-pdf-box"
-            class="action-btn"
-            @click="exportPDF"
-            :loading="pdfLoading"
-            :disabled="!filteredInvoices.length"
-          >
-            Download PDF
-          </v-btn>
+          <template v-if="activeReportTab === 'sales'">
+            <v-btn
+              color="primary"
+              variant="outlined"
+              prepend-icon="mdi-file-delimited-outline"
+              class="mr-2 action-btn"
+              @click="exportCSV"
+              :disabled="!filteredInvoices.length"
+            >
+              Export CSV
+            </v-btn>
+            <v-btn
+              color="primary"
+              variant="flat"
+              prepend-icon="mdi-file-pdf-box"
+              class="action-btn"
+              @click="exportPDF"
+              :loading="pdfLoading"
+              :disabled="!filteredInvoices.length"
+            >
+              Download PDF
+            </v-btn>
+          </template>
+          <template v-else>
+            <v-btn
+              color="primary"
+              variant="outlined"
+              prepend-icon="mdi-file-delimited-outline"
+              class="mr-2 action-btn"
+              @click="exportHoursCSV"
+              :disabled="!filteredHoursEntries.length"
+            >
+              Export CSV
+            </v-btn>
+            <v-btn
+              color="primary"
+              variant="flat"
+              prepend-icon="mdi-file-pdf-box"
+              class="action-btn"
+              @click="exportHoursPDF"
+              :loading="pdfLoading"
+              :disabled="!filteredHoursEntries.length"
+            >
+              Download PDF
+            </v-btn>
+          </template>
         </div>
       </header>
 
-      <!-- Filters Section -->
-      <v-card class="filter-card mb-6" flat>
-        <v-card-text class="d-flex flex-column flex-sm-row gap-4 pa-4 align-center">
-          <div class="filter-item flex-grow-1 w-100">
-            <span class="filter-label">Report Month</span>
-            <v-select
-              v-model="selectedMonth"
-              :items="monthOptions"
-              density="compact"
-              variant="outlined"
-              hide-details
-              class="custom-select"
-            ></v-select>
-          </div>
-          <div class="filter-item flex-grow-1 w-100">
-            <span class="filter-label">Report Year</span>
-            <v-select
-              v-model="selectedYear"
-              :items="yearOptions"
-              density="compact"
-              variant="outlined"
-              hide-details
-              class="custom-select"
-            ></v-select>
-          </div>
-        </v-card-text>
-      </v-card>
+      <!-- Report Type Selector Tabs -->
+      <v-tabs v-model="activeReportTab" bg-color="transparent" color="primary" class="mb-6 align-self-start" align-tabs="start">
+        <v-tab value="sales" class="text-capitalize font-weight-bold">
+          <v-icon start class="mr-1">mdi-chart-line</v-icon>
+          Sales Report
+        </v-tab>
+        <v-tab value="hours" class="text-capitalize font-weight-bold">
+          <v-icon start class="mr-1">mdi-clock-outline</v-icon>
+          Team Hours Report
+        </v-tab>
+      </v-tabs>
 
-      <!-- If no data is available for this month -->
-      <div v-if="!filteredInvoices.length" class="no-data-card pa-12 text-center">
-        <v-icon size="80" color="rgba(255, 255, 255, 0.1)" class="mb-4">mdi-file-chart-outline</v-icon>
-        <h3 class="text-h5 font-weight-medium">No Sales Data</h3>
-        <p class="text-subtitle-1 mt-2 text-medium-emphasis">
-          There are no finalized invoices for {{ months[selectedMonth] }} {{ selectedYear }}.
-        </p>
-      </div>
-
-      <div v-else>
-        <!-- Metrics Grid -->
-        <div class="metrics-grid mb-6">
-          <v-card class="metric-card" flat>
-            <v-card-text>
-              <div class="d-flex align-center justify-space-between mb-2">
-                <span class="metric-title">Total Sales</span>
-                <v-avatar color="rgba(74, 144, 226, 0.1)" size="36">
-                  <v-icon color="#4A90E2" size="20">mdi-currency-usd</v-icon>
-                </v-avatar>
-              </div>
-              <div class="metric-value text-glow-blue">{{ formatCurrency(metrics.totalSales) }}</div>
-              <div class="metric-subtitle">Excludes drafts</div>
-            </v-card-text>
-          </v-card>
-
-          <v-card class="metric-card" flat>
-            <v-card-text>
-              <div class="d-flex align-center justify-space-between mb-2">
-                <span class="metric-title">Tax Collected</span>
-                <v-avatar color="rgba(80, 227, 194, 0.1)" size="36">
-                  <v-icon color="#50E3C2" size="20">mdi-percent</v-icon>
-                </v-avatar>
-              </div>
-              <div class="metric-value text-glow-teal">{{ formatCurrency(metrics.totalTax) }}</div>
-              <div class="metric-subtitle">From taxable items</div>
-            </v-card-text>
-          </v-card>
-
-          <v-card class="metric-card" flat>
-            <v-card-text>
-              <div class="d-flex align-center justify-space-between mb-2">
-                <span class="metric-title">Average Value</span>
-                <v-avatar color="rgba(156, 39, 176, 0.1)" size="36">
-                  <v-icon color="#9C27B0" size="20">mdi-calculator</v-icon>
-                </v-avatar>
-              </div>
-              <div class="metric-value">{{ formatCurrency(metrics.averageValue) }}</div>
-              <div class="metric-subtitle">Per sales invoice</div>
-            </v-card-text>
-          </v-card>
-
-          <v-card class="metric-card" flat>
-            <v-card-text>
-              <div class="d-flex align-center justify-space-between mb-2">
-                <span class="metric-title">Total Invoices</span>
-                <v-avatar color="rgba(255, 152, 0, 0.1)" size="36">
-                  <v-icon color="#FF9800" size="20">mdi-file-document-outline</v-icon>
-                </v-avatar>
-              </div>
-              <div class="metric-value">{{ metrics.count }}</div>
-              <div class="metric-subtitle">Finalized count</div>
-            </v-card-text>
-          </v-card>
-        </div>
-
-        <!-- Secondary Breakdown (Paid vs Outstanding) -->
-        <div class="breakdown-grid mb-6">
-          <v-card class="breakdown-card" flat>
-            <v-card-text class="d-flex align-center">
-              <v-avatar color="rgba(76, 175, 80, 0.1)" size="48" class="mr-4">
-                <v-icon color="#4CAF50" size="28">mdi-check-circle-outline</v-icon>
-              </v-avatar>
-              <div>
-                <span class="breakdown-label">Paid / Collected</span>
-                <div class="breakdown-value text-glow-green">{{ formatCurrency(metrics.totalPaid) }}</div>
-              </div>
-            </v-card-text>
-          </v-card>
-
-          <v-card class="breakdown-card" flat>
-            <v-card-text class="d-flex align-center">
-              <v-avatar color="rgba(244, 67, 54, 0.1)" size="48" class="mr-4">
-                <v-icon color="#F44336" size="28">mdi-alert-circle-outline</v-icon>
-              </v-avatar>
-              <div>
-                <span class="breakdown-label">Pending / Outstanding</span>
-                <div class="breakdown-value text-glow-red">{{ formatCurrency(metrics.totalPending) }}</div>
-              </div>
-            </v-card-text>
-          </v-card>
-        </div>
-
-        <!-- Sales Trend Chart -->
-        <v-card class="chart-card mb-6" flat>
-          <v-card-text>
-            <h3 class="text-h6 font-weight-medium mb-4">Daily Sales Trend</h3>
-            <div class="chart-container">
-              <Bar :data="chartData" :options="chartOptions" />
+      <!-- ── SALES REPORT TAB ────────────────────────────────────────── -->
+      <div v-if="activeReportTab === 'sales'">
+        <!-- Filters Section -->
+        <v-card class="filter-card mb-6" flat>
+          <v-card-text class="d-flex flex-column flex-sm-row gap-4 pa-4 align-center">
+            <div class="filter-item flex-grow-1 w-100">
+              <span class="filter-label">Report Month</span>
+              <v-select
+                v-model="selectedMonth"
+                :items="monthOptions"
+                density="compact"
+                variant="outlined"
+                hide-details
+                class="custom-select"
+              ></v-select>
+            </div>
+            <div class="filter-item flex-grow-1 w-100">
+              <span class="filter-label">Report Year</span>
+              <v-select
+                v-model="selectedYear"
+                :items="yearOptions"
+                density="compact"
+                variant="outlined"
+                hide-details
+                class="custom-select"
+              ></v-select>
             </div>
           </v-card-text>
         </v-card>
 
-        <!-- Invoice Table -->
+        <!-- If no data is available for this month -->
+        <div v-if="!filteredInvoices.length" class="no-data-card pa-12 text-center">
+          <v-icon size="80" color="rgba(255, 255, 255, 0.1)" class="mb-4">mdi-file-chart-outline</v-icon>
+          <h3 class="text-h5 font-weight-medium">No Sales Data</h3>
+          <p class="text-subtitle-1 mt-2 text-medium-emphasis">
+            There are no finalized invoices for {{ months[selectedMonth] }} {{ selectedYear }}.
+          </p>
+        </div>
+
+        <div v-else>
+          <!-- Metrics Grid -->
+          <div class="metrics-grid mb-6">
+            <v-card class="metric-card" flat>
+              <v-card-text>
+                <div class="d-flex align-center justify-space-between mb-2">
+                  <span class="metric-title">Total Sales</span>
+                  <v-avatar color="rgba(74, 144, 226, 0.1)" size="36">
+                    <v-icon color="#4A90E2" size="20">mdi-currency-usd</v-icon>
+                  </v-avatar>
+                </div>
+                <div class="metric-value text-glow-blue">{{ formatCurrency(metrics.totalSales) }}</div>
+                <div class="metric-subtitle">Excludes drafts</div>
+              </v-card-text>
+            </v-card>
+
+            <v-card class="metric-card" flat>
+              <v-card-text>
+                <div class="d-flex align-center justify-space-between mb-2">
+                  <span class="metric-title">Tax Collected</span>
+                  <v-avatar color="rgba(80, 227, 194, 0.1)" size="36">
+                    <v-icon color="#50E3C2" size="20">mdi-percent</v-icon>
+                  </v-avatar>
+                </div>
+                <div class="metric-value text-glow-teal">{{ formatCurrency(metrics.totalTax) }}</div>
+                <div class="metric-subtitle">From taxable items</div>
+              </v-card-text>
+            </v-card>
+
+            <v-card class="metric-card" flat>
+              <v-card-text>
+                <div class="d-flex align-center justify-space-between mb-2">
+                  <span class="metric-title">Average Value</span>
+                  <v-avatar color="rgba(156, 39, 176, 0.1)" size="36">
+                    <v-icon color="#9C27B0" size="20">mdi-calculator</v-icon>
+                  </v-avatar>
+                </div>
+                <div class="metric-value">{{ formatCurrency(metrics.averageValue) }}</div>
+                <div class="metric-subtitle">Per sales invoice</div>
+              </v-card-text>
+            </v-card>
+
+            <v-card class="metric-card" flat>
+              <v-card-text>
+                <div class="d-flex align-center justify-space-between mb-2">
+                  <span class="metric-title">Total Invoices</span>
+                  <v-avatar color="rgba(255, 152, 0, 0.1)" size="36">
+                    <v-icon color="#FF9800" size="20">mdi-file-document-outline</v-icon>
+                  </v-avatar>
+                </div>
+                <div class="metric-value">{{ metrics.count }}</div>
+                <div class="metric-subtitle">Finalized count</div>
+              </v-card-text>
+            </v-card>
+          </div>
+
+          <!-- Secondary Breakdown (Paid vs Outstanding) -->
+          <div class="breakdown-grid mb-6">
+            <v-card class="breakdown-card" flat>
+              <v-card-text class="d-flex align-center">
+                <v-avatar color="rgba(76, 175, 80, 0.1)" size="48" class="mr-4">
+                  <v-icon color="#4CAF50" size="28">mdi-check-circle-outline</v-icon>
+                </v-avatar>
+                <div>
+                  <span class="breakdown-label">Paid / Collected</span>
+                  <div class="breakdown-value text-glow-green">{{ formatCurrency(metrics.totalPaid) }}</div>
+                </div>
+              </v-card-text>
+            </v-card>
+
+            <v-card class="breakdown-card" flat>
+              <v-card-text class="d-flex align-center">
+                <v-avatar color="rgba(244, 67, 54, 0.1)" size="48" class="mr-4">
+                  <v-icon color="#F44336" size="28">mdi-alert-circle-outline</v-icon>
+                </v-avatar>
+                <div>
+                  <span class="breakdown-label">Pending / Outstanding</span>
+                  <div class="breakdown-value text-glow-red">{{ formatCurrency(metrics.totalPending) }}</div>
+                </div>
+              </v-card-text>
+            </v-card>
+          </div>
+
+          <!-- Sales Trend Chart -->
+          <v-card class="chart-card mb-6" flat>
+            <v-card-text>
+              <h3 class="text-h6 font-weight-medium mb-4">Daily Sales Trend</h3>
+              <div class="chart-container">
+                <Bar :data="chartData" :options="chartOptions" />
+              </div>
+            </v-card-text>
+          </v-card>
+
+          <!-- Invoice Table -->
+          <v-card class="table-card" flat>
+            <v-card-text class="pa-0">
+              <div class="d-flex justify-space-between align-center px-6 py-4">
+                <h3 class="text-h6 font-weight-medium">Monthly Breakdown</h3>
+              </div>
+              
+              <div class="table-responsive">
+                <table class="reports-table">
+                  <thead>
+                    <tr>
+                      <th>Invoice #</th>
+                      <th>Issue Date</th>
+                      <th>Client</th>
+                      <th>Status</th>
+                      <th class="text-right">Tax</th>
+                      <th class="text-right">Total</th>
+                      <th class="text-center">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="invoice in filteredInvoices" :key="invoice.id">
+                      <td class="font-weight-bold">{{ formatInvoiceNumber(invoice.invoiceNumber) }}</td>
+                      <td>{{ invoice.issueDate ? invoice.issueDate.toLocaleDateString() : 'N/A' }}</td>
+                      <td>{{ invoice.client?.name || 'N/A' }}</td>
+                      <td>
+                        <span class="status-chip" :style="{ backgroundColor: getStatusColor(invoice.status) }">
+                          {{ invoice.status }}
+                        </span>
+                      </td>
+                      <td class="text-right">{{ formatCurrency(getInvoiceTax(invoice)) }}</td>
+                      <td class="text-right font-weight-bold">{{ formatCurrency(invoice.total) }}</td>
+                      <td class="text-center">
+                        <v-btn
+                          icon="mdi-eye-outline"
+                          variant="text"
+                          density="comfortable"
+                          color="primary"
+                          @click="viewInvoice(invoice.id)"
+                          title="View Invoice"
+                        ></v-btn>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </v-card-text>
+          </v-card>
+        </div>
+      </div>
+
+      <!-- ── TEAM HOURS REPORT TAB ──────────────────────────────────── -->
+      <div v-if="activeReportTab === 'hours'">
+        <!-- Hours Report Filters Section -->
+        <v-card class="filter-card mb-6" flat>
+          <v-card-text class="d-flex flex-column flex-sm-row gap-4 pa-4 align-center">
+            <div class="filter-item flex-grow-1 w-100">
+              <span class="filter-label">Start Date</span>
+              <v-text-field
+                v-model="startDate"
+                type="date"
+                density="compact"
+                variant="outlined"
+                hide-details
+                class="custom-select"
+              ></v-text-field>
+            </div>
+            <div class="filter-item flex-grow-1 w-100">
+              <span class="filter-label">End Date</span>
+              <v-text-field
+                v-model="endDate"
+                type="date"
+                density="compact"
+                variant="outlined"
+                hide-details
+                class="custom-select"
+              ></v-text-field>
+            </div>
+            <div class="filter-item flex-grow-1 w-100">
+              <span class="filter-label">Team Member</span>
+              <v-select
+                v-model="selectedMemberId"
+                :items="[{ name: 'All Members', uid: 'all' }, ...membersList]"
+                item-title="name"
+                item-value="uid"
+                density="compact"
+                variant="outlined"
+                hide-details
+                class="custom-select"
+              ></v-select>
+            </div>
+          </v-card-text>
+        </v-card>
+
+        <!-- Hours Metrics Grid -->
+        <div class="metrics-grid mb-6">
+          <v-card class="metric-card" flat>
+            <v-card-text>
+              <div class="d-flex align-center justify-space-between mb-2">
+                <span class="metric-title">Total Hours</span>
+                <v-avatar color="rgba(74, 144, 226, 0.1)" size="36">
+                  <v-icon color="#4A90E2" size="20">mdi-clock-outline</v-icon>
+                </v-avatar>
+              </div>
+              <div class="metric-value text-glow-blue">{{ hoursMetrics.totalHours.toFixed(1) }} hrs</div>
+              <div class="metric-subtitle">Across selected criteria</div>
+            </v-card-text>
+          </v-card>
+
+          <v-card class="metric-card" flat>
+            <v-card-text>
+              <div class="d-flex align-center justify-space-between mb-2">
+                <span class="metric-title">Billable Hours</span>
+                <v-avatar color="rgba(76, 175, 80, 0.1)" size="36">
+                  <v-icon color="#4CAF50" size="20">mdi-lock-clock</v-icon>
+                </v-avatar>
+              </div>
+              <div class="metric-value text-glow-green">{{ hoursMetrics.billableHours.toFixed(1) }} hrs</div>
+              <div class="metric-subtitle">To be billed to clients</div>
+            </v-card-text>
+          </v-card>
+
+          <v-card class="metric-card" flat>
+            <v-card-text>
+              <div class="d-flex align-center justify-space-between mb-2">
+                <span class="metric-title">Non-Billable Hours</span>
+                <v-avatar color="rgba(244, 67, 54, 0.1)" size="36">
+                  <v-icon color="#F44336" size="20">mdi-clock-alert-outline</v-icon>
+                </v-avatar>
+              </div>
+              <div class="metric-value text-glow-red">{{ hoursMetrics.nonBillableHours.toFixed(1) }} hrs</div>
+              <div class="metric-subtitle">Internal / overhead hours</div>
+            </v-card-text>
+          </v-card>
+
+          <v-card class="metric-card" flat>
+            <v-card-text>
+              <div class="d-flex align-center justify-space-between mb-2">
+                <span class="metric-title">Estimated Labor Cost</span>
+                <v-avatar color="rgba(156, 39, 176, 0.1)" size="36">
+                  <v-icon color="#9C27B0" size="20">mdi-currency-usd</v-icon>
+                </v-avatar>
+              </div>
+              <div class="metric-value text-glow-purple">{{ formatCurrency(hoursMetrics.totalPay) }}</div>
+              <div class="metric-subtitle">Based on member hourly rates</div>
+            </v-card-text>
+          </v-card>
+        </div>
+
+        <!-- Hours Breakdown Table -->
         <v-card class="table-card" flat>
           <v-card-text class="pa-0">
             <div class="d-flex justify-space-between align-center px-6 py-4">
-              <h3 class="text-h6 font-weight-medium">Monthly Breakdown</h3>
+              <h3 class="text-h6 font-weight-medium">Hours Breakdown</h3>
             </div>
             
-            <div class="table-responsive">
+            <div v-if="loadingHours" class="pa-6 text-center">
+              <v-progress-circular indeterminate color="primary"></v-progress-circular>
+              <p class="mt-2 text-medium-emphasis">Fetching hours data...</p>
+            </div>
+            
+            <div v-else-if="!filteredHoursEntries.length" class="pa-12 text-center">
+              <v-icon size="48" color="rgba(255, 255, 255, 0.1)" class="mb-2">mdi-clock-outline</v-icon>
+              <p class="text-medium-emphasis">No hours logged matching the filters.</p>
+            </div>
+
+            <div v-else class="table-responsive">
               <table class="reports-table">
                 <thead>
                   <tr>
-                    <th>Invoice #</th>
-                    <th>Issue Date</th>
+                    <th>Date</th>
+                    <th>Team Member</th>
+                    <th>Project</th>
                     <th>Client</th>
-                    <th>Status</th>
-                    <th class="text-right">Tax</th>
-                    <th class="text-right">Total</th>
-                    <th class="text-center">Actions</th>
+                    <th>Description</th>
+                    <th>Billable</th>
+                    <th class="text-right">Hours</th>
+                    <th class="text-right">Rate</th>
+                    <th class="text-right">Subtotal</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="invoice in filteredInvoices" :key="invoice.id">
-                    <td class="font-weight-bold">{{ formatInvoiceNumber(invoice.invoiceNumber) }}</td>
-                    <td>{{ invoice.issueDate ? invoice.issueDate.toLocaleDateString() : 'N/A' }}</td>
-                    <td>{{ invoice.client?.name || 'N/A' }}</td>
+                  <tr v-for="entry in filteredHoursEntries" :key="entry.id">
+                    <td>{{ entry.dateStr }}</td>
+                    <td class="font-weight-bold">{{ entry.createdByName }}</td>
+                    <td>{{ entry.projectName }}</td>
+                    <td>{{ entry.clientName }}</td>
+                    <td>{{ entry.description || '—' }}</td>
                     <td>
-                      <span class="status-chip" :style="{ backgroundColor: getStatusColor(invoice.status) }">
-                        {{ invoice.status }}
-                      </span>
+                      <v-chip :color="entry.billable ? 'success' : 'default'" size="x-small" variant="tonal">
+                        {{ entry.billable ? 'Billable' : 'Non-billable' }}
+                      </v-chip>
                     </td>
-                    <td class="text-right">{{ formatCurrency(getInvoiceTax(invoice)) }}</td>
-                    <td class="text-right font-weight-bold">{{ formatCurrency(invoice.total) }}</td>
-                    <td class="text-center">
-                      <v-btn
-                        icon="mdi-eye-outline"
-                        variant="text"
-                        density="comfortable"
-                        color="primary"
-                        @click="viewInvoice(invoice.id)"
-                        title="View Invoice"
-                      ></v-btn>
-                    </td>
+                    <td class="text-right">{{ entry.hours.toFixed(2) }} hrs</td>
+                    <td class="text-right">{{ formatCurrency(entry.rate) }}</td>
+                    <td class="text-right font-weight-bold">{{ formatCurrency(entry.hours * entry.rate) }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -528,7 +926,7 @@ const viewInvoice = (id) => {
         </v-card>
       </div>
 
-      <!-- Offscreen Print-Ready Template (White Background, Portrait Format) -->
+      <!-- Offscreen Print-Ready Template (White Background, Portrait Format) for Sales -->
       <div ref="reportPrintArea" class="print-report-container">
         <!-- Header -->
         <div class="print-header">
@@ -592,6 +990,82 @@ const viewInvoice = (id) => {
               <td style="text-transform: uppercase; font-weight: bold; font-size: 10px;">{{ inv.status }}</td>
               <td style="text-align: right;">{{ formatCurrency(getInvoiceTax(inv)) }}</td>
               <td style="text-align: right; font-weight: bold;">{{ formatCurrency(inv.total) }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Footer -->
+        <div class="print-footer">
+          Generated on {{ new Date().toLocaleString() }} | Powered by ScanGo Invoice
+        </div>
+      </div>
+
+      <!-- Offscreen Print-Ready Template (White Background, Portrait Format) for Hours -->
+      <div ref="hoursReportPrintArea" class="print-report-container">
+        <!-- Header -->
+        <div class="print-header">
+          <div>
+            <h1 class="print-main-title">Team Hours Report</h1>
+            <p class="print-period">{{ startDate }} to {{ endDate }}</p>
+          </div>
+          <div class="print-company-details">
+            <h3 class="print-company-name">{{ settings.company?.name || 'ScanGo Invoice User' }}</h3>
+            <p v-if="settings.company?.email">{{ settings.company?.email }}</p>
+            <p v-if="settings.company?.phone">{{ settings.company?.phone }}</p>
+          </div>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="print-metrics-grid">
+          <div class="print-metric-box">
+            <div class="print-metric-label">Total Hours</div>
+            <div class="print-metric-val">{{ hoursMetrics.totalHours.toFixed(1) }} hrs</div>
+          </div>
+          <div class="print-metric-box">
+            <div class="print-metric-label">Billable Hours</div>
+            <div class="print-metric-val">{{ hoursMetrics.billableHours.toFixed(1) }} hrs</div>
+          </div>
+          <div class="print-metric-box">
+            <div class="print-metric-label">Non-Billable Hours</div>
+            <div class="print-metric-val">{{ hoursMetrics.nonBillableHours.toFixed(1) }} hrs</div>
+          </div>
+          <div class="print-metric-box">
+            <div class="print-metric-label">Estimated Labor Cost</div>
+            <div class="print-metric-val print-text-purple">{{ formatCurrency(hoursMetrics.totalPay) }}</div>
+          </div>
+          <div class="print-metric-box" style="grid-column: span 2;">
+            <div class="print-metric-label">Selected Member</div>
+            <div class="print-metric-val">
+              {{ selectedMemberId === 'all' ? 'All Members' : (membersList.find(m => m.uid === selectedMemberId)?.name || 'Member') }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <h2 class="print-section-title">Hours Breakdown</h2>
+        <table class="print-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Team Member</th>
+              <th>Project</th>
+              <th>Description</th>
+              <th>Billable</th>
+              <th style="text-align: right;">Hours</th>
+              <th style="text-align: right;">Rate</th>
+              <th style="text-align: right;">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="entry in filteredHoursEntries" :key="entry.id">
+              <td>{{ entry.dateStr }}</td>
+              <td style="font-weight: bold;">{{ entry.createdByName }}</td>
+              <td>{{ entry.projectName }}</td>
+              <td>{{ entry.description || '—' }}</td>
+              <td>{{ entry.billable ? 'Billable' : 'Non-billable' }}</td>
+              <td style="text-align: right;">{{ entry.hours.toFixed(2) }} hrs</td>
+              <td style="text-align: right;">{{ formatCurrency(entry.rate) }}</td>
+              <td style="text-align: right; font-weight: bold;">{{ formatCurrency(entry.hours * entry.rate) }}</td>
             </tr>
           </tbody>
         </table>
@@ -759,6 +1233,10 @@ const viewInvoice = (id) => {
   text-shadow: 0 0 15px rgba(244, 67, 54, 0.4);
 }
 
+.text-glow-purple {
+  text-shadow: 0 0 15px rgba(156, 39, 176, 0.4);
+}
+
 /* Chart Card */
 .chart-card {
   background: rgba(255, 255, 255, 0.03) !important;
@@ -916,6 +1394,10 @@ const viewInvoice = (id) => {
 
 .print-text-red {
   color: #b91c1c !important;
+}
+
+.print-text-purple {
+  color: #7e22ce !important;
 }
 
 .print-section-title {

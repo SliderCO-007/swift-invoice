@@ -996,3 +996,51 @@ Give Organization Owners the ability to delete projects and expense categories. 
 - **CSV Export**: Click "Export CSV" on both tabs and verify it generates the correct fields (Description & Price for standard items; Category Name for categories).
 
 
+## Team Member Hourly Rate Restriction (v42)
+
+### Purpose
+Ensure that team members (users with the role `member`) can only enter their time and cannot view or adjust hourly rates anywhere in the application. Visibility and adjustment of default project rates, individual time entry rates, and total billable labor amounts is restricted solely to organization owners. Expense entry and display remain unchanged.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/ProjectsView.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ProjectsView.vue)
+- Add `v-if="isOwner"` to the highlight billable chip on the project list cards so that members do not see the total billable amount.
+
+#### [MODIFY] [src/components/ProjectDetail.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ProjectDetail.vue)
+- Add `v-if="isOwner"` to the total billable summary chip.
+- Wrap the hourly rate (`Rate ($/hr)`) text field in the inline time entry form with `v-if="isOwner"`. The form will still initialize with the project's `defaultRate` in `freshTimeEntry()`.
+- Wrap the hourly rate (`Rate ($/hr)`) text field in the edit entry dialog with `v-if="isOwner"` for time entries.
+- Hide the rate detail (`@ {{ fmt$(entry.rate) }}`) and the subtotal (`{{ fmt$(entry.hours * entry.rate) }}`) in the time entries list for non-owners.
+
+#### [MODIFY] [src/components/ProjectEditor.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ProjectEditor.vue)
+- Wrap the `Default Hourly Rate ($)` input field with `v-if="isOwner"`.
+
+### Verification Plan
+- **Projects List Total Visibility**: Log in as a member. Navigate to Projects. Verify that the project card shows total hours and expenses, but the green "billable" badge/chip is hidden. Log in as owner, verify the "billable" badge/chip is visible.
+- **Project Detail Page Total Visibility**: As a member, view project details. Verify that the total billable summary chip is hidden. As owner, verify it is visible.
+- **Log Hours rate restriction**: As a member, open the "Log Hours" form. Verify the `Rate ($/hr)` input field is completely hidden. Enter hours and save. Verify the entry is saved successfully and inherits the project's default rate.
+- **Edit Hours rate restriction**: As a member, click "Edit" on a time entry. Verify the `Rate ($/hr)` field is hidden in the edit dialog. Modify the hours, save, and verify that the original rate is preserved.
+- **Time Entry List display**: As a member, view the Time entries list. Verify that the rate (e.g. `@ $100.00`) and the entry's subtotal are not visible. Only the date, description, hours logged, and billable badge should be visible.
+
+
+## Team Hours Report (v43)
+
+### Purpose
+Introduce a team member hours report under the Reports tab to allow organization owners to filter logged project time entries by date range and team member (including themselves). Provides total hours logged, billable vs non-billable splits, and estimated labor costs, along with options to export the filtered report as CSV (for payroll software imports) or PDF (for immutable storage).
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/ReportsView.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ReportsView.vue)
+- Import firestore `db`, collection queries (`getDocs`, `query`, `where`), and composables (`useProjects`, `useOrganization`, `userProfile`).
+- Set up state variables for active tab selection, date range (Start/End Date), selected member, loading states, and project entries.
+- Add computed lists for team members including the owner.
+- Implement the `fetchHoursReportData()` logic to fetch entries dynamically across projects.
+- Implement `exportHoursCSV()` and `exportHoursPDF()` export handlers.
+- Style metrics cards with custom shadows and text-glows.
+- Embed offscreen print-ready layout `hoursReportPrintArea` for the PDF generator.
+
+### Verification Plan
+- **Report Toggle**: Navigate to `/reports` as an Owner. Confirm the "Sales Report" and "Team Hours Report" tabs are rendered.
+- **Report Filtering**: Click the "Team Hours Report" tab. Adjust the date ranges and team member selection dropdown. Confirm the metrics cards (Total Hours, Billable/Non-Billable, Estimated Labor Cost) and details table update instantly.
+- **CSV Export**: Click "Export CSV". Verify the downloaded file contains the correct columns and values.
+- **PDF Export**: Click "Download PDF". Verify the downloaded PDF contains the clean, styled portrait layout of the team member hours.

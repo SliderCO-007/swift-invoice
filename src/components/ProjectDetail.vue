@@ -265,7 +265,7 @@ onUnmounted(() => { stopEntries(); stopItems(); });
             <v-icon icon="mdi-receipt-outline" size="16" class="mr-1" />
             <span>{{ fmt$(totalExpenses) }} expenses</span>
           </div>
-          <div class="summary-chip highlight">
+          <div class="summary-chip highlight" v-if="isOwner">
             <v-icon icon="mdi-currency-usd" size="16" class="mr-1" />
             <span>{{ fmt$(totalBillable) }} total billable</span>
           </div>
@@ -301,7 +301,7 @@ onUnmounted(() => { stopEntries(); stopItems(); });
                 <label class="field-label">Hours</label>
                 <v-text-field v-model.number="timeForm.hours" type="number" min="0" step="0.25" variant="solo" density="compact" hide-details placeholder="0.00" />
               </div>
-              <div>
+              <div v-if="isOwner">
                 <label class="field-label">Rate ($/hr)</label>
                 <v-text-field v-model.number="timeForm.rate" type="number" min="0" variant="solo" density="compact" hide-details />
               </div>
@@ -340,8 +340,8 @@ onUnmounted(() => { stopEntries(); stopItems(); });
               </div>
               <div class="entry-right">
                 <span class="entry-stat">{{ Number(entry.hours).toFixed(2) }} hrs</span>
-                <span class="entry-stat">@ {{ fmt$(entry.rate) }}</span>
-                <span class="entry-subtotal">{{ fmt$(entry.hours * entry.rate) }}</span>
+                <span class="entry-stat" v-if="isOwner">@ {{ fmt$(entry.rate) }}</span>
+                <span class="entry-subtotal" v-if="isOwner">{{ fmt$(entry.hours * entry.rate) }}</span>
                 <v-chip :color="entry.billable ? 'success' : 'default'" size="x-small" variant="tonal">{{ entry.billable ? 'Billable' : 'Non-billable' }}</v-chip>
                 <v-btn icon size="x-small" variant="text" @click="openEdit(entry)"><v-icon icon="mdi-pencil" size="16" /></v-btn>
                 <v-btn icon size="x-small" variant="text" color="red-lighten-3" @click="removeEntry(entry.id)"><v-icon icon="mdi-delete-outline" size="16" /></v-btn>
@@ -438,7 +438,7 @@ onUnmounted(() => { stopEntries(); stopItems(); });
           <v-text-field label="Date" type="date" v-model="editForm.date" variant="solo" density="comfortable" class="mb-3" hide-details />
           <template v-if="editForm.type === 'time'">
             <v-text-field label="Hours" type="number" v-model.number="editForm.hours" min="0" step="0.25" variant="solo" density="comfortable" class="mb-3" hide-details />
-            <v-text-field label="Rate ($/hr)" type="number" v-model.number="editForm.rate" min="0" variant="solo" density="comfortable" class="mb-3" hide-details />
+            <v-text-field v-if="isOwner" label="Rate ($/hr)" type="number" v-model.number="editForm.rate" min="0" variant="solo" density="comfortable" class="mb-3" hide-details />
           </template>
           <template v-else>
             <v-text-field label="Amount ($)" type="number" v-model.number="editForm.amount" min="0" variant="solo" density="comfortable" class="mb-3" hide-details />

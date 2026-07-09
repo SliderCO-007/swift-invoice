@@ -147,7 +147,7 @@ const formatCurrency = (val) =>
               <v-icon icon="mdi-receipt-outline" size="14" class="mr-1" />
               {{ formatCurrency(project.totalExpenses) }}
             </span>
-            <span class="info-chip highlight">
+            <span class="info-chip highlight" v-if="isOwner">
               <v-icon icon="mdi-currency-usd" size="14" class="mr-1" />
               {{ formatCurrency((project.totalLabor || 0) + (project.totalExpenses || 0)) }} billable
             </span>
