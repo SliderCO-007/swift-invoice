@@ -999,7 +999,7 @@ Give Organization Owners the ability to delete projects and expense categories. 
 ## Team Member Hourly Rate Restriction (v42)
 
 ### Purpose
-Ensure that team members (users with the role `member`) can only enter their time and cannot view or adjust hourly rates anywhere in the application. Visibility and adjustment of default project rates, individual time entry rates, and total billable labor amounts is restricted solely to organization owners. Expense entry and display remain unchanged.
+Ensure that team members (users with the role `member`) can only enter their time, cannot view or adjust hourly rates anywhere in the application, and cannot create new expense categories (they can only choose from existing categories created by the owner). Visibility and adjustment of default project rates, individual time entry rates, total billable labor amounts, and creating new expense categories is restricted solely to organization owners.
 
 ### Proposed Changes
 
@@ -1011,6 +1011,9 @@ Ensure that team members (users with the role `member`) can only enter their tim
 - Wrap the hourly rate (`Rate ($/hr)`) text field in the inline time entry form with `v-if="isOwner"`. The form will still initialize with the project's `defaultRate` in `freshTimeEntry()`.
 - Wrap the hourly rate (`Rate ($/hr)`) text field in the edit entry dialog with `v-if="isOwner"` for time entries.
 - Hide the rate detail (`@ {{ fmt$(entry.rate) }}`) and the subtotal (`{{ fmt$(entry.hours * entry.rate) }}`) in the time entries list for non-owners.
+- Replace the expense category `v-combobox` with `v-select` for non-owners so they can only select from pre-existing categories.
+- Replace the expense category edit `v-text-field` with `v-select` for non-owners in the edit entry dialog.
+- Guard the automatic Firestore category creation inside `submitExpenseEntry()` so it only runs if `isOwner` is true.
 
 #### [MODIFY] [src/components/ProjectEditor.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ProjectEditor.vue)
 - Wrap the `Default Hourly Rate ($)` input field with `v-if="isOwner"`.
@@ -1021,6 +1024,8 @@ Ensure that team members (users with the role `member`) can only enter their tim
 - **Log Hours rate restriction**: As a member, open the "Log Hours" form. Verify the `Rate ($/hr)` input field is completely hidden. Enter hours and save. Verify the entry is saved successfully and inherits the project's default rate.
 - **Edit Hours rate restriction**: As a member, click "Edit" on a time entry. Verify the `Rate ($/hr)` field is hidden in the edit dialog. Modify the hours, save, and verify that the original rate is preserved.
 - **Time Entry List display**: As a member, view the Time entries list. Verify that the rate (e.g. `@ $100.00`) and the entry's subtotal are not visible. Only the date, description, hours logged, and billable badge should be visible.
+- **Expense Category restriction**: Log in as a member, go to "Add Expense". Verify that the Category field is a dropdown (`v-select`) only allowing choices from existing categories. Type custom category names and verify they cannot be added.
+- **Edit Expense Category restriction**: Log in as a member, edit an expense entry. Verify that the Category field is a dropdown (`v-select`) only.
 
 
 ## Team Hours Report (v43)

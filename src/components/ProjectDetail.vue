@@ -148,8 +148,8 @@ const submitExpenseEntry = async () => {
   isSubmitting.value = true;
   entryError.value = null;
   try {
-    // Auto-save new expense category
-    if (expenseForm.value.category && !expenseCategories.value.includes(expenseForm.value.category)) {
+    // Auto-save new expense category (only for owners)
+    if (isOwner.value && expenseForm.value.category && !expenseCategories.value.includes(expenseForm.value.category)) {
       await addItemFn({ name: expenseForm.value.category, type: 'expense-category' });
     }
     await addEntry(projectId, { type: 'expense', ...expenseForm.value }, receiptFile.value);
@@ -367,10 +367,8 @@ onUnmounted(() => { stopEntries(); stopItems(); });
                 <label class="field-label">Amount ($)</label>
                 <v-text-field v-model.number="expenseForm.amount" type="number" min="0" step="0.01" variant="solo" density="compact" hide-details placeholder="0.00" />
               </div>
-              <div>
-                <label class="field-label">Category</label>
-                <v-combobox v-model="expenseForm.category" :items="expenseCategories" variant="solo" density="compact" hide-details placeholder="e.g. Materials" />
-              </div>
+                <v-select v-if="!isOwner" v-model="expenseForm.category" :items="expenseCategories" variant="solo" density="compact" hide-details placeholder="Choose Category" />
+                <v-combobox v-else v-model="expenseForm.category" :items="expenseCategories" variant="solo" density="compact" hide-details placeholder="e.g. Materials" />
               <div class="billable-toggle">
                 <label class="field-label">Billable</label>
                 <v-switch v-model="expenseForm.billable" color="primary" hide-details inset density="compact" />
@@ -442,7 +440,8 @@ onUnmounted(() => { stopEntries(); stopItems(); });
           </template>
           <template v-else>
             <v-text-field label="Amount ($)" type="number" v-model.number="editForm.amount" min="0" variant="solo" density="comfortable" class="mb-3" hide-details />
-            <v-text-field label="Category" v-model="editForm.category" variant="solo" density="comfortable" class="mb-3" hide-details />
+            <v-select v-if="!isOwner" label="Category" v-model="editForm.category" :items="expenseCategories" variant="solo" density="comfortable" class="mb-3" hide-details />
+            <v-text-field v-else label="Category" v-model="editForm.category" variant="solo" density="comfortable" class="mb-3" hide-details />
           </template>
           <v-text-field label="Description" v-model="editForm.description" variant="solo" density="comfortable" class="mb-3" hide-details />
           <v-switch label="Billable" v-model="editForm.billable" color="primary" inset hide-details />
