@@ -1050,3 +1050,32 @@ Introduce a team member hours report under the Reports tab to allow organization
 - **Report Filtering**: Click the "Team Hours Report" tab. Adjust the date ranges and team member selection dropdown. Confirm the metrics cards (Total Hours, Billable/Non-Billable, Estimated Labor Cost) and details table update instantly.
 - **CSV Export**: Click "Export CSV". Verify the downloaded file contains the correct columns and values.
 - **PDF Export**: Click "Download PDF". Verify the downloaded PDF contains the clean, styled portrait layout of the team member hours.
+
+
+## Guest Funnel Elimination & GA Route Tracking (v44)
+
+### Purpose
+To eliminate conversion friction by routing anonymous guest users directly to registration/signup instead of allowing them to create a full invoice in guest mode only to block them with a paywall modal when trying to save or download. This ensures a transparent CTA structure and drives signups earlier. Additionally, resolves the Google Analytics tracking gap by enabling Vue Router page tracking and logging successful registration events.
+
+### Proposed Changes
+
+#### [MODIFY] [src/router/index.js](file:///C:/Users/curth/git/swift-invoice/src/router/index.js)
+- Changed the `/invoice/new` route `requiresAuth` meta setting from `false` to `true` to restrict guest access. Guests attempting to access `/invoice/new` directly will be redirected to the Login page automatically.
+
+#### [MODIFY] [src/components/LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Updated the Hero secondary button to point to `/register` with the label "Create Free Account" (replacing the old "Create Guest Invoice" to `/invoice/new`).
+- Updated the sub-row links to direct existing users to `/login` with "Already have an account? Log In" (replacing "Or sign up with email").
+- Updated the bottom CTA section to remove the guest invoice button entirely and style the remaining options cleanly: "Start Free with Google" (primary) and "Create Account with Email" (secondary, pointing to `/register`).
+
+#### [MODIFY] [src/main.js](file:///C:/Users/curth/git/swift-invoice/src/main.js)
+- Passed the `router` instance to `createGtag` so that `vue-gtag` automatically tracks route changes and page views in Google Analytics.
+
+#### [MODIFY] [src/composables/useAuth.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useAuth.js)
+- Imported `event` from `vue-gtag` and called `event('sign_up', { method })` inside `createInitialUserData` to fire registration events to Google Analytics, reporting the provider method (Google vs Email).
+
+### Verification Plan
+- **Route Guard Redirect**: Navigate to `/invoice/new` as an unauthenticated guest. Confirm the app redirects to `/login`.
+- **Landing Page Hero CTAs**: View the Hero section as a guest. Verify "Start Free with Google" and "Create Free Account" (points to `/register`) are the CTAs. Check that the sub-row contains "Already have an account? Log In" pointing to `/login`.
+- **Landing Page Bottom CTAs**: Scroll to the bottom of the landing page. Verify only two CTAs are present: "Start Free with Google" (primary layout) and "Create Account with Email" (secondary layout, points to `/register`).
+- **Google Analytics Pageviews**: Navigate between routes and check the browser network calls or GA debugger to verify `gtag` pageview events are dispatched on every route transition.
+- **GA Conversion Event**: Perform a new user signup and confirm that a `sign_up` event with the correct `method` parameter is fired.

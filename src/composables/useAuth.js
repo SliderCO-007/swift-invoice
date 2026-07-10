@@ -12,6 +12,7 @@ import {
 } from 'firebase/auth';
 import { doc, getDoc, serverTimestamp, writeBatch, collection, query, where, getDocs, updateDoc, arrayUnion, setDoc } from 'firebase/firestore';
 import { db, auth } from './useFirebase.js';
+import { event } from 'vue-gtag';
 
 // --- SHARED SINGLETON STATE ---
 const currentUser = ref(null);
@@ -234,6 +235,14 @@ const createInitialUserData = async (user) => {
     // Fire Meta Pixel registration event for tracking ad conversions
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'CompleteRegistration');
+    }
+
+    // Fire Google Analytics registration event
+    try {
+      const method = user.providerData && user.providerData[0]?.providerId === 'google.com' ? 'google' : 'email';
+      event('sign_up', { method });
+    } catch (e) {
+      console.warn("Failed to fire GA signup event:", e);
     }
   } catch (err) {
     console.error("Error creating initial user data:", err);

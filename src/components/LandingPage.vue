@@ -65,24 +65,24 @@
                   Start Free with Google
                 </v-btn>
 
-                <!-- Create Guest Invoice (Secondary Outline) -->
+                <!-- Create Free Account (Secondary Outline) -->
                 <v-btn
-                  to="/invoice/new"
+                  to="/register"
                   class="font-weight-bold px-10 cta-btn cta-btn-secondary"
                   size="x-large"
                   rounded="xl"
                   :block="mobile"
                 >
-                  <v-icon left size="24" class="mr-2">mdi-file-document-edit-outline</v-icon>
-                  Create Guest Invoice
+                  <v-icon left size="24" class="mr-2">mdi-account-plus-outline</v-icon>
+                  Create Free Account
                 </v-btn>
               </div>
 
               <!-- Email Link & Demo Button Row -->
               <div class="mt-6 d-flex flex-column flex-sm-row align-center justify-center justify-md-start ga-6">
-                <router-link to="/register" class="email-signup-link text-body-2 text-blue-grey-lighten-2 text-decoration-none">
-                  <v-icon size="16" class="mr-1">mdi-email-outline</v-icon>
-                  Or sign up with email
+                <router-link to="/login" class="email-signup-link text-body-2 text-blue-grey-lighten-2 text-decoration-none">
+                  <v-icon size="16" class="mr-1">mdi-login</v-icon>
+                  Already have an account? Log In
                 </router-link>
 
                 <div class="d-none d-sm-block text-blue-grey-darken-3">|</div>
@@ -407,20 +407,11 @@
             <div
               class="d-flex flex-column flex-sm-row flex-wrap ga-4 mt-8 align-center justify-center"
             >
-              <v-btn
-                to="/invoice/new"
-                class="font-weight-bold px-10 cta-btn cta-btn-guest"
-                size="x-large"
-                rounded="xl"
-                :block="mobile"
-              >
-                <v-icon left size="24" class="mr-2">mdi-file-document-edit-outline</v-icon>
-                Create Free Invoice
-              </v-btn>
+              <!-- Google Button (Primary) -->
               <v-btn
                 @click="handleGoogleSignIn"
                 :loading="loading"
-                class="font-weight-bold px-10 cta-btn cta-btn-google"
+                class="font-weight-bold px-10 cta-btn cta-btn-primary"
                 size="x-large"
                 rounded="xl"
                 :block="mobile"
@@ -452,15 +443,17 @@
                 </svg>
                 Start Free with Google
               </v-btn>
+
+              <!-- Email Button (Secondary) -->
               <v-btn
                 to="/register"
-                class="font-weight-bold px-10 cta-btn cta-btn-email"
+                class="font-weight-bold px-10 cta-btn cta-btn-secondary"
                 size="x-large"
                 rounded="xl"
                 :block="mobile"
               >
                 <v-icon left size="24" class="mr-2">mdi-email-outline</v-icon>
-                Or continue with email
+                Create Account with Email
               </v-btn>
             </div>
           </div>

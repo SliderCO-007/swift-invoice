@@ -15,7 +15,7 @@ app.use(head);
 app.use(vuetify);
 app.use(router);
 
-// Correctly configure vue-gtag with Google Consent Mode v2
+// Correctly configure vue-gtag with Google Consent Mode v2 and enable Router tracking
 app.use(createGtag({
   tagId: import.meta.env.VITE_GA_MEASUREMENT_ID,
   // Let the plugin handle storage and consent state
@@ -30,7 +30,7 @@ app.use(createGtag({
       ad_personalization: 'denied',
     },
   },
-}));
+}, router));
 
 // Asynchronously mount the app only after Firebase auth is ready.
 async function mountApp() {
