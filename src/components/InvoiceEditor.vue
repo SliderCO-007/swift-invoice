@@ -239,28 +239,29 @@ onUnmounted(() => {
         <v-btn :to="{ name: 'Dashboard' }" color="white" variant="flat" class="text-indigo-darken-4 font-weight-bold">Back to Dashboard</v-btn>
       </header>
 
-      <!-- Stripe Connect Warning Alert for Authenticated Users -->
-      <v-alert
+      <!-- Stripe Connect Warning Alert for Authenticated Users (Custom Styled for mobile responsiveness) -->
+      <div
         v-if="user && !connectStatus.chargesEnabled && !settingsLoading && stripeStatusHaveLoaded"
-        type="warning"
-        variant="tonal"
-        class="mb-6 text-left"
-        border="start"
-        style="background: rgba(245, 158, 11, 0.08) !important; border-color: #fbbf24 !important; color: #f1f5f9 !important;"
-        prominent
+        class="stripe-warning-banner mb-6"
       >
-        <template v-slot:prepend>
-          <v-icon color="#fbbf24">mdi-credit-card-outline</v-icon>
-        </template>
-        <template v-slot:text>
-          <div style="color: #f1f5f9;">
-            You will not be able to accept online payments until your payment account connection is completed.
+        <div class="banner-content">
+          <div class="banner-text-wrapper">
+            <v-icon color="#fbbf24" class="banner-icon mr-3">mdi-credit-card-outline</v-icon>
+            <div class="banner-text">
+              <span class="banner-title">Online Payments Not Connected</span>
+              <p class="banner-desc">You will not be able to accept credit cards, Apple Pay, or ACH payments on your invoices until you connect a payment account.</p>
+            </div>
           </div>
-        </template>
-        <template v-slot:append>
-          <v-btn to="/settings" color="#fbbf24" variant="flat" class="text-black font-weight-bold" style="text-transform: none;">Connect Now</v-btn>
-        </template>
-      </v-alert>
+          <v-btn 
+            to="/settings" 
+            color="#fbbf24" 
+            variant="flat" 
+            class="connect-btn-banner text-black font-weight-bold"
+          >
+            Connect Now
+          </v-btn>
+        </div>
+      </div>
 
       <div v-if="saveError" class="error-container">
         <v-alert type="error" dense outlined closable @click:close="saveError = null">{{ saveError }}</v-alert>
@@ -432,6 +433,60 @@ onUnmounted(() => {
 .color-picker::-webkit-color-swatch { border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; }
 .color-hex { font-family: monospace; font-size: 1.1rem; color: #fff; }
 
+.stripe-warning-banner {
+  background: rgba(245, 158, 11, 0.04);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(12px);
+  text-align: left;
+}
+
+.banner-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.banner-text-wrapper {
+  display: flex;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.banner-icon {
+  margin-top: 0.15rem;
+  font-size: 28px;
+}
+
+.banner-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.banner-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.25rem;
+}
+
+.banner-desc {
+  font-size: 0.95rem;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.connect-btn-banner {
+  text-transform: none;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 :deep(.v-list) { background: #fff !important; color: #1e293b !important; }
 :deep(.v-list-item) { color: #1e293b !important; }
 
@@ -442,6 +497,26 @@ onUnmounted(() => {
   .from-.fields { display: none; } 
   .editor-footer { flex-direction: column; gap: 0.5rem; }
   .editor-footer .v-btn { width: 100%; margin: 0.25rem 0; }
+  
+  /* Warning banner mobile adjustments */
+  .stripe-warning-banner {
+    padding: 1.25rem;
+  }
+  .banner-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
+  }
+  .banner-text-wrapper {
+    align-items: flex-start;
+  }
+  .banner-icon {
+    font-size: 24px;
+    margin-right: 0.5rem !important;
+  }
+  .connect-btn-banner {
+    width: 100%;
+  }
 }
 
  	

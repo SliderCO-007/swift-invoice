@@ -1136,3 +1136,22 @@ Optimize the onboarding flow to prevent user drop-off/friction caused by present
 - **Vite Build**: Run `npm run build` to confirm no bundling errors occur.
 
 
+## Invoice Editor Stripe Warning Mobile Fix (v47)
+
+### Purpose
+Fix the layout of the Stripe Connect warning banner on the `/invoice/new` route on mobile screens. The default `v-alert` layout with an appended button shrinks and distorts on small viewports. We replace it with a custom responsive flex layout matching the Dashboard warning banner style, which stacks nicely on mobile.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/InvoiceEditor.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceEditor.vue)
+- Replace `v-alert` Stripe Connect warning with a custom responsive `stripe-warning-banner` div wrapper.
+- Add CSS classes `.stripe-warning-banner`, `.banner-content`, `.banner-text-wrapper`, etc., in scoped styles.
+- Add media query rules under `@media (max-width: 768px)` to stack the flex container column-wise, align items, and make the button full-width.
+
+### Verification Plan
+- **Mobile Viewport**: Emulate mobile viewport. Confirm that the Stripe warning banner stacks vertically, text is fully readable, and the "Connect Now" button spans 100% width cleanly.
+- **Desktop Viewport**: Verify that the banner renders as a clean row, aligning the text on the left and the button on the right.
+- **Vite Build**: Run `npm run build` to verify clean build compilation.
+
+
+
