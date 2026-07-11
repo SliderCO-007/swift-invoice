@@ -1,12 +1,12 @@
 <script setup>
-import { ref, watch, computed, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { ref, watch, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import useUserSettings from '../composables/useUserSettings';
-import useStripeConnect from '../composables/useStripeConnect';
 import { currentUser, isAuthReady } from '../composables/useAuth.js';
+import { format } from 'date-fns';
+import { enUS } from 'date-fns/locale';
 
 const router = useRouter();
-const route = useRoute();
 
 const { 
   settings, 
@@ -15,15 +15,6 @@ const {
   saveUserSettings,
 } = useUserSettings();
 
-const { 
-  connectStatus, 
-  fetchConnectStatus, 
-  createConnectAccount, 
-  loading: stripeLoading 
-} = useStripeConnect();
-
-const appOrigin = window.location.origin;
-const currentStep = ref(1);
 const logoFile = ref(null);
 const logoPreview = ref(null);
 const saveError = ref('');
@@ -60,22 +51,6 @@ watch(settings, (newSettings) => {
 
 onMounted(async () => {
   await isAuthReady;
-  if (currentUser.value) {
-    const status = await fetchConnectStatus();
-    
-    // Determine initial step based on query params or settings state
-    if (route.query.step) {
-      currentStep.value = parseInt(route.query.step);
-    } else if (status?.chargesEnabled) {
-      // If payment is already connected, show congratulations page
-      currentStep.value = 3;
-    } else if (settings.value?.company?.name) {
-      // If company info is filled but payments are not, show Step 2
-      currentStep.value = 2;
-    } else {
-      currentStep.value = 1;
-    }
-  }
 });
 
 const onFileChange = (e) => {
@@ -102,7 +77,7 @@ const handleSaveCompany = async () => {
   try {
     await saveUserSettings(localSettings.value, logoFile.value);
     if (!settingsError.value) {
-      currentStep.value = 2;
+      router.push('/dashboard');
     } else {
       saveError.value = settingsError.value;
     }
@@ -114,18 +89,6 @@ const handleSaveCompany = async () => {
 };
 
 const handleSkipCompany = () => {
-  currentStep.value = 2;
-};
-
-const handleStripeConnect = async () => {
-  await createConnectAccount();
-};
-
-const handleSkipPayment = () => {
-  router.push('/dashboard');
-};
-
-const goToDashboard = () => {
   router.push('/dashboard');
 };
 </script>
@@ -138,21 +101,8 @@ const goToDashboard = () => {
     </div>
     
     <div v-else class="onboarding-card">
-      <!-- Steps Indicators -->
-      <div v-if="currentStep <= 2" class="steps-indicator">
-        <div class="step-item" :class="{ 'active': currentStep === 1, 'completed': currentStep > 1 }">
-          <div class="step-number">1</div>
-          <div class="step-label">Company Details</div>
-        </div>
-        <div class="step-line" :class="{ 'completed': currentStep > 1 }"></div>
-        <div class="step-item" :class="{ 'active': currentStep === 2, 'completed': currentStep > 2 }">
-          <div class="step-number">2</div>
-          <div class="step-label">Payment Settings</div>
-        </div>
-      </div>
-
       <!-- STEP 1: COMPANY DETAILS -->
-      <div v-if="currentStep === 1" class="step-content">
+      <div class="step-content">
         <header class="step-header">
           <h1>Tell us about your business</h1>
           <p>This information will appear on your invoices. You can always change it later in settings.</p>
@@ -258,118 +208,10 @@ const goToDashboard = () => {
 
           <footer class="wizard-footer">
             <v-btn type="button" variant="text" class="skip-btn" @click="handleSkipCompany">Skip for now</v-btn>
-            <v-btn type="submit" class="continue-btn" :loading="isSaving" color="indigo-darken-3">Save & Continue</v-btn>
+            <v-btn type="submit" class="continue-btn" :loading="isSaving" color="indigo-darken-3">Save & Go to Dashboard</v-btn>
           </footer>
         </form>
       </div>
-
-      <!-- STEP 2: CONNECT PAYMENT ACCOUNT -->
-      <div v-else-if="currentStep === 2" class="step-content">
-        <header class="step-header text-center">
-          <h1>Connect Payment Account</h1>
-          <p>Directly accept secure debit, credit card, Apple Pay, and ACH payments from your invoices.</p>
-        </header>
-
-        <div class="stripe-connect-flow">
-          <div class="stripe-large-badge">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" class="stripe-badge-img" crossorigin="anonymous" />
-            <div class="stripe-features">
-              <div class="feature-item">
-                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#4ade80"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
-                <span>Accept Visa, Mastercard, AMEX, Apple Pay, Google Pay & ACH</span>
-              </div>
-              <div class="feature-item">
-                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#4ade80"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
-                <span>Payments deposited directly into your bank account</span>
-              </div>
-              <div class="feature-item">
-                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#4ade80"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
-                <span>Instant "Scan to Pay" QR Code embedded in invoice PDFs</span>
-              </div>
-            </div>
-          </div>
-
-          <div v-if="connectStatus.invalidAccount" class="stripe-status-banner error mb-4">
-            <v-icon color="#f87171" class="mr-2">mdi-alert-circle-outline</v-icon>
-            <div>
-              <strong>Stripe Account Issue:</strong> Your previous Stripe connection is invalid or has been deleted in Stripe. Please click "Connect with Stripe" below to reconnect your account.
-            </div>
-          </div>
-
-          <div v-if="connectStatus.connected && !connectStatus.chargesEnabled" class="stripe-status-banner warning">
-            <span class="pulse-indicator orange"></span>
-            <div>
-              <strong>Pending Verification:</strong> Stripe needs a bit more information to verify your identity before enabling charge processing.
-            </div>
-          </div>
-
-          <div v-if="!connectStatus.connected" class="stripe-warning-callout">
-            <div class="callout-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-            </div>
-            <div class="callout-text">
-              <strong>Important:</strong> You will not be able to accept online payments on your invoices until you create or connect a payment account.
-            </div>
-          </div>
-
-          <div v-if="!connectStatus.connected" class="stripe-website-tip">
-            <div class="tip-icon-wrapper">
-              <v-icon color="#38bdf8" size="small">mdi-lightbulb-on-outline</v-icon>
-            </div>
-            <div class="tip-content">
-              <strong>Don't have a business website?</strong>
-              <div class="tip-text">
-                Stripe requires a website during setup. If you don't have one, you can enter your business <strong>Facebook/Instagram page</strong>, your <strong>Yelp/Thumbtack profile</strong>, or copy and paste our platform fallback:
-                <div class="fallback-url-box">
-                  <code>{{ appOrigin }}</code>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="action-wrapper text-center">
-            <v-btn 
-              @click="handleStripeConnect" 
-              :loading="stripeLoading" 
-              color="#635bff" 
-              class="stripe-connect-btn" 
-              size="large"
-              prepend-icon="mdi-credit-card-outline"
-            >
-              {{ connectStatus.connected ? 'Resume Stripe Setup' : 'Connect with Stripe' }}
-            </v-btn>
-            
-            <p class="terms-text">You will be redirected securely to Stripe to set up your payment routing. Platform fee of 0.5% applies to payments collected.</p>
-          </div>
-
-          <footer class="wizard-footer justify-center mt-6">
-            <v-btn variant="text" class="skip-btn" @click="handleSkipPayment">
-              {{ connectStatus.connected ? 'Go to Dashboard' : 'Skip payment setup for now' }}
-            </v-btn>
-          </footer>
-        </div>
-      </div>
-
-      <!-- STEP 3: CONGRATULATIONS SCREEN -->
-      <div v-else-if="currentStep === 3" class="step-content congratulations-step text-center">
-        <div class="celebration-icon">
-          <div class="glow-ring"></div>
-          <svg xmlns="http://www.w3.org/2000/svg" height="64px" viewBox="0 0 24 24" width="64px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
-        </div>
-
-        <header class="step-header">
-          <h1>You're Ready to Roll!</h1>
-          <p class="congrats-message">Congratulations! You have completed the onboarding flow.</p>
-          <p class="sub-congrats">Your business details are saved and your Stripe account is connected. You can now build beautiful invoices and accept instant online payments.</p>
-        </header>
-
-        <footer class="wizard-footer justify-center mt-6">
-          <v-btn class="dashboard-btn" color="indigo-darken-3" size="large" @click="goToDashboard">
-            Go to Dashboard &rarr;
-          </v-btn>
-        </footer>
-      </div>
-
     </div>
   </div>
 </template>
@@ -404,83 +246,6 @@ const goToDashboard = () => {
   border-radius: 16px; 
   box-shadow: 0 20px 60px rgba(0,0,0,0.5); 
   padding: 3rem; 
-}
-
-/* Steps indicator */
-.steps-indicator {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 3rem;
-  max-width: 450px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.step-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  z-index: 2;
-}
-
-.step-number {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: 700;
-  color: #94a3b8;
-  transition: all 0.3s ease;
-}
-
-.step-label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #94a3b8;
-  margin-top: 0.5rem;
-  transition: all 0.3s ease;
-}
-
-.step-line {
-  flex-grow: 1;
-  height: 2px;
-  background: rgba(255, 255, 255, 0.1);
-  margin-left: 1rem;
-  margin-right: 1rem;
-  margin-top: -1.5rem;
-  z-index: 1;
-  transition: all 0.3s ease;
-}
-
-.step-item.active .step-number {
-  background: #3f51b5;
-  border-color: #5c6bc0;
-  color: #fff;
-  box-shadow: 0 0 15px rgba(92, 107, 192, 0.4);
-}
-
-.step-item.active .step-label {
-  color: #fff;
-}
-
-.step-item.completed .step-number {
-  background: #4ade80;
-  border-color: #4ade80;
-  color: #111d2f;
-}
-
-.step-item.completed .step-label {
-  color: #4ade80;
-}
-
-.step-line.completed {
-  background: #4ade80;
 }
 
 /* Step Header */
@@ -602,7 +367,7 @@ const goToDashboard = () => {
   cursor: pointer; 
   background: transparent; 
   padding: 0; 
-  border-radius: 6px; 
+  border-radius: 4px; 
   overflow: hidden; 
 }
 
@@ -611,295 +376,56 @@ const goToDashboard = () => {
 }
 
 .color-picker::-webkit-color-swatch { 
-  border: 1px solid rgba(255,255,255,0.25); 
-  border-radius: 6px; 
+  border: 1px solid rgba(255,255,255,0.2); 
+  border-radius: 4px; 
 }
 
 .color-hex { 
   font-family: monospace; 
-  font-size: 0.95rem; 
+  font-size: 1.1rem; 
   color: #fff; 
-  line-height: 1.2; 
 }
 
 .error-notification { 
+  background-color: rgba(239, 68, 68, 0.1); 
+  border: 1px solid rgba(239, 68, 68, 0.2); 
   color: #f87171; 
-  font-weight: 600;
-  margin-top: 1rem;
-  text-align: center;
+  padding: 1rem; 
+  border-radius: 8px; 
+  margin-top: 1.5rem; 
+  font-size: 0.95rem; 
 }
 
-/* Footer buttons */
-.wizard-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 2.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+.wizard-footer { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin-top: 2.5rem; 
+  padding-top: 1.5rem; 
+  border-top: 1px solid rgba(255,255,255,0.08); 
 }
 
-.continue-btn {
-  text-transform: none;
-  font-weight: 600;
+.skip-btn { 
+  color: #94a3b8 !important; 
+  font-weight: 600; 
+  text-transform: none; 
+  letter-spacing: 0.5px; 
 }
 
-.skip-btn {
-  text-transform: none;
-  color: #94a3b8 !important;
-}
-
-/* Step 2 Payment Connection CSS */
-.stripe-connect-flow {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.stripe-large-badge {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(99, 91, 255, 0.2);
-  border-radius: 12px;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2rem;
-}
-
-.stripe-badge-img {
-  height: 40px;
-  width: auto;
-}
-
-.stripe-features {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  width: 100%;
-}
-
-.feature-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-size: 1rem;
-  color: #e2e8f0;
-}
-
-.stripe-status-banner {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.5rem;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  line-height: 1.5;
-}
-
-.stripe-status-banner.warning {
-  background: rgba(245, 158, 11, 0.1);
-  border: 1px solid rgba(245, 158, 11, 0.3);
-  color: #fbbf24;
-}
-
-.stripe-status-banner.error {
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  color: #f87171;
-}
-
-.stripe-warning-callout {
-  display: flex;
-  gap: 1rem;
-  background: rgba(248, 113, 113, 0.08);
-  border: 1px solid rgba(248, 113, 113, 0.25);
-  border-radius: 8px;
-  padding: 1rem 1.5rem;
-  color: #f87171;
-}
-
-.callout-icon {
-  flex-shrink: 0;
-  color: #f87171;
-}
-
-.callout-text {
-  font-size: 0.95rem;
-  line-height: 1.5;
-}
-
-.action-wrapper {
-  margin-top: 1rem;
-}
-
-.stripe-connect-btn {
-  text-transform: none;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 15px rgba(99, 91, 255, 0.3);
-  transition: all 0.3s ease;
-}
-
-.stripe-connect-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(99, 91, 255, 0.4);
-}
-
-.terms-text {
-  font-size: 0.8rem;
-  color: #64748b;
-  margin-top: 1rem;
-}
-
-.pulse-indicator {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  display: inline-block;
-  flex-shrink: 0;
-}
-
-.pulse-indicator.orange {
-  background-color: #fbbf24;
-  animation: pulse-orange 2s infinite;
-}
-
-@keyframes pulse-orange {
-  0% {
-    box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 8px rgba(251, 191, 36, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(251, 191, 36, 0);
-  }
-}
-
-/* Step 3 Congratulations Step */
-.congratulations-step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2rem;
-  padding: 2rem 0;
-}
-
-.celebration-icon {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  background: rgba(74, 222, 128, 0.1);
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #4ade80;
-  border: 2px solid rgba(74, 222, 128, 0.3);
-}
-
-.glow-ring {
-  position: absolute;
-  top: -10px;
-  left: -10px;
-  right: -10px;
-  bottom: -10px;
-  border-radius: 50%;
-  border: 2px solid rgba(74, 222, 128, 0.15);
-  animation: radar-ring 2.5s infinite linear;
-}
-
-@keyframes radar-ring {
-  0% {
-    transform: scale(0.9);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1.3);
-    opacity: 0;
-  }
-}
-
-.congrats-message {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #4ade80;
-  margin-top: 1rem;
-}
-
-.sub-congrats {
-  max-width: 550px;
-  margin-left: auto;
-  margin-right: auto;
-  line-height: 1.6;
-}
-
-.dashboard-btn {
-  text-transform: none;
-  font-weight: 700;
-  padding-left: 2rem !important;
-  padding-right: 2rem !important;
-  box-shadow: 0 4px 15px rgba(92, 107, 192, 0.3);
-}
-
-.dashboard-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(92, 107, 192, 0.4);
-}
-
-.stripe-website-tip {
-  display: flex;
-  gap: 0.75rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  padding: 1rem 1.25rem;
-  margin-top: 1.25rem;
-  text-align: left;
-}
-
-.tip-icon-wrapper {
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.tip-content {
-  font-size: 0.88rem;
-  color: #94a3b8;
-  line-height: 1.5;
-}
-
-.tip-content strong {
-  color: #e2e8f0;
-}
-
-.tip-text {
-  margin-top: 0.25rem;
-}
-
-.fallback-url-box {
-  margin-top: 0.5rem;
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 0.4rem 0.75rem;
-  border-radius: 4px;
-  display: inline-block;
-  font-family: monospace;
-}
-
-.fallback-url-box code {
-  color: #38bdf8 !important;
-  font-size: 0.85rem;
-  user-select: all;
-  background: transparent !important;
-  padding: 0 !important;
+.continue-btn { 
+  font-weight: 700 !important; 
+  text-transform: none !important; 
+  letter-spacing: 0.5px !important; 
+  border-radius: 8px !important; 
+  padding: 0 2rem !important; 
+  height: 48px !important; 
+  box-shadow: 0 4px 15px rgba(63, 81, 181, 0.3) !important; 
 }
 
 @media (max-width: 768px) {
   .onboarding-card { padding: 2rem 1.5rem; }
   .form-grid { grid-template-columns: 1fr; }
   .wizard-footer { flex-direction: column-reverse; gap: 1rem; }
-  .continue-btn, .skip-btn { width: 100%; }
+  .wizard-footer button { width: 100%; }
 }
 </style>

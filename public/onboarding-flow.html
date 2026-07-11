@@ -74,7 +74,7 @@
 <body>
   <div class="header">
     <h1>Onboarding Flow Diagram</h1>
-    <p>Interactive visualization of the updated ScanGo Invoice customer onboarding funnel, showing both user-facing actions and technical triggers (Guest flow removed).</p>
+    <p>Interactive visualization of the optimized ScanGo Invoice customer onboarding funnel, showing a simplified 1-step wizard with deferred payment setup.</p>
   </div>
   
   <div class="diagram-card">
@@ -106,20 +106,18 @@ graph TD
     H --> I[Send Welcome Email with Video Guide]
     I --> J[Onboarding Wizard]
     
-    J -->|Step 1| K[Company Details Form]
-    K -->|Save & Continue / Skip| L[Step 2: Connect Payment Account]
+    J -->|Company Details Form| K[Save / Skip Settings]
+    K --> L[Redirect to Dashboard]
     
-    L -->|Connect Stripe| M[Redirect to Stripe Connect]
-    M -->|Return to App| N{Stripe Account Status}
+    L -->|Missing Company Profile| M[Prompt: Complete Company Profile]
+    L -->|Stripe Incomplete| N[Prompt: Online Payments Not Connected]
     
-    N -->|Verified chargesEnabled| O[Step 3: Congratulations Screen]
-    N -->|Not connected / Pending| P[Redirect / Skip to Dashboard]
+    M -->|Click Start Onboarding| J
+    N -->|Click Connect Now| O[Redirect to settings]
     
-    O --> Q[Dashboard]
-    P --> Q
-    
-    Q -->|Missing Company Profile| R[Prompt: Complete Company Profile]
-    Q -->|Stripe Incomplete| S[Prompt: Online Payments Not Connected]
+    O -->|Manage Payments| P[Connect with Stripe]
+    P -->|Authorize Connect Account| Q[Stripe Redirect back to Settings]
+    Q -->|Verify and Save| R[Dashboard / Verified Status]
     </pre>
   </div>
 

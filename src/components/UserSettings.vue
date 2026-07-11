@@ -17,7 +17,9 @@ const {
 
 const { 
   connectStatus, 
-  fetchConnectStatus 
+  fetchConnectStatus,
+  createConnectAccount,
+  loading: stripeLoading
 } = useStripeConnect();
 
 onMounted(async () => {
@@ -72,6 +74,15 @@ const handleSave = async () => {
     successMessage.value = 'Settings saved successfully!';
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setTimeout(() => { successMessage.value = '' }, 5000);
+  }
+};
+
+const handleStripeConnect = async () => {
+  try {
+    await saveUserSettings(localSettings.value, logoFile.value);
+    await createConnectAccount('/settings');
+  } catch (err) {
+    console.error("Failed to redirect to Stripe Connect:", err);
   }
 };
 
@@ -213,12 +224,13 @@ const goToPricing = () => {
                 </p>
                 
                 <v-btn 
-                  to="/onboarding?step=2" 
+                  @click="handleStripeConnect"
+                  :loading="stripeLoading"
                   color="indigo-darken-3" 
                   class="stripe-btn mt-4" 
                   prepend-icon="mdi-credit-card-outline"
                 >
-                  Manage Payment Account
+                  {{ connectStatus.connected ? 'Resume Stripe Setup' : 'Connect with Stripe' }}
                 </v-btn>
               </div>
             </div>

@@ -45,14 +45,14 @@ export default function useStripeConnect() {
     }
   };
 
-  const createConnectAccount = async () => {
+  const createConnectAccount = async (returnPath = '/settings') => {
     loading.value = true;
     error.value = null;
     try {
       const createAccountFn = httpsCallable(functions, 'createConnectAccount');
       const response = await createAccountFn({
-        returnUrl: window.location.origin + '/onboarding',
-        refreshUrl: window.location.origin + '/onboarding',
+        returnUrl: window.location.origin + returnPath,
+        refreshUrl: window.location.origin + returnPath,
       });
       if (response.data.url) {
         window.location.href = response.data.url;

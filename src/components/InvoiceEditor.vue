@@ -258,7 +258,7 @@ onUnmounted(() => {
           </div>
         </template>
         <template v-slot:append>
-          <v-btn to="/onboarding?step=2" color="#fbbf24" variant="flat" class="text-black font-weight-bold" style="text-transform: none;">Connect Now</v-btn>
+          <v-btn to="/settings" color="#fbbf24" variant="flat" class="text-black font-weight-bold" style="text-transform: none;">Connect Now</v-btn>
         </template>
       </v-alert>
 

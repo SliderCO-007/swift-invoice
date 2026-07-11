@@ -1102,3 +1102,37 @@ Clean up dead guest-related code in `InvoiceEditor.vue` and update the navigatio
 - **Invoice Editor Cleanliness**: Navigate to `/invoice/new` (after logging in) and verify the page loads correctly and there are no lint or console errors. Confirm that guest-related warning banners and login overlays do not render.
 - **Vite Build**: Run `npm run build` to verify that there are no compilation or bundling errors from the cleanup.
 
+
+## Onboarding Flow Optimization: Option 1 (v46)
+
+### Purpose
+Optimize the onboarding flow to prevent user drop-off/friction caused by presenting Stripe Connect onboarding immediately post-registration. We reduce the onboarding wizard `/onboarding` to a single step (Company Details only). Once finished or skipped, the user is redirected straight to the `/dashboard`. Stripe Connect setup is deferred to the Dashboard prompts and the Settings page.
+
+### Proposed Changes
+
+#### [MODIFY] [src/composables/useStripeConnect.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useStripeConnect.js)
+- Modify `createConnectAccount(returnPath = '/settings')` to dynamically use the passed `returnPath` parameter for return/refresh URLs instead of the hardcoded `/onboarding`.
+
+#### [MODIFY] [src/components/OnboardingWizard.vue](file:///C:/Users/curth/git/swift-invoice/src/components/OnboardingWizard.vue)
+- Remove step indicators, Step 2 (Stripe Connect), and Step 3 (Congratulations screen).
+- On saving or skipping company details, redirect directly to `/dashboard`.
+- Remove all Stripe Connect dependencies, variables, methods, and scoped styles.
+
+#### [MODIFY] [src/components/UserSettings.vue](file:///C:/Users/curth/git/swift-invoice/src/components/UserSettings.vue)
+- Import `createConnectAccount` and `loading: stripeLoading` from `useStripeConnect`.
+- Implement `handleStripeConnect` to save settings first and then call `createConnectAccount('/settings')`.
+- Bind `handleStripeConnect` to the template CTA button, showing loading spinner state as appropriate.
+
+#### [MODIFY] [src/components/Dashboard.vue](file:///C:/Users/curth/git/swift-invoice/src/components/Dashboard.vue)
+- Update Stripe warning/error banners to route to `/settings` instead of `/onboarding?step=2`.
+
+#### [MODIFY] [src/components/InvoiceEditor.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceEditor.vue)
+- Update Stripe warning alert banner to route to `/settings` instead of `/onboarding?step=2`.
+
+### Verification Plan
+- **Onboarding Wizard**: Register a new user. Confirm they land on `/onboarding` showing only the Company Details setup (no step indicators). Click "Save & Continue" or "Skip" and verify they are redirected to `/dashboard`.
+- **Direct Stripe Connection**: Navigate to Settings. Click "Connect with Stripe" (or "Manage Payment Account"). Verify they are redirected to Stripe with `/settings` as the return URL.
+- **Banners Redirection**: Verify clicking "Connect Now" on the Dashboard or Invoice Editor redirect warning correctly routes the user to `/settings`.
+- **Vite Build**: Run `npm run build` to confirm no bundling errors occur.
+
+
