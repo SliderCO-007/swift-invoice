@@ -1154,4 +1154,24 @@ Fix the layout of the Stripe Connect warning banner on the `/invoice/new` route 
 - **Vite Build**: Run `npm run build` to verify clean build compilation.
 
 
+## Customers View Mobile Layout Fix (v48)
+
+### Purpose
+Fix mobile layouts and prevent offscreen rendering and element overlapping on the Customers view page (`/customers`). We update the page header buttons to stack vertically as full-width elements on mobile, scale down title typography, and restructure mobile customer cards to move Edit/Delete actions from the header row into a dedicated actions tray at the bottom of the card.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/CustomersView.vue](file:///C:/Users/curth/git/swift-invoice/src/components/CustomersView.vue)
+- Update `<header>` flex container classes to stack buttons vertically on mobile (`flex-column flex-sm-row w-100 w-sm-auto ga-3`).
+- Use responsive button sizes (`:size="mobile ? 'default' : 'large'"`).
+- Make heading responsive (`text-h5 text-sm-h4`).
+- Modify the mobile view cards loop to move the Edit/Delete actions into a dedicated `<v-card-actions>` layout with divider line and text-truncate name protection.
+
+### Verification Plan
+- **Header Responsiveness**: Verify that the header buttons stack cleanly and take full width on mobile viewports.
+- **Mobile Card Layout**: Verify customer cards on mobile do not overlap actions with long names. Confirm action buttons appear clearly at the bottom.
+- **Vite Build**: Run `npm run build` to confirm compilation is clean.
+
+
+
 

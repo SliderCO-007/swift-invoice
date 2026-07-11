@@ -105,14 +105,26 @@ const exportCustomersOutput = () => {
 
 <template>
   <div class="customers-view pa-4 pa-md-6">
-    <header class="d-flex justify-space-between align-center mb-4 flex-wrap">
-      <h1 class="text-h4 font-weight-bold mb-2 mb-sm-0">Manage Your Customers</h1>
-      <div class="d-flex align-center mt-3 mt-sm-0">
-        <v-btn color="primary" variant="outlined" @click="exportCustomersOutput" size="large" class="elevation-2 me-3 bg-transparent" :disabled="!customers.length || loading">
+    <header class="d-flex justify-space-between align-center mb-6 flex-wrap ga-4">
+      <h1 class="text-h5 text-sm-h4 font-weight-bold mb-0">Manage Your Customers</h1>
+      <div class="d-flex align-center w-100 w-sm-auto ga-3 flex-sm-row flex-column">
+        <v-btn 
+          color="primary" 
+          variant="outlined" 
+          @click="exportCustomersOutput" 
+          :size="mobile ? 'default' : 'large'" 
+          class="elevation-2 bg-transparent w-100 w-sm-auto" 
+          :disabled="!customers.length || loading"
+        >
           <v-icon start>mdi-download</v-icon>
           Export CSV
         </v-btn>
-        <v-btn color="primary" @click="openDialog" size="large" class="elevation-2">
+        <v-btn 
+          color="primary" 
+          @click="openDialog" 
+          :size="mobile ? 'default' : 'large'" 
+          class="elevation-2 w-100 w-sm-auto"
+        >
           <v-icon start>mdi-plus</v-icon>
           Add Customer
         </v-btn>
@@ -166,25 +178,12 @@ const exportCustomersOutput = () => {
     <!-- Mobile View: Card List -->
     <div v-else>
        <!-- CORRECTED: The v-for loop now iterates over `customers` directly. -->
-      <v-card v-for="item in customers" :key="item.id" class="mb-4 elevation-2">
-        <v-card-title class="d-flex justify-space-between align-center">
-          <span class="text-h6 font-weight-bold">{{ item.name }}</span>
-          <div>
-            <v-tooltip location="top">
-              <template v-slot:activator="{ props }">
-                <v-icon v-bind="props" class="me-2" @click="editItem(item)" color="grey-darken-1">mdi-pencil</v-icon>
-              </template>
-              <span>Edit Customer</span>
-            </v-tooltip>
-            <v-tooltip location="top">
-              <template v-slot:activator="{ props }">
-                <v-icon v-bind="props" @click="confirmDelete(item)" color="grey-darken-1">mdi-delete</v-icon>
-              </template>
-              <span>Delete Customer</span>
-            </v-tooltip>
-          </div>
+       <v-card v-for="item in customers" :key="item.id" class="mb-4 elevation-2">
+        <v-card-title class="pt-4 px-4 pb-2">
+          <span class="text-h6 font-weight-bold text-white d-block text-truncate">{{ item.name }}</span>
         </v-card-title>
-        <v-card-text>
+        
+        <v-card-text class="px-4 py-2">
           <div v-if="item.email" class="d-flex align-center mb-2">
             <v-icon color="grey-darken-1" class="me-3">mdi-email-outline</v-icon>
             <a :href="'mailto:' + item.email" class="text-decoration-none text-body-1">{{ item.email }}</a>
@@ -198,6 +197,17 @@ const exportCustomersOutput = () => {
             <span class="text-body-1">{{ getFormattedAddress(item) }}</span>
           </div>
         </v-card-text>
+
+        <v-divider class="border-opacity-10"></v-divider>
+
+        <v-card-actions class="px-4 py-2 d-flex justify-end ga-2">
+          <v-btn variant="text" size="small" color="primary" @click="editItem(item)" prepend-icon="mdi-pencil">
+            Edit
+          </v-btn>
+          <v-btn variant="text" size="small" color="red-lighten-2" @click="confirmDelete(item)" prepend-icon="mdi-delete">
+            Delete
+          </v-btn>
+        </v-card-actions>
       </v-card>
       <!-- CORRECTED: Only show the empty state message when the main customers list is empty. -->
       <div v-if="!customers.length && !loading" class="text-center pa-10">
