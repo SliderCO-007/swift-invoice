@@ -19,7 +19,6 @@ const handleLogout = async () => {
 }
 
 const guestNav = [
-  { title: 'Create Invoice', to: '/invoice/new', icon: 'mdi-file-document-edit-outline' },
   { title: 'Features', to: '/features', icon: 'mdi-lightbulb-on-outline' },
   { title: 'About Us', to: '/about', icon: 'mdi-information-outline' },
   { title: 'FAQ', to: '/#faq', icon: 'mdi-help-circle-outline' },

@@ -1079,3 +1079,26 @@ To eliminate conversion friction by routing anonymous guest users directly to re
 - **Landing Page Bottom CTAs**: Scroll to the bottom of the landing page. Verify only two CTAs are present: "Start Free with Google" (primary layout) and "Create Account with Email" (secondary layout, points to `/register`).
 - **Google Analytics Pageviews**: Navigate between routes and check the browser network calls or GA debugger to verify `gtag` pageview events are dispatched on every route transition.
 - **GA Conversion Event**: Perform a new user signup and confirm that a `sign_up` event with the correct `method` parameter is fired.
+
+
+## Guest Funnel Cleanup & Navigation Update (v45)
+
+### Purpose
+Clean up dead guest-related code in `InvoiceEditor.vue` and update the navigation menu in `AppBar.vue` to remove the redundant "Create Invoice" link for guests. Since guest access to the invoice editor is now restricted, we ensure clean navigation and maintainable, uncluttered code.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/AppBar.vue](file:///C:/Users/curth/git/swift-invoice/src/components/AppBar.vue)
+- Remove the `{ title: 'Create Invoice', to: '/invoice/new', icon: 'mdi-file-document-edit-outline' }` item from the `guestNav` array.
+
+#### [MODIFY] [src/components/InvoiceEditor.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceEditor.vue)
+- Remove all local storage variables, checkers, and handlers for `swift_invoice_guest_draft`.
+- Remove the guest alert banner, the guest preview overlay, the guest auth modal, and related variables/computed properties (`authMode`, `showAuthModal`, etc.).
+- Simplify `initializeInvoice()` to directly check if route parameters specify a new invoice and create a fresh one, else fetch the invoice from Firestore.
+- Remove all scoped CSS styles for guest banners and the auth modal.
+
+### Verification Plan
+- **Guest Navigation**: Verify that when logged out, the "Create Invoice" link is not displayed in the guest navigation drawer or menu.
+- **Invoice Editor Cleanliness**: Navigate to `/invoice/new` (after logging in) and verify the page loads correctly and there are no lint or console errors. Confirm that guest-related warning banners and login overlays do not render.
+- **Vite Build**: Run `npm run build` to verify that there are no compilation or bundling errors from the cleanup.
+

@@ -22,7 +22,7 @@ const { settings, loading: settingsLoading, fetchUserSettings } = useUserSetting
 const { createInvoice, getInvoice, updateInvoice } = useInvoices();
 const { customers } = useCustomers(); // Automatically fetches and updates based on auth
 const { items, fetchItems, stopFetching: stopFetchingItems } = useItems();
-const { signup: apiSignup, login: apiLogin, googleLogin: apiGoogleLogin } = useAuth();
+ 
 const { connectStatus, fetchConnectStatus } = useStripeConnect();
 const router = useRouter();
 const route = useRoute();
@@ -36,22 +36,7 @@ const isProcessing = ref(false);
 const saveError = ref(null);
 const stripeStatusHaveLoaded = ref(false);
 
-// --- Auth Modal & Guest State ---
-const showAuthModal = ref(false);
-const authMode = ref('signup');
-const authEmail = ref('');
-const authPassword = ref('');
-const authError = ref(null);
-const authLoading = ref(false);
-const isMigrating = ref(false);
-
-const openAuthModal = (mode = 'signup') => {
-  authMode.value = mode;
-  authError.value = null;
-  authEmail.value = '';
-  authPassword.value = '';
-  showAuthModal.value = true;
-};
+ 
 
 // --- Utility Functions ---
 function createFreshInvoice() {
@@ -113,12 +98,6 @@ const removeItem = (index) => invoice.value.items.splice(index, 1);
 const saveInvoice = async () => {
   isProcessing.value = true;
   saveError.value = null;
-  
-  if (!user.value?.uid) {
-    isProcessing.value = false;
-    openAuthModal('signup');
-    return;
-  }
 
   const invoiceData = { ...invoice.value, subtotal: subtotal.value, discountAmount: discountAmount.value, taxAmount: taxAmount.value, total: total.value };
 
@@ -127,7 +106,6 @@ const saveInvoice = async () => {
       ? await createInvoice(invoiceData, user.value.uid) 
       : (await updateInvoice(invoiceId.value, invoiceData, user.value.uid), invoiceId.value);
       
-    localStorage.removeItem('swift_invoice_guest_draft');
     router.push({ name: 'InvoiceView', params: { id: finalInvoiceId } });
   } catch (error) {
     console.error("Failed to save invoice:", error);
@@ -137,66 +115,7 @@ const saveInvoice = async () => {
   }
 };
 
-const migrateDraft = async () => {
-  if (!user.value) return;
-  
-  isMigrating.value = true;
-  isProcessing.value = true;
-  saveError.value = null;
-  
-  const invoiceData = { 
-    ...invoice.value, 
-    subtotal: subtotal.value, 
-    discountAmount: discountAmount.value, 
-    taxAmount: taxAmount.value, 
-    total: total.value 
-  };
-
-  try {
-    const finalInvoiceId = await createInvoice(invoiceData, user.value.uid);
-    localStorage.removeItem('swift_invoice_guest_draft');
-    showAuthModal.value = false;
-    router.push({ name: 'InvoiceView', params: { id: finalInvoiceId } });
-  } catch (err) {
-    console.error("Draft migration failed:", err);
-    saveError.value = err.message || "Failed to save migrated invoice.";
-  } finally {
-    isProcessing.value = false;
-    isMigrating.value = false;
-  }
-};
-
-const handleAuth = async () => {
-  authLoading.value = true;
-  authError.value = null;
-  try {
-    if (authMode.value === 'signup') {
-      await apiSignup(authEmail.value, authPassword.value);
-    } else {
-      await apiLogin(authEmail.value, authPassword.value);
-    }
-    await migrateDraft();
-  } catch (err) {
-    console.error("Authentication failed:", err);
-    authError.value = err.message || "Authentication failed. Please check your credentials.";
-  } finally {
-    authLoading.value = false;
-  }
-};
-
-const handleGoogleAuth = async () => {
-  authLoading.value = true;
-  authError.value = null;
-  try {
-    await apiGoogleLogin();
-    await migrateDraft();
-  } catch (err) {
-    console.error("Google login failed:", err);
-    authError.value = err.message || "Google Sign-In failed.";
-  } finally {
-    authLoading.value = false;
-  }
-};
+ 	
 
 const handleDescriptionUpdate = (item, newDescription) => {
   item.description = newDescription || '';
@@ -207,30 +126,6 @@ const handleDescriptionUpdate = (item, newDescription) => {
 // --- Initialization Logic ---
 const initializeInvoice = async () => {
   const id = route.params.id;
-  
-  if (!user.value) {
-    invoiceId.value = 'new';
-    const draftJson = localStorage.getItem('swift_invoice_guest_draft');
-    if (draftJson) {
-      try {
-        const parsed = JSON.parse(draftJson);
-        if (parsed.issueDate) parsed.issueDate = new Date(parsed.issueDate);
-        if (parsed.dueDate) parsed.dueDate = new Date(parsed.dueDate);
-        if (parsed.items) {
-          parsed.items.forEach(item => {
-            if (item.taxable === undefined) item.taxable = true;
-          });
-        }
-        invoice.value = parsed;
-        return;
-      } catch (err) {
-        console.error("Error parsing guest draft:", err);
-      }
-    }
-    invoice.value = createFreshInvoice();
-    addItem();
-    return;
-  }
 
   await fetchUserSettings();
   fetchItems(); // Manually fetch items for the current user
@@ -285,11 +180,8 @@ const initializeInvoice = async () => {
 };
 
 // --- Watchers & Lifecycle ---
-watch(user, async (newUser, oldUser) => {
+watch(user, async (newUser) => {
   if (newUser) {
-    if (isMigrating.value) {
-      return;
-    }
     initializeInvoice();
     
     // Fetch Stripe Connect status when user becomes defined/authenticated
@@ -301,20 +193,8 @@ watch(user, async (newUser, oldUser) => {
     } finally {
       stripeStatusHaveLoaded.value = true;
     }
-  } else {
-    initializeInvoice();
-    stripeStatusHaveLoaded.value = true; // Guest users do not need payment status loading
-    if (oldUser && route.name !== 'Home' && route.name !== 'Login') {
-      router.push('/');
-    }
   }
 }, { immediate: true });
-
-watch(invoice, (newInvoice) => {
-  if (!user.value) {
-    localStorage.setItem('swift_invoice_guest_draft', JSON.stringify(newInvoice));
-  }
-}, { deep: true });
 
 watch(selectedCustomer, (newCustomer) => {
   if (newCustomer) {
@@ -353,32 +233,10 @@ onUnmounted(() => {
 
 <template>
   <div class="editor-container">
-    <!-- Guest Alert Banner -->
-    <div v-if="!user" class="guest-banner mb-6">
-      <div class="banner-glow-effect"></div>
-      <div class="d-flex align-center flex-grow-1 flex-wrap ga-2">
-        <v-icon color="cyan-accent-3" class="mr-2" size="28">mdi-alert-circle-outline</v-icon>
-        <span class="text-body-1 font-weight-medium">
-          <strong>Guest Preview:</strong> You are in guest mode. Your progress is saved locally.
-          <strong>Sign up to save permanently, export PDF, or send to clients!</strong>
-        </span>
-      </div>
-      <v-btn
-        color="cyan-accent-3"
-        class="text-indigo-darken-4 font-weight-bold px-6 ml-auto"
-        rounded="xl"
-        size="large"
-        @click="openAuthModal('signup')"
-      >
-        Sign Up & Save
-      </v-btn>
-    </div>
-
     <div class="editor-form-card">
       <header class="editor-header">
         <h1>{{ invoiceId === 'new' ? 'Create Invoice' : `Invoice #${invoice.invoiceNumber}` }}</h1>
-        <v-btn v-if="user" :to="{ name: 'Dashboard' }" color="white" variant="flat" class="text-indigo-darken-4 font-weight-bold">Back to Dashboard</v-btn>
-        <v-btn v-else to="/" color="white" variant="flat" class="text-indigo-darken-4 font-weight-bold">Back to Home</v-btn>
+        <v-btn :to="{ name: 'Dashboard' }" color="white" variant="flat" class="text-indigo-darken-4 font-weight-bold">Back to Dashboard</v-btn>
       </header>
 
       <!-- Stripe Connect Warning Alert for Authenticated Users -->
@@ -411,14 +269,7 @@ onUnmounted(() => {
       <div v-if="invoice" class="invoice-form-content">
         <div class="form-section responsive-grid">
           <div class="from-fields">
-            <h3 class="mb-2 d-flex align-center">
-              From
-              <v-tooltip v-if="!user" location="top" text="Register to have your company name, email, and address auto-populated here on every invoice.">
-                <template v-slot:activator="{ props }">
-                  <v-icon v-bind="props" size="x-small" color="cyan" class="ml-2 cursor-pointer">mdi-information-outline</v-icon>
-                </template>
-              </v-tooltip>
-            </h3>
+            <h3 class="mb-2">From</h3>
             <v-text-field density="comfortable" class="mb-2" label="Your Name/Company" v-model="invoice.sender.name" variant="solo"></v-text-field>
             <v-text-field density="comfortable" class="mb-2" label="Your Email" v-model="invoice.sender.email" variant="solo" type="email"></v-text-field>
             <v-text-field density="comfortable" class="mb-2" label="Address Line 1" v-model="invoice.sender.address1" variant="solo"></v-text-field>
@@ -544,12 +395,6 @@ onUnmounted(() => {
           <v-toolbar-title>Invoice Preview</v-toolbar-title>
         </v-toolbar>
         
-        <!-- Guest Preview Alert Bar -->
-        <div v-if="!user" class="guest-preview-banner py-4 px-6 text-center text-white bg-indigo-darken-4 d-flex align-center justify-center flex-wrap ga-4">
-          <span class="text-body-1 font-weight-medium">✨ You are previewing this invoice. Sign up to download this PDF, send it to clients, or save it permanently!</span>
-          <v-btn size="large" color="cyan-accent-3" class="text-indigo-darken-4 font-weight-bold px-6" rounded="xl" @click="showPreview = false; openAuthModal('signup')">Sign Up & Save</v-btn>
-        </div>
-
         <div class="preview-content">
           <InvoiceTemplate v-if="invoice.style === 'classic'" :invoice="{...invoice, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
           <InvoiceTemplate2 v-else-if="invoice.style === 'modern'" :invoice="{...invoice, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
@@ -557,120 +402,6 @@ onUnmounted(() => {
           <InvoiceTemplate4 v-else-if="invoice.style === 'solid'" :invoice="{...invoice, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
           <InvoiceTemplate5 v-else-if="invoice.style === 'creative'" :invoice="{...invoice, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
           <InvoiceTemplate6 v-else-if="invoice.style === 'tech'" :invoice="{...invoice, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
-        </div>
-      </v-card>
-    </v-dialog>
-
-    <!-- Glassmorphic Auth Modal -->
-    <v-dialog v-model="showAuthModal" max-width="500px" persistent>
-      <v-card class="auth-modal-card">
-        <header class="auth-modal-header d-flex align-center justify-between">
-          <div class="d-flex align-center">
-            <Logo style="height: 36px; width: auto;" />
-            <span class="font-weight-bold ml-2 text-white" style="font-size: 1.15rem; letter-spacing: -0.5px">ScanGo Invoice</span>
-          </div>
-          <v-btn icon @click="showAuthModal = false" variant="text" color="grey-lighten-1" size="small">
-            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-          </v-btn>
-        </header>
-
-        <div class="auth-modal-content px-6 py-6">
-          <h2 class="text-h5 font-weight-bold text-white mb-2 text-center">
-            {{ authMode === 'signup' ? 'Create an Account' : 'Welcome Back' }}
-          </h2>
-          <p class="text-body-2 text-grey-lighten-1 mb-6 text-center">
-            {{ authMode === 'signup' ? 'Sign up in seconds to save your invoice and access all premium features.' : 'Sign in to sync and save your guest invoice.' }}
-          </p>
-
-          <!-- Benefits Checklist -->
-          <div class="benefits-list mb-6" v-if="authMode === 'signup'">
-            <div class="benefit-item d-flex align-center mb-3">
-              <v-icon color="cyan-accent-3" class="mr-2" size="small">mdi-check-circle-outline</v-icon>
-              <span class="text-body-2 text-grey-lighten-2 font-weight-medium">Save invoice permanently to dashboard</span>
-            </div>
-            <div class="benefit-item d-flex align-center mb-3">
-              <v-icon color="cyan-accent-3" class="mr-2" size="small">mdi-check-circle-outline</v-icon>
-              <span class="text-body-2 text-grey-lighten-2 font-weight-medium">Export beautifully formatted PDFs</span>
-            </div>
-            <div class="benefit-item d-flex align-center mb-3">
-              <v-icon color="cyan-accent-3" class="mr-2" size="small">mdi-check-circle-outline</v-icon>
-              <span class="text-body-2 text-grey-lighten-2 font-weight-medium">Send invoices directly to clients via email</span>
-            </div>
-            <div class="benefit-item d-flex align-center mb-3">
-              <v-icon color="cyan-accent-3" class="mr-2" size="small">mdi-check-circle-outline</v-icon>
-              <span class="text-body-2 text-grey-lighten-2 font-weight-medium">Accept credit cards, Google Pay & ACH via Stripe</span>
-            </div>
-          </div>
-
-          <!-- Social Signup -->
-          <v-btn
-            @click="handleGoogleAuth"
-            :loading="authLoading"
-            class="google-auth-btn font-weight-bold w-100 mb-6"
-            size="large"
-            rounded="xl"
-          >
-            <svg class="mr-2" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-            </svg>
-            {{ authMode === 'signup' ? 'Sign up with Google' : 'Sign in with Google' }}
-          </v-btn>
-
-          <div class="separator-text text-center text-caption text-grey-lighten-1 mb-6">
-            <span>OR CONTINUE WITH EMAIL</span>
-          </div>
-
-          <!-- Email/Password Form -->
-          <v-form @submit.prevent="handleAuth">
-            <v-text-field
-              label="Email Address"
-              v-model="authEmail"
-              type="email"
-              required
-              variant="solo"
-              density="comfortable"
-              class="mb-3"
-            ></v-text-field>
-
-            <v-text-field
-              label="Password"
-              v-model="authPassword"
-              type="password"
-              required
-              variant="solo"
-              density="comfortable"
-              class="mb-4"
-            ></v-text-field>
-
-            <v-alert v-if="authError" type="error" dense outlined class="mb-4">{{ authError }}</v-alert>
-
-            <v-btn
-              type="submit"
-              color="primary"
-              class="font-weight-bold w-100"
-              size="large"
-              rounded="xl"
-              :loading="authLoading"
-            >
-              {{ authMode === 'signup' ? 'Create Account & Save' : 'Sign In & Save' }}
-            </v-btn>
-          </v-form>
-
-          <div class="text-center mt-6">
-            <p class="text-body-2 text-grey-lighten-2 mb-0">
-              {{ authMode === 'signup' ? 'Already have an account?' : "Don't have an account?" }}
-              <a
-                href="#"
-                class="text-cyan font-weight-bold text-decoration-none ml-1"
-                @click.prevent="authMode = authMode === 'signup' ? 'login' : 'signup'"
-              >
-                {{ authMode === 'signup' ? 'Log In' : 'Sign Up' }}
-              </a>
-            </p>
-          </div>
         </div>
       </v-card>
     </v-dialog>
@@ -713,105 +444,5 @@ onUnmounted(() => {
   .editor-footer .v-btn { width: 100%; margin: 0.25rem 0; }
 }
 
-/* Guest & Auth Modal Premium Styles */
-.guest-banner {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  background: rgba(6, 182, 212, 0.08);
-  border: 1px solid rgba(6, 182, 212, 0.2);
-  border-radius: 12px;
-  padding: 1rem 1.5rem;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  color: #e2e8f0;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(6, 182, 212, 0.15);
-}
-
-.banner-glow-effect {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at 10% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 60%);
-  pointer-events: none;
-}
-
-.guest-preview-banner {
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-
-.auth-modal-card {
-  background: rgba(17, 29, 47, 0.95) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  backdrop-filter: blur(24px) !important;
-  border-radius: 16px !important;
-  box-shadow: 0 25px 70px rgba(0,0,0,0.6) !important;
-  color: #f1f5f9 !important;
-}
-
-.auth-modal-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-
-.google-auth-btn {
-  background: #ffffff !important;
-  color: #1e293b !important;
-  border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
-  transition: all 0.3s ease !important;
-}
-
-.google-auth-btn:hover {
-  background: #f8fafc !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15) !important;
-}
-
-.separator-text {
-  position: relative;
-}
-
-.separator-text::before,
-.separator-text::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  width: 20%;
-  height: 1px;
-  background: rgba(255,255,255,0.1);
-}
-
-.separator-text::before {
-  left: 5%;
-}
-
-.separator-text::after {
-  right: 5%;
-}
-
-.text-cyan {
-  color: #06b6d4 !important;
-}
-
-.text-navy {
-  color: #111d2f !important;
-}
-
-@media (max-width: 768px) {
-  .guest-banner {
-    flex-direction: column;
-    text-align: center;
-    gap: 0.75rem;
-  }
-  .guest-banner .v-btn {
-    width: 100%;
-    margin-left: 0 !important;
-  }
-}
+ 	
 </style>

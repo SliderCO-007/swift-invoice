@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScanGo Invoice - Onboarding Flow Diagram</title>
+  <!-- Load Mermaid from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <style>
+    body {
+      background-color: #111d2f;
+      color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: 3rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      box-sizing: border-box;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      max-width: 600px;
+    }
+    h1 {
+      margin: 0 0 0.5rem 0;
+      color: #ffffff;
+      font-size: 2.25rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+    p {
+      color: #94a3b8;
+      font-size: 1.1rem;
+      line-height: 1.5;
+      margin: 0;
+    }
+    .diagram-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(16px);
+      width: 100%;
+      max-width: 1000px;
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+    }
+    .mermaid {
+      background: transparent !important;
+      width: 100%;
+    }
+    /* Custom Scrollbar for overflow diagram */
+    .diagram-card::-webkit-scrollbar {
+      height: 8px;
+    }
+    .diagram-card::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 4px;
+    }
+    .diagram-card::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    .diagram-card::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Onboarding Flow Diagram</h1>
+    <p>Interactive visualization of the updated ScanGo Invoice customer onboarding funnel, showing both user-facing actions and technical triggers (Guest flow removed).</p>
+  </div>
+  
+  <div class="diagram-card">
+    <pre class="mermaid">
+%%{init: {
+  'theme': 'dark',
+  'themeVariables': {
+    'background': 'transparent',
+    'primaryColor': '#1e293b',
+    'primaryTextColor': '#f1f5f9',
+    'primaryBorderColor': '#334155',
+    'lineColor': '#64748b',
+    'secondaryColor': '#0f172a',
+    'tertiaryColor': '#1e1b4b'
+  }
+}}%%
+graph TD
+    A[Visitor Lands on Landing Page] --> B{Choose Action}
+    
+    B -->|Start Free with Google| C[Google Sign-In Popup]
+    B -->|Create Free Account| D[Email Register Page]
+    B -->|Log In| E[Login Page]
+    
+    C --> F[Registration Flow]
+    D --> F
+    
+    F -->|Complete Registration| G[Fire Meta Pixel CompleteRegistration]
+    G --> H[Fire Google Analytics sign_up Event]
+    H --> I[Send Welcome Email with Video Guide]
+    I --> J[Onboarding Wizard]
+    
+    J -->|Step 1| K[Company Details Form]
+    K -->|Save & Continue / Skip| L[Step 2: Connect Payment Account]
+    
+    L -->|Connect Stripe| M[Redirect to Stripe Connect]
+    M -->|Return to App| N{Stripe Account Status}
+    
+    N -->|Verified chargesEnabled| O[Step 3: Congratulations Screen]
+    N -->|Not connected / Pending| P[Redirect / Skip to Dashboard]
+    
+    O --> Q[Dashboard]
+    P --> Q
+    
+    Q -->|Missing Company Profile| R[Prompt: Complete Company Profile]
+    Q -->|Stripe Incomplete| S[Prompt: Online Payments Not Connected]
+    </pre>
+  </div>
+
+  <script>
+    // Initialize mermaid with specific settings
+    mermaid.initialize({
+      startOnLoad: true,
+      securityLevel: 'loose',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        curve: 'basis'
+      }
+    });
+  </script>
+</body>
+</html>
