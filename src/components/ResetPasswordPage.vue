@@ -206,4 +206,25 @@ const handleResetPassword = async () => {
   text-decoration: underline;
   color: #90CAF9;
 }
+
+@media (max-width: 768px) {
+  .login-container {
+    padding: 1rem;
+  }
+  .login-card {
+    padding: 2rem 1.5rem;
+  }
+  .login-card h1 {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    padding: 0.5rem;
+  }
+  .login-card {
+    padding: 1.5rem 1rem;
+  }
+}
 </style>

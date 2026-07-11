@@ -1173,5 +1173,21 @@ Fix mobile layouts and prevent offscreen rendering and element overlapping on th
 - **Vite Build**: Run `npm run build` to confirm compilation is clean.
 
 
+## Reset Password Page Mobile Alignment (v49)
+
+### Purpose
+Align the Reset Password Page styling and responsiveness with the rest of the authentication routes (Login and Register). Previously, the reset password route lacked media queries, causing the layout cards to render with excessive padding and large header sizes on mobile screens.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/ResetPasswordPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ResetPasswordPage.vue)
+- Add responsive media queries at `@media (max-width: 768px)` and `@media (max-width: 480px)` to shrink header typography, adjust view margins, and optimize card padding for mobile screens.
+
+### Verification Plan
+- **Mobile Responsiveness**: Test the page under mobile viewport presets. Confirm card padding adjusts down to `1.5rem` / `1rem` and title fonts decrease to `1.75rem`.
+- **Vite Build**: Run `npm run build` to verify clean compilation.
+
+
+
 
 
