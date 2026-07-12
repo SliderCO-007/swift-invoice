@@ -1282,3 +1282,22 @@ Replace the static corporate "deconstructed workspace" hero image (`/branded_her
 - **Weekend Mockup**: Visit `/lp/weekend-freedom` and verify the green paid decagram icon and Bank Payout initiated banner display correctly.
 - **Responsive Stacking**: Emulate mobile viewport on all variants. Ensure the CSS mockups scale down cleanly and stack neatly under the hero headline without overflow or horizontal scrolling.
 - **Vite Build**: Run `npm run build` to confirm no bundling errors occur.
+
+
+## Project Editor Delete Button Mobile Fix (v54)
+
+### Purpose
+Fix a mobile layout bug on the Project Edit page where the "Delete Project" button renders off the left side of the screen on small viewports. This is caused by the `mr-auto` (margin-right: auto) flex layout utility class forcing the button to the edge without proper container constraints or wrapping rules on mobile.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/ProjectEditor.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ProjectEditor.vue)
+- Update CSS styling under `@media (max-width: 640px)` for `.form-actions`:
+  - Set `flex-direction: column-reverse` to stack the action buttons vertically.
+  - Set `align-items: stretch` and `gap: 0.75rem` for uniform margins and padding.
+  - Force `.form-actions .v-btn` to take `width: 100% !important` and remove default horizontal margins using `margin: 0 !important` to override the desktop `mr-auto` and `mr-2` positioning.
+
+### Verification Plan
+- **Desktop Layout**: Navigate to `/projects/:id/edit` on a desktop screen. Verify that the "Delete Project" button sits on the far-left side of the actions bar, while "Cancel" and "Save Changes" sit on the right side.
+- **Mobile Layout**: Emulate a mobile screen (width <= 640px). Verify that all three buttons stack vertically, spanning the full width of the container, with "Save Changes" at the top, "Cancel" in the middle, and "Delete Project" at the bottom with clean spacing.
+- **Vite Build**: Run `npm run build` to confirm no bundling errors occur.

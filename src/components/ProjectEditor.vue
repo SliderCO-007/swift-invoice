@@ -365,5 +365,14 @@ const cancel = () => {
 @media (max-width: 640px) {
   .editor-container, .editor-card { padding: 1rem; }
   .field-half { max-width: 100%; }
+  .form-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  .form-actions .v-btn {
+    width: 100% !important;
+    margin: 0 !important;
+  }
 }
 </style>
