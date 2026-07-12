@@ -219,58 +219,80 @@
               <div v-else-if="props.variant === 'time_is_money'" class="mobile-tracker-mockup d-flex justify-center w-100">
                 <div class="phone-frame shadow-glow big-phone">
                   <div class="phone-notch"></div>
-                  <div class="phone-screen bg-navy text-left p-4">
-                    <div class="tracker-app-header d-flex justify-space-between align-center mb-4">
-                      <div>
-                        <div class="text-caption text-grey-lighten-1">ACTIVE PROJECT</div>
-                        <div class="font-weight-bold text-teal-accent-3 text-subtitle-1">Southside Plumbing Job</div>
+                  <div class="phone-screen bg-navy text-left d-flex flex-column">
+                    <div class="phone-content-wrapper p-4 flex-grow-1">
+                      <div class="tracker-app-header d-flex justify-space-between align-center mb-4">
+                        <div>
+                          <div class="text-caption text-grey-lighten-1">ACTIVE PROJECT</div>
+                          <div class="font-weight-bold text-teal-accent-3 text-subtitle-1">Southside Plumbing Job</div>
+                        </div>
+                        <div class="pulse-wrapper d-flex align-center ga-1" style="background: rgba(20, 184, 166, 0.1); border-color: rgba(20, 184, 166, 0.2);">
+                          <span class="mini-pulse-dot"></span>
+                          <span class="text-caption text-teal-accent-3 font-weight-bold">ACTIVE</span>
+                        </div>
                       </div>
-                      <div class="pulse-wrapper d-flex align-center ga-1" style="background: rgba(20, 184, 166, 0.1); border-color: rgba(20, 184, 166, 0.2);">
-                        <span class="mini-pulse-dot"></span>
-                        <span class="text-caption text-teal-accent-3 font-weight-bold">ACTIVE</span>
+
+                      <!-- Live timer widget -->
+                      <div class="timer-widget bg-glass mb-4 p-4 rounded-xl text-center border-glass">
+                        <div class="text-caption text-grey-lighten-2 font-weight-bold">CREW TIME TRACKED TODAY</div>
+                        <div class="text-h3 font-weight-black text-white py-3 font-mono">24 <span class="text-teal-accent-3 text-glow">Hours</span></div>
+                        <div class="d-flex justify-center ga-3 text-caption text-grey-lighten-1 mt-1">
+                          <span>3 Crew Members</span>
+                          <span>•</span>
+                          <span>$180.00/hr</span>
+                        </div>
+                      </div>
+
+                      <!-- Expenses/receipt logs list -->
+                      <div class="expense-logs-widget bg-glass p-3 rounded-xl border-glass">
+                        <div class="d-flex justify-space-between align-center mb-3">
+                          <span class="text-caption font-weight-bold text-grey-lighten-2">TODAY'S EXPENSES</span>
+                          <v-icon size="small" color="teal-accent-3">mdi-plus-circle-outline</v-icon>
+                        </div>
+                        <div class="expense-row d-flex justify-space-between align-center py-2 border-bottom">
+                          <div class="d-flex align-center ga-3">
+                            <div class="icon-avatar bg-glass rounded p-1">
+                              <v-icon size="small" color="orange-accent-3">mdi-receipt</v-icon>
+                            </div>
+                            <div>
+                              <div class="text-caption font-weight-bold text-white">Copper Pipes & Fittings</div>
+                              <div class="text-caption text-grey-lighten-1">Attached: receipt_390.jpg</div>
+                            </div>
+                          </div>
+                          <span class="font-weight-bold text-white">$145.20</span>
+                        </div>
+                        <div class="expense-row d-flex justify-space-between align-center py-2">
+                          <div class="d-flex align-center ga-3">
+                            <div class="icon-avatar bg-glass rounded p-1">
+                              <v-icon size="small" color="orange-accent-3">mdi-receipt</v-icon>
+                            </div>
+                            <div>
+                              <div class="text-caption font-weight-bold text-white">Gasoline (Truck #2)</div>
+                              <div class="text-caption text-grey-lighten-1">Attached: receipt_391.jpg</div>
+                            </div>
+                          </div>
+                          <span class="font-weight-bold text-white">$65.00</span>
+                        </div>
                       </div>
                     </div>
 
-                    <!-- Live timer widget -->
-                    <div class="timer-widget bg-glass mb-4 p-4 rounded-xl text-center border-glass">
-                      <div class="text-caption text-grey-lighten-2 font-weight-bold">CREW TIME TRACKED TODAY</div>
-                      <div class="text-h3 font-weight-black text-white py-3 font-mono">24 <span class="text-teal-accent-3 text-glow">Hours</span></div>
-                      <div class="d-flex justify-center ga-3 text-caption text-grey-lighten-1 mt-1">
-                        <span>3 Crew Members</span>
-                        <span>•</span>
-                        <span>$180.00/hr</span>
+                    <!-- Bottom Navigation Bar Mockup -->
+                    <div class="mockup-bottom-nav d-flex justify-space-around align-center pt-3 pb-3 border-top bg-glass-dark">
+                      <div class="d-flex flex-column align-center text-teal-accent-3 cursor-default">
+                        <v-icon size="small">mdi-clock-outline</v-icon>
+                        <span style="font-size: 9px; font-weight: bold; margin-top: 2px;">Track</span>
                       </div>
-                    </div>
-
-                    <!-- Expenses/receipt logs list -->
-                    <div class="expense-logs-widget bg-glass p-3 rounded-xl border-glass">
-                      <div class="d-flex justify-space-between align-center mb-3">
-                        <span class="text-caption font-weight-bold text-grey-lighten-2">TODAY'S EXPENSES</span>
-                        <v-icon size="small" color="teal-accent-3">mdi-plus-circle-outline</v-icon>
+                      <div class="d-flex flex-column align-center text-grey-lighten-1 cursor-default">
+                        <v-icon size="small">mdi-file-document-outline</v-icon>
+                        <span style="font-size: 9px; margin-top: 2px;">Invoices</span>
                       </div>
-                      <div class="expense-row d-flex justify-space-between align-center py-2 border-bottom">
-                        <div class="d-flex align-center ga-3">
-                          <div class="icon-avatar bg-glass rounded p-1">
-                            <v-icon size="small" color="orange-accent-3">mdi-receipt</v-icon>
-                          </div>
-                          <div>
-                            <div class="text-caption font-weight-bold text-white">Copper Pipes & Fittings</div>
-                            <div class="text-caption text-grey-lighten-1">Attached: receipt_390.jpg</div>
-                          </div>
-                        </div>
-                        <span class="font-weight-bold text-white">$145.20</span>
+                      <div class="d-flex flex-column align-center text-grey-lighten-1 cursor-default">
+                        <v-icon size="small">mdi-account-outline</v-icon>
+                        <span style="font-size: 9px; margin-top: 2px;">Clients</span>
                       </div>
-                      <div class="expense-row d-flex justify-space-between align-center py-2">
-                        <div class="d-flex align-center ga-3">
-                          <div class="icon-avatar bg-glass rounded p-1">
-                            <v-icon size="small" color="orange-accent-3">mdi-receipt</v-icon>
-                          </div>
-                          <div>
-                            <div class="text-caption font-weight-bold text-white">Gasoline (Truck #2)</div>
-                            <div class="text-caption text-grey-lighten-1">Attached: receipt_391.jpg</div>
-                          </div>
-                        </div>
-                        <span class="font-weight-bold text-white">$65.00</span>
+                      <div class="d-flex flex-column align-center text-grey-lighten-1 cursor-default">
+                        <v-icon size="small">mdi-cog-outline</v-icon>
+                        <span style="font-size: 9px; margin-top: 2px;">Settings</span>
                       </div>
                     </div>
                   </div>
@@ -297,41 +319,43 @@
               <div v-else-if="props.variant === 'contractor'" class="mobile-invoice-mockup d-flex justify-center w-100">
                 <div class="phone-frame shadow-glow big-phone">
                   <div class="phone-notch"></div>
-                  <div class="phone-screen bg-navy text-left p-4">
-                    <div class="d-flex justify-space-between align-center mb-4">
-                      <div class="text-subtitle-1 font-weight-bold text-white">New Invoice</div>
-                      <span class="text-caption text-grey-lighten-1 font-weight-medium">INV-0012</span>
-                    </div>
+                  <div class="phone-screen bg-navy text-left d-flex flex-column">
+                    <div class="phone-content-wrapper p-4 flex-grow-1 d-flex flex-column">
+                      <div class="d-flex justify-space-between align-center mb-4">
+                        <div class="text-subtitle-1 font-weight-bold text-white">New Invoice</div>
+                        <span class="text-caption text-grey-lighten-1 font-weight-medium">INV-0012</span>
+                      </div>
 
-                    <div class="client-details bg-glass p-3 rounded-lg mb-4 border-glass">
-                      <div class="text-caption text-grey-lighten-1 font-weight-bold mb-1">BILL TO</div>
-                      <div class="font-weight-bold text-white">Miller Residence</div>
-                      <div class="text-caption text-grey">1042 Oakwood Drive</div>
-                    </div>
+                      <div class="client-details bg-glass p-3 rounded-lg mb-4 border-glass">
+                        <div class="text-caption text-grey-lighten-1 font-weight-bold mb-1">BILL TO</div>
+                        <div class="font-weight-bold text-white">Miller Residence</div>
+                        <div class="text-caption text-grey">1042 Oakwood Drive</div>
+                      </div>
 
-                    <div class="items-summary bg-glass p-3 rounded-lg mb-4 border-glass">
-                      <div class="d-flex justify-space-between text-caption text-grey-lighten-1 border-bottom pb-2 mb-2 font-weight-bold">
-                        <span>ITEM DESCRIPTION</span>
-                        <span>TOTAL</span>
+                      <div class="items-summary bg-glass p-3 rounded-lg mb-4 border-glass">
+                        <div class="d-flex justify-space-between text-caption text-grey-lighten-1 border-bottom pb-2 mb-2 font-weight-bold">
+                          <span>ITEM DESCRIPTION</span>
+                          <span>TOTAL</span>
+                        </div>
+                        <div class="d-flex justify-space-between text-caption py-1">
+                          <span class="text-white">Emergency Leak Repair (Labor)</span>
+                          <span class="text-white font-weight-medium">$350.00</span>
+                        </div>
+                        <div class="d-flex justify-space-between text-caption py-1">
+                          <span class="text-white">Replacement PVC Pipes & Valves</span>
+                          <span class="text-white font-weight-medium">$120.00</span>
+                        </div>
+                        <div class="d-flex justify-space-between text-subtitle-2 font-weight-black text-teal-accent-3 border-top pt-2 mt-2">
+                          <span>Total Due</span>
+                          <span>$470.00</span>
+                        </div>
                       </div>
-                      <div class="d-flex justify-space-between text-caption py-1">
-                        <span class="text-white">Emergency Leak Repair (Labor)</span>
-                        <span class="text-white font-weight-medium">$350.00</span>
-                      </div>
-                      <div class="d-flex justify-space-between text-caption py-1">
-                        <span class="text-white">Replacement PVC Pipes & Valves</span>
-                        <span class="text-white font-weight-medium">$120.00</span>
-                      </div>
-                      <div class="d-flex justify-space-between text-subtitle-2 font-weight-black text-teal-accent-3 border-top pt-2 mt-2">
-                        <span>Total Due</span>
-                        <span>$470.00</span>
-                      </div>
-                    </div>
 
-                    <button class="mockup-action-btn bg-emerald w-100 py-3 rounded-lg text-center font-weight-bold text-white d-flex align-center justify-center ga-2 cursor-default">
-                      <v-icon size="small">mdi-send</v-icon>
-                      <span>Send to Client</span>
-                    </button>
+                      <button class="mockup-action-btn bg-emerald w-100 py-3 rounded-lg text-center font-weight-bold text-white d-flex align-center justify-center ga-2 cursor-default mt-auto">
+                        <v-icon size="small">mdi-send</v-icon>
+                        <span>Send to Client</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -356,29 +380,51 @@
               <div v-else-if="props.variant === 'weekend'" class="mobile-weekend-mockup d-flex justify-center w-100">
                 <div class="phone-frame shadow-glow big-phone">
                   <div class="phone-notch"></div>
-                  <div class="phone-screen bg-navy text-center p-4 d-flex flex-column justify-center align-center">
-                    <div class="success-icon-wrapper mb-4">
-                      <v-icon size="72" color="teal-accent-3">mdi-check-decagram</v-icon>
-                    </div>
-                    <div class="text-h5 font-weight-black text-white mb-2">INVOICE PAID!</div>
-                    <div class="text-caption text-grey-lighten-2 mb-5">Miller Residence paid $470.00 via Stripe</div>
+                  <div class="phone-screen bg-navy text-left d-flex flex-column">
+                    <div class="phone-content-wrapper p-4 flex-grow-1 d-flex flex-column justify-center align-center">
+                      <div class="success-icon-wrapper mb-4">
+                        <v-icon size="72" color="teal-accent-3">mdi-check-decagram</v-icon>
+                      </div>
+                      <div class="text-h5 font-weight-black text-white text-center mb-2">INVOICE PAID!</div>
+                      <div class="text-caption text-grey-lighten-2 text-center mb-5">Miller Residence paid $470.00 via Stripe</div>
 
-                    <div class="payout-status bg-glass p-3 rounded-xl w-100 text-left border-glass">
-                      <div class="d-flex justify-space-between align-center">
-                        <div>
-                          <div class="text-caption text-grey-lighten-1 font-weight-bold">PAYOUT TO BANK</div>
-                          <div class="text-subtitle-2 font-weight-bold text-white">Chase Business Checking</div>
+                      <div class="payout-status bg-glass p-3 rounded-xl w-100 text-left border-glass">
+                        <div class="d-flex justify-space-between align-center">
+                          <div>
+                            <div class="text-caption text-grey-lighten-1 font-weight-bold">PAYOUT TO BANK</div>
+                            <div class="text-subtitle-2 font-weight-bold text-white">Chase Business Checking</div>
+                          </div>
+                          <v-icon color="teal-accent-3" size="large">mdi-bank-transfer-in</v-icon>
                         </div>
-                        <v-icon color="teal-accent-3" size="large">mdi-bank-transfer-in</v-icon>
+                        <div class="text-caption text-teal-accent-3 font-weight-bold mt-2 d-flex align-center ga-1">
+                          <span class="mini-pulse-dot"></span>
+                          <span>Status: Initiated (Instant Deposit)</span>
+                        </div>
                       </div>
-                      <div class="text-caption text-teal-accent-3 font-weight-bold mt-2 d-flex align-center ga-1">
-                        <span class="mini-pulse-dot"></span>
-                        <span>Status: Initiated (Instant Deposit)</span>
+
+                      <div class="weekend-alert mt-6 text-caption text-grey text-center">
+                        ☀️ Weekends remaining: 100% free
                       </div>
                     </div>
 
-                    <div class="weekend-alert mt-6 text-caption text-grey">
-                      ☀️ Weekends remaining for you: 100% free of billing
+                    <!-- Bottom Navigation Bar Mockup -->
+                    <div class="mockup-bottom-nav d-flex justify-space-around align-center pt-3 pb-3 border-top bg-glass-dark">
+                      <div class="d-flex flex-column align-center text-grey-lighten-1 cursor-default">
+                        <v-icon size="small">mdi-clock-outline</v-icon>
+                        <span style="font-size: 9px; margin-top: 2px;">Track</span>
+                      </div>
+                      <div class="d-flex flex-column align-center text-teal-accent-3 cursor-default">
+                        <v-icon size="small">mdi-file-document-outline</v-icon>
+                        <span style="font-size: 9px; font-weight: bold; margin-top: 2px;">Invoices</span>
+                      </div>
+                      <div class="d-flex flex-column align-center text-grey-lighten-1 cursor-default">
+                        <v-icon size="small">mdi-account-outline</v-icon>
+                        <span style="font-size: 9px; margin-top: 2px;">Clients</span>
+                      </div>
+                      <div class="d-flex flex-column align-center text-grey-lighten-1 cursor-default">
+                        <v-icon size="small">mdi-cog-outline</v-icon>
+                        <span style="font-size: 9px; margin-top: 2px;">Settings</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1424,25 +1470,29 @@ main section[id] {
 /* Floating Mockups */
 .floating-phone-mockup {
   position: absolute;
-  bottom: -20px;
-  right: 0;
-  width: 200px;
+  bottom: -30px;
+  right: -10px;
+  width: 38%;
+  max-width: 220px;
+  min-width: 170px;
   z-index: 5;
 }
 
 /* General Phone Mockup Frame */
 .phone-frame {
   position: relative;
-  background: #000;
-  border-radius: 36px;
-  padding: 10px;
-  box-shadow: inset 0 0 0 2px #555, inset 0 0 0 4px #000;
+  background: #090e17;
+  border-radius: 40px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    0 0 0 3px #182235,
+    0 30px 80px rgba(0, 0, 0, 0.6), 
+    0 0 40px rgba(20, 184, 166, 0.15);
   overflow: hidden;
-}
-
-.phone-frame.shadow-glow {
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 40px rgba(20, 184, 166, 0.15);
-  border: 1px solid rgba(20, 184, 166, 0.1);
+  aspect-ratio: 9 / 19.5;
+  display: flex;
+  flex-direction: column;
 }
 
 .phone-frame.big-phone {
@@ -1450,36 +1500,114 @@ main section[id] {
   max-width: 100%;
 }
 
+/* Classic iPhone 11/12 Notch */
 .phone-notch {
   position: absolute;
-  top: 10px;
+  top: 12px;
   left: 50%;
   transform: translateX(-50%);
-  width: 90px;
-  height: 20px;
+  width: 120px;
+  height: 18px;
   background: #000;
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
+  border-bottom-left-radius: 14px;
+  border-bottom-right-radius: 14px;
   z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.phone-notch::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  width: 32px;
+  height: 2px;
+  background: #2c2c2c;
+  border-radius: 1px;
+}
+
+.phone-notch::after {
+  content: '';
+  position: absolute;
+  right: 22px;
+  top: 5px;
+  width: 5px;
+  height: 5px;
+  background: #0d1a2d;
+  border-radius: 50%;
+  box-shadow: inset 0 0 2px rgba(6, 182, 212, 0.8);
+}
+
+/* Responsive scale for floating phone notch */
+.floating-phone-mockup .phone-notch {
+  width: 75px;
+  height: 12px;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  top: 12px;
+}
+
+.floating-phone-mockup .phone-notch::before {
+  width: 20px;
+  height: 1px;
+  top: 2px;
+}
+
+.floating-phone-mockup .phone-notch::after {
+  width: 3px;
+  height: 3px;
+  right: 14px;
+  top: 3px;
 }
 
 .phone-screen {
   border-radius: 28px;
   height: 100%;
-  min-height: 260px;
+  width: 100%;
+  flex-grow: 1;
   overflow: hidden;
-  padding-top: 20px !important;
+  padding-top: 24px !important;
   color: #fff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.phone-screen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.02) 40%,
+    transparent 40.1%
+  );
+  pointer-events: none;
+  z-index: 9;
 }
 
 .phone-frame.big-phone .phone-screen {
-  min-height: 420px;
   display: flex;
   flex-direction: column;
 }
 
 .bg-navy {
   background-color: #111d2f !important;
+}
+
+.bg-glass-dark {
+  background: rgba(10, 18, 30, 0.6) !important;
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mockup-bottom-nav {
+  padding-bottom: 12px !important;
 }
 
 /* Scanner Animation */

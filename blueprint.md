@@ -1301,3 +1301,32 @@ Fix a mobile layout bug on the Project Edit page where the "Delete Project" butt
 - **Desktop Layout**: Navigate to `/projects/:id/edit` on a desktop screen. Verify that the "Delete Project" button sits on the far-left side of the actions bar, while "Cancel" and "Save Changes" sit on the right side.
 - **Mobile Layout**: Emulate a mobile screen (width <= 640px). Verify that all three buttons stack vertically, spanning the full width of the container, with "Save Changes" at the top, "Cancel" in the middle, and "Delete Project" at the bottom with clean spacing.
 - **Vite Build**: Run `npm run build` to confirm no bundling errors occur.
+
+
+## Mobile Device Aspect Ratio and Bezel Realism (v55)
+
+### Purpose
+Redesign the CSS phone mockups in the Hero section of the landing page to feature a realistic modern smartphone aspect ratio (19.5:9), classic iPhone 11/12 notch style, uniform premium bezels, glass reflection glare, and a balanced grid layout that ensures perfect scale and responsiveness across all device viewports.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Update CSS styling of `.phone-frame`:
+  - Set `aspect-ratio: 9 / 19.5` for a realistic vertical profile matching modern iPhones.
+  - Implement a uniform black bezel using `padding: 12px` and a thin metallic edge border highlight.
+  - Remove all redundant, conflicting `min-height` rules on the screen and frames.
+- Re-design `.phone-notch`:
+  - style as a classic iPhone 11/12 trapezoidal notch projecting down from the top edge bezel.
+  - Add pseudo-elements representing the physical speaker grille capsule and the front-facing camera lens dot with a blue-teal reflection glow.
+- Introduce screen glare styling:
+  - Add a diagonal CSS linear-gradient overlay on `.phone-screen::before` to emulate the reflective property of physical glass screens.
+- Implement responsive balanced grid adjustments:
+  - Modify `.floating-phone-mockup` to use percentage width (`width: 38%`) and container-relative offsets instead of fixed `200px` width.
+  - Scale down notch dimensions inside media queries for the floating phone mockup to maintain visual proportions.
+  - Adjust margins and layout heights of screen elements (timer widget, items list, scanner visual) to occupy the taller display area gracefully.
+
+### Verification Plan
+- **Mockup Aspect Ratio**: Check that both the big phone (320px width) and floating phone (responsive 38% width) maintain a tall 19.5:9 proportion.
+- **Classic Notch Details**: Verify the speaker grille and camera reflection lens are visible on the notch at the top center.
+- **Responsive Balance**: Check the layout at multiple viewport widths (1200px, 980px, 768px, 480px) to verify that the floating phone scales down proportionally with the browser mockup, and that text remains perfectly legible.
+- **Vite Build**: Run `npm run build` to confirm there are no bundling or stylesheet errors.
