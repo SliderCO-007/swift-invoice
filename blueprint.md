@@ -1216,6 +1216,16 @@ Update both the user guide markdown file (`USER_GUIDE.md`) and the in-app intera
 - **Vite Build**: Run `npm run build` to verify clean compilation.
 
 
+## Landing Page Free Tier Copy Correction (v51)
 
+### Purpose
+Align the landing page's default risk-reduction text with the actual free tier limits enforced by the application (unlimited projects/time tracking and a limit of 5 free invoices).
 
+### Proposed Changes
 
+#### [MODIFY] [src/components/LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Update `riskReductionText` computed property's default fallback case (lines 617-618) to read: `'Free tier includes unlimited projects and 5 free invoices. No credit card required.'`
+
+### Verification Plan
+- **Landing Page Check**: Load the landing page in the default variant and confirm the risk-reduction text reads: "Free tier includes unlimited projects and 5 free invoices. No credit card required."
+- **Vite Build**: Run `npm run build` to ensure the project compiles cleanly.

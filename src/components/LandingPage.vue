@@ -614,7 +614,7 @@ const riskReductionText = computed(() => {
   } else if (props.variant === 'weekend') {
     return 'Free up your weekends today. No credit card required.'
   }
-  return 'Free tier includes 1 active project & 3 entries. No credit card required.'
+  return 'Free tier includes unlimited projects and 5 free invoices. No credit card required.'
 })
 
 const badges = computed(() => {
