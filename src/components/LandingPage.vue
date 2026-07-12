@@ -586,6 +586,8 @@ const heroTitleText = computed(() => {
     return 'Get Paid 3x Faster. Invoice Clients'
   } else if (props.variant === 'weekend') {
     return 'Keep Your Weekends for Yourself.'
+  } else if (props.variant === 'time_is_money') {
+    return 'Because Time is Money.'
   }
   return 'Turn Tracked Work into Paid Invoices'
 })
@@ -595,6 +597,8 @@ const heroTitleHighlight = computed(() => {
     return 'Directly On-Site.'
   } else if (props.variant === 'weekend') {
     return 'Reclaim Your Sundays.'
+  } else if (props.variant === 'time_is_money') {
+    return 'Stop Giving Yours Away.'
   }
   return 'in One Click.'
 })
@@ -604,6 +608,8 @@ const heroSubtitleText = computed(() => {
     return 'Plumbers, contractors, and local service pros: stop chasing unpaid invoices and paperwork. Create professional invoices right from your phone and accept instant mobile payments in under 60 seconds.'
   } else if (props.variant === 'weekend') {
     return 'Stop spending your Saturdays and Sundays writing invoices and sorting crumpled receipts. Invoice your clients directly from the field in under 60 seconds and let the cash flow automatically.'
+  } else if (props.variant === 'time_is_money') {
+    return 'Stop losing billable hours and forgetting project expenses. ScanGo Invoice tracks time, receipts, and expenses on the go for you and your team—all from your phone.'
   }
   return 'Digitize your workflow on the go. Snap receipts to track expenses, log project hours, and get paid instantly via customer "Scan-to-Pay" QR codes.'
 })
@@ -654,6 +660,24 @@ const badges = computed(() => {
         subtitle: 'Let clients scan to pay with Apple Pay, cards, or ACH, landing directly in your bank account'
       }
     ]
+  } else if (props.variant === 'time_is_money') {
+    return [
+      {
+        type: 'tracking',
+        title: 'Team Time Tracking',
+        subtitle: 'Track billable hours and labor rates on the job site for you and your entire crew'
+      },
+      {
+        type: 'invoice',
+        title: 'Receipt & Expense Capture',
+        subtitle: 'Snap receipt photos and categorize expenses instantly to prevent leaked costs'
+      },
+      {
+        type: 'convert',
+        title: '1-Click Client Billing',
+        subtitle: 'Seamlessly roll logged time and expenses into clean, professional invoices in seconds'
+      }
+    ]
   }
   return [
     {
@@ -679,6 +703,8 @@ const trustRatingText = computed(() => {
     return 'Loved by 1,000+ local service pros worldwide.'
   } else if (props.variant === 'weekend') {
     return 'Loved by hundreds of busy business owners.'
+  } else if (props.variant === 'time_is_money') {
+    return 'Loved by hundreds of field crews and service professionals.'
   }
   return 'Loved by 20,000+ freelancers and agency owners worldwide.'
 })
@@ -711,6 +737,21 @@ const testimonials = computed(() => {
         text: '"I hated the stress of weekend paperwork. ScanGo lets me track time and snap receipt photos on the go, converting them to invoices instantly."',
         author: 'Rachel S.',
         role: 'Interior Designer',
+        bgClass: 'bg-pink-darken-1'
+      }
+    ]
+  } else if (props.variant === 'time_is_money') {
+    return [
+      {
+        text: '"We used to lose thousands in unbilled hours every month. Now, our team logs time right on their phones, and it\'s invoiced in one click. Time really is money."',
+        author: 'Marcus J.',
+        role: 'Painting Contractor',
+        bgClass: 'bg-indigo-darken-1'
+      },
+      {
+        text: '"Snapping receipt photos immediately on-site keeps us organized. No more lost paper receipts or forgotten expenses at tax time."',
+        author: 'Sarah M.',
+        role: 'HVAC Service Owner',
         bgClass: 'bg-pink-darken-1'
       }
     ]
@@ -840,13 +881,17 @@ const metaTitle = props.variant === 'contractor'
   ? 'Get Paid 3x Faster | ScanGo Invoice for Contractors & Local Pros'
   : props.variant === 'weekend'
     ? 'Reclaim Your Weekends | ScanGo Invoice Simple On-Site Billing'
-    : 'ScanGo Invoice | Simple Digital Invoicing';
+    : props.variant === 'time_is_money'
+      ? 'ScanGo Invoice - Time is Money | Professional Mobile Invoicing'
+      : 'ScanGo Invoice | Simple Digital Invoicing';
 
 const metaDescription = props.variant === 'contractor'
   ? 'The ultimate mobile invoicing tool for plumbers, contractors, and local service providers. Send professional invoices on the job in under 60 seconds and accept cards/ACH instantly.'
   : props.variant === 'weekend'
     ? 'Stop wasting Sunday nights on paperwork. Track project time, snap receipt photos on the go, and convert to invoices in one click. Free up your weekends.'
-    : 'Create, download, and track professional invoices for a simple monthly or yearly price. ScanGo Invoice generates branded payment links and QR codes so customers can pay instantly.';
+    : props.variant === 'time_is_money'
+      ? 'Track time and expenses on your phone for you and your team. Stop losing billable hours and turn tracked work into paid client invoices instantly.'
+      : 'Create, download, and track professional invoices for a simple monthly or yearly price. ScanGo Invoice generates branded payment links and QR codes so customers can pay instantly.';
 
 useMeta(
   metaTitle,

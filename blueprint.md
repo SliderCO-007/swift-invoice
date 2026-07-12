@@ -1229,3 +1229,31 @@ Align the landing page's default risk-reduction text with the actual free tier l
 ### Verification Plan
 - **Landing Page Check**: Load the landing page in the default variant and confirm the risk-reduction text reads: "Free tier includes unlimited projects and 5 free invoices. No credit card required."
 - **Vite Build**: Run `npm run build` to ensure the project compiles cleanly.
+
+
+## Time is Money Landing Page & Campaign Tracking (v52)
+
+### Purpose
+Implement a custom landing page at `/lp/time-is-money` optimized for the "TIME is MONEY" Facebook Reel / YouTube Short campaign. This page features tailored copy that aligns with the video content (focusing on time & expense tracking, team collaboration, and not giving away hard-earned time) and implements tracking mechanisms to identify signups and page views originating from the Facebook Reel promotion.
+
+### Proposed Changes
+
+#### [NEW] [src/components/TimeIsMoneyLandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/TimeIsMoneyLandingPage.vue)
+- Create a simple wrapper component that loads `LandingPage.vue` with `variant="time_is_money"`.
+- Set `signup_source` in `sessionStorage` to `'lp_time_is_money'` on mount.
+- Send a custom Meta Pixel tracking event `ViewTimeIsMoneyReelPromotion` to isolate traffic driven from the Reel campaign.
+
+#### [MODIFY] [src/components/LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Update computed text properties (`heroTitleText`, `heroTitleHighlight`, `heroSubtitleText`, `badges`, `trustRatingText`, `testimonials`, `metaTitle`, `metaDescription`) to return high-impact time-tracking copy for the `time_is_money` variant matching the video prompts.
+
+#### [MODIFY] [src/router/index.js](file:///C:/Users/curth/git/swift-invoice/src/router/index.js)
+- Register the route `/lp/time-is-money` mapping to the new `TimeIsMoneyLandingPage` component.
+
+#### [MODIFY] [scripts/generate-lp-meta.js](file:///C:/Users/curth/git/swift-invoice/scripts/generate-lp-meta.js)
+- Add the `lp/time-is-money` configuration (metadata title, description, and canonical URL) to the static meta tags generation page list.
+
+### Verification Plan
+- **Route Access**: Navigate to `/lp/time-is-money`. Confirm that the custom copy for "TIME is MONEY" renders correctly.
+- **Tracking Verification**: Confirm that `sessionStorage.getItem('signup_source')` is set to `'lp_time_is_money'` when visiting the page.
+- **Pixel Call**: Verify that `fbq` is invoked for both the custom event `ViewTimeIsMoneyReelPromotion` and `ViewContent` with `LP - time_is_money`.
+- **Meta Generator**: Run `npm run build` and verify that `dist/lp/time-is-money/index.html` is generated with correct title and og:meta properties.

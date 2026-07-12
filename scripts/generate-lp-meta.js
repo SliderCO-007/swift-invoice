@@ -27,6 +27,12 @@ const pages = [
     title: 'Get Paid 3x Faster | ScanGo Invoice for Contractors & Local Pros',
     description: 'The ultimate mobile invoicing tool for plumbers, contractors, and local service providers. Send professional invoices on the job in under 60 seconds and accept cards/ACH instantly.',
     url: 'https://scangoinvoice.com/lp/get-paid-faster/'
+  },
+  {
+    path: 'lp/time-is-money',
+    title: 'ScanGo Invoice - Time is Money | Professional Mobile Invoicing',
+    description: 'Track time and expenses on your phone for you and your team. Stop losing billable hours and turn tracked work into paid client invoices instantly.',
+    url: 'https://scangoinvoice.com/lp/time-is-money/'
   }
 ];
 

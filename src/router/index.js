@@ -20,6 +20,11 @@ const routes = [
     component: () => import('../components/WeekendLandingPage.vue'),
   },
   {
+    path: '/lp/time-is-money',
+    name: 'TimeIsMoneyLandingPage',
+    component: () => import('../components/TimeIsMoneyLandingPage.vue'),
+  },
+  {
     path: '/features',
     name: 'Features',
     component: () => import('../components/FeaturesPage.vue'),
