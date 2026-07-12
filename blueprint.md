@@ -1257,3 +1257,28 @@ Implement a custom landing page at `/lp/time-is-money` optimized for the "TIME i
 - **Tracking Verification**: Confirm that `sessionStorage.getItem('signup_source')` is set to `'lp_time_is_money'` when visiting the page.
 - **Pixel Call**: Verify that `fbq` is invoked for both the custom event `ViewTimeIsMoneyReelPromotion` and `ViewContent` with `LP - time_is_money`.
 - **Meta Generator**: Run `npm run build` and verify that `dist/lp/time-is-money/index.html` is generated with correct title and og:meta properties.
+
+
+## Dynamic Device Mockup Hero Section (v53)
+
+### Purpose
+Replace the static corporate "deconstructed workspace" hero image (`/branded_hero_v7.png`) with a highly interactive, responsive, and gorgeous CSS-based Device Mockup system that dynamically adapts to the visitor's landing page variant. This ensures that users coming from specific Meta Ads (like the "Time is Money" ad campaign) immediately see mobile mockups representing their specific business context (e.g., tracking crew hours and receipt photo uploads, sending invoices on-site, or weekend payout success screens), maximizing conversion rates.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Update the hero-image slot:
+  - Render a browser + floating phone composite for the `standard` variant, featuring revenue dashboards, bar charts, and QR code billing.
+  - Render a crew time-tracker phone frame for the `time_is_money` variant, showcasing logged crew hours in whole integers (e.g. "24 Hours"), crew rates, and today's logged expenses with receipt status.
+  - Render a mobile invoice preview phone frame for the `contractor` variant, showing typical plumbing leak repair service lines and total due.
+  - Render a payment confirmation & payout status screen phone frame for the `weekend` variant, highlighting Chase checking account instant deposits and zero billing hours.
+- Implement floating glassmorphic badges (`.floating-badge`) layered above the mockups to create 3D visual depth, featuring CSS hover bounce animations.
+- Add CSS styling for responsive, glassmorphic phone frames (notch, buttons, neon glows, glares) and custom components, supporting full mobile-first stacking.
+
+### Verification Plan
+- **Standard Mockup**: Visit `/` and verify the desktop dashboard browser preview and floating QR scanner mobile mockup display correctly.
+- **Time is Money Mockup**: Visit `/lp/time-is-money` and confirm the active Crew Timer (04:32:18) and Today's Expenses logs display correctly with floating badges ("No Lost Hours", "Receipt Photo Uploaded").
+- **Contractor Mockup**: Visit `/lp/get-paid-faster` and confirm the Plumbing leak repair invoice form and floating payment badges render correctly.
+- **Weekend Mockup**: Visit `/lp/weekend-freedom` and verify the green paid decagram icon and Bank Payout initiated banner display correctly.
+- **Responsive Stacking**: Emulate mobile viewport on all variants. Ensure the CSS mockups scale down cleanly and stack neatly under the hero headline without overflow or horizontal scrolling.
+- **Vite Build**: Run `npm run build` to confirm no bundling errors occur.

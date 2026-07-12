@@ -153,25 +153,252 @@
             </div>
 
             <div class="hero-image">
-              <img
-                src="/branded_hero_v7.png"
-                class="hero-static"
-                alt="A deconstructed workspace with an invoice and dashboard."
-              />
-
-              <!-- iPhone GIF Overlay (Omitted temporarily until new updates GIF is available) -->
-              <transition name="fade">
-                <div class="iphone-overlay" v-if="false">
-                  <div class="iphone-frame">
-                    <div class="notch"></div>
-                    <img
-                      src="/ScanGo_convert_project_02.gif"
-                      class="iphone-gif"
-                      alt="Project Conversion Demo"
-                    />
+              <!-- Default variant / standard landing page: Browser mockup with floating phone mockup -->
+              <div v-if="props.variant === 'standard'" class="browser-phone-composite">
+                <div class="browser-frame glassmorphic-frame">
+                  <div class="browser-header">
+                    <div class="browser-dots">
+                      <span class="browser-dot red"></span>
+                      <span class="browser-dot yellow"></span>
+                      <span class="browser-dot green"></span>
+                    </div>
+                    <div class="browser-address">scango.invoice/dashboard</div>
+                  </div>
+                  <div class="browser-content">
+                    <div class="dashboard-preview">
+                      <div class="preview-header d-flex justify-space-between align-center mb-4">
+                        <div>
+                          <div class="text-caption text-grey-lighten-1">MONTHLY REVENUE</div>
+                          <div class="font-weight-black text-white text-h5">$12,450.00</div>
+                        </div>
+                        <span class="trend-badge text-teal-accent-3 text-caption font-weight-bold">+24% this mo</span>
+                      </div>
+                      <div class="preview-chart d-flex align-end justify-space-between ga-2 mb-4" style="height: 100px;">
+                        <!-- CSS bars representing revenue growth -->
+                        <div class="chart-bar" style="height: 35%; background: rgba(52, 211, 153, 0.2)"></div>
+                        <div class="chart-bar" style="height: 50%; background: rgba(52, 211, 153, 0.3)"></div>
+                        <div class="chart-bar" style="height: 45%; background: rgba(52, 211, 153, 0.25)"></div>
+                        <div class="chart-bar" style="height: 75%; background: rgba(52, 211, 153, 0.5)"></div>
+                        <div class="chart-bar" style="height: 60%; background: rgba(52, 211, 153, 0.4)"></div>
+                        <div class="chart-bar" style="height: 90%; background: linear-gradient(180deg, #34d399 0%, #059669 100%)"></div>
+                      </div>
+                      <div class="preview-invoices bg-glass p-3 rounded-lg">
+                        <div class="preview-invoice-row d-flex justify-space-between align-center py-1 border-bottom">
+                          <span class="text-caption">INV-00000009 - Acme Corp</span>
+                          <span class="status-badge paid font-weight-bold">Paid</span>
+                        </div>
+                        <div class="preview-invoice-row d-flex justify-space-between align-center py-1">
+                          <span class="text-caption">INV-00000010 - Globex Inc</span>
+                          <span class="status-badge pending font-weight-bold">Pending</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </transition>
+                <!-- Floating smartphone mockup alongside the browser -->
+                <div class="floating-phone-mockup">
+                  <div class="phone-frame shadow-glow">
+                    <div class="phone-notch"></div>
+                    <div class="phone-screen bg-navy p-3 text-center d-flex flex-column justify-center align-center">
+                      <div class="d-flex justify-space-between w-100 align-center mb-6">
+                        <span class="text-caption font-weight-bold text-teal-accent-3">ScanGo</span>
+                        <v-icon size="small" color="white">mdi-menu</v-icon>
+                      </div>
+                      <div class="qr-scanner-visual mb-4">
+                        <div class="scan-laser"></div>
+                        <v-icon size="40" color="teal-accent-3">mdi-qrcode-scan</v-icon>
+                      </div>
+                      <div class="text-subtitle-2 font-weight-bold text-white mb-1">Scan to Pay</div>
+                      <div class="text-caption text-grey">Customer QR payment setup</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Time is Money variant: Focuses on crew tracking, time logging, expense capturing -->
+              <div v-else-if="props.variant === 'time_is_money'" class="mobile-tracker-mockup d-flex justify-center w-100">
+                <div class="phone-frame shadow-glow big-phone">
+                  <div class="phone-notch"></div>
+                  <div class="phone-screen bg-navy text-left p-4">
+                    <div class="tracker-app-header d-flex justify-space-between align-center mb-4">
+                      <div>
+                        <div class="text-caption text-grey-lighten-1">ACTIVE PROJECT</div>
+                        <div class="font-weight-bold text-teal-accent-3 text-subtitle-1">Southside Plumbing Job</div>
+                      </div>
+                      <div class="pulse-wrapper d-flex align-center ga-1" style="background: rgba(20, 184, 166, 0.1); border-color: rgba(20, 184, 166, 0.2);">
+                        <span class="mini-pulse-dot"></span>
+                        <span class="text-caption text-teal-accent-3 font-weight-bold">ACTIVE</span>
+                      </div>
+                    </div>
+
+                    <!-- Live timer widget -->
+                    <div class="timer-widget bg-glass mb-4 p-4 rounded-xl text-center border-glass">
+                      <div class="text-caption text-grey-lighten-2 font-weight-bold">CREW TIME TRACKED TODAY</div>
+                      <div class="text-h3 font-weight-black text-white py-3 font-mono">24 <span class="text-teal-accent-3 text-glow">Hours</span></div>
+                      <div class="d-flex justify-center ga-3 text-caption text-grey-lighten-1 mt-1">
+                        <span>3 Crew Members</span>
+                        <span>•</span>
+                        <span>$180.00/hr</span>
+                      </div>
+                    </div>
+
+                    <!-- Expenses/receipt logs list -->
+                    <div class="expense-logs-widget bg-glass p-3 rounded-xl border-glass">
+                      <div class="d-flex justify-space-between align-center mb-3">
+                        <span class="text-caption font-weight-bold text-grey-lighten-2">TODAY'S EXPENSES</span>
+                        <v-icon size="small" color="teal-accent-3">mdi-plus-circle-outline</v-icon>
+                      </div>
+                      <div class="expense-row d-flex justify-space-between align-center py-2 border-bottom">
+                        <div class="d-flex align-center ga-3">
+                          <div class="icon-avatar bg-glass rounded p-1">
+                            <v-icon size="small" color="orange-accent-3">mdi-receipt</v-icon>
+                          </div>
+                          <div>
+                            <div class="text-caption font-weight-bold text-white">Copper Pipes & Fittings</div>
+                            <div class="text-caption text-grey-lighten-1">Attached: receipt_390.jpg</div>
+                          </div>
+                        </div>
+                        <span class="font-weight-bold text-white">$145.20</span>
+                      </div>
+                      <div class="expense-row d-flex justify-space-between align-center py-2">
+                        <div class="d-flex align-center ga-3">
+                          <div class="icon-avatar bg-glass rounded p-1">
+                            <v-icon size="small" color="orange-accent-3">mdi-receipt</v-icon>
+                          </div>
+                          <div>
+                            <div class="text-caption font-weight-bold text-white">Gasoline (Truck #2)</div>
+                            <div class="text-caption text-grey-lighten-1">Attached: receipt_391.jpg</div>
+                          </div>
+                        </div>
+                        <span class="font-weight-bold text-white">$65.00</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Floating glass card badges for visual depth -->
+                <div class="floating-badge badge-top-left glassmorphic-badge pulse-hover">
+                  <v-icon size="24" color="teal-accent-3" class="mr-2">mdi-clock-check</v-icon>
+                  <div>
+                    <div class="badge-title">No Lost Hours</div>
+                    <div class="badge-subtitle">Auto-logged to invoice</div>
+                  </div>
+                </div>
+                <div class="floating-badge badge-bottom-right glassmorphic-badge pulse-hover">
+                  <v-icon size="24" color="orange-accent-3" class="mr-2">mdi-image-filter-center-focus</v-icon>
+                  <div>
+                    <div class="badge-title">Receipt Photo Uploaded</div>
+                    <div class="badge-subtitle">Saved to project vault</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Contractor / Get Paid Faster variant: Invoice builder interface -->
+              <div v-else-if="props.variant === 'contractor'" class="mobile-invoice-mockup d-flex justify-center w-100">
+                <div class="phone-frame shadow-glow big-phone">
+                  <div class="phone-notch"></div>
+                  <div class="phone-screen bg-navy text-left p-4">
+                    <div class="d-flex justify-space-between align-center mb-4">
+                      <div class="text-subtitle-1 font-weight-bold text-white">New Invoice</div>
+                      <span class="text-caption text-grey-lighten-1 font-weight-medium">INV-0012</span>
+                    </div>
+
+                    <div class="client-details bg-glass p-3 rounded-lg mb-4 border-glass">
+                      <div class="text-caption text-grey-lighten-1 font-weight-bold mb-1">BILL TO</div>
+                      <div class="font-weight-bold text-white">Miller Residence</div>
+                      <div class="text-caption text-grey">1042 Oakwood Drive</div>
+                    </div>
+
+                    <div class="items-summary bg-glass p-3 rounded-lg mb-4 border-glass">
+                      <div class="d-flex justify-space-between text-caption text-grey-lighten-1 border-bottom pb-2 mb-2 font-weight-bold">
+                        <span>ITEM DESCRIPTION</span>
+                        <span>TOTAL</span>
+                      </div>
+                      <div class="d-flex justify-space-between text-caption py-1">
+                        <span class="text-white">Emergency Leak Repair (Labor)</span>
+                        <span class="text-white font-weight-medium">$350.00</span>
+                      </div>
+                      <div class="d-flex justify-space-between text-caption py-1">
+                        <span class="text-white">Replacement PVC Pipes & Valves</span>
+                        <span class="text-white font-weight-medium">$120.00</span>
+                      </div>
+                      <div class="d-flex justify-space-between text-subtitle-2 font-weight-black text-teal-accent-3 border-top pt-2 mt-2">
+                        <span>Total Due</span>
+                        <span>$470.00</span>
+                      </div>
+                    </div>
+
+                    <button class="mockup-action-btn bg-emerald w-100 py-3 rounded-lg text-center font-weight-bold text-white d-flex align-center justify-center ga-2 cursor-default">
+                      <v-icon size="small">mdi-send</v-icon>
+                      <span>Send to Client</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Floating badges -->
+                <div class="floating-badge badge-top-right glassmorphic-badge pulse-hover">
+                  <v-icon size="24" color="teal-accent-3" class="mr-2">mdi-check-circle</v-icon>
+                  <div>
+                    <div class="badge-title">Invoice Sent!</div>
+                    <div class="badge-subtitle">Delivered in 45 seconds</div>
+                  </div>
+                </div>
+                <div class="floating-badge badge-bottom-left glassmorphic-badge pulse-hover">
+                  <v-icon size="24" color="amber-accent-3" class="mr-2">mdi-qrcode</v-icon>
+                  <div>
+                    <div class="badge-title">Scan-to-Pay QR</div>
+                    <div class="badge-subtitle">Stripe integrated payments</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Weekend Freedom variant: Happy/Paid screen -->
+              <div v-else-if="props.variant === 'weekend'" class="mobile-weekend-mockup d-flex justify-center w-100">
+                <div class="phone-frame shadow-glow big-phone">
+                  <div class="phone-notch"></div>
+                  <div class="phone-screen bg-navy text-center p-4 d-flex flex-column justify-center align-center">
+                    <div class="success-icon-wrapper mb-4">
+                      <v-icon size="72" color="teal-accent-3">mdi-check-decagram</v-icon>
+                    </div>
+                    <div class="text-h5 font-weight-black text-white mb-2">INVOICE PAID!</div>
+                    <div class="text-caption text-grey-lighten-2 mb-5">Miller Residence paid $470.00 via Stripe</div>
+
+                    <div class="payout-status bg-glass p-3 rounded-xl w-100 text-left border-glass">
+                      <div class="d-flex justify-space-between align-center">
+                        <div>
+                          <div class="text-caption text-grey-lighten-1 font-weight-bold">PAYOUT TO BANK</div>
+                          <div class="text-subtitle-2 font-weight-bold text-white">Chase Business Checking</div>
+                        </div>
+                        <v-icon color="teal-accent-3" size="large">mdi-bank-transfer-in</v-icon>
+                      </div>
+                      <div class="text-caption text-teal-accent-3 font-weight-bold mt-2 d-flex align-center ga-1">
+                        <span class="mini-pulse-dot"></span>
+                        <span>Status: Initiated (Instant Deposit)</span>
+                      </div>
+                    </div>
+
+                    <div class="weekend-alert mt-6 text-caption text-grey">
+                      ☀️ Weekends remaining for you: 100% free of billing
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Floating badges -->
+                <div class="floating-badge badge-top-left glassmorphic-badge pulse-hover">
+                  <v-icon size="24" color="teal-accent-3" class="mr-2">mdi-credit-card-outline</v-icon>
+                  <div>
+                    <div class="badge-title">Direct Payout</div>
+                    <div class="badge-subtitle">Funds clear instantly</div>
+                  </div>
+                </div>
+                <div class="floating-badge badge-bottom-right glassmorphic-badge pulse-hover">
+                  <v-icon size="24" color="teal-accent-3" class="mr-2">mdi-calendar-heart</v-icon>
+                  <div>
+                    <div class="badge-title">Sunday Rest</div>
+                    <div class="badge-subtitle">0 hours on laptop today</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1093,65 +1320,342 @@ main section[id] {
 
 .hero-image {
   position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.hero-image .hero-static {
-  max-width: 100%;
+/* Browser Frame */
+.browser-phone-composite {
+  position: relative;
+  width: 100%;
+  max-width: 580px;
   height: auto;
-  border-radius: 32px;
+  aspect-ratio: 4/3;
+  margin-top: 1rem;
+}
+
+.browser-frame.glassmorphic-frame {
+  width: 90%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  backdrop-filter: blur(16px);
+  overflow: hidden;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
-  display: block;
+  text-align: left;
 }
 
-/* iPhone Overlay Styles */
-.iphone-overlay {
+.browser-header {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.browser-dots {
+  display: flex;
+  gap: 6px;
+  margin-right: 16px;
+}
+
+.browser-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.browser-dot.red { background: #ff5f56; }
+.browser-dot.yellow { background: #ffbd2e; }
+.browser-dot.green { background: #27c93f; }
+
+.browser-address {
+  font-family: monospace;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+  background: rgba(0, 0, 0, 0.2);
+  padding: 2px 16px;
+  border-radius: 4px;
+  flex-grow: 1;
+  text-align: center;
+  max-width: 250px;
+  margin: 0 auto;
+}
+
+.browser-content {
+  padding: 24px;
+}
+
+.trend-badge {
+  background: rgba(52, 211, 153, 0.1);
+  padding: 4px 8px;
+  border-radius: 20px;
+  border: 1px solid rgba(52, 211, 153, 0.2);
+}
+
+.chart-bar {
+  flex: 1;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.5s ease;
+}
+
+/* Glassmorphic boxes & helpers */
+.bg-glass {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(8px);
+}
+
+.border-glass {
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.border-bottom {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+.border-top {
+  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Floating Mockups */
+.floating-phone-mockup {
   position: absolute;
-  bottom: -40px;
-  left: -40px;
-  width: 280px;
-  z-index: 10;
-  pointer-events: none;
+  bottom: -20px;
+  right: 0;
+  width: 200px;
+  z-index: 5;
 }
 
-.iphone-frame {
+/* General Phone Mockup Frame */
+.phone-frame {
   position: relative;
   background: #000;
-  border-radius: 44px;
-  padding: 12px;
-  transform: rotate(8deg);
-  box-shadow: 15px 35px 60px rgba(0, 0, 0, 0.7), inset 0 0 0 2px #555,
-    inset 0 0 0 6px #000;
-  will-change: transform;
+  border-radius: 36px;
+  padding: 10px;
+  box-shadow: inset 0 0 0 2px #555, inset 0 0 0 4px #000;
+  overflow: hidden;
 }
 
-.notch {
+.phone-frame.shadow-glow {
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 40px rgba(20, 184, 166, 0.15);
+  border: 1px solid rgba(20, 184, 166, 0.1);
+}
+
+.phone-frame.big-phone {
+  width: 320px;
+  max-width: 100%;
+}
+
+.phone-notch {
   position: absolute;
-  top: 12px;
+  top: 10px;
   left: 50%;
   transform: translateX(-50%);
-  width: 110px;
-  height: 25px;
+  width: 90px;
+  height: 20px;
   background: #000;
-  border-bottom-left-radius: 14px;
-  border-bottom-right-radius: 14px;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  z-index: 10;
+}
+
+.phone-screen {
+  border-radius: 28px;
+  height: 100%;
+  min-height: 260px;
+  overflow: hidden;
+  padding-top: 20px !important;
+  color: #fff;
+}
+
+.phone-frame.big-phone .phone-screen {
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+}
+
+.bg-navy {
+  background-color: #111d2f !important;
+}
+
+/* Scanner Animation */
+.qr-scanner-visual {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border: 2px solid rgba(20, 184, 166, 0.3);
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+  overflow: hidden;
+}
+
+.scan-laser {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #2dd4bf;
+  box-shadow: 0 0 8px #2dd4bf;
+  animation: scanning 2s linear infinite;
   z-index: 2;
 }
 
-.iphone-gif {
-  width: 100%;
-  height: auto;
-  border-radius: 32px; /* inner screen radius */
-  display: block;
-  background: #111;
+@keyframes scanning {
+  0% { top: 0%; }
+  50% { top: 100%; }
+  100% { top: 0%; }
 }
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 1.5s ease;
+/* Live Timer pulse and styling */
+.pulse-wrapper {
+  background: rgba(239, 68, 68, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(239, 68, 68, 0.2);
 }
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+  animation: pulsing 1.5s infinite;
+}
+
+.mini-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #14b8a6;
+  box-shadow: 0 0 6px #14b8a6;
+  animation: pulsing 1.5s infinite;
+  display: inline-block;
+}
+
+@keyframes pulsing {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.6; }
+}
+
+.text-glow {
+  text-shadow: 0 0 10px rgba(20, 184, 166, 0.5);
+}
+
+.font-mono {
+  font-family: monospace;
+}
+
+.icon-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Action button inside mockup */
+.bg-emerald {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.mockup-action-btn {
+  border: none;
+  font-size: 13px;
+  transition: all 0.3s ease;
+  margin-top: auto;
+}
+
+/* Testimonial success icon wrapper */
+.success-icon-wrapper {
+  background: rgba(20, 184, 166, 0.1);
+  border-radius: 50%;
+  padding: 16px;
+  display: inline-flex;
+  box-shadow: 0 0 30px rgba(20, 184, 166, 0.15);
+}
+
+/* Floating Glass Badges */
+.floating-badge {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(12px);
+  padding: 10px 14px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  z-index: 12;
+  text-align: left;
+}
+
+.badge-top-left {
+  top: 10%;
+  left: -20px;
+}
+
+.badge-bottom-right {
+  bottom: 12%;
+  right: -20px;
+}
+
+.badge-top-right {
+  top: 12%;
+  right: -20px;
+}
+
+.badge-bottom-left {
+  bottom: 10%;
+  left: -20px;
+}
+
+.badge-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.badge-subtitle {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.2;
+  margin-top: 1px;
+}
+
+/* Animations for depth */
+.pulse-hover {
+  animation: float-anim 6s ease-in-out infinite;
+}
+
+.badge-top-left.pulse-hover {
+  animation-delay: 0s;
+}
+
+.badge-bottom-right.pulse-hover {
+  animation-delay: 3s;
+}
+
+.badge-top-right.pulse-hover {
+  animation-delay: 1.5s;
+}
+
+.badge-bottom-left.pulse-hover {
+  animation-delay: 4.5s;
+}
+
+@keyframes float-anim {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
 }
 
 /* How It Works Section */
