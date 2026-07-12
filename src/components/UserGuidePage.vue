@@ -32,7 +32,7 @@ const sections = [
       },
       {
         title: 'Choose a Design Template',
-        desc: 'Scroll to the **Template Selection** section and choose from one of the 6 premium styles (e.g. Classic, Tech Grid, Creative Sidebar) and pick your brand accent color.'
+        desc: 'Scroll to the **Template Selection** section and choose from one of the 6 premium styles (e.g. Classic, Tech Grid, Creative Sidebar) and pick your brand accent color. Non-taxable items will display a subtle **(No Tax)** indicator on the generated invoice.'
       },
       {
         title: 'Save or Preview',
@@ -49,6 +49,10 @@ const sections = [
       {
         title: 'Access Settings',
         desc: 'Click the **User Menu** (top-right avatar) and select **Settings** or navigate to **Onboarding** directly.'
+      },
+      {
+        title: 'Onboarding Wizard',
+        desc: 'New users are automatically routed to a single-step **Onboarding Wizard** (`/onboarding`) upon registration to set up their initial company profile.'
       },
       {
         title: 'Step 1: Company Profile Details',
@@ -70,7 +74,7 @@ const sections = [
   },
   {
     id: 'customers-items',
-    title: 'How to Create Customers and Products',
+    title: 'How to Create Customers, Products, and Expense Categories',
     icon: 'mdi-account-group-outline',
     color: '#50E3C2', // Teal accent
     steps: [
@@ -80,7 +84,11 @@ const sections = [
       },
       {
         title: 'Manage Products / Services',
-        desc: 'Navigate to the **Items** page from the navigation menu. Click **"Add Item"** in the top bar. Provide an **Item Name**, **Default Price**, and check whether the item is **Taxable** by default. Click **"Save"**. These products will now instantly autocomplete when building new invoices.'
+        desc: 'Navigate to the **Items** page from the navigation menu and click the **Invoice Items** tab. Click **"Add Item"** in the top bar. Provide an **Item Name**, **Default Price**, and check whether the item is **Taxable** by default. Click **"Save"**. These products will now instantly autocomplete when building new invoices.'
+      },
+      {
+        title: 'Manage Expense Categories (Owners Only)',
+        desc: 'Navigate to the **Items** page and select the **Expense Categories** tab. Click **"Add Category"** to create custom categories (e.g., "Materials", "Travel"). You can edit or delete them; deleting a category will not affect historical expense logs. Team members cannot create categories.'
       }
     ]
   },
@@ -123,8 +131,88 @@ const sections = [
         desc: 'Check the **Daily Sales Trend** bar graph to visualize day-by-day sales peaks.'
       },
       {
-        title: 'Export the Report',
+        title: 'Export the Sales Report',
         desc: 'Click **"Export CSV"** to download a spreadsheet table of that specific month\'s invoice breakdown. Click **"Download PDF"** to generate and download a clean, print-friendly portrait PDF report.'
+      },
+      {
+        title: 'Team Hours Report (Owners Only)',
+        desc: 'Switch to the **Team Hours Report** tab. Filter logged entries by **Date Range** and **Team Member** to review **Total Hours**, **Billable/Non-Billable Splits**, and **Estimated Labor Costs**. Export as CSV for payroll or download a print-friendly PDF.'
+      }
+    ]
+  },
+  {
+    id: 'stripe-connect',
+    title: 'How to Set Up Stripe Connect & Accept Payments',
+    icon: 'mdi-credit-card-outline',
+    color: '#6772E5', // Stripe purple
+    steps: [
+      {
+        title: 'Connect Stripe Account',
+        desc: 'Click the **"Connect with Stripe"** banner on your Dashboard or under Settings. You will be securely redirected to Stripe to create or link your merchant account.'
+      },
+      {
+        title: 'Profile Auto-Sync',
+        desc: 'Upon completing Stripe registration and returning to the app, your company name, email, address, state, city, and zip code are automatically synced to your settings profile to save time.'
+      },
+      {
+        title: 'Stripe Scan-to-Pay QR Code',
+        desc: 'Once your Stripe account is verified, a custom "Scan to Pay" QR code is dynamically rendered on all invoice templates (Classic, Tech Grid, Creative Sidebar) so your clients can scan and pay on the spot.'
+      },
+      {
+        title: 'Online Payment Options',
+        desc: 'Clients opening invoice links can pay securely using credit cards, Apple Pay, Google Pay, or direct ACH bank transfers.'
+      }
+    ]
+  },
+  {
+    id: 'project-tracking',
+    title: 'How to Use Project & Time/Expense Tracking',
+    icon: 'mdi-folder-clock-outline',
+    color: '#00BFA6', // Bright teal
+    steps: [
+      {
+        title: 'Create a New Project',
+        desc: 'Navigate to the **Projects** page (fully unlocked for all users) and click **"New Project"**. Specify customer name, description, and **Default Hourly Rate**.'
+      },
+      {
+        title: 'Log Hours (Time Entries)',
+        desc: 'Inside a project details page, click **"Log Hours"** to enter date, activity description, and duration. Check **"Billable"** to flag the time for invoicing.'
+      },
+      {
+        title: 'Log Expenses & Receipts',
+        desc: 'Click **"Add Expense"**, select an **Expense Category**, enter the amount, and optionally upload a **Receipt Photo** which will save securely.'
+      },
+      {
+        title: 'Cascading Deletion (Owners Only)',
+        desc: 'To delete a project, click Edit Project and select Delete. Confirm deletion by typing the project name exactly inside the safety modal to permanently remove the project and all its logged time/expense entries.'
+      },
+      {
+        title: 'Convert Project to Invoice',
+        desc: 'Click **"Convert to Invoice"** inside the project. By default, it maps each entry to a separate line item (e.g. Labor: 5 hours @ $80/hr, Materials: Copper Pipes) with automated tax application. Check the **"Combine entries..."** switch if you prefer to consolidate all items into single "Labor" and "Expenses" line items. Click **"Convert"** to generate the draft.'
+      }
+    ]
+  },
+  {
+    id: 'team-collaboration',
+    title: 'How to Manage Team Seats & Collaboration',
+    icon: 'mdi-account-multiple-plus-outline',
+    color: '#E65100', // Deep orange
+    steps: [
+      {
+        title: 'Invite Team Members',
+        desc: 'Organization Owners can navigate to **Team Settings** under the User Menu and invite members via email address.'
+      },
+      {
+        title: 'Manage Invitations',
+        desc: 'View active and pending team members in Team Settings. Owners can cancel/revoke any sent pending invitations instantly with the "Cancel Invite" action.'
+      },
+      {
+        title: 'Member Role Restrictions',
+        desc: 'Invited team members register as **Members** who inherit your organization ID but are locked out of sensitive billing details. They only see the **Projects** and **Guide** pages, cannot access invoices, settings, reports, or Stripe connections, and cannot see or adjust hourly rates, billing totals, or create custom expense categories.'
+      },
+      {
+        title: 'Owner Role Permissions',
+        desc: 'The organization creator holds the **Owner** role, granting full administrative access to invoices, client billing, Stripe configurations, reports, team invitations, rates modifications, and project deletions.'
       }
     ]
   }

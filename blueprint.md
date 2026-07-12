@@ -1188,6 +1188,34 @@ Align the Reset Password Page styling and responsiveness with the rest of the au
 - **Vite Build**: Run `npm run build` to verify clean compilation.
 
 
+## User Guide & Documentation Update (v50)
+
+### Purpose
+Update both the user guide markdown file (`USER_GUIDE.md`) and the in-app interactive user guide page (`UserGuidePage.vue`) to cover the wide range of new platform features including Stripe Connect payments, project time/expense tracking, role-based member restrictions, team collaboration/seats, items and categories directory segmentation, and the Team Hours Report.
+
+### Proposed Changes
+
+#### [MODIFY] [USER_GUIDE.md](file:///C:/Users/curth/git/swift-invoice/USER_GUIDE.md)
+- Update "1. How to Create an Invoice" to reference the line-item level "Tax" toggles and "(No Tax)" templates indicator.
+- Update "2. How to Update Your Business Information" to mention the single-step onboarding wizard.
+- Update "3. How to Create Customers and Products" to become "3. How to Create Customers, Products, and Expense Categories". Document the separate tabs under the Items page, and the owner-only restrictions for creating expense categories.
+- Update "5. How to View and Generate Reports" to explain the Sales Report KPIs and add a new sub-section for the "Team Hours Report" (Owners-only, filters, CSV/PDF export).
+- Add "6. How to Set Up Stripe Connect & Accept Payments" detailing setup, auto-syncing merchant details, payment methods, and invoice QR codes.
+- Add "7. How to Use Project & Time/Expense Tracking" covering project creation, logging hours, uploading receipt photos, cascading deletions, and the "Convert to Invoice" options (Individual vs. Combined line items).
+- Add "8. How to Manage Team Seats & Collaboration" covering email invitations, member seat revoking, invitation cancelation, and a detailed member-role restriction breakdown.
+
+#### [MODIFY] [src/components/UserGuidePage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/UserGuidePage.vue)
+- Update the hardcoded `sections` array to match the updated table of contents and steps from `USER_GUIDE.md`.
+- Include the new sections: Stripe Connect (`stripe-connect`), Project Tracking (`project-tracking`), and Team Collaboration (`team-collaboration`).
+- Expand the existing segments (Customers & Items, Reports) with the new sub-features.
+
+### Verification Plan
+- **Markdown Audit**: Check that `USER_GUIDE.md` is formatted correctly and contains all steps matching the prompt questions answers.
+- **In-App Navigation**: Run the app locally, visit `/guide`, and verify that the new sections are rendered correctly with their respective timeline badges and icons.
+- **Search Functionality**: Test searching for terms like "Stripe", "Project", "Team", "Member", "Hours", and ensure expansion panels collapse/expand dynamically.
+- **Vite Build**: Run `npm run build` to verify clean compilation.
+
+
 
 
 
