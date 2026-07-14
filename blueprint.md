@@ -1330,3 +1330,32 @@ Redesign the CSS phone mockups in the Hero section of the landing page to featur
 - **Classic Notch Details**: Verify the speaker grille and camera reflection lens are visible on the notch at the top center.
 - **Responsive Balance**: Check the layout at multiple viewport widths (1200px, 980px, 768px, 480px) to verify that the floating phone scales down proportionally with the browser mockup, and that text remains perfectly legible.
 - **Vite Build**: Run `npm run build` to confirm there are no bundling or stylesheet errors.
+
+
+## Quirky Catch-All 404 Page (v56)
+
+### Purpose
+Redesign the catch-all `NotFound.vue` page into a stunning, responsive, themed experience that aligns with the app's premium dark glassmorphic styling. The page will present the quirky and humbly apologetic message: "Seems we Scan't Go to that page right now. Try back later." and incorporate an interactive scanning/grid visual representing the "ScanGo" invoice capture concept to maintain brand context and visual interest.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/NotFound.vue](file:///C:/Users/curth/git/swift-invoice/src/components/NotFound.vue)
+- Set up a beautiful glassmorphic container matching the `#111d2f` navy theme and standard design tokens (blur, borders, glows).
+- Embed a custom interactive CSS illustration: a stylized camera viewfinder/document scanning card representing a failed scan, with a red/amber blinking scanning beam animation, a central 404 watermark, and interactive hover effects.
+- Display the apologetic heading and the requested quirky description: "Seems we Scan't Go to that page right now. Try back later."
+- Add navigation logic using `currentUser` from `useAuth.js` to redirect users:
+  - If authenticated, display a main button "Go to Dashboard" and a secondary text link "View Homepage".
+  - If a guest, display a main button "Go to Homepage" and a secondary text link "Log In".
+- Apply full SEO tagging via `useMeta`.
+- Add responsive media queries to ensure the visual elements stack nicely and scale correctly on small viewports.
+
+### Verification Plan
+- **Aesthetic Match**: Navigate to a non-existent URL (e.g. `/non-existent-page`). Verify that the base background is deep navy, matching the rest of the application.
+- **Visual Design & Interactive Scanner**: Check that the glassmorphic card has appropriate borders, backdrops, and box-shadow glows. Ensure the scanning beam animation is moving, and hover effects are smooth.
+- **Copy Verification**: Confirm the description text exactly says "Seems we Scan't Go to that page right now. Try back later."
+- **Conditional Buttons (Auth vs Guest)**:
+  - If logged in, verify the CTA button points to `/dashboard` ("Go to Dashboard") and the secondary link points to `/` ("Back to Homepage").
+  - If logged out, verify the CTA button points to `/` ("Go to Homepage") and the secondary link points to `/login` ("Log In").
+- **Responsive Scaling**: Resize the viewport down to mobile width (e.g. 375px) and verify the text and layout wrap cleanly without overflow.
+- **Build Checks**: Run `npm run build` to verify there are no syntax or build errors.
+
