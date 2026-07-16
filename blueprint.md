@@ -1359,3 +1359,30 @@ Redesign the catch-all `NotFound.vue` page into a stunning, responsive, themed e
 - **Responsive Scaling**: Resize the viewport down to mobile width (e.g. 375px) and verify the text and layout wrap cleanly without overflow.
 - **Build Checks**: Run `npm run build` to verify there are no syntax or build errors.
 
+
+## Google Analytics Page Tracking Fix (v57)
+
+### Purpose
+Fix Google Analytics page tracking which was failing due to improper plugin initialization. The router instance was passed as a secondary argument to `createGtag` (which is ignored by `vue-gtag` next), and invalid/unsupported configuration keys (`storage`, `storageKey`, `consent`) were used. We will switch `vue-gtag` to `initMode: 'manual'`, properly configure automatic route tracking using `pageTracker.router`, initialize Google Analytics on page load based on `localStorage` consent status, and update the Cookie Banner component to dynamically initialize tracking and update consent signals without requiring page reloads.
+
+### Proposed Changes
+
+#### [MODIFY] [src/main.js](file:///C:/Users/curth/git/swift-invoice/src/main.js)
+- Remove unsupported options (`storage`, `storageKey`, `consent`) from the `createGtag` configuration object.
+- Configure `initMode: 'manual'` to prevent premature tracking script injection before consent is verified.
+- Configure `pageTracker: { router }` to enable automatic route change tracking.
+- Add page-load check: if `localStorage` consent is `'true'`, invoke `addGtag()` and `consentGrantedAll('update')` immediately.
+
+#### [MODIFY] [src/components/TheCookieBanner.vue](file:///C:/Users/curth/git/swift-invoice/src/components/TheCookieBanner.vue)
+- Replace the buggy `useConsent()` composable with direct calls to `addGtag()`, `consentGrantedAll()`, and `consentDeniedAll()`.
+- Update `handleAccept` to set `localStorage` consent to `'true'`, trigger script injection and route tracking via `addGtag()`, grant consent parameters via `consentGrantedAll('update')`, and hide the banner without reloading.
+- Update `handleDecline` to set `localStorage` consent to `'false'`, deny consent parameters via `consentDeniedAll('update')`, and hide the banner.
+
+### Verification Plan
+- **Consent Banner and Cookie Storage**: Clear storage/cookies. Visit the page and confirm the banner shows. Click "Accept". Verify that the script tag for Google Analytics is injected, `localStorage` has `cookie_consent_given: "true"`, and the browser console logs "Google Analytics consent granted".
+- **Dynamic Initialization (No Reload)**: Confirm that clicking "Accept" does not trigger a page refresh, but tracking starts immediately.
+- **Route Tracking**: Navigate across different routes (e.g. landing page to pricing, about us, features). Verify that page view events are logged for each route (using network panel or Google Analytics debugger).
+- **Subsequent Load Persistence**: Reload the page with consent already given. Confirm the GA script loads automatically without showing the banner.
+- **Decline Behavior**: Clear storage, reload, click "Decline". Verify `localStorage` has `cookie_consent_given: "false"`, and GA script is NOT loaded.
+- **Vite Build**: Run `npm run build` to confirm compilation is clean.
+

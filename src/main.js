@@ -16,21 +16,21 @@ app.use(vuetify);
 app.use(router);
 
 // Correctly configure vue-gtag with Google Consent Mode v2 and enable Router tracking
+import { addGtag, consentGrantedAll } from 'vue-gtag';
+
 app.use(createGtag({
   tagId: import.meta.env.VITE_GA_MEASUREMENT_ID,
-  // Let the plugin handle storage and consent state
-  storage: localStorage,
-  storageKey: 'cookie_consent_given',
-  // Set default consent to 'denied' as required
-  consent: {
-    default: {
-      ad_storage: 'denied',
-      analytics_storage: 'denied',
-      ad_user_data: 'denied',
-      ad_personalization: 'denied',
-    },
-  },
-}, router));
+  initMode: 'manual',
+  pageTracker: {
+    router: router
+  }
+}));
+
+// If consent was previously granted, initialize Google Analytics immediately
+if (localStorage.getItem('cookie_consent_given') === 'true') {
+  addGtag();
+  consentGrantedAll('update');
+}
 
 // Asynchronously mount the app only after Firebase auth is ready.
 async function mountApp() {

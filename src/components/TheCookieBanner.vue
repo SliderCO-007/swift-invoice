@@ -49,36 +49,41 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useConsent } from 'vue-gtag';
+import { addGtag, consentGrantedAll, consentDeniedAll } from 'vue-gtag';
 import CookiePolicy from './CookiePolicy.vue';
 
 const dialog = ref(false);
 const showBanner = ref(false);
-// Correctly destructure the functions from useConsent
-const { acceptAll, rejectAll } = useConsent();
 const CONSENT_STORAGE_KEY = 'cookie_consent_given';
 
 onMounted(() => {
   // Show the banner only if the user has never made a choice.
-  // The vue-gtag plugin will automatically handle applying the stored consent state.
   if (!localStorage.getItem(CONSENT_STORAGE_KEY)) {
     showBanner.value = true;
   }
 });
 
 const handleAccept = () => {
-  // Use the correct function to grant consent.
-  acceptAll();
+  // Save consent choice
+  localStorage.setItem(CONSENT_STORAGE_KEY, 'true');
+  
+  // Inject script and initialize router tracking
+  addGtag();
+  // Grant consent via update command
+  consentGrantedAll('update');
+  
   console.log('Google Analytics consent granted.');
-  localStorage.setItem(CONSENT_STORAGE_KEY, 'true')
   showBanner.value = false;
 };
 
 const handleDecline = () => {
-  // Use the correct function to deny consent.
-  rejectAll();
+  // Save consent choice
+  localStorage.setItem(CONSENT_STORAGE_KEY, 'false');
+  
+  // Deny consent via update command
+  consentDeniedAll('update');
+  
   console.log('Google Analytics consent denied.');
-  localStorage.setItem(CONSENT_STORAGE_KEY, 'false')
   showBanner.value = false;
 };
 </script>
