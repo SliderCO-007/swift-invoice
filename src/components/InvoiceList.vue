@@ -229,4 +229,21 @@ const deleteInvoice = async (id) => {
 .delete-btn:hover {
   background-color: rgba(231, 76, 60, 0.1);
 }
+
+@media (max-width: 600px) {
+  .list-header {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 1rem;
+  }
+  
+  .list-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .create-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
 </style>

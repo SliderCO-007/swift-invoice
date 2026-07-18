@@ -1,9 +1,12 @@
 <script setup>
 import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useDisplay } from 'vuetify';
 import useProjects from '../composables/useProjects';
 import { userProfile } from '../composables/useAuth';
 import UpgradePrompt from './UpgradePrompt.vue';
+
+const { mobile } = useDisplay();
 
 const router = useRouter();
 const { projects, loading } = useProjects();
@@ -59,14 +62,16 @@ const formatCurrency = (val) =>
           </h1>
           <p class="projects-subtitle">Track time and expenses, then convert to an invoice.</p>
         </div>
-        <v-btn
-          v-if="isOwner"
-          color="primary"
-          :to="{ name: 'ProjectNew' }"
-          prepend-icon="mdi-plus"
-          rounded="pill"
-          size="large"
-        >New Project</v-btn>
+        <div v-if="isOwner" class="d-flex align-center w-100 w-sm-auto ga-3 flex-sm-row flex-column">
+          <v-btn
+            color="primary"
+            :to="{ name: 'ProjectNew' }"
+            prepend-icon="mdi-plus"
+            rounded="pill"
+            :size="mobile ? 'default' : 'large'"
+            class="elevation-2 w-100 w-sm-auto"
+          >New Project</v-btn>
+        </div>
       </header>
 
       <!-- Free Plan Project Alert Banner -->

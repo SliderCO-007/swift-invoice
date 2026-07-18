@@ -1386,3 +1386,66 @@ Fix Google Analytics page tracking which was failing due to improper plugin init
 - **Decline Behavior**: Clear storage, reload, click "Decline". Verify `localStorage` has `cookie_consent_given: "false"`, and GA script is NOT loaded.
 - **Vite Build**: Run `npm run build` to confirm compilation is clean.
 
+
+## Mobile View Header & Button Styling Alignment (v58)
+
+### Purpose
+Align the mobile styling of headers, button sizes, button order, and spacing across all secondary views (ItemsView.vue, ProjectsView.vue, ReportsView.vue, InvoiceList.vue) to match the responsive behavior of CustomersView.vue. This includes ensuring that action buttons stack vertically on mobile (taking up full width), primary action buttons (like "Add" or "Create") appear first/on top of secondary actions (like "Export CSV"), and using standard responsive size/width utilities.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/CustomersView.vue](file:///C:/Users/curth/git/swift-invoice/src/components/CustomersView.vue)
+- Reorder header actions so that the "Add Customer" button is placed before the "Export CSV" button in the DOM. This ensures that in a column flex layout on mobile, the primary CTA ("Add Customer") appears on top, while on desktop it appears on the left of "Export CSV".
+
+#### [MODIFY] [src/components/ItemsView.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ItemsView.vue)
+- Update `<header>` block:
+  - Add standard `ga-4` and `mb-6` classes to the `<header>` element.
+  - Set class `text-h5 text-sm-h4 font-weight-bold mb-0` on the title `h1`.
+  - Update the button container to use: `class="d-flex align-center w-100 w-sm-auto ga-3 flex-sm-row flex-column"`.
+  - Reorder the buttons to place the "Add Item/Category" button first and the "Export CSV" button second.
+  - Add `:size="mobile ? 'default' : 'large'"` to both buttons.
+  - Update classes on both buttons: `class="elevation-2 w-100 w-sm-auto"` for the "Add Item/Category" button and `class="elevation-2 bg-transparent w-100 w-sm-auto"` for the "Export CSV" button (removing `me-3` since `ga-3` handles spacing).
+
+#### [MODIFY] [src/components/ProjectsView.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ProjectsView.vue)
+- Import `useDisplay` from `'vuetify'` and define `const { mobile } = useDisplay();`.
+- Update the `<header>` action block:
+  - Wrap the "New Project" button in a container: `<div v-if="isOwner" class="d-flex align-center w-100 w-sm-auto ga-3 flex-sm-row flex-column">`.
+  - Update the "New Project" button to use `:size="mobile ? 'default' : 'large'"` and add responsive classes: `class="elevation-2 w-100 w-sm-auto"`.
+
+#### [MODIFY] [src/components/ReportsView.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ReportsView.vue)
+- Update `<header>` block:
+  - Add standard classes to the `<header>` element: `reports-header d-flex justify-space-between align-center mb-6 flex-wrap ga-4`.
+  - Update the button container to use: `class="d-flex align-center w-100 w-sm-auto ga-3 flex-sm-row flex-column mt-4 mt-sm-0"`.
+  - Reorder the buttons under both tab templates ("sales" and "hours") to place the "Download PDF" button first and the "Export CSV" button second in the DOM.
+  - Add `:size="mobile ? 'default' : 'large'"` to all action buttons in the header.
+  - Set classes on buttons: `class="elevation-2 w-100 w-sm-auto action-btn"` for "Download PDF" and `class="elevation-2 bg-transparent w-100 w-sm-auto action-btn"` for "Export CSV" (removing `mr-2` and `action-btn` margins).
+
+- In `<style scoped>` block:
+  - Add a mobile media query for `.list-header` to set `flex-direction: column`, `align-items: stretch !important`, and `gap: 1rem` under `max-width: 600px`.
+  - Update `.create-btn` inside the media query to set `width: 100%` and `justify-content: center` to make it span full-width on mobile.
+
+#### [MODIFY] [src/components/TeamSettings.vue](file:///C:/Users/curth/git/swift-invoice/src/components/TeamSettings.vue)
+- Import `useDisplay` from `'vuetify'` and define `const { mobile } = useDisplay();`.
+- Update the access denied and main settings header blocks:
+  - Re-structure headers to match `CustomersView.vue` responsive wrapper classes: `<header class="d-flex justify-space-between align-center mb-6 flex-wrap ga-4">` and place description `<p>` tags outside/below the `<header>`.
+  - Wrap the "Back to Dashboard" button in a flex container: `<div class="d-flex align-center w-100 w-sm-auto ga-3 flex-sm-row flex-column">` and update the button to use `:size="mobile ? 'default' : 'large'"` and `class="back-btn elevation-2 w-100 w-sm-auto"`.
+- Update the edit member modal actions:
+  - In `v-card-actions`, change class to: `class="px-6 pb-6 pt-2 d-flex flex-sm-row flex-column ga-2"`.
+  - Reposition "Save Changes" to be first in the DOM with class `w-100 w-sm-auto order-sm-2 ml-0` and "Cancel" second with class `w-100 w-sm-auto order-sm-1`. This guarantees that on mobile the buttons stack vertically with "Save Changes" on top, and on desktop they render side-by-side with "Cancel" on the left of "Save Changes".
+- Clean up unused CSS rules:
+  - Remove `.settings-header`, `.settings-header h1`, `.settings-header p` styles.
+  - Remove mobile media overrides for `.settings-header` and `.back-btn`.
+
+### Verification Plan
+- **Button Stacking & Sizing (Mobile)**: Emulate a mobile screen (width <= 600px). Verify that the header actions stack vertically, taking up 100% width on:
+  - Customers page (`/customers`)
+  - Items page (`/items`)
+  - Projects page (`/projects`)
+  - Reports page (`/reports`)
+  - Invoices page (`/invoices`)
+  - Team page (`/team`)
+- **Primary Button Priority**: Verify that the primary button (Add/Create/Download PDF) appears *on top* of the Export button in all these mobile headers.
+- **Modal Dialog Sizing & Stacking**: On mobile, open the "Edit Member Details" modal. Verify that the "Save Changes" button stacks on top of the "Cancel" button, and both buttons span 100% width. On desktop, verify that they align horizontally on the right side of the modal.
+- **Desktop Layout**: Verify that all headers restore to their side-by-side flex layouts on wider screens (>= 960px).
+- **Vite Build**: Run `npm run build` to confirm compilation is clean.
+

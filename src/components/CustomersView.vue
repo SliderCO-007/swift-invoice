@@ -110,6 +110,15 @@ const exportCustomersOutput = () => {
       <div class="d-flex align-center w-100 w-sm-auto ga-3 flex-sm-row flex-column">
         <v-btn 
           color="primary" 
+          @click="openDialog" 
+          :size="mobile ? 'default' : 'large'" 
+          class="elevation-2 w-100 w-sm-auto"
+        >
+          <v-icon start>mdi-plus</v-icon>
+          Add Customer
+        </v-btn>
+        <v-btn 
+          color="primary" 
           variant="outlined" 
           @click="exportCustomersOutput" 
           :size="mobile ? 'default' : 'large'" 
@@ -118,15 +127,6 @@ const exportCustomersOutput = () => {
         >
           <v-icon start>mdi-download</v-icon>
           Export CSV
-        </v-btn>
-        <v-btn 
-          color="primary" 
-          @click="openDialog" 
-          :size="mobile ? 'default' : 'large'" 
-          class="elevation-2 w-100 w-sm-auto"
-        >
-          <v-icon start>mdi-plus</v-icon>
-          Add Customer
         </v-btn>
       </div>
     </header>

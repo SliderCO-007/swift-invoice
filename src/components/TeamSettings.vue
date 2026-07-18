@@ -1,8 +1,11 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
+import { useDisplay } from "vuetify";
 import { useOrganization } from "../composables/useOrganization";
 import { userProfile } from "../composables/useAuth.js";
+
+const { mobile } = useDisplay();
 
 const router = useRouter();
 const {
@@ -125,42 +128,43 @@ const handleDeleteInvitation = async (invite) => {
 <template>
   <div class="settings-container">
     <div v-if="!isOwner" class="settings-card access-denied">
-      <header class="settings-header">
-        <div>
-          <h1>Access Denied</h1>
-          <p>
-            You must be the organization owner to view and manage team seats.
-          </p>
+      <header class="d-flex justify-space-between align-center mb-6 flex-wrap ga-4">
+        <h1 class="text-h5 text-sm-h4 font-weight-bold mb-0 text-white">Access Denied</h1>
+        <div class="d-flex align-center w-100 w-sm-auto ga-3 flex-sm-row flex-column">
+          <v-btn
+            @click="router.push({ name: 'Dashboard' })"
+            class="back-btn elevation-2 w-100 w-sm-auto"
+            color="white"
+            variant="flat"
+            :size="mobile ? 'default' : 'large'"
+          >
+            &larr; Back to Dashboard
+          </v-btn>
         </div>
-        <v-btn
-          @click="router.push({ name: 'Dashboard' })"
-          class="back-btn"
-          color="white"
-          variant="flat"
-        >
-          &larr; Back to Dashboard
-        </v-btn>
       </header>
+      <p class="text-subtitle-1 mb-6">
+        You must be the organization owner to view and manage team seats.
+      </p>
     </div>
 
     <div v-else class="settings-card">
-      <header class="settings-header">
-        <div>
-          <h1>Team Management</h1>
-          <p>
-            Invite team members to log project hours and scan receipts, and
-            manage active seats.
-          </p>
+      <header class="d-flex justify-space-between align-center mb-6 flex-wrap ga-4">
+        <h1 class="text-h5 text-sm-h4 font-weight-bold mb-0 text-white">Team Management</h1>
+        <div class="d-flex align-center w-100 w-sm-auto ga-3 flex-sm-row flex-column">
+          <v-btn
+            @click="router.push({ name: 'Dashboard' })"
+            class="back-btn elevation-2 w-100 w-sm-auto"
+            color="white"
+            variant="flat"
+            :size="mobile ? 'default' : 'large'"
+          >
+            &larr; Back to Dashboard
+          </v-btn>
         </div>
-        <v-btn
-          @click="router.push({ name: 'Dashboard' })"
-          class="back-btn"
-          color="white"
-          variant="flat"
-        >
-          &larr; Back to Dashboard
-        </v-btn>
       </header>
+      <p class="text-subtitle-1 mb-6">
+        Invite team members to log project hours and scan receipts, and manage active seats.
+      </p>
 
       <!-- Subscription Gating Warning -->
       <div v-if="!isPaid" class="promo-banner">
@@ -368,15 +372,16 @@ const handleDeleteInvitation = async (invite) => {
             ></v-text-field>
           </v-card-text>
           
-          <v-card-actions class="px-6 pb-6 pt-2">
-            <v-spacer></v-spacer>
-            <v-btn variant="text" @click="showEditModal = false" color="white" class="mr-2">Cancel</v-btn>
+          <v-card-actions class="px-6 pb-6 pt-2 d-flex flex-sm-row flex-column ga-2">
+            <v-spacer class="d-none d-sm-block"></v-spacer>
             <v-btn
               color="indigo-darken-3"
               variant="flat"
               :loading="editLoading"
               @click="handleUpdateMember"
+              class="w-100 w-sm-auto order-sm-2 ml-0"
             >Save Changes</v-btn>
+            <v-btn variant="text" @click="showEditModal = false" color="white" class="w-100 w-sm-auto order-sm-1">Cancel</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -407,24 +412,6 @@ const handleDeleteInvitation = async (invite) => {
 }
 .access-denied {
   border-color: rgba(239, 68, 68, 0.3);
-}
-.settings-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 1.5rem;
-}
-.settings-header h1 {
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: -0.5px;
-}
-.settings-header p {
-  color: #94a3b8;
-  margin-top: 0.25rem;
 }
 .back-btn {
   text-transform: none;
@@ -567,18 +554,6 @@ const handleDeleteInvitation = async (invite) => {
 @media (max-width: 768px) {
   .settings-card {
     padding: 1.5rem;
-  }
-  .settings-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .settings-header h1 {
-    font-size: 1.8rem;
-  }
-  .back-btn {
-    margin-top: 1rem;
-    width: 100%;
-    text-align: center;
   }
   .invite-input-group {
     flex-direction: column;

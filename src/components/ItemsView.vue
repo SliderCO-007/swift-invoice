@@ -140,18 +140,30 @@ const exportItemsOutput = () => {
 
 <template>
   <div class="items-view pa-4 pa-md-6">
-    <header class="d-flex justify-space-between align-center mb-4 flex-wrap">
-      <h1 class="text-h4 font-weight-bold mb-2 mb-sm-0">
+    <header class="d-flex justify-space-between align-center mb-6 flex-wrap ga-4">
+      <h1 class="text-h5 text-sm-h4 font-weight-bold mb-0">
         {{ activeTab === 'categories' ? 'Manage Expense Categories' : 'Manage Your Items' }}
       </h1>
-      <div class="d-flex align-center mt-3 mt-sm-0">
-        <v-btn color="primary" variant="outlined" @click="exportItemsOutput" size="large" class="elevation-2 me-3 bg-transparent" :disabled="(activeTab === 'categories' ? !expenseCategories.length : !standardItems.length) || loading">
-          <v-icon start>mdi-download</v-icon>
-          Export CSV
-        </v-btn>
-        <v-btn color="primary" @click="openNewItemDialog" size="large" class="elevation-2">
+      <div class="d-flex align-center w-100 w-sm-auto ga-3 flex-sm-row flex-column">
+        <v-btn 
+          color="primary" 
+          @click="openNewItemDialog" 
+          :size="mobile ? 'default' : 'large'" 
+          class="elevation-2 w-100 w-sm-auto"
+        >
           <v-icon start>mdi-plus</v-icon>
           {{ activeTab === 'categories' ? 'Add Category' : 'Add Item' }}
+        </v-btn>
+        <v-btn 
+          color="primary" 
+          variant="outlined" 
+          @click="exportItemsOutput" 
+          :size="mobile ? 'default' : 'large'" 
+          class="elevation-2 bg-transparent w-100 w-sm-auto" 
+          :disabled="(activeTab === 'categories' ? !expenseCategories.length : !standardItems.length) || loading"
+        >
+          <v-icon start>mdi-download</v-icon>
+          Export CSV
         </v-btn>
       </div>
     </header>

@@ -521,58 +521,62 @@ const viewInvoice = (id) => {
 
     <div v-else class="reports-container">
       <!-- Tab Header -->
-      <header class="reports-header d-flex flex-column flex-sm-row justify-space-between align-start align-sm-center mb-4">
+      <header class="reports-header d-flex justify-space-between align-center mb-6 flex-wrap ga-4">
         <div>
           <h1 class="page-title">{{ activeReportTab === 'sales' ? 'Sales Reports' : 'Team Hours Reports' }}</h1>
           <p class="subtitle-text">
             {{ activeReportTab === 'sales' ? 'Analyze and export your monthly sales metrics.' : 'Filter, review, and export team member logged hours.' }}
           </p>
         </div>
-        <div class="d-flex flex-wrap gap-2 mt-4 mt-sm-0">
+        <div class="d-flex align-center w-100 w-sm-auto ga-3 flex-sm-row flex-column mt-4 mt-sm-0">
           <template v-if="activeReportTab === 'sales'">
-            <v-btn
-              color="primary"
-              variant="outlined"
-              prepend-icon="mdi-file-delimited-outline"
-              class="mr-2 action-btn"
-              @click="exportCSV"
-              :disabled="!filteredInvoices.length"
-            >
-              Export CSV
-            </v-btn>
             <v-btn
               color="primary"
               variant="flat"
               prepend-icon="mdi-file-pdf-box"
-              class="action-btn"
+              class="elevation-2 w-100 w-sm-auto action-btn"
               @click="exportPDF"
               :loading="pdfLoading"
               :disabled="!filteredInvoices.length"
+              :size="mobile ? 'default' : 'large'"
             >
               Download PDF
+            </v-btn>
+            <v-btn
+              color="primary"
+              variant="outlined"
+              prepend-icon="mdi-file-delimited-outline"
+              class="elevation-2 bg-transparent w-100 w-sm-auto action-btn"
+              @click="exportCSV"
+              :disabled="!filteredInvoices.length"
+              :size="mobile ? 'default' : 'large'"
+            >
+              Export CSV
             </v-btn>
           </template>
           <template v-else>
             <v-btn
               color="primary"
-              variant="outlined"
-              prepend-icon="mdi-file-delimited-outline"
-              class="mr-2 action-btn"
-              @click="exportHoursCSV"
-              :disabled="!filteredHoursEntries.length"
-            >
-              Export CSV
-            </v-btn>
-            <v-btn
-              color="primary"
               variant="flat"
               prepend-icon="mdi-file-pdf-box"
-              class="action-btn"
+              class="elevation-2 w-100 w-sm-auto action-btn"
               @click="exportHoursPDF"
               :loading="pdfLoading"
               :disabled="!filteredHoursEntries.length"
+              :size="mobile ? 'default' : 'large'"
             >
               Download PDF
+            </v-btn>
+            <v-btn
+              color="primary"
+              variant="outlined"
+              prepend-icon="mdi-file-delimited-outline"
+              class="elevation-2 bg-transparent w-100 w-sm-auto action-btn"
+              @click="exportHoursCSV"
+              :disabled="!filteredHoursEntries.length"
+              :size="mobile ? 'default' : 'large'"
+            >
+              Export CSV
             </v-btn>
           </template>
         </div>
