@@ -1480,10 +1480,6 @@ Update TermsOfService.vue to include a dedicated SMS Messaging Terms section cov
 - **Vite Build & Deploy**: Run `npm run build` and deploy hosting to Firebase.
 
 
-## Hero Image Restoration & Animated GIF Overlay Fade (v61)
-
-### Purpose
-Restore `branded_hero_v7.png` as the primary base hero image across all landing page variants in `LandingPage.vue`. Position an overlay animated GIF (`new_hero.gif`) on top of the base hero image, configure it to loop 3 times (19.2s duration), and perform a gentle 1.5-second CSS fade-out transition to seamlessly reveal `branded_hero_v7.png` underneath.
 
 ### Proposed Changes
 
@@ -1595,6 +1591,45 @@ Display uncropped `new_hero.gif` in its full native height (1080x2289) wrapped i
 ### Verification Plan
 - **Visual Check**: Open landing page. Confirm `new_hero.gif` plays in full height within the iPhone frame for 3 loops, then gently fades to reveal `branded_hero_v7.png`.
 - **Vite Build & Deploy**: Run `npm run build` and deploy hosting to Firebase.
+
+
+## Limit Base PNG Hero Image to Phone Frame Width (v69)
+
+### Purpose
+Update CSS rules for `.base-hero-img` in `LandingPage.vue` to restrict `branded_hero_v7.png` to the exact width of the simulated iPhone frame (`max-width: 100%; width: 100%; object-fit: contain;`), preventing any scaling, zooming, or side cropping of the static PNG image within the phone screen viewport.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Update `.base-hero-img` CSS:
+  - Add `max-width: 100%; width: 100%; object-fit: contain;`.
+
+### Verification Plan
+- **Visual Check**: Open landing page. Verify `branded_hero_v7.png` is constrained precisely to the width of `.phone-screen` without overflow or cropping.
+- **Vite Build & Deploy**: Run `npm run build` and deploy hosting to Firebase.
+
+
+## Interactive Replay Demo Button inside Phone Frame (v70)
+
+### Purpose
+Add a sleek glassmorphic "Replay Demo" button positioned inside the `.phone-screen` below `branded_hero_v7.png` that appears automatically whenever `showGifOverlay` is false. Clicking the button restarts `new_hero.gif` from frame 0 and runs the 3-loop animation again before fading back to the static PNG.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Update `.phone-screen` template:
+  - Add `<Transition name="fade-overlay"><button v-if="!showGifOverlay" class="replay-btn" @click="replayGifAnimation">...</button></Transition>`.
+- Update `<script setup>`:
+  - Extract `startGifTimer()` helper function to handle timestamp cache-busting, setting `showGifOverlay.value = true`, and clearing/setting the 19.2s `gifTimer`.
+  - Add `replayGifAnimation` handler.
+- Add scoped CSS:
+  - `.replay-btn` styled with dark glassmorphism, glowing teal border, hover scale effect, and absolute positioning at the bottom center of `.phone-screen`.
+
+### Verification Plan
+- **Interactive Check**: Wait for `new_hero.gif` to finish 3 loops and fade to `branded_hero_v7.png`. Click "Replay Demo". Confirm `new_hero.gif` starts playing again from frame 0 for 3 loops.
+- **Vite Build & Deploy**: Run `npm run build` and deploy hosting to Firebase.
+
+
 
 
 

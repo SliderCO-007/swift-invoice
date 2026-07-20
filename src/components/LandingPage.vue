@@ -172,6 +172,18 @@
                       class="gif-overlay-img"
                     />
                   </Transition>
+
+                  <!-- Replay Demo Button Overlay at bottom of screen when PNG is active -->
+                  <Transition name="fade-overlay">
+                    <button
+                      v-if="!showGifOverlay"
+                      class="replay-btn"
+                      @click="replayGifAnimation"
+                    >
+                      <v-icon size="small" color="teal-accent-3">mdi-replay</v-icon>
+                      <span>Replay Demo</span>
+                    </button>
+                  </Transition>
                 </div>
               </div>
             </div>
@@ -809,6 +821,20 @@ const showGifOverlay = ref(true)
 const gifSrc = ref('/new_hero.gif')
 const videoDialogOpen = ref(false)
 const youtubeId = 'q_ebv_earos'
+let gifTimer = null
+
+const startGifTimer = () => {
+  if (gifTimer) clearTimeout(gifTimer)
+  gifSrc.value = `/new_hero.gif?t=${Date.now()}`
+  showGifOverlay.value = true
+  gifTimer = setTimeout(() => {
+    showGifOverlay.value = false
+  }, 19200)
+}
+
+const replayGifAnimation = () => {
+  startGifTimer()
+}
 
 const openVideoModal = () => {
   videoDialogOpen.value = true
@@ -823,14 +849,8 @@ const closeVideoModal = () => {
 }
 
 onMounted(() => {
-  // Start playing new_hero.gif from frame 0 with cache-busting timestamp
-  gifSrc.value = `/new_hero.gif?t=${Date.now()}`
-
-  // 3 loops of new_hero.gif = 19,200 ms (19.2 seconds)
-  // After 19.2 seconds, trigger gentle fade to reveal branded_hero_v7.png
-  setTimeout(() => {
-    showGifOverlay.value = false
-  }, 19200)
+  // Start playing new_hero.gif from frame 0 with 19.2s timer (3 loops)
+  startGifTimer()
 
   // Set default signup_source if standard variant is hit and not already set
   if (props.variant === 'standard' && !sessionStorage.getItem('signup_source')) {
@@ -1124,8 +1144,9 @@ main section[id] {
 
 .base-hero-img {
   width: 100%;
+  max-width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
   border-radius: 32px;
 }
@@ -1148,6 +1169,37 @@ main section[id] {
 
 .fade-overlay-leave-to {
   opacity: 0;
+}
+
+.replay-btn {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(17, 29, 47, 0.85);
+  border: 1px solid rgba(20, 184, 166, 0.4);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4), 0 0 12px rgba(20, 184, 166, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  z-index: 5;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.replay-btn:hover {
+  background: rgba(20, 184, 166, 0.25);
+  border-color: rgba(20, 184, 166, 0.8);
+  box-shadow: 0 6px 20px rgba(20, 184, 166, 0.35);
+  transform: translateX(-50%) scale(1.05);
 }
 
 /* Browser Frame */
