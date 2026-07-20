@@ -3,11 +3,11 @@
     <v-card class="pa-4 pa-md-8">
         <h1>Privacy Policy</h1>
         <p><strong>Effective Date:</strong> February 2, 2026</p>
-        <p><strong>Last Updated:</strong> February 16, 2026</p>
+        <p><strong>Last Updated:</strong> July 20, 2026</p>
 
         <section>
         <h2>1. Introduction</h2>
-        <p>At Swift Invoice ("we," "our," or "us"), your privacy is our priority. This Privacy Policy explains how we collect, use, and protect your personal information when you use our software and services located at https://swiftinvoice.biz.</p>
+        <p>At ScanGo Invoice ("we," "our," or "us"), your privacy is our priority. This Privacy Policy explains how we collect, use, and protect your personal information when you use our software and services located at https://scangoinvoice.com.</p>
         </section>
 
         <section>
@@ -35,6 +35,7 @@
         <ul>
             <li><strong>No Sale of Data:</strong> We do not sell, rent, or trade your personal information to any third parties for any purpose, including marketing or commercial gain.</li>
             <li><strong>No Unauthorized Sharing:</strong> We do not give out your information to other providers, except for essential service providers (e.g., payment processors) strictly necessary to deliver our services to you.</li>
+            <li><strong>SMS & Mobile Data Privacy:</strong> Mobile phone numbers, text messaging originator opt-in data, and SMS consent will not be sold, rented, or shared with any third parties or affiliates for marketing or promotional purposes. All sharing categories mentioned in this policy exclude text messaging originator opt-in data and consent.</li>
         </ul>
         </section>
 
@@ -67,7 +68,7 @@
         <section>
         <h2>8. Contact Us</h2>
         <p>If you have any questions about this Privacy Policy, please contact us at:</p>
-        <p>Email: <a href="mailto:support@swiftinvoice.biz">support@swiftinvoice.biz</a></p>
+        <p>Email: <a href="mailto:support@scangoinvoice.com">support@scangoinvoice.com</a></p>
         <p>Address: Lafayette, CO 80026</p>
         </section>
     </v-card>
@@ -78,8 +79,8 @@
 import { useMeta } from '../composables/useMeta';
 
 useMeta(
-  'Privacy Policy | Swift Invoice',
-  'This Privacy Policy explains how Swift Invoice collects, uses, and protects your personal information when you use our software and services.',
+  'Privacy Policy | ScanGo Invoice',
+  'This Privacy Policy explains how ScanGo Invoice collects, uses, and protects your personal information when you use our software and services.',
 );
 </script>
 

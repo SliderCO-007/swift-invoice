@@ -63,7 +63,18 @@
         </section>
 
         <section>
-        <h2>11. Contact Us</h2>
+        <h2>11. SMS Messaging Terms</h2>
+        <p>By opting in to receive SMS messages from ScanGo Invoice (including invoice alerts and Text 2 Pay payment links), you agree to the following terms:</p>
+        <ul>
+            <li><strong>Message Frequency:</strong> Message frequency varies based on your invoice and account billing activity.</li>
+            <li><strong>Rates & Disclaimers:</strong> Standard message and data rates may apply depending on your mobile carrier plan.</li>
+            <li><strong>Opt-Out Instructions:</strong> You may cancel the SMS service at any time by replying <strong>STOP</strong> to any message. After sending <strong>STOP</strong>, you will receive a single confirmation text and no further messages will be sent unless re-requested.</li>
+            <li><strong>Customer Support:</strong> For help or support regarding text messaging, reply <strong>HELP</strong> to any message or contact us at <a href="mailto:support@scangoinvoice.com">support@scangoinvoice.com</a>.</li>
+        </ul>
+        </section>
+
+        <section>
+        <h2>12. Contact Us</h2>
         <p>If you have any questions about these Terms, please contact us at:</p>
         <p>Email: <a href="mailto:support@scangoinvoice.com">support@scangoinvoice.com</a></p>
         <p>Address: Lafayette, CO 80026</p>

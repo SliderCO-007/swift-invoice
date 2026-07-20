@@ -1449,3 +1449,35 @@ Align the mobile styling of headers, button sizes, button order, and spacing acr
 - **Desktop Layout**: Verify that all headers restore to their side-by-side flex layouts on wider screens (>= 960px).
 - **Vite Build**: Run `npm run build` to confirm compilation is clean.
 
+
+## SMS Privacy Policy Carrier Compliance Update (v59)
+
+### Purpose
+Update PrivacyPolicy.vue to explicitly include the mandatory A2P 10DLC SMS privacy clause required by mobile carriers (AT&T, T-Mobile, Verizon) for Twilio campaign registration approval. Mobile originator opt-in data and SMS consent must be explicitly excluded from third-party data sharing.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/PrivacyPolicy.vue](file:///C:/Users/curth/git/swift-invoice/src/components/PrivacyPolicy.vue)
+- Add a dedicated subsection/list item under Section 4 ("Our Commitment to Your Privacy") and Section 3 explicitly stating that mobile phone numbers, SMS consent, and text messaging originator opt-in data will not be shared, sold, or rented to third parties or affiliates for marketing or promotional purposes.
+
+### Verification Plan
+- **Content Verification**: View `/privacy` in the browser or check component template to confirm the SMS Privacy & Carrier Compliance clause is rendered clearly under Privacy Commitments.
+- **Vite Build**: Run `npm run build` to ensure clean compilation without errors.
+
+
+## SMS Terms of Service Carrier Compliance Update (v60)
+
+### Purpose
+Update TermsOfService.vue to include a dedicated SMS Messaging Terms section covering message frequency, message/data rates, opt-out (STOP), and support (HELP) disclosures to ensure 100% compliance with Twilio A2P 10DLC vetting guidelines.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/TermsOfService.vue](file:///C:/Users/curth/git/swift-invoice/src/components/TermsOfService.vue)
+- Add Section 11 ("SMS Messaging Terms") covering SMS invoice notifications, message frequency, carrier rate warnings, STOP to cancel, and HELP for support.
+
+### Verification Plan
+- **Content Verification**: Confirm Section 11 renders on `/terms`.
+- **Vite Build & Deploy**: Run `npm run build` and deploy hosting to Firebase.
+
+
+
