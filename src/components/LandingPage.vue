@@ -153,296 +153,25 @@
             </div>
 
             <div class="hero-image">
-              <!-- Default variant / standard landing page: Browser mockup with floating phone mockup -->
-              <div v-if="props.variant === 'standard'" class="browser-phone-composite">
-                <div class="browser-frame glassmorphic-frame">
-                  <div class="browser-header">
-                    <div class="browser-dots">
-                      <span class="browser-dot red"></span>
-                      <span class="browser-dot yellow"></span>
-                      <span class="browser-dot green"></span>
-                    </div>
-                    <div class="browser-address">scango.invoice/dashboard</div>
-                  </div>
-                  <div class="browser-content">
-                    <div class="dashboard-preview">
-                      <div class="preview-header d-flex justify-space-between align-center mb-4">
-                        <div>
-                          <div class="text-caption text-grey-lighten-1">MONTHLY REVENUE</div>
-                          <div class="font-weight-black text-white text-h5">$12,450.00</div>
-                        </div>
-                        <span class="trend-badge text-teal-accent-3 text-caption font-weight-bold">+24% this mo</span>
-                      </div>
-                      <div class="preview-chart d-flex align-end justify-space-between ga-2 mb-4" style="height: 100px;">
-                        <!-- CSS bars representing revenue growth -->
-                        <div class="chart-bar" style="height: 35%; background: rgba(52, 211, 153, 0.2)"></div>
-                        <div class="chart-bar" style="height: 50%; background: rgba(52, 211, 153, 0.3)"></div>
-                        <div class="chart-bar" style="height: 45%; background: rgba(52, 211, 153, 0.25)"></div>
-                        <div class="chart-bar" style="height: 75%; background: rgba(52, 211, 153, 0.5)"></div>
-                        <div class="chart-bar" style="height: 60%; background: rgba(52, 211, 153, 0.4)"></div>
-                        <div class="chart-bar" style="height: 90%; background: linear-gradient(180deg, #34d399 0%, #059669 100%)"></div>
-                      </div>
-                      <div class="preview-invoices bg-glass p-3 rounded-lg">
-                        <div class="preview-invoice-row d-flex justify-space-between align-center py-1 border-bottom">
-                          <span class="text-caption">INV-00000009 - Acme Corp</span>
-                          <span class="status-badge paid font-weight-bold">Paid</span>
-                        </div>
-                        <div class="preview-invoice-row d-flex justify-space-between align-center py-1">
-                          <span class="text-caption">INV-00000010 - Globex Inc</span>
-                          <span class="status-badge pending font-weight-bold">Pending</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <!-- Floating smartphone mockup alongside the browser -->
-                <div class="floating-phone-mockup">
-                  <div class="phone-frame shadow-glow">
-                    <div class="phone-notch"></div>
-                    <div class="phone-screen bg-navy p-3 text-center d-flex flex-column justify-center align-center">
-                      <div class="d-flex justify-space-between w-100 align-center mb-6">
-                        <span class="text-caption font-weight-bold text-teal-accent-3">ScanGo</span>
-                        <v-icon size="small" color="white">mdi-menu</v-icon>
-                      </div>
-                      <div class="qr-scanner-visual mb-4">
-                        <div class="scan-laser"></div>
-                        <v-icon size="40" color="teal-accent-3">mdi-qrcode-scan</v-icon>
-                      </div>
-                      <div class="text-subtitle-2 font-weight-bold text-white mb-1">Scan to Pay</div>
-                      <div class="text-caption text-grey">Customer QR payment setup</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <div class="phone-frame shadow-glow big-phone">
+                <div class="phone-notch"></div>
+                <div class="phone-screen position-relative overflow-hidden">
+                  <!-- Base Hero Image restored for all landing pages -->
+                  <img
+                    src="/branded_hero_v7.png"
+                    alt="ScanGo Invoice Application Preview"
+                    class="base-hero-img"
+                  />
 
-              <!-- Time is Money variant: Focuses on crew tracking, time logging, expense capturing -->
-              <div v-else-if="props.variant === 'time_is_money'" class="mobile-tracker-mockup d-flex justify-center w-100">
-                <div class="phone-frame shadow-glow big-phone">
-                  <div class="phone-notch"></div>
-                  <div class="phone-screen bg-navy text-left d-flex flex-column">
-                    <div class="phone-content-wrapper p-4 flex-grow-1">
-                      <div class="tracker-app-header d-flex justify-space-between align-center mb-4">
-                        <div>
-                          <div class="text-caption text-grey-lighten-1">ACTIVE PROJECT</div>
-                          <div class="font-weight-bold text-teal-accent-3 text-subtitle-1">Southside Plumbing Job</div>
-                        </div>
-                        <div class="pulse-wrapper d-flex align-center ga-1" style="background: rgba(20, 184, 166, 0.1); border-color: rgba(20, 184, 166, 0.2);">
-                          <span class="mini-pulse-dot"></span>
-                          <span class="text-caption text-teal-accent-3 font-weight-bold">ACTIVE</span>
-                        </div>
-                      </div>
-
-                      <!-- Live timer widget -->
-                      <div class="timer-widget bg-glass mb-4 p-4 rounded-xl text-center border-glass">
-                        <div class="text-caption text-grey-lighten-2 font-weight-bold">CREW TIME TRACKED TODAY</div>
-                        <div class="text-h3 font-weight-black text-white py-3 font-mono">24 <span class="text-teal-accent-3 text-glow">Hours</span></div>
-                        <div class="d-flex justify-center ga-3 text-caption text-grey-lighten-1 mt-1">
-                          <span>3 Crew Members</span>
-                          <span>•</span>
-                          <span>$180.00/hr</span>
-                        </div>
-                      </div>
-
-                      <!-- Expenses/receipt logs list -->
-                      <div class="expense-logs-widget bg-glass p-3 rounded-xl border-glass">
-                        <div class="d-flex justify-space-between align-center mb-3">
-                          <span class="text-caption font-weight-bold text-grey-lighten-2">TODAY'S EXPENSES</span>
-                          <v-icon size="small" color="teal-accent-3">mdi-plus-circle-outline</v-icon>
-                        </div>
-                        <div class="expense-row d-flex justify-space-between align-center py-2 border-bottom">
-                          <div class="d-flex align-center ga-3">
-                            <div class="icon-avatar bg-glass rounded p-1">
-                              <v-icon size="small" color="orange-accent-3">mdi-receipt</v-icon>
-                            </div>
-                            <div>
-                              <div class="text-caption font-weight-bold text-white">Copper Pipes & Fittings</div>
-                              <div class="text-caption text-grey-lighten-1">Attached: receipt_390.jpg</div>
-                            </div>
-                          </div>
-                          <span class="font-weight-bold text-white">$145.20</span>
-                        </div>
-                        <div class="expense-row d-flex justify-space-between align-center py-2">
-                          <div class="d-flex align-center ga-3">
-                            <div class="icon-avatar bg-glass rounded p-1">
-                              <v-icon size="small" color="orange-accent-3">mdi-receipt</v-icon>
-                            </div>
-                            <div>
-                              <div class="text-caption font-weight-bold text-white">Gasoline (Truck #2)</div>
-                              <div class="text-caption text-grey-lighten-1">Attached: receipt_391.jpg</div>
-                            </div>
-                          </div>
-                          <span class="font-weight-bold text-white">$65.00</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Bottom Navigation Bar Mockup -->
-                    <div class="mockup-bottom-nav d-flex justify-space-around align-center pt-3 pb-3 border-top bg-glass-dark">
-                      <div class="d-flex flex-column align-center text-teal-accent-3 cursor-default">
-                        <v-icon size="small">mdi-clock-outline</v-icon>
-                        <span style="font-size: 9px; font-weight: bold; margin-top: 2px;">Track</span>
-                      </div>
-                      <div class="d-flex flex-column align-center text-grey-lighten-1 cursor-default">
-                        <v-icon size="small">mdi-file-document-outline</v-icon>
-                        <span style="font-size: 9px; margin-top: 2px;">Invoices</span>
-                      </div>
-                      <div class="d-flex flex-column align-center text-grey-lighten-1 cursor-default">
-                        <v-icon size="small">mdi-account-outline</v-icon>
-                        <span style="font-size: 9px; margin-top: 2px;">Clients</span>
-                      </div>
-                      <div class="d-flex flex-column align-center text-grey-lighten-1 cursor-default">
-                        <v-icon size="small">mdi-cog-outline</v-icon>
-                        <span style="font-size: 9px; margin-top: 2px;">Settings</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Floating glass card badges for visual depth -->
-                <div class="floating-badge badge-top-left glassmorphic-badge pulse-hover">
-                  <v-icon size="24" color="teal-accent-3" class="mr-2">mdi-clock-check</v-icon>
-                  <div>
-                    <div class="badge-title">No Lost Hours</div>
-                    <div class="badge-subtitle">Auto-logged to invoice</div>
-                  </div>
-                </div>
-                <div class="floating-badge badge-bottom-right glassmorphic-badge pulse-hover">
-                  <v-icon size="24" color="orange-accent-3" class="mr-2">mdi-image-filter-center-focus</v-icon>
-                  <div>
-                    <div class="badge-title">Receipt Photo Uploaded</div>
-                    <div class="badge-subtitle">Saved to project vault</div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Contractor / Get Paid Faster variant: Invoice builder interface -->
-              <div v-else-if="props.variant === 'contractor'" class="mobile-invoice-mockup d-flex justify-center w-100">
-                <div class="phone-frame shadow-glow big-phone">
-                  <div class="phone-notch"></div>
-                  <div class="phone-screen bg-navy text-left d-flex flex-column">
-                    <div class="phone-content-wrapper p-4 flex-grow-1 d-flex flex-column">
-                      <div class="d-flex justify-space-between align-center mb-4">
-                        <div class="text-subtitle-1 font-weight-bold text-white">New Invoice</div>
-                        <span class="text-caption text-grey-lighten-1 font-weight-medium">INV-0012</span>
-                      </div>
-
-                      <div class="client-details bg-glass p-3 rounded-lg mb-4 border-glass">
-                        <div class="text-caption text-grey-lighten-1 font-weight-bold mb-1">BILL TO</div>
-                        <div class="font-weight-bold text-white">Miller Residence</div>
-                        <div class="text-caption text-grey">1042 Oakwood Drive</div>
-                      </div>
-
-                      <div class="items-summary bg-glass p-3 rounded-lg mb-4 border-glass">
-                        <div class="d-flex justify-space-between text-caption text-grey-lighten-1 border-bottom pb-2 mb-2 font-weight-bold">
-                          <span>ITEM DESCRIPTION</span>
-                          <span>TOTAL</span>
-                        </div>
-                        <div class="d-flex justify-space-between text-caption py-1">
-                          <span class="text-white">Emergency Leak Repair (Labor)</span>
-                          <span class="text-white font-weight-medium">$350.00</span>
-                        </div>
-                        <div class="d-flex justify-space-between text-caption py-1">
-                          <span class="text-white">Replacement PVC Pipes & Valves</span>
-                          <span class="text-white font-weight-medium">$120.00</span>
-                        </div>
-                        <div class="d-flex justify-space-between text-subtitle-2 font-weight-black text-teal-accent-3 border-top pt-2 mt-2">
-                          <span>Total Due</span>
-                          <span>$470.00</span>
-                        </div>
-                      </div>
-
-                      <button class="mockup-action-btn bg-emerald w-100 py-3 rounded-lg text-center font-weight-bold text-white d-flex align-center justify-center ga-2 cursor-default mt-auto">
-                        <v-icon size="small">mdi-send</v-icon>
-                        <span>Send to Client</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Floating badges -->
-                <div class="floating-badge badge-top-right glassmorphic-badge pulse-hover">
-                  <v-icon size="24" color="teal-accent-3" class="mr-2">mdi-check-circle</v-icon>
-                  <div>
-                    <div class="badge-title">Invoice Sent!</div>
-                    <div class="badge-subtitle">Delivered in 45 seconds</div>
-                  </div>
-                </div>
-                <div class="floating-badge badge-bottom-left glassmorphic-badge pulse-hover">
-                  <v-icon size="24" color="amber-accent-3" class="mr-2">mdi-qrcode</v-icon>
-                  <div>
-                    <div class="badge-title">Scan-to-Pay QR</div>
-                    <div class="badge-subtitle">Stripe integrated payments</div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Weekend Freedom variant: Happy/Paid screen -->
-              <div v-else-if="props.variant === 'weekend'" class="mobile-weekend-mockup d-flex justify-center w-100">
-                <div class="phone-frame shadow-glow big-phone">
-                  <div class="phone-notch"></div>
-                  <div class="phone-screen bg-navy text-left d-flex flex-column">
-                    <div class="phone-content-wrapper p-4 flex-grow-1 d-flex flex-column justify-center align-center">
-                      <div class="success-icon-wrapper mb-4">
-                        <v-icon size="72" color="teal-accent-3">mdi-check-decagram</v-icon>
-                      </div>
-                      <div class="text-h5 font-weight-black text-white text-center mb-2">INVOICE PAID!</div>
-                      <div class="text-caption text-grey-lighten-2 text-center mb-5">Miller Residence paid $470.00 via Stripe</div>
-
-                      <div class="payout-status bg-glass p-3 rounded-xl w-100 text-left border-glass">
-                        <div class="d-flex justify-space-between align-center">
-                          <div>
-                            <div class="text-caption text-grey-lighten-1 font-weight-bold">PAYOUT TO BANK</div>
-                            <div class="text-subtitle-2 font-weight-bold text-white">Chase Business Checking</div>
-                          </div>
-                          <v-icon color="teal-accent-3" size="large">mdi-bank-transfer-in</v-icon>
-                        </div>
-                        <div class="text-caption text-teal-accent-3 font-weight-bold mt-2 d-flex align-center ga-1">
-                          <span class="mini-pulse-dot"></span>
-                          <span>Status: Initiated (Instant Deposit)</span>
-                        </div>
-                      </div>
-
-                      <div class="weekend-alert mt-6 text-caption text-grey text-center">
-                        ☀️ Weekends remaining: 100% free
-                      </div>
-                    </div>
-
-                    <!-- Bottom Navigation Bar Mockup -->
-                    <div class="mockup-bottom-nav d-flex justify-space-around align-center pt-3 pb-3 border-top bg-glass-dark">
-                      <div class="d-flex flex-column align-center text-grey-lighten-1 cursor-default">
-                        <v-icon size="small">mdi-clock-outline</v-icon>
-                        <span style="font-size: 9px; margin-top: 2px;">Track</span>
-                      </div>
-                      <div class="d-flex flex-column align-center text-teal-accent-3 cursor-default">
-                        <v-icon size="small">mdi-file-document-outline</v-icon>
-                        <span style="font-size: 9px; font-weight: bold; margin-top: 2px;">Invoices</span>
-                      </div>
-                      <div class="d-flex flex-column align-center text-grey-lighten-1 cursor-default">
-                        <v-icon size="small">mdi-account-outline</v-icon>
-                        <span style="font-size: 9px; margin-top: 2px;">Clients</span>
-                      </div>
-                      <div class="d-flex flex-column align-center text-grey-lighten-1 cursor-default">
-                        <v-icon size="small">mdi-cog-outline</v-icon>
-                        <span style="font-size: 9px; margin-top: 2px;">Settings</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Floating badges -->
-                <div class="floating-badge badge-top-left glassmorphic-badge pulse-hover">
-                  <v-icon size="24" color="teal-accent-3" class="mr-2">mdi-credit-card-outline</v-icon>
-                  <div>
-                    <div class="badge-title">Direct Payout</div>
-                    <div class="badge-subtitle">Funds clear instantly</div>
-                  </div>
-                </div>
-                <div class="floating-badge badge-bottom-right glassmorphic-badge pulse-hover">
-                  <v-icon size="24" color="teal-accent-3" class="mr-2">mdi-calendar-heart</v-icon>
-                  <div>
-                    <div class="badge-title">Sunday Rest</div>
-                    <div class="badge-subtitle">0 hours on laptop today</div>
-                  </div>
+                  <!-- Overlay Animated GIF: loops 3 times then gently fades out -->
+                  <Transition name="fade-overlay">
+                    <img
+                      v-if="showGifOverlay"
+                      :src="gifSrc"
+                      alt="ScanGo Invoice Feature Demo"
+                      class="gif-overlay-img"
+                    />
+                  </Transition>
                 </div>
               </div>
             </div>
@@ -1076,7 +805,8 @@ const faqs = ref([
   },
 ])
 
-const showGifOverlay = ref(false)
+const showGifOverlay = ref(true)
+const gifSrc = ref('/new_hero.gif')
 const videoDialogOpen = ref(false)
 const youtubeId = 'q_ebv_earos'
 
@@ -1093,6 +823,15 @@ const closeVideoModal = () => {
 }
 
 onMounted(() => {
+  // Start playing new_hero.gif from frame 0 with cache-busting timestamp
+  gifSrc.value = `/new_hero.gif?t=${Date.now()}`
+
+  // 3 loops of new_hero.gif = 19,200 ms (19.2 seconds)
+  // After 19.2 seconds, trigger gentle fade to reveal branded_hero_v7.png
+  setTimeout(() => {
+    showGifOverlay.value = false
+  }, 19200)
+
   // Set default signup_source if standard variant is hit and not already set
   if (props.variant === 'standard' && !sessionStorage.getItem('signup_source')) {
     sessionStorage.setItem('signup_source', 'lp_standard')
@@ -1105,22 +844,6 @@ onMounted(() => {
       content_category: 'Meta Ads'
     })
   }
-
-  const triggerGifLoad = () => {
-    if (!showGifOverlay.value) {
-      showGifOverlay.value = true
-      setTimeout(() => {
-        showGifOverlay.value = false
-      }, 122082)
-    }
-    window.removeEventListener('scroll', triggerGifLoad)
-    window.removeEventListener('touchstart', triggerGifLoad)
-    window.removeEventListener('mousemove', triggerGifLoad)
-  }
-
-  window.addEventListener('scroll', triggerGifLoad, { passive: true })
-  window.addEventListener('touchstart', triggerGifLoad, { passive: true })
-  window.addEventListener('mousemove', triggerGifLoad, { passive: true })
 })
 
 const handleGoogleSignIn = async () => {
@@ -1370,6 +1093,61 @@ main section[id] {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.phone-frame.big-phone {
+  position: relative;
+  width: 340px;
+  max-width: 100%;
+  aspect-ratio: 1080 / 2289;
+  background: #090e17;
+  border-radius: 44px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    0 0 0 3px #182235,
+    0 30px 80px rgba(0, 0, 0, 0.6), 
+    0 0 40px rgba(20, 184, 166, 0.15);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.phone-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 32px;
+  overflow: hidden;
+  background: #111d2f;
+}
+
+.base-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 32px;
+}
+
+.gif-overlay-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  display: block;
+  border-radius: 32px;
+  z-index: 2;
+}
+
+.fade-overlay-leave-active {
+  transition: opacity 1.5s ease-in-out;
+}
+
+.fade-overlay-leave-to {
+  opacity: 0;
 }
 
 /* Browser Frame */

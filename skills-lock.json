@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "ideal-customer-profile": {
+      "source": "phuryn/pm-skills",
+      "sourceType": "github",
+      "skillPath": "pm-go-to-market/skills/ideal-customer-profile/SKILL.md",
+      "computedHash": "dc8f70743a5a2f78ceac3a37bcfda9d468b504d12793a42a5cad6e29992e2d33"
+    }
+  }
+}

@@ -1480,4 +1480,127 @@ Update TermsOfService.vue to include a dedicated SMS Messaging Terms section cov
 - **Vite Build & Deploy**: Run `npm run build` and deploy hosting to Firebase.
 
 
+## Hero Image Restoration & Animated GIF Overlay Fade (v61)
+
+### Purpose
+Restore `branded_hero_v7.png` as the primary base hero image across all landing page variants in `LandingPage.vue`. Position an overlay animated GIF (`new_hero.gif`) on top of the base hero image, configure it to loop 3 times (19.2s duration), and perform a gentle 1.5-second CSS fade-out transition to seamlessly reveal `branded_hero_v7.png` underneath.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Update `.hero-image` block:
+  - Add `.hero-image-wrapper` containing base `<img>` (`/branded_hero_v7.png`) and overlay `<img>` (`/new_hero.gif`) wrapped in Vue `<Transition name="fade-overlay">`.
+- Update `<script setup>`:
+  - Define `gifSrc` initialized on mount with cache-busting timestamp (`/new_hero.gif?t=${Date.now()}`).
+  - Set `showGifOverlay = ref(true)` on mount and set a timer for 19,200 ms (exact duration of 3 loops of `new_hero.gif`), after which `showGifOverlay.value = false`.
+- Add `<style scoped>` rules:
+  - `.hero-image-wrapper` relative positioning, rounded corners, glassmorphic box-shadow.
+  - `.gif-overlay-img` absolute positioning covering `.base-hero-img`.
+  - `.fade-overlay-leave-active` with `transition: opacity 1.5s ease-in-out` and `opacity: 0`.
+
+### Verification Plan
+- **Visual & Animation Check**: Open `/` and secondary landing pages (`/lp/weekend-freedom`, `/lp/get-paid-faster`, `/lp/time-is-money`). Verify `new_hero.gif` plays over `branded_hero_v7.png` and gently fades out after ~19 seconds to reveal `branded_hero_v7.png`.
+- **Vite Build & Deploy**: Run `npm run build` and deploy hosting to Firebase.
+
+
+## iPhone Frame Simulated Container for Hero GIF & Image Fade (v62)
+
+### Purpose
+Wrap both the base `branded_hero_v7.png` and overlay `new_hero.gif` inside a simulated iPhone device frame (`.phone-frame.big-phone` with hardware `.phone-notch` and rounded `.phone-screen`). The 3-loop animation of `new_hero.gif` plays directly within the iPhone screen viewport and smoothly fades out over 1.5 seconds to reveal `branded_hero_v7.png` inside the iPhone mockup.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Update `.hero-image` template block:
+  - Enclose `.base-hero-img` and `.gif-overlay-img` inside `<div class="phone-frame shadow-glow big-phone"><div class="phone-notch"></div><div class="phone-screen position-relative overflow-hidden">...</div></div>`.
+- Update `.hero-image` scoped CSS:
+  - Ensure `.phone-screen` has `position: relative; width: 100%; height: 100%; border-radius: 28px; overflow: hidden;`.
+  - Position `.gif-overlay-img` absolutely inside `.phone-screen` covering `.base-hero-img`.
+
+### Verification Plan
+- **Visual Check**: Inspect hero section on desktop and mobile viewports. Verify `new_hero.gif` plays inside the iPhone mockup frame, loops 3 times, and gently fades out to reveal `branded_hero_v7.png` within the iPhone frame.
+- **Vite Build & Deploy**: Run `npm run build` and deploy hosting to Firebase.
+
+
+## Simulated iPhone Frame Overlay Fade revealing static branded_hero_v7.png (v63)
+
+### Purpose
+Position the simulated iPhone device frame (with notch, bezel, shadow, and playing `new_hero.gif`) as a floating overlay on top of the static `branded_hero_v7.png` hero image. After 3 loops of the animated GIF (19.2s), the entire iPhone frame overlay performs a gentle 1.5s fade-out transition to reveal the full static `branded_hero_v7.png` hero image underneath.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Update `.hero-image` template block:
+  - Render static `base-hero-img` (`/branded_hero_v7.png`) as the underlying hero element.
+  - Overlay `<Transition name="fade-overlay"><div v-if="showGifOverlay" class="phone-frame-overlay shadow-glow big-phone">...</div></Transition>` centered on top.
+- Update scoped CSS:
+  - `.phone-frame-overlay` positioned `absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10;`.
+  - `.fade-overlay-leave-active` with `transition: opacity 1.5s ease-in-out` and `opacity: 0`.
+
+### Verification Plan
+- **Visual & Animation Check**: Open `/` and secondary landing pages (`/lp/weekend-freedom`, `/lp/get-paid-faster`, `/lp/time-is-money`). Verify the iPhone frame plays `new_hero.gif` on top of `branded_hero_v7.png`, then the entire iPhone frame gently fades out to reveal `branded_hero_v7.png`.
+- **Vite Build & Deploy**: Run `npm run build` and deploy hosting to Firebase.
+
+
+## Top-Alignment & Aspect Ratio Calibration for Hero GIF (v64)
+
+### Purpose
+Calibrate `.gif-overlay-img` with `object-position: top center` and match `.phone-frame-overlay` aspect ratio to `1080 / 2289` so that the top edge of `new_hero.gif` aligns flush with the top of the simulated iPhone frame viewport.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Update `.phone-frame-overlay` aspect ratio to `1080 / 2289`.
+- Update `.gif-overlay-img` CSS rules with `object-fit: cover; object-position: top center;`.
+
+### Verification Plan
+- **Visual Check**: Open landing page hero section. Verify the status bar / top header of `new_hero.gif` aligns flush at the top of the iPhone screen right under the hardware notch.
+- **Vite Build & Deploy**: Run `npm run build` and deploy hosting to Firebase.
+
+
+## Top White Bar Removal & Aspect Ratio Calibration (v65)
+
+### Purpose
+Crop the top 44px white border/padding present in `new_hero.gif` so that the app's top navigation bar starts at row 0 (size 1080x2245). Update `.phone-frame-overlay` CSS aspect-ratio to `1080 / 2245` so `new_hero.gif` fits 100% flush against the top inner edge of `.phone-screen` without any gap.
+
+### Proposed Changes
+
+#### [MODIFY] [public/new_hero.gif](file:///C:/Users/curth/git/swift-invoice/public/new_hero.gif)
+- Crop top 44px white margin across all frames.
+
+#### [MODIFY] [src/components/LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Update `.phone-frame-overlay` aspect ratio to `1080 / 2245`.
+
+### Verification Plan
+- **Visual Check**: Refresh landing page and verify `new_hero.gif` is 100% flush at the top of the iPhone screen viewport right below the notch with zero gap.
+- **Vite Build & Deploy**: Run `npm run build` and deploy hosting to Firebase.
+
+
+## Full Height Uncropped GIF in Simulated iPhone Frame (v66)
+
+### Purpose
+Display uncropped `new_hero.gif` in its full native height (1080x2289) wrapped inside the simulated iPhone frame (`.phone-frame.big-phone`). The GIF plays for 3 loops inside the iPhone viewport and gently fades out over 1.5 seconds to reveal `branded_hero_v7.png` inside the iPhone mockup frame.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Update `.hero-image` template:
+  - Place `.phone-frame.big-phone` containing `.phone-notch` and `.phone-screen`.
+  - Position `.base-hero-img` (`/branded_hero_v7.png`) as base and `.gif-overlay-img` (`new_hero.gif`) wrapped in `<Transition name="fade-overlay">`.
+- Update scoped CSS:
+  - Set `.phone-frame.big-phone` with `aspect-ratio: 1080 / 2289; width: 340px; max-width: 100%; border-radius: 44px; padding: 12px;`.
+  - Set `.gif-overlay-img` with `width: 100%; height: 100%; object-fit: fill; border-radius: 32px;`.
+  - Set `.fade-overlay-leave-active` with `transition: opacity 1.5s ease-in-out` and `opacity: 0`.
+
+### Verification Plan
+- **Visual Check**: Open landing page. Confirm `new_hero.gif` plays in full height within the iPhone frame for 3 loops, then gently fades to reveal `branded_hero_v7.png`.
+- **Vite Build & Deploy**: Run `npm run build` and deploy hosting to Firebase.
+
+
+
+
+
+
+
+
 
