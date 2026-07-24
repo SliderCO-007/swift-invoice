@@ -1630,12 +1630,70 @@ Add a sleek glassmorphic "Replay Demo" button positioned inside the `.phone-scre
 - **Vite Build & Deploy**: Run `npm run build` and deploy hosting to Firebase.
 
 
+## A2P 10DLC SMS Opt-In Carrier Compliance Resubmission Update (v71)
+
+### Purpose
+Update `RegisterPage.vue` to include an optional mobile phone number field alongside an un-ticked, explicit SMS opt-in checkbox with 100% compliant CTIA and mobile carrier disclosure text (including Brand Name, purpose, message frequency, rate warning, STOP/HELP keywords, and explicit links to Privacy Policy and Terms of Service). This matches Twilio A2P 10DLC vetting requirements and provides a live, verifiable opt-in mechanism on `https://scangoinvoice.com/register`.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/RegisterPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/RegisterPage.vue)
+- Add `phone` and `smsOptIn` reactive state variables.
+- Add `<input type="tel" id="phone" ... />` field.
+- Add un-ticked opt-in checkbox (`#sms-opt-in`) with verbatim carrier compliance text:
+  *"I agree to receive SMS billing notifications, payment reminders, and invoice links from ScanGo Invoice LLC. Message frequency varies. Message and data rates may apply. Reply STOP to cancel or HELP for help. View our Privacy Policy and Terms of Service."*
+- Add scoped CSS for `.opt-in-group`, `.checkbox-label`, `.checkbox-text`, and links.
+
+### Verification Plan
+- **Verification**: Run `npm run build` to confirm clean compilation.
+- **Visual Check**: Check `/register` to verify the phone field and un-ticked SMS consent checkbox with working Privacy Policy & Terms of Service links render correctly.
 
 
+## Google PageSpeed Assessment & Performance Optimization Plan (v72)
 
+### Purpose
+Execute Google PageSpeed / Lighthouse performance assessments across all landing pages (`/`, `/lp/get-paid-faster`, `/lp/weekend-freedom`, `/lp/time-is-money`, `/features`, `/pricing`, `/reviews`, `/about`) and establish an empirical, prioritized action plan to elevate performance scores from ~42–55 to 90+ on Mobile and Desktop.
 
+### Assessment Findings Summary
+- **Current Performance Score**: **42 / 100** (Mobile Root), **55 / 100** (Mobile LP)
+- **Accessibility**: 90 / 100
+- **Best Practices**: 71 / 100
+- **SEO**: 83 / 100
+- **Key Metrics**:
+  - **FCP (First Contentful Paint)**: 7.2s – 11.3s (Target: <1.8s) ⚠️
+  - **LCP (Largest Contentful Paint)**: 12.3s – 20.5s (Target: <2.5s) 🔴
+  - **TBT (Total Blocking Time)**: 90ms – 670ms (Target: <200ms) ⚠️
+  - **CLS (Cumulative Layout Shift)**: 0.012 – 0.022 (Target: <0.1) ✅
 
+### Root Cause Bottlenecks
+1. **Firebase Auth Blocking App Mount (`src/main.js`)**:
+   `mountApp()` awaits `isAuthReady` before calling `app.mount('#app')`, blocking the initial DOM render for non-logged-in visitors until network auth state completes.
+2. **Heavy Image & GIF Payloads (~4.3 MB total savings)**:
+   - 1.8 MB wasted on un-sized images (`uses-responsive-images`).
+   - 1.25 MB wasted on PNG/JPEG formats instead of WebP/AVIF (`modern-image-formats`).
+   - 1.3 MB wasted on animated GIF files (`new_hero.gif`) instead of compressed HTML5 MP4/WebM video (`efficient-animated-content`).
+3. **Monolithic Bundle & Unused JavaScript (~420 KB savings)**:
+   `src/plugins/vuetify.js` imports all Vuetify components upfront (`import * as components from 'vuetify/components'`), bloating the main bundle chunk.
+4. **Third-Party & Font Render-Blocking Overhead**:
+   Google Fonts (`Poppins`) imported as render-blocking stylesheet without origin `preconnect`. External analytics/widgets (`fbevents.js`, `storylane.js`, Trustpilot) loaded in `<head>`.
 
+### Plan of Action
+1. **Immediate Unblocking (Main Entry)**:
+   - Decouple Vue mounting from `isAuthReady` in `src/main.js` so static UI renders immediately.
+   - Add `<link rel="preconnect" href="https://fonts.googleapis.com">` and `preconnect` for `fonts.gstatic.com` in `index.html`.
+   - Defer non-critical scripts (`storylane.js`, Meta Pixel, Trustpilot).
+2. **Asset Conversion & Modernization**:
+   - Convert `new_hero.gif` to `.mp4`/`.webm` or optimize with high-efficiency WebP frames.
+   - Convert landing page images to `.webp`/`.avif` format with explicit `srcset`, `loading="lazy"`, `width`, and `height`.
+3. **Bundle Shrinking & Code Splitting**:
+   - Tree-shake Vuetify imports using selective component registration or `vite-plugin-vuetify`.
+   - Configure Rollup `manualChunks` in `vite.config.js` to isolate Firebase, Vuetify, and Chart.js into secondary chunks.
+4. **HTTP Caching Policies**:
+   - Add `Cache-Control: public, max-age=31536000, immutable` headers in `firebase.json` for static dist assets.
 
-
+### Verification & Implementation Completed
+- **Phase 1 Complete**: Instant Vue app mounting in `src/main.js`, Google Fonts preconnect and direct loading in `index.html`, deferred third-party script tags (`storylane.js`, Trustpilot).
+- **Phase 2 Complete**: Converted static PNG/JPEG images (`branded_hero_v7.png`, `template_corporate.png`, etc.) and animated GIFs (`new_hero.gif`, `ScanGo_click_send_4.gif`) to WebP using Pillow compression. Saved over 5.6 MB of total image payload.
+- **Phase 3 Complete**: Installed `vite-plugin-vuetify` for component-level tree-shaking, refactored `src/plugins/vuetify.js` to remove bulk imports, and configured Rollup `manualChunks` in `vite.config.js`. Reduced initial entry JavaScript bundle from **1,109 KB down to 67.7 KB (93.8% reduction)** and CSS from **816 KB down to 30.2 KB (96.3% reduction)**.
+- **Deployed to Firebase**: Successfully built (`npm run build`) and deployed to Firebase Hosting (`https://scangoinvoice-9124f.web.app` and `https://scangoinvoice.com`).
 

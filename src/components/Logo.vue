@@ -1,3 +1,4 @@
 <template>
-  <img src="/Logo.png" alt="Swift Invoice Logo" />
+  <img src="/Logo.webp" alt="Swift Invoice Logo" width="44" height="44" />
 </template>
+

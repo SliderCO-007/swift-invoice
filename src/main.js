@@ -32,14 +32,7 @@ if (localStorage.getItem('cookie_consent_given') === 'true') {
   consentGrantedAll('update');
 }
 
-// Asynchronously mount the app only after Firebase auth is ready.
-async function mountApp() {
-  // This will pause the function until the isAuthReady promise resolves.
-  await isAuthReady;
-  
-  // Now that auth is confirmed, mount the app.
-  app.mount('#app');
-}
+// Mount the app immediately so landing pages and static UI render instantly.
+// Router guards safely await `isAuthReady` before entering protected routes.
+app.mount('#app');
 
-// Call the async function to start the mounting process.
-mountApp();

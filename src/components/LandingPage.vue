@@ -7,8 +7,10 @@
             <div class="hero-content">
               <div class="d-sm-none mb-8 d-flex align-center justify-center">
                 <img
-                  src="/Logo.png"
+                  src="/Logo.webp"
                   alt="ScanGo Logo"
+                  width="44"
+                  height="44"
                   style="
                     height: 44px;
                     width: auto;
@@ -158,9 +160,11 @@
                 <div class="phone-screen position-relative overflow-hidden">
                   <!-- Base Hero Image restored for all landing pages -->
                   <img
-                    src="/branded_hero_v7.png"
+                    src="/branded_hero_v7.webp"
                     alt="ScanGo Invoice Application Preview"
                     class="base-hero-img"
+                    fetchpriority="high"
+                    decoding="async"
                   />
 
                   <!-- Overlay Animated GIF: loops 3 times then gently fades out -->
@@ -818,14 +822,14 @@ const faqs = ref([
 ])
 
 const showGifOverlay = ref(true)
-const gifSrc = ref('/new_hero.gif')
+const gifSrc = ref('/new_hero.webp')
 const videoDialogOpen = ref(false)
 const youtubeId = 'q_ebv_earos'
 let gifTimer = null
 
 const startGifTimer = () => {
   if (gifTimer) clearTimeout(gifTimer)
-  gifSrc.value = `/new_hero.gif?t=${Date.now()}`
+  gifSrc.value = `/new_hero.webp?t=${Date.now()}`
   showGifOverlay.value = true
   gifTimer = setTimeout(() => {
     showGifOverlay.value = false

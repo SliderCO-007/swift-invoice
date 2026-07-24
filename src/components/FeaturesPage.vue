@@ -25,9 +25,12 @@
                     crossorigin="anonymous"
                   />
                   <img
-                    src="/Logo.png"
+                    src="/Logo.webp"
                     alt="ScanGo Logo"
                     class="qr-logo-overlay"
+                    loading="lazy"
+                    width="44"
+                    height="44"
                   />
                 </div>
                 <p class="qr-caption">Scan to see a live demo</p>
@@ -46,9 +49,9 @@
             </div>
             <div class="feature-image">
               <div class="template-gallery">
-                <img src="/template_classic.png" class="template-card" alt="Classic Template" tabindex="0" />
-                <img src="/template_modern.png" class="template-card modern" alt="Modern Template" tabindex="0" />
-                <img src="/template_corporate.png" class="template-card corp" alt="Corporate Template" tabindex="0" />
+                <img src="/template_classic.webp" class="template-card" alt="Classic Template" tabindex="0" loading="lazy" width="280" height="396" />
+                <img src="/template_modern.webp" class="template-card modern" alt="Modern Template" tabindex="0" loading="lazy" width="280" height="396" />
+                <img src="/template_corporate.webp" class="template-card corp" alt="Corporate Template" tabindex="0" loading="lazy" width="280" height="396" />
               </div>
             </div>
           </div>
