@@ -1823,3 +1823,21 @@ Promote Text-2-Pay SMS Invoicing as a core competitive differentiator across all
 - **Build Checks**: Run `npm run build` to confirm production bundle compilation.
 
 
+## Features Page Mobile Responsive Layout Fix (v77)
+
+### Purpose
+Fix mobile responsiveness, text wrapping, and icon alignment for the Text-2-Pay section in [FeaturesPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/FeaturesPage.vue). Ensure long sample SMS links wrap without clipping, `.sms-mockup-card` fits 100% container width on narrow mobile viewports, bullet check icons preserve `flex-shrink-0` layout, and heading typography scales down gracefully on small screens.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/FeaturesPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/FeaturesPage.vue)
+- Add `word-break: break-word; overflow-wrap: anywhere;` to `.sms-bubble` and `.sms-text` so payment URLs break cleanly without horizontal scrollbars.
+- Add `box-sizing: border-box; max-width: 100%;` and responsive padding (`1.25rem`) to `.sms-mockup-card` under `@media (max-width: 900px)`.
+- Add `flex-shrink-0` to bullet list checkmark icons to prevent icon squishing on multi-line text wrapping.
+- Scale `<h2>` heading font size down to `1.75rem` on mobile viewports for optimal readability.
+
+### Verification Plan
+- **Mobile Viewport Inspection**: Inspect `/features` on mobile viewports (320px - 480px). Verify that the Text-2-Pay SMS section text, bullet points, chip badge, and preview card fit 100% within the viewport without horizontal scrolling or text overlap.
+- **Build Checks**: Run `npm run build` to verify production bundle build.
+
+

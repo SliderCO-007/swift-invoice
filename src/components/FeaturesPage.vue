@@ -114,9 +114,9 @@
               <h2>Instant Text-2-Pay SMS Invoicing</h2>
               <p>Accelerate payments with SMS. Text invoice payment links directly to your client's smartphone so they can pay online in seconds with Apple Pay, Google Pay, or Credit Card.</p>
               <ul class="feature-bullets">
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>1-Click Text-2-Pay SMS delivery to client mobile phones</li>
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Automated payment confirmation text receipts</li>
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>CTIA &amp; A2P 10DLC carrier compliant messaging</li>
+                <li><v-icon color="primary" class="mr-2 flex-shrink-0">mdi-check-circle</v-icon><span>1-Click Text-2-Pay SMS delivery to client mobile phones</span></li>
+                <li><v-icon color="primary" class="mr-2 flex-shrink-0">mdi-check-circle</v-icon><span>Automated payment confirmation text receipts</span></li>
+                <li><v-icon color="primary" class="mr-2 flex-shrink-0">mdi-check-circle</v-icon><span>CTIA &amp; A2P 10DLC carrier compliant messaging</span></li>
               </ul>
               <v-chip color="teal-accent-4" variant="tonal" size="small" class="mt-4" prepend-icon="mdi-cellphone-text">Included in Monthly &amp; Annual plans</v-chip>
             </div>
@@ -498,6 +498,7 @@ useMeta(
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 30px rgba(20, 184, 166, 0.15);
   width: 100%;
   max-width: 380px;
+  box-sizing: border-box;
   text-align: left;
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -524,6 +525,8 @@ useMeta(
   border-radius: 16px 16px 16px 4px;
   padding: 1rem;
   color: #f1f5f9;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .sms-text {
@@ -531,6 +534,8 @@ useMeta(
   line-height: 1.45;
   margin-bottom: 0.5rem;
   color: #e2e8f0;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .sms-time {
@@ -587,10 +592,20 @@ useMeta(
   }
   .feature-row {
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 2.5rem;
+    margin-bottom: 4rem;
   }
   .feature-row.reverse {
     direction: ltr;
+  }
+  .feature-text h2 {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+  }
+  .sms-mockup-card {
+    padding: 1.25rem;
+    max-width: 100%;
+    border-radius: 16px;
   }
 }
 
