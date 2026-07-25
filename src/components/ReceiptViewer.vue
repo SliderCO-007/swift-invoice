@@ -1,5 +1,8 @@
 <script setup>
-defineProps({ receiptUrl: { type: String, default: '' } });
+defineProps({
+  receiptUrl: { type: String, default: '' },
+  receiptName: { type: String, default: 'Receipt Photo' }
+});
 const emit = defineEmits(['update:modelValue']);
 defineOptions({ inheritAttrs: false });
 </script>
@@ -13,16 +16,19 @@ defineOptions({ inheritAttrs: false });
   >
     <v-card style="background:#0d1929; border-radius:12px; overflow:hidden;">
       <v-toolbar density="compact" color="transparent" style="border-bottom:1px solid rgba(255,255,255,0.08);">
-        <v-toolbar-title style="color:#f1f5f9; font-size:0.95rem;">Receipt</v-toolbar-title>
+        <v-toolbar-title style="color:#f1f5f9; font-size:0.95rem; font-weight:600; display:flex; align-items:center;">
+          <v-icon icon="mdi-file-document-outline" size="18" class="mr-2" color="primary" />
+          {{ receiptName || 'Receipt Photo' }}
+        </v-toolbar-title>
         <v-spacer />
         <v-btn
           :href="receiptUrl"
           target="_blank"
-          download
+          :download="receiptName || 'receipt'"
           icon
           variant="text"
           color="white"
-          title="Download"
+          title="Download Receipt"
         >
           <v-icon icon="mdi-download" />
         </v-btn>

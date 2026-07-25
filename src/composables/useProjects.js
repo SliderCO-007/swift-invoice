@@ -182,25 +182,44 @@ const useProjects = () => {
 
   /**
    * Add a time or expense entry.
-   * If receiptFile is provided, uploads it to Storage and sets receiptUrl.
+   * If receiptFile is provided, uploads it to Storage and sets receiptUrl & receiptName.
    */
-  const addEntry = async (projectId, entryData, receiptFile = null) => {
+  const addEntry = async (projectId, entryData, receiptFile = null, customFileName = null) => {
     const userId = currentUser.value?.uid;
     if (!userId) throw new Error('Authentication required.');
 
     let receiptUrl = null;
+    let receiptName = null;
+
     if (receiptFile) {
+      // Extract original extension if available
+      const origName = receiptFile.name || 'receipt.jpg';
+      const extMatch = origName.match(/\.([a-zA-Z0-9]+)$/);
+      const ext = extMatch ? `.${extMatch[1]}` : '';
+
+      let rawName = (customFileName && customFileName.trim()) ? customFileName.trim() : origName;
+      // If user typed a custom name without extension, append original extension
+      if (ext && !rawName.toLowerCase().endsWith(ext.toLowerCase())) {
+        if (!/\.[a-zA-Z0-9]+$/.test(rawName)) {
+          rawName += ext;
+        }
+      }
+
+      // Sanitize for storage path
+      const sanitizedStorageName = rawName.replace(/[^a-zA-Z0-9._-]/g, '_');
       const fileRef = storageRef(
         storage,
-        `receipts/${userId}/${projectId}/${Date.now()}_${receiptFile.name}`
+        `receipts/${userId}/${projectId}/${Date.now()}_${sanitizedStorageName}`
       );
       await uploadBytes(fileRef, receiptFile);
       receiptUrl = await getDownloadURL(fileRef);
+      receiptName = rawName;
     }
 
     await addDoc(collection(db, 'projects', projectId, 'entries'), {
       ...entryData,
       receiptUrl,
+      receiptName: receiptName || entryData.receiptName || null,
       createdBy: userId,
       createdByName: userProfile.value?.name || userProfile.value?.email || 'Unknown',
       createdAt: serverTimestamp(),

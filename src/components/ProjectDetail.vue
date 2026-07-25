@@ -49,7 +49,7 @@ const showTimeForm      = ref(false);
 const showExpenseForm   = ref(false);
 const isSubmitting      = ref(false);
 const entryError        = ref(null);
-const receiptViewer     = ref({ show: false, url: '' });
+const receiptViewer     = ref({ show: false, url: '', name: '' });
 const showConvertDialog = ref(false);
 const combineEntries    = ref(false);
 
@@ -68,6 +68,7 @@ function freshExpenseEntry() {
 const timeForm    = ref(freshTimeEntry());
 const expenseForm = ref(freshExpenseEntry());
 const receiptFile = ref(null);
+const receiptFileName = ref('');
 const receiptPreviewUrl = ref(null);
 
 // ── Receipt file handling ──────────────────────────────────────────
@@ -75,7 +76,14 @@ const onReceiptChange = (e) => {
   const file = e.target.files?.[0];
   if (!file) return;
   receiptFile.value = file;
+  receiptFileName.value = file.name;
   receiptPreviewUrl.value = URL.createObjectURL(file);
+};
+
+const clearReceiptFile = () => {
+  receiptFile.value = null;
+  receiptFileName.value = '';
+  receiptPreviewUrl.value = null;
 };
 
 // ── Edit state ─────────────────────────────────────────────────────
@@ -98,6 +106,7 @@ const openEdit = (entry) => {
   editForm.value = {
     ...entry,
     date: dStr,
+    receiptName: entry.receiptName || '',
   };
   showEditModal.value = true;
 };
@@ -152,9 +161,10 @@ const submitExpenseEntry = async () => {
     if (isOwner.value && expenseForm.value.category && !expenseCategories.value.includes(expenseForm.value.category)) {
       await addItemFn({ name: expenseForm.value.category, type: 'expense-category' });
     }
-    await addEntry(projectId, { type: 'expense', ...expenseForm.value }, receiptFile.value);
+    await addEntry(projectId, { type: 'expense', ...expenseForm.value }, receiptFile.value, receiptFileName.value);
     expenseForm.value = freshExpenseEntry();
     receiptFile.value = null;
+    receiptFileName.value = '';
     receiptPreviewUrl.value = null;
     showExpenseForm.value = false;
     await syncProjectTotals();
@@ -378,16 +388,43 @@ onUnmounted(() => { stopEntries(); stopItems(); });
               <label class="field-label">Description</label>
               <v-text-field v-model="expenseForm.description" variant="solo" density="compact" hide-details placeholder="What was this for?" />
             </div>
-            <!-- Receipt upload -->
+            <!-- Receipt upload & rename -->
             <div class="mt-3">
-              <label class="field-label">Receipt (optional)</label>
-              <label class="receipt-upload-btn">
-                <v-icon icon="mdi-camera-outline" class="mr-1" />
-                {{ receiptFile ? receiptFile.name : 'Upload / Take Photo' }}
-                <input type="file" accept="image/*" capture="environment" class="hidden-input" @change="onReceiptChange" />
-              </label>
-              <div v-if="receiptPreviewUrl" class="receipt-preview" @click="receiptViewer = { show: true, url: receiptPreviewUrl }">
+              <label class="field-label">Receipt Photo (optional)</label>
+              <div class="d-flex align-center flex-wrap" style="gap: 0.5rem;">
+                <label class="receipt-upload-btn">
+                  <v-icon icon="mdi-camera-outline" class="mr-1" />
+                  {{ receiptFile ? 'Change Photo' : 'Upload / Take Photo' }}
+                  <input type="file" accept="image/*" capture="environment" class="hidden-input" @change="onReceiptChange" />
+                </label>
+                <v-btn v-if="receiptFile" size="small" variant="text" color="red-lighten-3" @click="clearReceiptFile">
+                  <v-icon icon="mdi-close" size="14" class="mr-1" /> Remove
+                </v-btn>
+              </div>
+
+              <!-- Editable File Name Input when receipt photo is attached -->
+              <div v-if="receiptFile" class="mt-3 receipt-rename-group">
+                <label class="field-label d-flex align-center">
+                  <v-icon icon="mdi-rename-box" size="14" class="mr-1" color="primary" />
+                  Receipt Image File Name
+                </label>
+                <v-text-field
+                  v-model="receiptFileName"
+                  variant="solo"
+                  density="compact"
+                  hide-details
+                  placeholder="e.g. HomeDepot_Receipt.jpg"
+                  prepend-inner-icon="mdi-file-image-outline"
+                  class="receipt-filename-field"
+                />
+              </div>
+
+              <div v-if="receiptPreviewUrl" class="receipt-preview mt-2" @click="receiptViewer = { show: true, url: receiptPreviewUrl, name: receiptFileName || receiptFile.name }">
                 <img :src="receiptPreviewUrl" alt="Receipt preview" />
+                <div class="preview-filename-tag mt-1">
+                  <v-icon icon="mdi-eye-outline" size="12" class="mr-1" />
+                  {{ receiptFileName || receiptFile.name }}
+                </div>
               </div>
             </div>
             <div class="form-actions mt-3">
@@ -415,9 +452,14 @@ onUnmounted(() => { stopEntries(); stopItems(); });
               <div class="entry-right">
                 <span class="entry-subtotal">{{ fmt$(entry.amount) }}</span>
                 <v-chip :color="entry.billable ? 'success' : 'default'" size="x-small" variant="tonal">{{ entry.billable ? 'Billable' : 'Non-billable' }}</v-chip>
-                <v-btn v-if="entry.receiptUrl" icon size="x-small" variant="text" color="blue-lighten-3" @click="receiptViewer = { show: true, url: entry.receiptUrl }">
-                  <v-icon icon="mdi-image-outline" size="16" />
-                </v-btn>
+                <div v-if="entry.receiptUrl" class="d-inline-flex align-center" style="gap: 4px;">
+                  <v-btn icon size="x-small" variant="text" color="blue-lighten-3" :title="entry.receiptName ? `View ${entry.receiptName}` : 'View Receipt'" @click="receiptViewer = { show: true, url: entry.receiptUrl, name: entry.receiptName || 'Receipt Photo' }">
+                    <v-icon icon="mdi-image-outline" size="16" />
+                  </v-btn>
+                  <span class="receipt-name-badge" :title="entry.receiptName || 'Receipt'" @click="receiptViewer = { show: true, url: entry.receiptUrl, name: entry.receiptName || 'Receipt Photo' }">
+                    {{ entry.receiptName || 'Receipt' }}
+                  </span>
+                </div>
                 <v-btn icon size="x-small" variant="text" @click="openEdit(entry)"><v-icon icon="mdi-pencil" size="16" /></v-btn>
                 <v-btn icon size="x-small" variant="text" color="red-lighten-3" @click="removeEntry(entry.id)"><v-icon icon="mdi-delete-outline" size="16" /></v-btn>
               </div>
@@ -442,6 +484,7 @@ onUnmounted(() => { stopEntries(); stopItems(); });
             <v-text-field label="Amount ($)" type="number" v-model.number="editForm.amount" min="0" variant="solo" density="comfortable" class="mb-3" hide-details />
             <v-select v-if="!isOwner" label="Category" v-model="editForm.category" :items="expenseCategories" variant="solo" density="comfortable" class="mb-3" hide-details />
             <v-text-field v-else label="Category" v-model="editForm.category" variant="solo" density="comfortable" class="mb-3" hide-details />
+            <v-text-field v-if="editForm.receiptUrl" label="Receipt Image File Name" v-model="editForm.receiptName" variant="solo" density="comfortable" class="mb-3" hide-details prepend-inner-icon="mdi-file-image-outline" placeholder="e.g. HomeDepot_Receipt.jpg" />
           </template>
           <v-text-field label="Description" v-model="editForm.description" variant="solo" density="comfortable" class="mb-3" hide-details />
           <v-switch label="Billable" v-model="editForm.billable" color="primary" inset hide-details />
@@ -490,7 +533,7 @@ onUnmounted(() => { stopEntries(); stopItems(); });
     </v-dialog>
 
     <!-- Receipt lightbox -->
-    <ReceiptViewer v-model="receiptViewer.show" :receipt-url="receiptViewer.url" />
+    <ReceiptViewer v-model="receiptViewer.show" :receipt-url="receiptViewer.url" :receipt-name="receiptViewer.name" />
   </div>
 </template>
 
@@ -528,12 +571,32 @@ onUnmounted(() => { stopEntries(); stopItems(); });
 .billable-toggle { display: flex; flex-direction: column; }
 .form-actions { display: flex; justify-content: flex-end; gap: 0.5rem; }
 
-/* Receipt upload */
+/* Receipt upload & rename */
 .receipt-upload-btn { display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(255,255,255,0.07); border: 1px dashed rgba(255,255,255,0.2); border-radius: 8px; padding: 0.5rem 1rem; font-size: 0.85rem; color: #94a3b8; cursor: pointer; transition: all 0.2s; }
 .receipt-upload-btn:hover { background: rgba(255,255,255,0.12); color: #e2e8f0; }
 .hidden-input { display: none; }
-.receipt-preview { margin-top: 0.75rem; }
-.receipt-preview img { max-height: 120px; border-radius: 8px; cursor: pointer; border: 1px solid rgba(255,255,255,0.15); }
+.receipt-rename-group { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem; }
+.receipt-preview { margin-top: 0.75rem; cursor: pointer; display: inline-block; }
+.receipt-preview img { max-height: 120px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); display: block; }
+.preview-filename-tag { font-size: 0.75rem; color: #93c5fd; display: flex; align-items: center; }
+.receipt-name-badge {
+  font-size: 0.75rem;
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.receipt-name-badge:hover {
+  background: rgba(59, 130, 246, 0.25);
+  color: #bfdbfe;
+}
 
 /* Entry list */
 .entry-list { display: flex; flex-direction: column; gap: 0.5rem; }

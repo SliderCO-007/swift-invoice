@@ -1858,3 +1858,41 @@ Fix excessive blank vertical space at the top of [PricingPage.vue](file:///C:/Us
 - **Build Checks**: Run `npm run build` to verify production bundle.
 
 
+
+## Custom Receipt Image Renaming in Expense Tracking (v79)
+
+### Purpose
+Provide users with the capability to customize and rename receipt photo image files when capturing or adding receipt photos in project expenses, and maintain the custom receipt filename across storage, entry records, edit modal, and the receipt lightbox viewer.
+
+### Proposed Changes
+
+#### [MODIFY] [src/composables/useProjects.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useProjects.js)
+- Update `addEntry(projectId, entryData, receiptFile = null, customFileName = null)` to support custom filenames:
+  - Sanitize `customFileName` if provided (or default to `receiptFile.name`).
+  - Preserve original image file extension if omitted by the user.
+  - Store the sanitized filename in Firebase Storage: `receipts/${userId}/${projectId}/${Date.now()}_${sanitizedFileName}`.
+  - Save `receiptName` (e.g. `HomeDepot_Lumber_Receipt.jpg`) on the Firestore expense entry document.
+
+#### [MODIFY] [src/components/ProjectDetail.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ProjectDetail.vue)
+- Add `receiptFileName` reactive ref state for tracking custom receipt file names.
+- Update `onReceiptChange`: populate `receiptFile` and default `receiptFileName.value = file.name`.
+- Expand Expense inline form (`showExpenseForm`):
+  - Render an interactive text input for "Receipt File Name" when a receipt photo is selected or captured.
+  - Provide inline controls to edit filename, preview image, and clear photo if needed.
+- Update `submitExpenseEntry`: pass `receiptFileName.value` to `addEntry`.
+- Update Expense entry list:
+  - Display the custom receipt filename (`entry.receiptName || 'Receipt'`) on entry rows with receipt attachments.
+- Update Edit Entry modal (`openEdit` / `saveEdit`):
+  - Include an editable "Receipt File Name" field so users can rename uploaded receipts on existing expense entries.
+- Pass `entry.receiptName` to `ReceiptViewer` when viewing attached receipt photos.
+
+#### [MODIFY] [src/components/ReceiptViewer.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ReceiptViewer.vue)
+- Add `receiptName` prop (defaulting to `'Receipt Photo'`).
+- Display `receiptName` in the viewer header toolbar.
+- Update download button `download` attribute to use `receiptName` so saved file downloads use the custom name.
+
+### Verification Plan
+- **Expense Creation Test**: Open a project, navigate to Expenses, add an expense with photo capture/upload, rename the receipt file, and save. Verify `receiptName` displays on the entry.
+- **Lightbox Test**: Click the receipt icon on the entry. Verify the lightbox modal header displays the custom filename and the download button downloads with the custom filename.
+- **Entry Edit Test**: Edit an expense entry and rename its receipt filename. Save and verify updated filename.
+- **Build Check**: Execute `npm run build` to confirm zero lint or compilation errors.
