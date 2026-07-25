@@ -234,6 +234,17 @@
                   <path d="M14 5V10H19" stroke="url(#grad-convert)" stroke-width="2" stroke-linejoin="round" />
                   <path d="M11 9L7 13H11L9 17L13 13H9L11 9Z" stroke="url(#grad-convert)" stroke-width="1.5" stroke-linejoin="round" fill="rgba(251, 191, 36, 0.2)" />
                 </svg>
+                <svg v-else-if="badge.type === 'sms'" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="grad-sms" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#2dd4bf" />
+                      <stop offset="100%" stop-color="#0d9488" />
+                    </linearGradient>
+                  </defs>
+                  <rect x="6" y="2" width="12" height="20" rx="3" stroke="url(#grad-sms)" stroke-width="2" />
+                  <path d="M9 7H15M9 10H13" stroke="url(#grad-sms)" stroke-width="1.5" stroke-linecap="round" />
+                  <circle cx="12" cy="17" r="1" fill="#2dd4bf" />
+                </svg>
               </div>
               <div class="badge-content">
                 <div class="badge-title">{{ badge.title }}</div>
@@ -371,6 +382,9 @@
                 </div>
                 <div class="payment-pill stripe">
                   <v-icon left size="small">mdi-bank-outline</v-icon> ACH / Bank
+                </div>
+                <div class="payment-pill sms-pill">
+                  <v-icon left size="small" color="teal-accent-3">mdi-cellphone-text</v-icon> Text-2-Pay SMS
                 </div>
               </div>
             </div>
@@ -658,6 +672,11 @@ const badges = computed(() => {
         type: 'convert',
         title: '1-Click Invoice Sync',
         subtitle: 'Roll all logged labor and expenses straight into a pre-filled client invoice'
+      },
+      {
+        type: 'sms',
+        title: 'Text-2-Pay SMS Invoicing',
+        subtitle: 'Text payment links straight to your client\'s phone for instant 1-click mobile payments'
       }
     ]
   } else if (props.variant === 'weekend') {
@@ -676,6 +695,11 @@ const badges = computed(() => {
         type: 'convert',
         title: 'Secure Direct Payouts',
         subtitle: 'Let clients scan to pay with Apple Pay, cards, or ACH, landing directly in your bank account'
+      },
+      {
+        type: 'sms',
+        title: 'Instant Text-2-Pay SMS',
+        subtitle: 'Deliver instant SMS invoice links and automated payment receipts on the go'
       }
     ]
   } else if (props.variant === 'time_is_money') {
@@ -694,6 +718,11 @@ const badges = computed(() => {
         type: 'convert',
         title: '1-Click Client Billing',
         subtitle: 'Seamlessly roll logged time and expenses into clean, professional invoices in seconds'
+      },
+      {
+        type: 'sms',
+        title: 'Text-2-Pay SMS Invoicing',
+        subtitle: 'Send billing links and auto-receipts directly to client smartphones via text message'
       }
     ]
   }
@@ -712,6 +741,11 @@ const badges = computed(() => {
       type: 'convert',
       title: '1-Click Conversion',
       subtitle: '1-Click conversion from project work directly into pre-filled invoices'
+    },
+    {
+      type: 'sms',
+      title: 'Text-2-Pay SMS Invoicing',
+      subtitle: 'Send instant payment link texts directly to client smartphones'
     }
   ]
 })
@@ -728,63 +762,23 @@ const trustRatingText = computed(() => {
 })
 
 const testimonials = computed(() => {
-  if (props.variant === 'contractor') {
-    return [
-      {
-        text: '"I send invoices from my truck right after completing the job. My clients scan the QR code and pay before I get home. Absolute game changer."',
-        author: 'Dave K.',
-        role: 'Electrician',
-        bgClass: 'bg-indigo-darken-1'
-      },
-      {
-        text: '"No more sorting through pockets of crumpled receipts or trying to remember my team\'s billable hours at the end of the week. ScanGo does it all."',
-        author: 'Lisa R.',
-        role: 'General Contractor',
-        bgClass: 'bg-pink-darken-1'
-      }
-    ]
-  } else if (props.variant === 'weekend') {
-    return [
-      {
-        text: '"I used to spend Sunday mornings doing billing. Now, I invoice clients on my phone in 60 seconds, and my weekends are 100% mine."',
-        author: 'Tom B.',
-        role: 'Landscaper',
-        bgClass: 'bg-indigo-darken-1'
-      },
-      {
-        text: '"I hated the stress of weekend paperwork. ScanGo lets me track time and snap receipt photos on the go, converting them to invoices instantly."',
-        author: 'Rachel S.',
-        role: 'Interior Designer',
-        bgClass: 'bg-pink-darken-1'
-      }
-    ]
-  } else if (props.variant === 'time_is_money') {
-    return [
-      {
-        text: '"We used to lose thousands in unbilled hours every month. Now, our team logs time right on their phones, and it\'s invoiced in one click. Time really is money."',
-        author: 'Marcus J.',
-        role: 'Painting Contractor',
-        bgClass: 'bg-indigo-darken-1'
-      },
-      {
-        text: '"Snapping receipt photos immediately on-site keeps us organized. No more lost paper receipts or forgotten expenses at tax time."',
-        author: 'Sarah M.',
-        role: 'HVAC Service Owner',
-        bgClass: 'bg-pink-darken-1'
-      }
-    ]
-  }
   return [
     {
-      text: '"ScanGo saved me hours. I snap expense receipts on site, track my hours, and send a client-ready invoice in one click."',
-      author: 'Sarah M.',
-      role: 'Consultant',
+      text: '"ScanGo cut my invoicing time by 80%. Now I bill clients right from the job site and get paid before I even drive home."',
+      author: 'David K.',
+      role: 'HVAC Contractor',
       bgClass: 'bg-indigo-darken-1'
     },
     {
-      text: '"Clients love the Scan-to-Pay QR code. They scan it on their phone, pay instantly, and the cash lands in my bank in 2 days."',
+      text: '"Text-2-Pay SMS is a game changer! I text the invoice link directly to my client\'s phone while at their office and they pay with Apple Pay right there."',
       author: 'Marcus T.',
-      role: 'Freelance Developer',
+      role: 'Service Specialist',
+      bgClass: 'bg-teal-darken-1'
+    },
+    {
+      text: '"Being able to log hours and take photos of supply receipts under a project, then turn it into an invoice with one click saved my weekend."',
+      author: 'Sarah M.',
+      role: 'Independent Contractor',
       bgClass: 'bg-pink-darken-1'
     }
   ]
@@ -794,7 +788,12 @@ const faqs = ref([
   {
     question: 'How do customers pay on ScanGo?',
     answer:
-      'Customers receive a payment link or scan a QR code on the invoice. They pay using credit/debit cards, Apple Pay, Google Pay, or ACH — no app or account needed.',
+      'Customers receive a payment link via email or Text-2-Pay SMS, or scan a QR code on the invoice. They pay using credit/debit cards, Apple Pay, Google Pay, or ACH — no app or account needed.',
+  },
+  {
+    question: 'How does Text-2-Pay SMS invoicing work?',
+    answer:
+      'With Text-2-Pay (available on Pro plans), you can send an SMS payment link directly to your client\'s mobile phone from any invoice. Your client taps the link, pays online instantly via Apple Pay or Credit Card, and an automated SMS payment receipt is dispatched right away.',
   },
   {
     question: 'Do I need a separate payment account?',
@@ -1733,6 +1732,12 @@ main section[id] {
   background: rgba(74, 222, 128, 0.1);
   color: #86efac;
   border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+.payment-pill.sms-pill {
+  background: rgba(20, 184, 166, 0.15);
+  color: #2dd4bf;
+  border: 1px solid rgba(20, 184, 166, 0.4);
 }
 
 /* FAQ Section */

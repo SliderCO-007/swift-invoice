@@ -108,6 +108,35 @@
                </div>
             </div>
           </div>
+
+          <div class="feature-row reverse">
+            <div class="feature-text">
+              <h2>Instant Text-2-Pay SMS Invoicing</h2>
+              <p>Accelerate payments with SMS. Text invoice payment links directly to your client's smartphone so they can pay online in seconds with Apple Pay, Google Pay, or Credit Card.</p>
+              <ul class="feature-bullets">
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>1-Click Text-2-Pay SMS delivery to client mobile phones</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Automated payment confirmation text receipts</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>CTIA &amp; A2P 10DLC carrier compliant messaging</li>
+              </ul>
+              <v-chip color="teal-accent-4" variant="tonal" size="small" class="mt-4" prepend-icon="mdi-cellphone-text">Included in Monthly &amp; Annual plans</v-chip>
+            </div>
+            <div class="feature-image">
+              <div class="sms-mockup-card">
+                <div class="sms-header">
+                  <v-icon color="teal-accent-4" size="24">mdi-cellphone-text</v-icon>
+                  <span class="sms-title">Text-2-Pay SMS</span>
+                </div>
+                <div class="sms-bubble">
+                  <p class="sms-text">ScanGo Invoice #1042 for $450.00 from Acme Studio is ready. Pay online here: https://scangoinvoice.com/pay/demo - Reply STOP to opt out, HELP for info.</p>
+                  <span class="sms-time">Delivered • Just now</span>
+                </div>
+                <div class="sms-receipt-badge mt-3">
+                  <v-icon size="small" color="success">mdi-check-all</v-icon>
+                  <span>Auto-Receipt Sent Upon Payment</span>
+                </div>
+              </div>
+            </div>
+          </div>
           
           <div class="text-center mt-12 mb-12">
             <v-btn to="/pricing" color="primary" size="x-large" rounded="pill" class="glow-btn">See All Features & Pricing</v-btn>
@@ -458,6 +487,70 @@ useMeta(
 .flow-arrow {
   flex-shrink: 0;
   margin-bottom: 1.5rem;
+}
+
+/* SMS Mockup Card */
+.sms-mockup-card {
+  background: rgba(17, 29, 47, 0.95);
+  border: 1px solid rgba(20, 184, 166, 0.4);
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 30px rgba(20, 184, 166, 0.15);
+  width: 100%;
+  max-width: 380px;
+  text-align: left;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.sms-mockup-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 40px rgba(20, 184, 166, 0.25);
+}
+
+.sms-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.75rem;
+}
+
+.sms-bubble {
+  background: rgba(20, 184, 166, 0.12);
+  border: 1px solid rgba(20, 184, 166, 0.3);
+  border-radius: 16px 16px 16px 4px;
+  padding: 1rem;
+  color: #f1f5f9;
+}
+
+.sms-text {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  margin-bottom: 0.5rem;
+  color: #e2e8f0;
+}
+
+.sms-time {
+  font-size: 0.7rem;
+  color: #2dd4bf;
+  font-weight: 600;
+  display: block;
+}
+
+.sms-receipt-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.1);
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(74, 222, 128, 0.2);
 }
 
 /* Footer */

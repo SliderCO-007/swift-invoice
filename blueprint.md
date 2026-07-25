@@ -1781,3 +1781,45 @@ Fix UI contrast, element visibility, and mobile button layout in the Text-2-Pay 
 - **Build Checks**: Run `npm run build` to verify clean compilation.
 
 
+## Text-2-Pay Marketing Integration on Features & Pricing Pages (v75)
+
+### Purpose
+Promote the Text-2-Pay SMS invoicing feature across the public marketing surfaces ([FeaturesPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/FeaturesPage.vue) and [PricingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/PricingPage.vue)). Showcase live SMS preview cards, CTIA & A2P 10DLC compliance badges, and automated receipt features, and clarify feature availability across Free vs. Paid subscription tiers.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/FeaturesPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/FeaturesPage.vue)
+- Add dedicated feature showcase section: **"Instant Text-2-Pay SMS Invoicing"**.
+- Feature bullet points highlighting 1-Click SMS delivery, automated payment text receipts, and carrier compliance.
+- Interactive glassmorphic `.sms-mockup-card` with glowing teal borders, delivered SMS text bubble, and automated payment receipt badge.
+
+#### [MODIFY] [src/components/PricingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/PricingPage.vue)
+- **Free Plan**: Add muted/disabled `Text-2-Pay SMS invoicing` line item under Communication section.
+- **Monthly Plan**: Add highlighted `Text-2-Pay SMS invoicing & receipts` line item with vibrant teal `mdi-cellphone-text` icon.
+- **Yearly Plan**: Add `Text-2-Pay SMS invoicing & receipts` line item to Communication list.
+
+### Verification Plan
+- **Features Page**: Navigate to `/features`. Verify the new Text-2-Pay SMS section renders cleanly with hover animation and responsive layout.
+- **Pricing Page**: Navigate to `/pricing`. Verify Free plan lists Text-2-Pay as unavailable/disabled, while Monthly and Yearly plans list Text-2-Pay SMS invoicing as an included Pro feature.
+- **Build Verification**: Run `npm run build` to ensure clean production bundle generation.
+
+
+## Text-2-Pay Landing Page Differentiation (v76)
+
+### Purpose
+Promote Text-2-Pay SMS Invoicing as a core competitive differentiator across all high-converting landing pages ([LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue) supporting `/lp/get-paid-faster`, `/lp/time-is-money`, `/lp/weekend-freedom`). Add dedicated Hero Benefit Badges, payment pill highlights, testimonials, and a detailed FAQ item explaining Text-2-Pay SMS delivery.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- **Hero Badges**: Added a 4th Hero Benefit Badge (`type: 'sms'`) with a custom teal gradient SVG phone icon highlighting 1-Click Text-2-Pay SMS invoicing across all landing page variants (`contractor`, `weekend`, `time_is_money`, default).
+- **Payment Pills**: Added glowing `.payment-pill.sms-pill` badge ("Text-2-Pay SMS") under Step 4 ("Get Paid Your Way").
+- **Testimonials**: Updated social proof testimonials highlighting real-world Text-2-Pay usage.
+- **FAQ Section**: Added dedicated FAQ entry: *"How does Text-2-Pay SMS invoicing work?"* detailing instant SMS payment links and automated text receipts.
+
+### Verification Plan
+- **Landing Pages Check**: Visit `/lp/get-paid-faster`, `/lp/time-is-money`, and `/lp/weekend-freedom`. Verify that the new Text-2-Pay hero badge and Step 4 payment pill display cleanly.
+- **FAQ Verification**: Expand the new Text-2-Pay FAQ item and verify copy accuracy.
+- **Build Checks**: Run `npm run build` to confirm production bundle compilation.
+
+
