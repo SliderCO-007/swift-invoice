@@ -718,14 +718,15 @@ const safeInvoice = computed(() => {
 
     <!-- Text-2-Pay SMS Dialog -->
     <v-dialog v-model="smsModal" max-width="540px">
-      <v-card class="bg-slate-900 text-white rounded-xl border border-slate-700 pa-2">
-        <v-card-title class="d-flex align-center justify-space-between text-h6 font-weight-bold pt-4 px-4">
+      <v-card class="sms-dialog-card pa-2">
+        <v-card-title class="d-flex align-center justify-space-between text-h6 font-weight-bold pt-4 px-4 text-white">
           <div class="d-flex align-center ga-2">
             <v-icon color="teal-accent-4">mdi-cellphone-text</v-icon>
             <span>Send Text-2-Pay SMS</span>
           </div>
-          <v-btn icon="mdi-close" variant="text" size="small" @click="smsModal = false"></v-btn>
+          <v-btn icon="mdi-close" variant="text" size="small" color="grey-lighten-1" @click="smsModal = false"></v-btn>
         </v-card-title>
+
         <v-card-text class="px-4 py-2">
           <p class="text-body-2 text-grey-lighten-1 mb-4">
             Send an instant payment link text message directly to your client's mobile phone.
@@ -738,69 +739,84 @@ const safeInvoice = computed(() => {
             variant="outlined"
             density="comfortable"
             prepend-inner-icon="mdi-phone"
-            class="mb-2"
+            color="teal-accent-4"
+            class="mb-3 sms-phone-input"
           ></v-text-field>
 
-          <v-card variant="outlined" class="pa-3 mb-4 bg-slate-800 border-slate-700 rounded-lg">
-            <div class="text-caption text-grey-lighten-1 mb-1 font-weight-bold">SMS MESSAGE PREVIEW:</div>
-            <div class="text-body-2 text-white font-mono" style="word-break: break-word;">
+          <!-- SMS Message Preview Box -->
+          <div class="sms-preview-card mb-4 pa-3">
+            <div class="text-caption text-teal-accent-3 mb-1 font-weight-bold d-flex align-center ga-1">
+              <v-icon size="x-small" color="teal-accent-3">mdi-message-text-outline</v-icon>
+              <span>SMS MESSAGE PREVIEW:</span>
+            </div>
+            <div class="text-body-2 text-white font-mono" style="word-break: break-word; line-height: 1.4;">
               ScanGo Invoice #{{ safeInvoice?.invoiceNumber }} for ${{ safeInvoice?.total?.toFixed(2) }} from {{ settings?.company?.name || 'ScanGo Merchant' }} is ready. Pay online here: https://scangoinvoice.com/pay/{{ safeInvoice?.id }} - Reply STOP to opt out, HELP for info.
             </div>
-          </v-card>
+          </div>
 
           <!-- Merchant Opt-In / Consent Attestation Checkbox -->
-          <v-checkbox
-            v-model="smsConsentAttested"
-            color="teal-accent-4"
-            density="compact"
-            hide-details
-            class="mb-3 border pa-2 rounded-lg bg-slate-800 border-slate-700"
-          >
-            <template v-slot:label>
-              <span class="text-caption text-grey-lighten-1" style="line-height: 1.35;">
-                <strong class="text-teal-accent-3 d-block mb-1">Consent Attestation Required</strong>
-                I confirm that this recipient has explicitly agreed to receive text messages and billing notifications from my business.
-              </span>
-            </template>
-          </v-checkbox>
+          <div class="sms-consent-box mb-3 pa-3">
+            <v-checkbox
+              v-model="smsConsentAttested"
+              color="teal-accent-4"
+              density="compact"
+              hide-details
+            >
+              <template v-slot:label>
+                <div class="consent-label-text">
+                  <strong class="text-teal-accent-3 d-block mb-1 font-weight-bold">Consent Attestation Required</strong>
+                  <span>I confirm that this recipient has explicitly agreed to receive text messages and billing notifications from my business.</span>
+                </div>
+              </template>
+            </v-checkbox>
+          </div>
 
-          <div class="text-caption text-grey-darken-1 mb-3 d-flex align-center ga-1">
-            <v-icon size="small" color="grey-darken-1">mdi-shield-check-outline</v-icon>
+          <div class="text-caption text-grey-lighten-1 mb-3 d-flex align-center ga-1">
+            <v-icon size="small" color="teal-accent-3">mdi-shield-check-outline</v-icon>
             <span>Carrier Compliant (CTIA & A2P 10DLC Verified). Standard msg & data rates apply.</span>
           </div>
 
           <!-- SMS History Log -->
-          <div v-if="smsLogs && smsLogs.length > 0" class="mt-4 pt-3 border-t border-slate-700">
+          <div v-if="smsLogs && smsLogs.length > 0" class="mt-4 pt-3 sms-logs-wrapper">
             <div class="text-caption text-grey-lighten-1 font-weight-bold mb-2 d-flex align-center ga-1">
               <v-icon size="small" color="teal-accent-4">mdi-history</v-icon>
               <span>Recent SMS Deliveries:</span>
             </div>
             <div class="d-flex flex-column ga-2 max-h-36 overflow-y-auto pr-1">
-              <div v-for="log in smsLogs" :key="log.id" class="d-flex justify-space-between align-center text-caption pa-2 rounded bg-slate-800">
+              <div v-for="log in smsLogs" :key="log.id" class="d-flex justify-space-between align-center text-caption pa-2 rounded sms-log-item">
                 <div>
-                  <span class="font-weight-bold">{{ log.phone }}</span>
+                  <span class="font-weight-bold text-white">{{ log.phone }}</span>
                   <span class="text-grey-lighten-1 ms-2">({{ log.type === 'payment_receipt' ? 'Receipt Confirmation' : 'Invoice Payment Link' }})</span>
                 </div>
-                <v-chip size="x-small" :color="log.type === 'payment_receipt' ? 'success' : 'info'">
+                <v-chip size="x-small" :color="log.type === 'payment_receipt' ? 'success' : 'info'" class="font-weight-bold">
                   {{ log.sentAt ? new Date(log.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Sent' }}
                 </v-chip>
               </div>
             </div>
           </div>
         </v-card-text>
-        <v-card-actions class="px-4 pb-4">
-          <v-spacer></v-spacer>
-          <v-btn variant="text" color="grey" @click="smsModal = false">Cancel</v-btn>
+
+        <v-card-actions class="px-4 pb-4 pt-2 sms-modal-actions">
           <v-btn
             color="teal-accent-4"
             variant="elevated"
-            class="text-white font-weight-bold px-6"
+            size="large"
+            class="text-white font-weight-bold sms-send-btn elevation-3"
             :loading="isSendingSms"
             :disabled="!smsConsentAttested || isSendingSms"
             @click="sendSms"
             prepend-icon="mdi-send"
           >
             Send Text-2-Pay SMS
+          </v-btn>
+          <v-btn
+            variant="outlined"
+            color="grey-lighten-1"
+            size="large"
+            class="sms-cancel-btn"
+            @click="smsModal = false"
+          >
+            Cancel
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -923,6 +939,69 @@ const safeInvoice = computed(() => {
   }
   .actions {
     justify-content: flex-start;
+  }
+}
+
+/* SMS Modal Styling & Responsiveness */
+.sms-dialog-card {
+  background: #111d2f !important;
+  color: #f1f5f9 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6) !important;
+}
+
+.sms-preview-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+}
+
+.sms-consent-box {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(20, 184, 166, 0.4);
+  border-radius: 12px;
+}
+
+.consent-label-text {
+  color: #e2e8f0 !important;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.sms-logs-wrapper {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sms-log-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sms-modal-actions {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+  gap: 0.75rem;
+}
+
+.sms-send-btn,
+.sms-cancel-btn {
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  border-radius: 10px !important;
+}
+
+@media (max-width: 600px) {
+  .sms-modal-actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+  }
+  .sms-send-btn,
+  .sms-cancel-btn {
+    width: 100% !important;
+    margin: 0 !important;
   }
 }
 </style>

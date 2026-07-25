@@ -1759,3 +1759,25 @@ Implement the complete Text-2-Pay feature powered by Twilio SMS API following A2
 - **Build & Lint Verification**: Run `npm run build` in root and `npm run lint` in `functions/` to ensure clean build.
 
 
+## Text-2-Pay SMS Modal Glassmorphic UI & Mobile Stacking Fix (v74)
+
+### Purpose
+Fix UI contrast, element visibility, and mobile button layout in the Text-2-Pay SMS modal ([InvoiceView.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceView.vue)). Replace un-rendered Tailwind utility classes (`bg-slate-800`, `text-white`, `border-slate-700`) with explicit scoped CSS design system tokens. Ensure the consent attestation checkbox and message preview box are 100% legible, and configure mobile `@media (max-width: 600px)` rules to stack the "Send Text-2-Pay SMS" button on top and the "Cancel" button directly below it.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/InvoiceView.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceView.vue)
+- Replace Tailwind classes in `v-card`, `sms-preview-card`, and `sms-consent-box` with explicit scoped CSS classes (`.sms-dialog-card`, `.sms-preview-card`, `.sms-consent-box`).
+- Style `.sms-dialog-card` with deep navy background (`#111d2f`), subtle glassmorphic border (`rgba(255,255,255,0.15)`), and 20px rounded corners.
+- Style `.sms-preview-card` with 4% transparent white background, subtle border, and crisp `#ffffff` monospace text rendering.
+- Style `.sms-consent-box` with a glowing teal border (`rgba(20,184,166,0.4)`), prominent teal title ("Consent Attestation Required"), and bright readable label text (`#e2e8f0`).
+- Update `.sms-modal-actions`:
+  - On desktop (`min-width: 601px`): Align Cancel button on left and Send button on right (`flex-direction: row-reverse`).
+  - On mobile (`max-width: 600px`): Stack action buttons vertically (`flex-direction: column`) so "Send Text-2-Pay SMS" is at the top and "Cancel" is directly underneath, both spanning 100% container width (`width: 100% !important`).
+
+### Verification Plan
+- **Contrast & Visibility**: Open the SMS modal on desktop. Verify that the SMS Message Preview box, the Consent Attestation checkbox, and all label texts are 100% visible against the dark navy background with glowing teal highlights.
+- **Mobile Viewport Stacking**: Switch to mobile emulation (width <= 600px). Confirm that the "Send Text-2-Pay SMS" button sits at the top of the modal action bar, and the "Cancel" button sits cleanly below it, spanning full width without cut-offs or offscreen overflow.
+- **Build Checks**: Run `npm run build` to verify clean compilation.
+
+
