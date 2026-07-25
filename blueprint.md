@@ -1841,3 +1841,20 @@ Fix mobile responsiveness, text wrapping, and icon alignment for the Text-2-Pay 
 - **Build Checks**: Run `npm run build` to verify production bundle build.
 
 
+## Pricing Page Mobile Top Spacing Fix (v78)
+
+### Purpose
+Fix excessive blank vertical space at the top of [PricingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/PricingPage.vue) on mobile screens. Eliminate redundant double-padding where `.pricing-page`'s static `padding-top: 80px` combined with `<v-main>`'s auto-calculated top padding (56px) and `<v-container>`'s `pa-4` padding (16px), creating ~150px of empty space above the main "Choose Your Plan" heading.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/PricingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/PricingPage.vue)
+- Update `.pricing-page` top padding to `1rem` on desktop and `@media (max-width: 900px)` `0.25rem !important` on mobile.
+- Update `<v-container>` padding to `px-4 py-2 px-md-8 py-md-6`.
+- Update `<h1>` title to `text-h4 text-sm-h3 text-md-h2` with responsive top margin (`mt-1 mt-md-0`).
+
+### Verification Plan
+- **Mobile Viewport Verification**: Open `/pricing` on mobile viewports. Confirm that "Choose Your Plan" sits neatly below the fixed top navigation bar without dead blank space.
+- **Build Checks**: Run `npm run build` to verify production bundle.
+
+

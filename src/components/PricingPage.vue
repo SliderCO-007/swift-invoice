@@ -65,10 +65,10 @@ onMounted(() => {
 
 <template>
   <div class="pricing-page">
-    <v-container class="pa-4 pa-md-8">
+    <v-container class="px-4 py-2 px-md-8 py-md-6">
       <v-responsive max-width="1000" class="mx-auto text-center">
-        <h1 class="text-h3 text-md-h2 font-weight-bold mb-4">Choose Your Plan</h1>
-        <p class="text-body-1 text-medium-emphasis mb-8">
+        <h1 class="text-h4 text-sm-h3 text-md-h2 font-weight-bold mb-3 mt-1 mt-md-0">Choose Your Plan</h1>
+        <p class="text-body-1 text-medium-emphasis mb-6">
           Start for free and scale up as you grow. No hidden fees, no surprises.
         </p>
         <v-alert
@@ -447,7 +447,13 @@ onMounted(() => {
   background-color: #111d2f;
   color: #f1f5f9;
   min-height: 100vh;
-  padding-top: 80px;
+  padding-top: 1rem;
+}
+
+@media (max-width: 900px) {
+  .pricing-page {
+    padding-top: 0.25rem !important;
+  }
 }
 
 .pricing-page .text-medium-emphasis {
