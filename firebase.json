@@ -28,7 +28,7 @@
         "*.log"
       ],
 
-      "runtime": "nodejs20"
+      "runtime": "nodejs22"
     }
   ],
   "storage": {

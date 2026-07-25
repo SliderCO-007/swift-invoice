@@ -1697,3 +1697,65 @@ Execute Google PageSpeed / Lighthouse performance assessments across all landing
 - **Phase 3 Complete**: Installed `vite-plugin-vuetify` for component-level tree-shaking, refactored `src/plugins/vuetify.js` to remove bulk imports, and configured Rollup `manualChunks` in `vite.config.js`. Reduced initial entry JavaScript bundle from **1,109 KB down to 67.7 KB (93.8% reduction)** and CSS from **816 KB down to 30.2 KB (96.3% reduction)**.
 - **Deployed to Firebase**: Successfully built (`npm run build`) and deployed to Firebase Hosting (`https://scangoinvoice-9124f.web.app` and `https://scangoinvoice.com`).
 
+
+## Text-2-Pay SMS Invoicing & Automated Payment Confirmation (v73)
+
+### Purpose
+Implement the complete Text-2-Pay feature powered by Twilio SMS API following A2P 10DLC registration approval. This enables Pro subscribers to send instant payment link text messages directly to clients' mobile phones from invoice views and table actions, and automatically dispatches payment confirmation SMS receipts upon successful payment completion via Stripe Connect webhooks.
+
+### Proposed Changes
+
+#### [MODIFY] [functions/package.json](file:///C:/Users/curth/git/swift-invoice/functions/package.json)
+- Add `"twilio": "^5.0.0"` dependency to Firebase Functions package configuration.
+- Upgrade Node.js runtime engine from `"20"` to `"22"` (LTS) to resolve deprecation warnings and ensure long-term deployment stability.
+
+#### [MODIFY] [firebase.json](file:///C:/Users/curth/git/swift-invoice/firebase.json)
+- Update functions configuration `"runtime"` property from `"nodejs20"` to `"nodejs22"`.
+
+#### [NEW] [functions/welcomeSms.js](file:///C:/Users/curth/git/swift-invoice/functions/welcomeSms.js)
+- Create `sendWelcomeSms` Firestore trigger (`onDocumentCreated` for `users/{userId}`):
+  - Check if user provided `phone` and checked `smsOptIn: true` during registration.
+  - Format phone to E.164 (`+1NXXNXXNXX`).
+  - Send instant Welcome SMS via Twilio API confirming subscription and CTIA opt-out instructions (`Reply STOP to opt out, HELP for info`).
+  - Log dispatch in `users/{userId}/smsLogs`.
+
+#### [MODIFY] [src/composables/useAuth.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useAuth.js) & [src/components/RegisterPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/RegisterPage.vue)
+- Persist merchant `phone` and `smsOptIn` during account registration into Firestore `users/{uid}` and `userSettings/{uid}`.
+- Create callable Cloud Function `sendSmsInvoice`:
+  - Check caller authentication (`context.auth`).
+  - Read merchant user record from Firestore to verify subscription status (`isPaidUser` / active plan check).
+  - Format client phone number to standard E.164 (+1NXXNXXNXX).
+  - Read invoice details (`invoiceNumber`, `total`, `currency`, `client`, `companyName`, `paymentUrl`).
+  - Send SMS using Twilio Client:
+    - Message template: `"ScanGo Invoice #{number} for ${total} from {companyName} is ready. Pay online here: {paymentUrl} - Reply STOP to opt out, HELP for info."`
+  - Record SMS log entry under Firestore `invoices/{invoiceId}/smsLogs` subcollection with status, timestamp, recipient phone, and message SID.
+
+#### [MODIFY] [functions/stripeConnect.js](file:///C:/Users/curth/git/swift-invoice/functions/stripeConnect.js) or [functions/index.js](file:///C:/Users/curth/git/swift-invoice/functions/index.js)
+- Export `sendSmsInvoice` callable function.
+- Create automated helper / Firestore trigger `sendPaymentConfirmationSms` when invoice payment status updates to `'Paid'` (e.g. via Stripe webhook or invoice update):
+  - Send SMS: `"Payment Received! Invoice #{number} for ${total} from {companyName} has been paid in full. Thank you! - Reply STOP to opt out."`
+  - Log receipt SMS dispatch in `invoices/{invoiceId}/smsLogs`.
+
+#### [MODIFY] [src/composables/useInvoices.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useInvoices.js)
+- Add `sendInvoiceSms(invoiceId, phoneNumber)` method calling the `sendSmsInvoice` Cloud Function.
+- Handle loading state, success notifications, error responses, and SMS history retrieval.
+
+#### [MODIFY] [src/components/InvoiceView.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceView.vue)
+- Add **"Send via SMS"** button to the invoice action bar next to "Send Email" and "Download PDF".
+- Gate action with Pro subscription modal / check.
+- Open dynamic SMS Send modal with prefilled client phone number, E.164 formatting check, live message preview, mandatory customer consent attestation checkbox, carrier compliance disclosures, and direct Send button.
+- Log `consentAttested: true` in Firestore audit trail `invoices/{id}/smsLogs`.
+- Display SMS Delivery History drawer/chip displaying previous SMS dispatch timestamps and statuses.
+
+#### [MODIFY] [src/components/InvoiceTable.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceTable.vue)
+- Add "Send SMS" icon action in the desktop invoice table actions and mobile accordion drawer.
+
+### Verification Plan
+- **Dependency & Functions Check**: Run `npm install` in `functions/` and verify `twilio` installs cleanly.
+- **Pro Tier Gate**: Log in as a Free user and attempt to click "Send via SMS". Confirm upgrade prompt displays. Log in as a Pro user and confirm SMS modal opens.
+- **Phone Formatting & SMS Send**: Enter a valid client phone number and send an SMS. Verify Twilio sends the text message with invoice payment URL and compliance disclosures.
+- **Firestore Logging**: Check `invoices/{id}/smsLogs` to verify the log record was created with recipient, status, and timestamp.
+- **Automated Payment Confirmation**: Complete a test payment on an invoice with a client phone number. Verify that an automated payment confirmation SMS is dispatched.
+- **Build & Lint Verification**: Run `npm run build` in root and `npm run lint` in `functions/` to ensure clean build.
+
+

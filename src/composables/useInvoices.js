@@ -3,7 +3,8 @@ import {
   collection, getDocs, doc, getDoc, updateDoc, serverTimestamp,
   query, where, deleteDoc, runTransaction, setDoc, deleteField, onSnapshot
 } from 'firebase/firestore';
-import { db } from './useFirebase';
+import { db, functions } from './useFirebase';
+import { httpsCallable } from 'firebase/functions';
 import { currentUser, userProfile } from './useAuth.js';
 
 const invoices = ref([]);
@@ -299,7 +300,38 @@ const useInvoices = () => {
     }
   };
 
-  return { invoices, loading, error, getInvoice, createInvoice, updateInvoice, deleteInvoice, updateInvoiceStatus };
+  const sendInvoiceSms = async (invoiceId, clientPhone = '') => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const sendSmsFn = httpsCallable(functions, 'sendSmsInvoice');
+      const response = await sendSmsFn({ invoiceId, clientPhone });
+      return response.data;
+    } catch (err) {
+      console.error('Error sending SMS invoice:', err);
+      error.value = err.message || 'Failed to send SMS invoice.';
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const getSmsLogs = async (invoiceId) => {
+    try {
+      const logsRef = collection(db, 'invoices', invoiceId, 'smsLogs');
+      const snapshot = await getDocs(logsRef);
+      return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        sentAt: doc.data().sentAt?.toDate(),
+      })).sort((a, b) => (b.sentAt || 0) - (a.sentAt || 0));
+    } catch (err) {
+      console.error('Error fetching SMS logs:', err);
+      return [];
+    }
+  };
+
+  return { invoices, loading, error, getInvoice, createInvoice, updateInvoice, deleteInvoice, updateInvoiceStatus, sendInvoiceSms, getSmsLogs };
 };
 
 export default useInvoices;

@@ -25,6 +25,9 @@ exports.generateVenmoQR = generateVenmoQR.generateVenmoQR;
 const welcomeEmail = require("./welcomeEmail");
 exports.sendWelcomeEmail = welcomeEmail.sendWelcomeEmail;
 
+const welcomeSms = require("./welcomeSms");
+exports.sendWelcomeSms = welcomeSms.sendWelcomeSms;
+
 const inviteEmail = require("./inviteEmail");
 exports.sendInviteEmail = inviteEmail.sendInviteEmail;
 
@@ -34,6 +37,9 @@ exports.getStripeConnectStatus = stripeConnect.getStripeConnectStatus;
 exports.getInvoiceForPayment = stripeConnect.getInvoiceForPayment;
 exports.createInvoicePaymentSession = stripeConnect.createInvoicePaymentSession;
 exports.stripeConnectWebhook = stripeConnect.stripeConnectWebhook;
+
+const sendSmsInvoice = require("./sendSmsInvoice");
+exports.sendSmsInvoice = sendSmsInvoice.sendSmsInvoice;
 
 
 

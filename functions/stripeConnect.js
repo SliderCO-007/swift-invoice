@@ -330,11 +330,22 @@ exports.stripeConnectWebhook = onRequest(async (req, res) => {
         const invoiceId = session.client_reference_id;
         
         if (invoiceId) {
-          await db.collection('invoices').doc(invoiceId).update({
+          const invoiceRef = db.collection('invoices').doc(invoiceId);
+          await invoiceRef.update({
             status: 'paid',
             stripePaymentIntentId: session.payment_intent,
           });
           console.log(`Successfully marked invoice ${invoiceId} as paid.`);
+
+          try {
+            const invoiceDoc = await invoiceRef.get();
+            if (invoiceDoc.exists) {
+              const sendSmsInvoice = require("./sendSmsInvoice");
+              await sendSmsInvoice.sendPaymentReceiptSmsHelper(invoiceId, invoiceDoc.data());
+            }
+          } catch (smsErr) {
+            console.error(`Error sending automated payment receipt SMS for invoice ${invoiceId}:`, smsErr);
+          }
         }
         break;
       }

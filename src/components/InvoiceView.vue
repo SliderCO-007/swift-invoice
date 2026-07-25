@@ -17,7 +17,7 @@ import InvoiceTemplate6 from './InvoiceTemplate6.vue'
 
 const route = useRoute()
 const router = useRouter()
-const { getInvoice, updateInvoiceStatus, updateInvoice, loading, error } = useInvoices()
+const { getInvoice, updateInvoiceStatus, updateInvoice, sendInvoiceSms, getSmsLogs, loading, error } = useInvoices()
 const { settings, fetchUserSettings } = useUserSettings()
 
 const invoice = ref(null)
@@ -29,6 +29,55 @@ const confirmDialog = ref(false)
 const confirmPendingDialog = ref(false)
 const isLoading = ref(true)
 const emailError = ref(null)
+
+const smsModal = ref(false)
+const smsPhone = ref('')
+const isSendingSms = ref(false)
+const smsLogs = ref([])
+const smsConsentAttested = ref(false)
+
+const openSmsModal = async () => {
+  if (isFreePlan.value) {
+    snackbarText.value = 'A paid subscription is required to send Text-2-Pay SMS invoices.'
+    snackbar.value = true
+    return
+  }
+  smsPhone.value = invoice.value?.client?.phone || ''
+  smsConsentAttested.value = false
+  smsModal.value = true
+  if (invoice.value?.id) {
+    smsLogs.value = await getSmsLogs(invoice.value.id)
+  }
+}
+
+const sendSms = async () => {
+  if (!invoice.value || isSendingSms.value) return
+  if (!smsPhone.value) {
+    snackbarText.value = 'Please provide a valid client phone number.'
+    snackbar.value = true
+    return
+  }
+  if (!smsConsentAttested.value) {
+    snackbarText.value = 'You must confirm customer consent before sending SMS messages.'
+    snackbar.value = true
+    return
+  }
+
+  isSendingSms.value = true
+  try {
+    const res = await sendInvoiceSms(invoice.value.id, smsPhone.value)
+    snackbarText.value = `Text-2-Pay SMS sent to ${res.phone}!`
+    snackbar.value = true
+    smsModal.value = false
+    smsLogs.value = await getSmsLogs(invoice.value.id)
+  } catch (err) {
+    console.error('Failed to send SMS:', err)
+    snackbarText.value = err.message || 'Failed to send Text-2-Pay SMS.'
+    snackbar.value = true
+  } finally {
+    isSendingSms.value = false
+  }
+}
 
 onMounted(async () => {
   const invoiceId = route.params.id
@@ -536,6 +585,35 @@ const safeInvoice = computed(() => {
                 Send Email
               </v-btn>
             </template>
+
+            <!-- Send via SMS (Text-2-Pay) -->
+            <template v-if="isFreePlan">
+              <v-tooltip location="top" text="Upgrade to a paid plan to send Text-2-Pay SMS invoices.">
+                <template v-slot:activator="{ props }">
+                  <div v-bind="props" class="d-inline-block">
+                    <v-btn
+                      :disabled="true"
+                      color="teal-accent-4"
+                      large
+                      prepend-icon="mdi-cellphone-text"
+                    >
+                      Send via SMS
+                    </v-btn>
+                  </div>
+                </template>
+              </v-tooltip>
+            </template>
+            <template v-else>
+              <v-btn
+                @click="openSmsModal"
+                color="teal-accent-4"
+                large
+                class="text-white"
+                prepend-icon="mdi-cellphone-text"
+              >
+                Send via SMS
+              </v-btn>
+            </template>
           </div>
         </div>
       </header>
@@ -634,6 +712,96 @@ const safeInvoice = computed(() => {
             >Cancel</v-btn
           >
           <v-btn color="blue darken-1" text @click="markAsPending">OK</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Text-2-Pay SMS Dialog -->
+    <v-dialog v-model="smsModal" max-width="540px">
+      <v-card class="bg-slate-900 text-white rounded-xl border border-slate-700 pa-2">
+        <v-card-title class="d-flex align-center justify-space-between text-h6 font-weight-bold pt-4 px-4">
+          <div class="d-flex align-center ga-2">
+            <v-icon color="teal-accent-4">mdi-cellphone-text</v-icon>
+            <span>Send Text-2-Pay SMS</span>
+          </div>
+          <v-btn icon="mdi-close" variant="text" size="small" @click="smsModal = false"></v-btn>
+        </v-card-title>
+        <v-card-text class="px-4 py-2">
+          <p class="text-body-2 text-grey-lighten-1 mb-4">
+            Send an instant payment link text message directly to your client's mobile phone.
+          </p>
+
+          <v-text-field
+            v-model="smsPhone"
+            label="Client Mobile Phone"
+            placeholder="e.g. (555) 000-0000"
+            variant="outlined"
+            density="comfortable"
+            prepend-inner-icon="mdi-phone"
+            class="mb-2"
+          ></v-text-field>
+
+          <v-card variant="outlined" class="pa-3 mb-4 bg-slate-800 border-slate-700 rounded-lg">
+            <div class="text-caption text-grey-lighten-1 mb-1 font-weight-bold">SMS MESSAGE PREVIEW:</div>
+            <div class="text-body-2 text-white font-mono" style="word-break: break-word;">
+              ScanGo Invoice #{{ safeInvoice?.invoiceNumber }} for ${{ safeInvoice?.total?.toFixed(2) }} from {{ settings?.company?.name || 'ScanGo Merchant' }} is ready. Pay online here: https://scangoinvoice.com/pay/{{ safeInvoice?.id }} - Reply STOP to opt out, HELP for info.
+            </div>
+          </v-card>
+
+          <!-- Merchant Opt-In / Consent Attestation Checkbox -->
+          <v-checkbox
+            v-model="smsConsentAttested"
+            color="teal-accent-4"
+            density="compact"
+            hide-details
+            class="mb-3 border pa-2 rounded-lg bg-slate-800 border-slate-700"
+          >
+            <template v-slot:label>
+              <span class="text-caption text-grey-lighten-1" style="line-height: 1.35;">
+                <strong class="text-teal-accent-3 d-block mb-1">Consent Attestation Required</strong>
+                I confirm that this recipient has explicitly agreed to receive text messages and billing notifications from my business.
+              </span>
+            </template>
+          </v-checkbox>
+
+          <div class="text-caption text-grey-darken-1 mb-3 d-flex align-center ga-1">
+            <v-icon size="small" color="grey-darken-1">mdi-shield-check-outline</v-icon>
+            <span>Carrier Compliant (CTIA & A2P 10DLC Verified). Standard msg & data rates apply.</span>
+          </div>
+
+          <!-- SMS History Log -->
+          <div v-if="smsLogs && smsLogs.length > 0" class="mt-4 pt-3 border-t border-slate-700">
+            <div class="text-caption text-grey-lighten-1 font-weight-bold mb-2 d-flex align-center ga-1">
+              <v-icon size="small" color="teal-accent-4">mdi-history</v-icon>
+              <span>Recent SMS Deliveries:</span>
+            </div>
+            <div class="d-flex flex-column ga-2 max-h-36 overflow-y-auto pr-1">
+              <div v-for="log in smsLogs" :key="log.id" class="d-flex justify-space-between align-center text-caption pa-2 rounded bg-slate-800">
+                <div>
+                  <span class="font-weight-bold">{{ log.phone }}</span>
+                  <span class="text-grey-lighten-1 ms-2">({{ log.type === 'payment_receipt' ? 'Receipt Confirmation' : 'Invoice Payment Link' }})</span>
+                </div>
+                <v-chip size="x-small" :color="log.type === 'payment_receipt' ? 'success' : 'info'">
+                  {{ log.sentAt ? new Date(log.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Sent' }}
+                </v-chip>
+              </div>
+            </div>
+          </div>
+        </v-card-text>
+        <v-card-actions class="px-4 pb-4">
+          <v-spacer></v-spacer>
+          <v-btn variant="text" color="grey" @click="smsModal = false">Cancel</v-btn>
+          <v-btn
+            color="teal-accent-4"
+            variant="elevated"
+            class="text-white font-weight-bold px-6"
+            :loading="isSendingSms"
+            :disabled="!smsConsentAttested || isSendingSms"
+            @click="sendSms"
+            prepend-icon="mdi-send"
+          >
+            Send Text-2-Pay SMS
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

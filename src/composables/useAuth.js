@@ -179,6 +179,8 @@ const createInitialUserData = async (user) => {
       uid: user.uid,
       email: user.email,
       name: userName,
+      phone: registeredPhone.value.trim() || null,
+      smsOptIn: registeredSmsOptIn.value || false,
       photoURL: user.photoURL || null,
       createdAt: serverTimestamp(),
       subscriptionStatus: role === 'owner' ? 'free' : 'member', // members inherit owner's sub status dynamically
@@ -188,6 +190,11 @@ const createInitialUserData = async (user) => {
       signupSource
     });
 
+    const userPhone = registeredPhone.value.trim();
+    registeredName.value = ''; // Reset after use
+    registeredPhone.value = '';
+    registeredSmsOptIn.value = false;
+
     if (role === 'owner') {
       // Create settings doc for the owner (since orgSettings is userSettings/{orgId})
       const settingsRef = doc(db, "userSettings", user.uid);
@@ -196,7 +203,7 @@ const createInitialUserData = async (user) => {
             name: '',
             address: '',
             email: '',
-            phone: '',
+            phone: userPhone || '',
         },
         invoiceSettings: {
             defaultDueDateDays: 30,
@@ -253,15 +260,21 @@ const createInitialUserData = async (user) => {
 // --- AUTH ACTIONS ---
 
 const registeredName = ref('');
+const registeredPhone = ref('');
+const registeredSmsOptIn = ref(false);
 
-const signup = async (email, password, name = '') => {
+const signup = async (email, password, name = '', phone = '', smsOptIn = false) => {
   loading.value = true;
   error.value = null;
   registeredName.value = name;
+  registeredPhone.value = phone;
+  registeredSmsOptIn.value = smsOptIn;
   try {
     await createUserWithEmailAndPassword(auth, email, password);
   } catch (err) {
     registeredName.value = '';
+    registeredPhone.value = '';
+    registeredSmsOptIn.value = false;
     error.value = err.message;
     throw err; 
   } finally {

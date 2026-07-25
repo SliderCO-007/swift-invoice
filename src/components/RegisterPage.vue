@@ -18,7 +18,7 @@ const { loading, error, signup, googleLogin } = useAuth();
 
 // --- Actions ---
 const handleSignup = async () => {
-  await signup(email.value, password.value, name.value);
+  await signup(email.value, password.value, name.value, phone.value, smsOptIn.value);
 };
 
 const handleGoogleSignIn = async () => {
