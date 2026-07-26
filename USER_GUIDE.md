@@ -152,6 +152,8 @@ Accept instant online card and bank payments directly from your clients:
    - Once your Stripe charges are enabled, a dynamic "Scan to Pay" QR code is automatically rendered on all invoice templates (e.g. Classic, Tech Grid, Creative Sidebar) so clients can pay instantly.
 4. **Online Payment Options**:
    - Customers opening your payment links can pay securely using credit cards, Apple Pay, Google Pay, or ACH bank transfers.
+5. **Low 0.25% Platform Fee**:
+   - Payments processed via Stripe Connect carry an industry-leading, low platform application fee of just **0.25%**, maximizing your revenue retention on every paid invoice.
 
 ---
 

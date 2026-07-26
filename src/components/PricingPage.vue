@@ -138,6 +138,10 @@ onMounted(() => {
               </div>
               <div class="feature-item">
                 <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>Ultra-low 0.25% platform fee</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
                 <span>Credit card, Apple &amp; Google Pay</span>
               </div>
               <div class="feature-item">
@@ -243,6 +247,10 @@ onMounted(() => {
               <div class="feature-item">
                 <v-icon size="18" color="success">mdi-check-circle</v-icon>
                 <span>Stripe Connect integration</span>
+              </div>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>Ultra-low 0.25% platform fee</span>
               </div>
               <div class="feature-item">
                 <v-icon size="18" color="success">mdi-check-circle</v-icon>

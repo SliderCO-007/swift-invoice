@@ -261,8 +261,8 @@ exports.createInvoicePaymentSession = onCall({ enforceAppCheck: false }, async (
     const totalAmount = subtotal + taxAmount;
     const totalAmountCents = Math.round(totalAmount * 100);
 
-    // Calculate application fee (0.5%)
-    const applicationFeeAmount = Math.round(totalAmountCents * 0.005);
+    // Calculate application fee (0.25%)
+    const applicationFeeAmount = Math.round(totalAmountCents * 0.0025);
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],

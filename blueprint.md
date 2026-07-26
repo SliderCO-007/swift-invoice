@@ -1896,3 +1896,19 @@ Provide users with the capability to customize and rename receipt photo image fi
 - **Lightbox Test**: Click the receipt icon on the entry. Verify the lightbox modal header displays the custom filename and the download button downloads with the custom filename.
 - **Entry Edit Test**: Edit an expense entry and rename its receipt filename. Save and verify updated filename.
 - **Build Check**: Execute `npm run build` to confirm zero lint or compilation errors.
+
+## Platform Application Fee Reduction for User Acquisition (v80)
+
+### Purpose
+Lower the platform transaction application fee from 0.5% (`0.005`) to 0.25% (`0.0025`) across Stripe Connect online invoice payment checkouts. This reduction aims to boost new merchant acquisition, reduce friction for first-time invoice payment setup, and provide a competitive pricing advantage over alternative invoicing solutions.
+
+### Changes Implemented
+
+#### [MODIFY] [functions/stripeConnect.js](file:///C:/Users/curth/git/swift-invoice/functions/stripeConnect.js)
+- Reduced application fee multiplier from `0.005` (0.5%) to `0.0025` (0.25%) in `createConnectCheckoutSession`.
+- Updated calculation comment to document the 0.25% application fee.
+
+### Verification Plan
+- Verified `functions/stripeConnect.js` application fee logic (`applicationFeeAmount = Math.round(totalAmountCents * 0.0025)`).
+- Confirmed zero syntax or logic issues.
+
