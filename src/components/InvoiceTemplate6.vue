@@ -90,6 +90,9 @@ const primaryRgb = computed(() => {
             class="tech-logo"
           />
           <h1 v-else class="tech-company-name" :style="{ color: primaryColor }">{{ invoice.sender.name }}</h1>
+          <p v-if="!settings?.company?.logoUrl || settings?.company?.logoUrl === '/Logo.png'" class="logo-upload-hint no-print" data-html2canvas-ignore="true">
+            * Upload custom logo in <router-link to="/settings">Settings</router-link>
+          </p>
         </div>
         <div class="tech-sys-status" :style="{ color: `rgba(${primaryRgb}, 0.7)` }">
           <span>[ STATUS ]   : {{ invoice.status.toUpperCase() }}</span>
@@ -553,6 +556,23 @@ const primaryRgb = computed(() => {
   .tech-items-table td.col-price,
   .tech-items-table td.col-total {
     text-align: right;
+  }
+}
+
+.logo-upload-hint {
+  font-size: 0.72rem;
+  color: #64748b;
+  font-style: italic;
+  margin-top: 4px;
+}
+.logo-upload-hint a {
+  color: #0284c7;
+  text-decoration: underline;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
   }
 }
 </style>

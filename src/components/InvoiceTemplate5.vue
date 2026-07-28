@@ -89,6 +89,9 @@ const primaryRgb = computed(() => {
           class="logo"
         />
         <h1 v-else class="company-name" :style="{ color: primaryColor }">{{ invoice.sender.name }}</h1>
+        <p v-if="!settings?.company?.logoUrl || settings?.company?.logoUrl === '/Logo.png'" class="logo-upload-hint no-print" data-html2canvas-ignore="true">
+          * Upload custom logo in <router-link to="/settings">Settings</router-link>
+        </p>
       </div>
 
       <div class="sidebar-section status-section">
@@ -539,6 +542,23 @@ const primaryRgb = computed(() => {
 
   .col-qty, .col-price, .col-total {
     text-align: right;
+  }
+}
+
+.logo-upload-hint {
+  font-size: 0.72rem;
+  color: #64748b;
+  font-style: italic;
+  margin-top: 4px;
+}
+.logo-upload-hint a {
+  color: #0284c7;
+  text-decoration: underline;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
   }
 }
 </style>

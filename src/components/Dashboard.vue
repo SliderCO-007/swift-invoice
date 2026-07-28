@@ -93,12 +93,7 @@ const createNewInvoice = () => {
     alert('You have reached the invoice limit. Please upgrade.');
     return;
   }
-  if (!settings.value.company?.name) {
-    alert('Please set up your company information before creating an invoice.');
-    router.push('/onboarding');
-  } else {
-    router.push('/invoice/new');
-  }
+  router.push('/invoice/new');
 };
 
 const editInvoice = (invoiceId) => {

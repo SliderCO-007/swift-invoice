@@ -635,6 +635,15 @@ const safeInvoice = computed(() => {
         <h2>PAID</h2>
       </div>
 
+      <!-- Small Print Logo Hint for Invoice Owner -->
+      <div v-if="isOwner && (!settings?.company?.logoUrl || settings?.company?.logoUrl === '/Logo.png')" class="logo-preview-banner no-print mb-4" data-html2canvas-ignore="true">
+        <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="18px" fill="#4facfe" class="banner-hint-icon">
+          <path d="M0 0h24v24H0V0z" fill="none"/>
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+        </svg>
+        <span class="preview-hint-text">💡 <em>Tip: You can upload your custom business logo anytime in <router-link to="/settings" class="hint-settings-link">Settings</router-link>.</em></span>
+      </div>
+
       <InvoiceTemplate
         v-if="safeInvoice.style === 'classic' || !safeInvoice.style"
         ref="invoicePaper"
@@ -1002,6 +1011,36 @@ const safeInvoice = computed(() => {
   .sms-cancel-btn {
     width: 100% !important;
     margin: 0 !important;
+  }
+}
+
+/* Logo Preview Banner */
+.logo-preview-banner {
+  background: rgba(79, 172, 254, 0.1);
+  border: 1px solid rgba(79, 172, 254, 0.25);
+  border-radius: 12px;
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  color: #e2e8f0;
+  backdrop-filter: blur(12px);
+}
+
+.hint-settings-link {
+  color: #00f2fe;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.hint-settings-link:hover {
+  color: #38bdf8;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
   }
 }
 </style>

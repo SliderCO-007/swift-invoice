@@ -72,6 +72,9 @@ const formatCurrency = (value) => {
           class="company-logo"
         />
         <h1 v-else class="invoice-title">{{ invoice.sender.name }}</h1>
+        <p v-if="!settings?.company?.logoUrl || settings?.company?.logoUrl === '/Logo.png'" class="logo-upload-hint no-print" data-html2canvas-ignore="true">
+          * Upload your custom logo in <router-link to="/settings">Settings</router-link>
+        </p>
         <p :class="['invoice-status', `status-${invoice.status.toLowerCase()}`]">
           STATUS: {{ invoice.status.toUpperCase() }}
         </p>
@@ -440,6 +443,23 @@ const formatCurrency = (value) => {
     text-align: right;
     word-break: break-all;
     grid-column: 2 / 3;
+  }
+}
+
+.logo-upload-hint {
+  font-size: 0.72rem;
+  color: #64748b;
+  font-style: italic;
+  margin-top: 4px;
+}
+.logo-upload-hint a {
+  color: #0284c7;
+  text-decoration: underline;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
   }
 }
 </style>

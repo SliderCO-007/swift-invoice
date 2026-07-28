@@ -34,7 +34,7 @@ watch(userProfile, (profile) => {
     } else if (profile.role === 'member') {
       router.push('/projects');
     } else {
-      router.push('/onboarding');
+      router.push('/dashboard');
     }
   }
 }, { immediate: true });

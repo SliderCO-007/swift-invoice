@@ -71,6 +71,9 @@ const formatCurrency = (value) => {
           class="logo"
         />
         <h1 v-else class="company-name">{{ invoice.sender.name }}</h1>
+        <p v-if="!settings?.company?.logoUrl || settings?.company?.logoUrl === '/Logo.png'" class="logo-upload-hint no-print" data-html2canvas-ignore="true">
+          * Upload custom logo in <router-link to="/settings">Settings</router-link>
+        </p>
       </div>
       <div class="header-right">
         <div :class="['invoice-badge', `status-${invoice.status.toLowerCase()}`]">
@@ -471,5 +474,22 @@ const formatCurrency = (value) => {
   .items-table .col-qty::before { content: 'Qty'; }
   .items-table .col-price::before { content: 'Unit Price'; }
   .items-table .col-total::before { content: 'Amount'; }
+}
+
+.logo-upload-hint {
+  font-size: 0.72rem;
+  color: #64748b;
+  font-style: italic;
+  margin-top: 4px;
+}
+.logo-upload-hint a {
+  color: #0284c7;
+  text-decoration: underline;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
 }
 </style>

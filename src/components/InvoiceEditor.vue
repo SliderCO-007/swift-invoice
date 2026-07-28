@@ -5,7 +5,7 @@ import useUserSettings from '../composables/useUserSettings';
 import useInvoices from '../composables/useInvoices';
 import { useCustomers } from '../composables/useCustomers';
 import { useItems } from '../composables/useItems';
-import { useAuth, currentUser as user } from '../composables/useAuth.js';
+import { useAuth, currentUser as user, userProfile } from '../composables/useAuth.js';
 import useStripeConnect from '../composables/useStripeConnect';
 import InvoiceTemplate from './InvoiceTemplate.vue';
 import InvoiceTemplate2 from './InvoiceTemplate2.vue';
@@ -18,7 +18,7 @@ import { enUS } from 'date-fns/locale';
 import Logo from './Logo.vue';
 
 // --- Composables ---
-const { settings, loading: settingsLoading, fetchUserSettings } = useUserSettings();
+const { settings, loading: settingsLoading, fetchUserSettings, saveUserSettings } = useUserSettings();
 const { createInvoice, getInvoice, updateInvoice } = useInvoices();
 const { customers } = useCustomers(); // Automatically fetches and updates based on auth
 const { items, fetchItems, stopFetching: stopFetchingItems } = useItems();
@@ -35,6 +35,11 @@ const showPreview = ref(false);
 const isProcessing = ref(false);
 const saveError = ref(null);
 const stripeStatusHaveLoaded = ref(false);
+const saveAsDefaultCompany = ref(true);
+
+const isCompanyIncomplete = computed(() => {
+  return !settings.value?.company?.name || !settings.value?.company?.address1;
+});
 
  
 
@@ -106,6 +111,27 @@ const saveInvoice = async () => {
       ? await createInvoice(invoiceData, user.value.uid) 
       : (await updateInvoice(invoiceId.value, invoiceData, user.value.uid), invoiceId.value);
       
+    // Auto-save user settings as background enrichment if checkbox is active
+    if (saveAsDefaultCompany.value && invoice.value.sender && user.value) {
+      try {
+        await saveUserSettings({
+          ...settings.value,
+          company: {
+            ...settings.value?.company,
+            name: invoice.value.sender.name || '',
+            email: invoice.value.sender.email || '',
+            address1: invoice.value.sender.address1 || '',
+            address2: invoice.value.sender.address2 || '',
+            city: invoice.value.sender.city || '',
+            state: invoice.value.sender.state || '',
+            zip: invoice.value.sender.zip || ''
+          }
+        });
+      } catch (profileErr) {
+        console.warn("Progressive profile auto-save encountered a minor issue:", profileErr);
+      }
+    }
+
     router.push({ name: 'InvoiceView', params: { id: finalInvoiceId } });
   } catch (error) {
     console.error("Failed to save invoice:", error);
@@ -158,6 +184,21 @@ const initializeInvoice = async () => {
       invoice.value.notes = settings.value.defaultNotes || invoice.value.notes;
       invoice.value.style = settings.value.defaultStyle || invoice.value.style;
       invoice.value.primaryColor = settings.value.company?.primaryColor || '#1a3a52';
+    }
+
+    // Progressive Auto-Fallback for Google / Auth Profile
+    if (!invoice.value.sender.name && user.value) {
+      const displayName = userProfile.value?.name || user.value.displayName || (user.value.email ? user.value.email.split('@')[0] : '');
+      if (displayName) {
+        // Formulate smart business name for personal Gmail/OAuth users
+        const formattedName = displayName.trim();
+        invoice.value.sender.name = formattedName.toLowerCase().includes('services') || formattedName.toLowerCase().includes('consulting') || formattedName.toLowerCase().includes('inc') || formattedName.toLowerCase().includes('llc')
+          ? formattedName
+          : `${formattedName} Services`;
+      }
+    }
+    if (!invoice.value.sender.email && user.value?.email) {
+      invoice.value.sender.email = user.value.email;
     }
 
     // Invoice bridge: check for project prefill data passed via router state
@@ -268,6 +309,22 @@ onUnmounted(() => {
       </div>
 
       <div v-if="invoice" class="invoice-form-content">
+        <!-- Progressive Profile Enrichment Banner for incomplete company setups -->
+        <div v-if="isCompanyIncomplete" class="enrichment-banner mb-6">
+          <div class="enrichment-content">
+            <div class="enrichment-header">
+              <span class="enrichment-chip">✨ Progressive Profile</span>
+              <span class="enrichment-desc">Your profile details are pre-filled below. Edit as you draft your invoice!</span>
+            </div>
+            <div class="enrichment-toggle mt-2">
+              <label class="save-default-checkbox">
+                <input type="checkbox" v-model="saveAsDefaultCompany" />
+                <span>Save business details as default profile for future invoices</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
         <div class="form-section responsive-grid">
           <div class="from-fields">
             <h3 class="mb-2">From</h3>
@@ -396,6 +453,14 @@ onUnmounted(() => {
           <v-toolbar-title>Invoice Preview</v-toolbar-title>
         </v-toolbar>
         
+        <div v-if="!settings?.company?.logoUrl || settings?.company?.logoUrl === '/Logo.png'" class="logo-preview-banner no-print" data-html2canvas-ignore="true">
+          <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="18px" fill="#4facfe" class="banner-hint-icon">
+            <path d="M0 0h24v24H0V0z" fill="none"/>
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+          </svg>
+          <span class="preview-hint-text">💡 <em>Tip: You can upload your custom business logo anytime in <router-link to="/settings" class="hint-settings-link">Settings</router-link>.</em></span>
+        </div>
+
         <div class="preview-content">
           <InvoiceTemplate v-if="invoice.style === 'classic'" :invoice="{...invoice, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
           <InvoiceTemplate2 v-else-if="invoice.style === 'modern'" :invoice="{...invoice, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
@@ -519,5 +584,80 @@ onUnmounted(() => {
   }
 }
 
- 	
+/* Progressive Profile Enrichment Banner */
+.enrichment-banner {
+  background: rgba(79, 172, 254, 0.08);
+  border: 1px solid rgba(79, 172, 254, 0.25);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.enrichment-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.enrichment-chip {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #00f2fe;
+  background: rgba(0, 242, 254, 0.15);
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+
+.enrichment-desc {
+  font-size: 0.88rem;
+  color: #cbd5e1;
+}
+
+.save-default-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  cursor: pointer;
+  user-select: none;
+}
+
+.save-default-checkbox input[type="checkbox"] {
+  accent-color: #4facfe;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* Logo Preview Banner */
+.logo-preview-banner {
+  background: rgba(79, 172, 254, 0.1);
+  border-bottom: 1px solid rgba(79, 172, 254, 0.2);
+  padding: 0.65rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #e2e8f0;
+}
+
+.hint-settings-link {
+  color: #00f2fe;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.hint-settings-link:hover {
+  color: #38bdf8;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
 </style>

@@ -1912,3 +1912,44 @@ Lower the platform transaction application fee from 0.5% (`0.005`) to 0.25% (`0.
 - Verified `functions/stripeConnect.js` application fee logic (`applicationFeeAmount = Math.round(totalAmountCents * 0.0025)`).
 - Confirmed zero syntax or logic issues.
 
+
+## Progressive Profile Enrichment & Post-Signup Activation (v81)
+
+### Purpose
+Eliminate onboarding friction and post-signup drop-off for new users by replacing forced upfront company setup with Progressive Profile Enrichment. Users land directly in invoice creation with auto-populated account profile metadata, while inline profile enrichment prompts in `InvoiceEditor.vue` and an upgraded `CompanyInfoPrompt.vue` collect company details seamlessly during invoice creation.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/Dashboard.vue](file:///C:/Users/curth/git/swift-invoice/src/components/Dashboard.vue)
+- Remove hard blocker `alert('Please set up your company information...')` and forced redirection to `/onboarding` in `createNewInvoice`.
+- Allow all users (including those with incomplete profiles) to navigate directly to `/invoice/new`.
+
+#### [MODIFY] [src/components/CompanyInfoPrompt.vue](file:///C:/Users/curth/git/swift-invoice/src/components/CompanyInfoPrompt.vue)
+- Redesign from a restrictive warning banner to a high-converting **"Create First Invoice in 30 Seconds"** activation banner.
+- Change primary action to `"Create First Invoice"` (`/invoice/new`).
+- Add a secondary subtle action `"Complete Full Profile"` (`/onboarding`).
+- Display profile completion badge (e.g. `50% complete`) and quick-start tips with provider-agnostic account copy ("Your account profile details are ready").
+
+#### [MODIFY] [src/components/InvoiceEditor.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceEditor.vue)
+- **Account Profile Auto-Fallback**: When initializing a new invoice (`invoiceId === 'new'`), if `settings.company.name` is missing, auto-fallback `invoice.value.sender.name` to `userProfile.value?.name` or `user.value.displayName` or email prefix, and `invoice.value.sender.email` to `user.value.email`.
+- **Progressive Profile Enrichment Banner**:
+  - Insert a glassmorphic banner at the top of the editor when company profile is incomplete.
+  - Render provider-agnostic microcopy ("Your profile details are pre-filled below").
+  - Provide a one-click checkbox/button `[✓ Save as my default business info]` which updates `useUserSettings` in Firestore without interrupting invoice composition.
+- **Invoice Preview Custom Logo Hint**: Added non-printing small print hints (`data-html2canvas-ignore="true"` + `.no-print`) across `InvoiceEditor.vue` (preview dialog toolbar), `InvoiceView.vue` (view screen), and all 6 Single File Component invoice templates (`InvoiceTemplate.vue` through `InvoiceTemplate6.vue`). When a user hasn't uploaded a custom business logo, a helpful tip suggests: `* Upload custom logo in Settings` with a direct link to `/settings`.
+
+#### [MODIFY] [src/components/RegisterPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/RegisterPage.vue)
+- Harmonize signup redirection: Change post-registration watch handler from forcing `/onboarding` to landing directly on `/dashboard`. This unifies the onboarding experience so both Google One-Click users and manual email/password registrants enter the same zero-friction Progressive Profile Enrichment activation flow.
+
+#### [MODIFY] [src/composables/useUserSettings.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useUserSettings.js)
+- Ensure `updateUserSettings` can be called cleanly from `InvoiceEditor.vue` to persist sender/company updates as a side-effect when saving or toggling "Save as Default".
+
+### Verification Plan
+- **Google Auth & Email Registration Flow**: Test registration via both Google One-Click and manual Email/Password (`RegisterPage.vue`). Confirm both land on `/dashboard` and navigate smoothly to `/invoice/new` without forced onboarding modals.
+- **Auto-Fill Check**: Verify that sender name and email default to the user's registered name or Google profile name/email.
+- **Progressive Enrichment Check**: Test updating company details directly inside `InvoiceEditor.vue` and checking "Save as default company info". Verify Firestore settings update.
+- **Logo Hint Verification**: Open invoice preview / view screen without a custom logo. Verify small print hint appears on screen with link to `/settings`, and confirms hidden on PDF/Print.
+- **Build Checks**: Run `npm run build` to verify clean production compilation.
+
+
+
