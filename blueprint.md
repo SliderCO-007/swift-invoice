@@ -1952,4 +1952,26 @@ Eliminate onboarding friction and post-signup drop-off for new users by replacin
 - **Build Checks**: Run `npm run build` to verify clean production compilation.
 
 
+## Facebook Messenger Direct Chat Integration (v82)
+
+### Purpose
+Add a direct, modern, branded Facebook Messenger chat link (`https://m.me/ScanGoInvoice`) to the site's contact cards and footers, enabling visitors and users to initiate an instant messenger support session with the ScanGo Invoice support team.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Add branded Facebook Messenger CTA button (`https://m.me/ScanGoInvoice`) inside the Contact card with icon `mdi-facebook-messenger`.
+- Add Facebook Messenger link to the footer navigation list (`target="_blank" rel="noopener noreferrer"`).
+- Add CSS styling for `.messenger-cta-btn` with Messenger blue gradient `#0084ff` -> `#00c6ff`, glowing hover effect, and responsive centering.
+
+#### [MODIFY] [src/components/AboutUsPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/AboutUsPage.vue)
+- Add branded Facebook Messenger CTA button (`https://m.me/ScanGoInvoice`) inside the Contact card with icon `mdi-facebook-messenger`.
+- Add CSS styling for `.messenger-cta-btn` with Messenger blue gradient and hover animations.
+
+### Verification Plan
+- Verify link opens `https://m.me/ScanGoInvoice` in a new tab (`target="_blank"`, `rel="noopener noreferrer"`).
+- Run `npm run build` to ensure zero compilation or Vue lint errors.
+
+
+
 

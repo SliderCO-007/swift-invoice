@@ -212,10 +212,17 @@
               <v-icon color="primary" size="24">mdi-email-outline</v-icon>
               <span class="text-white font-weight-medium">support@scangoinvoice.com</span>
             </a>
+            <a href="https://m.me/ScanGoInvoice" target="_blank" rel="noopener noreferrer" class="messenger-cta-btn d-flex align-center justify-center ga-2 text-decoration-none">
+              <v-icon size="20">mdi-facebook-messenger</v-icon>
+              <span>Message us on Facebook</span>
+            </a>
             <v-divider class="w-100 border-opacity-10 my-2" color="white"></v-divider>
             <div class="d-flex align-center justify-center ga-6">
               <a href="https://www.facebook.com/scangoinvoice" target="_blank" rel="noopener noreferrer" class="social-link-facebook" title="Facebook">
                 <v-icon size="24">mdi-facebook</v-icon>
+              </a>
+              <a href="https://m.me/ScanGoInvoice" target="_blank" rel="noopener noreferrer" class="social-link-messenger" title="Facebook Messenger">
+                <v-icon size="24">mdi-facebook-messenger</v-icon>
               </a>
               <a href="https://www.instagram.com/scangoinvoice" target="_blank" rel="noopener noreferrer" class="social-link-instagram" title="Instagram">
                 <v-icon size="24">mdi-instagram</v-icon>
@@ -523,6 +530,47 @@ useMeta(
   border-color: rgba(24, 119, 242, 0.45) !important;
   transform: translateY(-3px) scale(1.05);
   box-shadow: 0 0 15px rgba(24, 119, 242, 0.4) !important;
+}
+
+/* Branded Messenger CTA Button & Social Icon */
+.messenger-cta-btn {
+  background: linear-gradient(135deg, #0084ff 0%, #00c6ff 100%) !important;
+  color: #ffffff !important;
+  padding: 10px 22px;
+  border-radius: 24px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  box-shadow: 0 4px 15px rgba(0, 132, 255, 0.35);
+  width: 100%;
+  max-width: 320px;
+}
+
+.messenger-cta-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 22px rgba(0, 132, 255, 0.55);
+  filter: brightness(1.08);
+}
+
+.social-link-messenger {
+  text-decoration: none !important;
+  color: #0084ff !important;
+  background: rgba(0, 132, 255, 0.05) !important;
+  border: 1px solid rgba(0, 132, 255, 0.15) !important;
+  backdrop-filter: blur(8px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  padding: 10px;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.social-link-messenger:hover {
+  background: rgba(0, 132, 255, 0.15) !important;
+  border-color: rgba(0, 132, 255, 0.45) !important;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 0 15px rgba(0, 132, 255, 0.4) !important;
 }
 
 .social-link-instagram {

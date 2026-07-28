@@ -1,58 +1,66 @@
 ================================================================================
-SCANGO INVOICE - MANUAL ONBOARDING EMAIL TEMPLATE
+SCANGO INVOICE - RE-ENGAGEMENT EMAIL TEMPLATE (PROGRESSIVE FLOW)
 ================================================================================
-Use this template for manual outreach to users who signed up but haven't yet 
-set up their company info or created an invoice. Plain-text, highly personal 
-outreach from a personal email address has a much higher response and conversion 
-rate compared to automated, styled HTML emails.
+Use this template for outreach to users who registered (via Google One-Click 
+or email) but dropped off before creating their first invoice. 
+
+Since upfront setup has been eliminated, this email emphasizes that 
+NO SETUP IS REQUIRED and their profile details are already pre-filled.
 
 --------------------------------------------------------------------------------
-SUBJECT LINE OPTIONS (Pick one):
+SUBJECT LINE OPTIONS:
 --------------------------------------------------------------------------------
-Option 1 (Highly recommended - personal & high open-rate):
-Subject: quick question about ScanGo
+Option 1 (Primary - Action-Oriented & High-Converting):
+Subject: Your invoice draft is waiting for you
 
-Option 2 (Help & support focused):
-Subject: Help setting up your ScanGo Invoice profile?
+Option 2 (Conversational & High Open Rate):
+Subject: quick question about your invoice draft
 
-Option 3 (Action-oriented):
-Subject: Getting your first invoice sent on ScanGo Invoice
+Option 3 (Value & Zero-Friction Focused):
+Subject: No setup needed — your first invoice is ready in 30 seconds
 
 --------------------------------------------------------------------------------
-EMAIL BODY:
+EMAIL BODY (Plain Text - Recommended for maximum deliverability & response):
 --------------------------------------------------------------------------------
-Hi [User First Name],
+Hi [First Name],
 
-I wanted to personally reach out and welcome you to ScanGo Invoice. 
+I noticed you signed up for ScanGo Invoice recently, but didn't get a chance to send your first invoice.
 
-I noticed you signed up recently but haven't had a chance to get your business profile set up or create your first invoice yet. Completely understand how busy things get, so I wanted to make it as easy as possible to get you up and running today.
+Good news: we've removed all setup forms! Your account profile details have been automatically pre-filled, so you can draft and send an invoice in less than 30 seconds.
 
-If you have 3 minutes, here is the quick-start checklist to get your first professional invoice sent:
+👉 Complete your invoice here: https://scangoinvoice.com/invoice/new
 
-1. Add your company details (1 minute)
-   This fills in your logo, contact info, and tax details so they display beautifully on your invoices.
-   👉 Set up company profile: https://scangoinvoice.com/settings
+You can add your line items, customize your business details, and preview your invoice right inside the editor—no configuration required.
 
-2. Generate your first invoice (2 minutes)
-   Enter your client details and items, then generate a beautiful, clean PDF or payment link.
-   👉 Create first invoice: https://scangoinvoice.com/invoice/new
-
-Once those are set up, you'll be able to send professional invoices in seconds and even accept secure credit card, Apple Pay, Google Pay, or ACH payments directly online.
-
-By the way, if you hit a snag or if ScanGo wasn't quite what you were looking for, would you mind letting me know what we could do better? (Just hit reply—I read every email!)
+If you ran into any issues or have feedback on how we can make ScanGo better for your business, just hit reply to this email—I read every message!
 
 Best,
 
-[Your Name]
-Founder, ScanGo Invoice
-support@scangoinvoice.com
+Curtis
+ScanGo Invoice
+curtis@scangoinvoice.com
 
 ================================================================================
-TIPS FOR SENDING:
+HTML EMAIL TEMPLATE (For automated sequences via Resend / Postmark / SendGrid):
 ================================================================================
-1. Send this from your personal business email (e.g., curtis@scangoinvoice.com) 
-   rather than a generic "noreply@" or "support@" address.
-2. Replace [User First Name] with their actual name. If they didn't provide 
-   one, use "there" (e.g., "Hi there,").
-3. Keep the styling clean and strictly plain text. Aggressive bolding, massive 
-   fonts, or huge images will trigger spam filters and look automated.
+Subject: Your invoice draft is waiting for you
+
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; background-color: #111d2f; color: #f1f5f9; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);">
+  <div style="margin-bottom: 24px; text-align: center;">
+    <h2 style="color: #ffffff; font-size: 22px; font-weight: 700; margin: 0 0 8px 0;">Your First Invoice is Ready ⚡</h2>
+    <p style="color: #94a3b8; font-size: 15px; margin: 0;">No setup forms required — start drafting in 30 seconds.</p>
+  </div>
+  
+  <p style="font-size: 15px; line-height: 1.6; color: #cbd5e1;">Hi {{first_name}},</p>
+  <p style="font-size: 15px; line-height: 1.6; color: #cbd5e1;">We noticed you signed up for ScanGo Invoice recently, but haven't sent your first invoice yet.</p>
+  <p style="font-size: 15px; line-height: 1.6; color: #cbd5e1;">We've streamlined the experience so you don't need to fill out any company setup forms. Your profile details are pre-filled and ready to go.</p>
+
+  <div style="text-align: center; margin: 32px 0;">
+    <a href="https://scangoinvoice.com/invoice/new" style="background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #0f172a; text-decoration: none; padding: 14px 28px; font-weight: 700; font-size: 15px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);">Create Your Invoice Now →</a>
+  </div>
+
+  <p style="font-size: 14px; line-height: 1.5; color: #94a3b8; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; margin-top: 32px;">
+    Questions or feedback? Just reply to this email and our team will be happy to help.
+  </p>
+</div>
+
