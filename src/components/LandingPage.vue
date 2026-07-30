@@ -505,7 +505,7 @@
                 <v-icon color="primary" size="24">mdi-email-outline</v-icon>
                 <span class="text-white font-weight-medium">support@scangoinvoice.com</span>
               </a>
-              <a href="https://m.me/ScanGoInvoice" target="_blank" rel="noopener noreferrer" class="messenger-cta-btn d-flex align-center justify-center ga-2 text-decoration-none">
+              <a href="https://m.me/913313295207738" target="_blank" rel="noopener noreferrer" class="messenger-cta-btn d-flex align-center justify-center ga-2 text-decoration-none">
                 <v-icon size="20">mdi-facebook-messenger</v-icon>
                 <span>Message us on Facebook</span>
               </a>
@@ -514,7 +514,7 @@
                 <a href="https://www.facebook.com/scangoinvoice" target="_blank" rel="noopener noreferrer" class="social-link-facebook" title="Facebook">
                   <v-icon size="24">mdi-facebook</v-icon>
                 </a>
-                <a href="https://m.me/ScanGoInvoice" target="_blank" rel="noopener noreferrer" class="social-link-messenger" title="Facebook Messenger">
+                <a href="https://m.me/913313295207738" target="_blank" rel="noopener noreferrer" class="social-link-messenger" title="Facebook Messenger">
                   <v-icon size="24">mdi-facebook-messenger</v-icon>
                 </a>
                 <a href="https://www.instagram.com/scangoinvoice" target="_blank" rel="noopener noreferrer" class="social-link-instagram" title="Instagram">
@@ -533,7 +533,7 @@
         <p>
           &copy; 2026 ScanGo Invoice. All rights reserved. |
           <a href="mailto:support@scangoinvoice.com">support@scangoinvoice.com</a> |
-          <a href="https://m.me/ScanGoInvoice" target="_blank" rel="noopener noreferrer">Facebook Messenger</a> |
+          <a href="https://m.me/913313295207738" target="_blank" rel="noopener noreferrer">Facebook Messenger</a> |
           <router-link to="/about">About Us</router-link> |
           <router-link to="/guide">User Guide</router-link> |
           <router-link to="/privacy">Privacy Policy</router-link> |

@@ -1955,22 +1955,61 @@ Eliminate onboarding friction and post-signup drop-off for new users by replacin
 ## Facebook Messenger Direct Chat Integration (v82)
 
 ### Purpose
-Add a direct, modern, branded Facebook Messenger chat link (`https://m.me/ScanGoInvoice`) to the site's contact cards and footers, enabling visitors and users to initiate an instant messenger support session with the ScanGo Invoice support team.
+Add a direct, modern, branded Facebook Messenger chat link (`https://m.me/913313295207738`) to the site's contact cards and footers, enabling visitors and users to initiate an instant messenger support session with the ScanGo Invoice support team.
 
 ### Proposed Changes
 
 #### [MODIFY] [src/components/LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
-- Add branded Facebook Messenger CTA button (`https://m.me/ScanGoInvoice`) inside the Contact card with icon `mdi-facebook-messenger`.
+- Add branded Facebook Messenger CTA button (`https://m.me/913313295207738`) inside the Contact card with icon `mdi-facebook-messenger`.
 - Add Facebook Messenger link to the footer navigation list (`target="_blank" rel="noopener noreferrer"`).
 - Add CSS styling for `.messenger-cta-btn` with Messenger blue gradient `#0084ff` -> `#00c6ff`, glowing hover effect, and responsive centering.
 
 #### [MODIFY] [src/components/AboutUsPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/AboutUsPage.vue)
-- Add branded Facebook Messenger CTA button (`https://m.me/ScanGoInvoice`) inside the Contact card with icon `mdi-facebook-messenger`.
-- Add CSS styling for `.messenger-cta-btn` with Messenger blue gradient and hover animations.
+- Add branded Facebook Messenger CTA button (`https://m.me/913313295207738`) inside the Contact card with icon `mdi-facebook-messenger`.
+
+## Educational Instagram Carousel Post: Invoicing Inefficiency & Profit Loss (v83)
+
+### Purpose
+Create a high-impact, 5-slide educational Instagram carousel post targeting small business owners and service agencies. The post highlights hard data and real-world mechanics showing how delayed, inaccurate, or manual invoicing silently erodes profit margins, creates cash flow gaps, and degrades client trust, followed by actionable solutions and a strong call-to-action.
+
+### Proposed Changes
+
+#### [NEW] [instagram_post_invoicing_efficiency.md](file:///C:/Users/curth/.gemini/antigravity-cli/brain/513e2269-c086-43a7-85fd-e55c2c48a6c1/instagram_post_invoicing_efficiency.md)
+- Design and structure a 5-slide educational Instagram Carousel:
+  - **Slide 1: Hook (The Silent Profit Killer)** — Bold headline & visual stat callout on small business invoice delay costs.
+  - **Slide 2: Cost #1 (Delayed Invoicing = Extended Cash Flow Gaps)** — Explains the 30-60 day float cost and cash crunch caused by late billing.
+  - **Slide 3: Cost #2 (Inaccurate Line Items = Disputed Invoices & Unbilled Work)** — Highlights forgotten billable hours, receipt leakage, and dispute delays.
+  - **Slide 4: Cost #3 (Manual Overhead = High Operational Waste)** — Shows the hidden cost of manually building, tracking, and following up on invoices.
+  - **Slide 5: The Solution & Call to Action** — 3-step modern invoicing fix and CTA directing to ScanGo Invoice.
+- Provide comprehensive Instagram caption copywriting with engaging structure, emojis, data points, and clear CTA.
+- Curate 15 high-volume targeted hashtags for maximum organic reach among small business owners, agencies, and entrepreneurs.
+
+### Visual Design Specifications
+- **Format**: 5 Individual Standalone Carousel Slides (1:1 aspect ratio, high resolution 1080x1080, clean graphic assets without UI arrows/dots).
+- **Style**: Clean Minimalist Editorial featuring elevated light-gray floating cards with deep multi-layered drop shadows on off-white studio backdrops.
+
+
+## Facebook Educational Post: Simplified Invoicing & Profit Protection (v84)
+
+### Purpose
+Adapt the Instagram invoicing efficiency campaign into a high-engagement, simplified Facebook post. Rephrase financial mechanics into plain, everyday language and simple vocabulary tailored for small business owners, tradespeople, and service providers browsing Facebook.
+
+### Proposed Changes
+
+#### [NEW] [facebook_post_invoicing_efficiency.md](file:///C:/Users/curth/.gemini/antigravity-cli/brain/513e2269-c086-43a7-85fd-e55c2c48a6c1/facebook_post_invoicing_efficiency.md)
+- Draft plain-language Facebook post copy focusing on 3 simple points:
+  1. **Waiting to bill = waiting to get paid** (Why late billing drains bank accounts).
+  2. **Forgetting small costs = losing cash** (How missed hours and receipts eat profits).
+  3. **Unclear bills = delayed checks** (Why simple item lists get paid faster).
+- Provide a clear 3-step solution written in simple, everyday words.
+- Include a friendly discussion question to boost Facebook comments and algorithm reach.
+- Recommend visual photo layouts (single image vs multi-photo post) matching Facebook feed best practices.
 
 ### Verification Plan
-- Verify link opens `https://m.me/ScanGoInvoice` in a new tab (`target="_blank"`, `rel="noopener noreferrer"`).
-- Run `npm run build` to ensure zero compilation or Vue lint errors.
+- Ensure language is simple, clear, and free of overly technical corporate jargon.
+- Verify message alignment with the original Instagram campaign while optimizing for Facebook's reader audience.
+
+
 
 
 
