@@ -9,6 +9,7 @@ import { userProfile } from '../composables/useAuth.js';
 import InvoiceTable from './InvoiceTable.vue';
 import CompanyInfoPrompt from './CompanyInfoPrompt.vue';
 import UpgradePrompt from './UpgradePrompt.vue';
+import WelcomePrompt from './WelcomePrompt.vue';
 import DashboardChart from './DashboardChart.vue';
 
 const router = useRouter();
@@ -83,6 +84,7 @@ const isInitialLoad = computed(() => !invoicesHaveLoaded.value || !settingsHaveL
 const hasError = computed(() => invoicesError.value || settingsError.value);
 const isFreePlan = computed(() => userProfile.value?.subscriptionStatus === 'free');
 const invoiceLimitReached = computed(() => isFreePlan.value && userProfile.value?.invoiceCount >= 5);
+const hasInvoices = computed(() => invoices.value && invoices.value.length > 0);
 const isDataLoading = computed(() => invoicesLoading.value || settingsLoading.value || stripeLoading.value);
 
 const dialogDelete = ref(false);
@@ -196,14 +198,15 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
         :icon="false"
       >
         <template v-slot:text>
-          You have reached the 3-invoice limit for the free plan. Please upgrade to create more invoices.
+          You have reached the 5-invoice limit for the free plan. Please upgrade to create more invoices.
         </template>
         <template v-slot:append>
           <v-btn to="/pricing" color="warning" variant="flat">Upgrade</v-btn>
         </template>
       </v-alert>
 
-      <UpgradePrompt v-if="isFreePlan && !invoiceLimitReached && !settingsLoading" />
+      <WelcomePrompt v-if="isFreePlan && !hasInvoices && !settingsLoading" />
+      <UpgradePrompt v-if="isFreePlan && hasInvoices && !invoiceLimitReached && !settingsLoading" />
       <CompanyInfoPrompt v-if="!settings.company?.name && !settingsLoading" />
       
       <!-- Stripe Connect Prompt for Authenticated Users (Custom Glassmorphic Card) -->

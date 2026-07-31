@@ -1,12 +1,22 @@
 <template>
-  <v-container fluid class="pa-0">
+  <v-container v-if="!isDismissed" fluid class="pa-0">
     <v-card
-      class="mb-6 upgrade-prompt-card"
+      class="mb-6 upgrade-prompt-card position-relative"
       elevation="4"
       rounded="xl"
       color="primary"
     >
-      <div class="d-flex flex-column flex-sm-row align-center text-center text-sm-left pa-5 pa-sm-6">
+      <v-btn
+        icon="mdi-close"
+        variant="text"
+        size="small"
+        color="white"
+        class="dismiss-btn opacity-80"
+        @click="dismissPrompt"
+        aria-label="Dismiss upgrade prompt"
+      ></v-btn>
+
+      <div class="d-flex flex-column flex-sm-row align-center text-center text-sm-left pa-5 pa-sm-6 pr-sm-12">
         <v-icon
           icon="mdi-rocket-launch-outline"
           size="x-large"
@@ -17,7 +27,7 @@
           <h3 class="text-h6 font-weight-bold text-white mb-1">
             Unlock Pro Features!
           </h3>
-          <p class="text-body-1 text-white opacity-80">
+          <p class="text-body-1 text-white opacity-80 mb-0">
             Enable email sending, get detailed analytics, and access premium support.
           </p>
         </div>
@@ -35,6 +45,24 @@
   </v-container>
 </template>
 
+<script setup>
+import { ref, onMounted } from 'vue';
+
+const STORAGE_KEY = 'swift_invoice_upgrade_dismissed';
+const isDismissed = ref(false);
+
+onMounted(() => {
+  if (localStorage.getItem(STORAGE_KEY) === 'true') {
+    isDismissed.value = true;
+  }
+});
+
+const dismissPrompt = () => {
+  isDismissed.value = true;
+  localStorage.setItem(STORAGE_KEY, 'true');
+};
+</script>
+
 <style scoped>
 .upgrade-prompt-card {
   background: linear-gradient(45deg, var(--primary-color) 0%, var(--secondary-color) 100%);
@@ -43,6 +71,15 @@
 .upgrade-prompt-card:hover {
     transform: translateY(-3px);
     box-shadow: var(--shadow-lg) !important;
+}
+.dismiss-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+}
+.dismiss-btn:hover {
+  opacity: 1 !important;
 }
 .text-primary {
     color: var(--primary-color) !important;
