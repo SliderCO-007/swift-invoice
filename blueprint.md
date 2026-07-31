@@ -2010,6 +2010,201 @@ Adapt the Instagram invoicing efficiency campaign into a high-engagement, simpli
 - Update free tier limit alert text from 3-invoice to 5-invoice limit for consistency.
 
 #### [MODIFY] [src/components/UpgradePrompt.vue](file:///C:/Users/curth/git/swift-invoice/src/components/UpgradePrompt.vue)
+- **FAQ Section**: Added dedicated FAQ entry: *"How does Text-2-Pay SMS invoicing work?"* detailing instant SMS payment links and automated text receipts.
+
+### Verification Plan
+- **Landing Pages Check**: Visit `/lp/get-paid-faster`, `/lp/time-is-money`, and `/lp/weekend-freedom`. Verify that the new Text-2-Pay hero badge and Step 4 payment pill display cleanly.
+- **FAQ Verification**: Expand the new Text-2-Pay FAQ item and verify copy accuracy.
+- **Build Checks**: Run `npm run build` to confirm production bundle compilation.
+
+
+## Features Page Mobile Responsive Layout Fix (v77)
+
+### Purpose
+Fix mobile responsiveness, text wrapping, and icon alignment for the Text-2-Pay section in [FeaturesPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/FeaturesPage.vue). Ensure long sample SMS links wrap without clipping, `.sms-mockup-card` fits 100% container width on narrow mobile viewports, bullet check icons preserve `flex-shrink-0` layout, and heading typography scales down gracefully on small screens.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/FeaturesPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/FeaturesPage.vue)
+- Add `word-break: break-word; overflow-wrap: anywhere;` to `.sms-bubble` and `.sms-text` so payment URLs break cleanly without horizontal scrollbars.
+- Add `box-sizing: border-box; max-width: 100%;` and responsive padding (`1.25rem`) to `.sms-mockup-card` under `@media (max-width: 900px)`.
+- Add `flex-shrink-0` to bullet list checkmark icons to prevent icon squishing on multi-line text wrapping.
+- Scale `<h2>` heading font size down to `1.75rem` on mobile viewports for optimal readability.
+
+### Verification Plan
+- **Mobile Viewport Inspection**: Inspect `/features` on mobile viewports (320px - 480px). Verify that the Text-2-Pay SMS section text, bullet points, chip badge, and preview card fit 100% within the viewport without horizontal scrolling or text overlap.
+- **Build Checks**: Run `npm run build` to verify production bundle build.
+
+
+## Pricing Page Mobile Top Spacing Fix (v78)
+
+### Purpose
+Fix excessive blank vertical space at the top of [PricingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/PricingPage.vue) on mobile screens. Eliminate redundant double-padding where `.pricing-page`'s static `padding-top: 80px` combined with `<v-main>`'s auto-calculated top padding (56px) and `<v-container>`'s `pa-4` padding (16px), creating ~150px of empty space above the main "Choose Your Plan" heading.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/PricingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/PricingPage.vue)
+- Update `.pricing-page` top padding to `1rem` on desktop and `@media (max-width: 900px)` `0.25rem !important` on mobile.
+- Update `<v-container>` padding to `px-4 py-2 px-md-8 py-md-6`.
+- Update `<h1>` title to `text-h4 text-sm-h3 text-md-h2` with responsive top margin (`mt-1 mt-md-0`).
+
+### Verification Plan
+- **Mobile Viewport Verification**: Open `/pricing` on mobile viewports. Confirm that "Choose Your Plan" sits neatly below the fixed top navigation bar without dead blank space.
+- **Build Checks**: Run `npm run build` to verify production bundle.
+
+
+
+## Custom Receipt Image Renaming in Expense Tracking (v79)
+
+### Purpose
+Provide users with the capability to customize and rename receipt photo image files when capturing or adding receipt photos in project expenses, and maintain the custom receipt filename across storage, entry records, edit modal, and the receipt lightbox viewer.
+
+### Proposed Changes
+
+#### [MODIFY] [src/composables/useProjects.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useProjects.js)
+- Update `addEntry(projectId, entryData, receiptFile = null, customFileName = null)` to support custom filenames:
+  - Sanitize `customFileName` if provided (or default to `receiptFile.name`).
+  - Preserve original image file extension if omitted by the user.
+  - Store the sanitized filename in Firebase Storage: `receipts/${userId}/${projectId}/${Date.now()}_${sanitizedFileName}`.
+  - Save `receiptName` (e.g. `HomeDepot_Lumber_Receipt.jpg`) on the Firestore expense entry document.
+
+#### [MODIFY] [src/components/ProjectDetail.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ProjectDetail.vue)
+- Add `receiptFileName` reactive ref state for tracking custom receipt file names.
+- Update `onReceiptChange`: populate `receiptFile` and default `receiptFileName.value = file.name`.
+- Expand Expense inline form (`showExpenseForm`):
+  - Render an interactive text input for "Receipt File Name" when a receipt photo is selected or captured.
+  - Provide inline controls to edit filename, preview image, and clear photo if needed.
+- Update `submitExpenseEntry`: pass `receiptFileName.value` to `addEntry`.
+- Update Expense entry list:
+  - Display the custom receipt filename (`entry.receiptName || 'Receipt'`) on entry rows with receipt attachments.
+- Update Edit Entry modal (`openEdit` / `saveEdit`):
+  - Include an editable "Receipt File Name" field so users can rename uploaded receipts on existing expense entries.
+- Pass `entry.receiptName` to `ReceiptViewer` when viewing attached receipt photos.
+
+#### [MODIFY] [src/components/ReceiptViewer.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ReceiptViewer.vue)
+- Add `receiptName` prop (defaulting to `'Receipt Photo'`).
+- Display `receiptName` in the viewer header toolbar.
+- Update download button `download` attribute to use `receiptName` so saved file downloads use the custom name.
+
+### Verification Plan
+- **Expense Creation Test**: Open a project, navigate to Expenses, add an expense with photo capture/upload, rename the receipt file, and save. Verify `receiptName` displays on the entry.
+- **Lightbox Test**: Click the receipt icon on the entry. Verify the lightbox modal header displays the custom filename and the download button downloads with the custom filename.
+- **Entry Edit Test**: Edit an expense entry and rename its receipt filename. Save and verify updated filename.
+- **Build Check**: Execute `npm run build` to confirm zero lint or compilation errors.
+
+## Platform Application Fee Reduction for User Acquisition (v80)
+
+### Purpose
+Lower the platform transaction application fee from 0.5% (`0.005`) to 0.25% (`0.0025`) across Stripe Connect online invoice payment checkouts. This reduction aims to boost new merchant acquisition, reduce friction for first-time invoice payment setup, and provide a competitive pricing advantage over alternative invoicing solutions.
+
+### Changes Implemented
+
+#### [MODIFY] [functions/stripeConnect.js](file:///C:/Users/curth/git/swift-invoice/functions/stripeConnect.js)
+- Reduced application fee multiplier from `0.005` (0.5%) to `0.0025` (0.25%) in `createConnectCheckoutSession`.
+- Updated calculation comment to document the 0.25% application fee.
+
+### Verification Plan
+- Verified `functions/stripeConnect.js` application fee logic (`applicationFeeAmount = Math.round(totalAmountCents * 0.0025)`).
+- Confirmed zero syntax or logic issues.
+
+
+## Progressive Profile Enrichment & Post-Signup Activation (v81)
+
+### Purpose
+Eliminate onboarding friction and post-signup drop-off for new users by replacing forced upfront company setup with Progressive Profile Enrichment. Users land directly in invoice creation with auto-populated account profile metadata, while inline profile enrichment prompts in `InvoiceEditor.vue` and an upgraded `CompanyInfoPrompt.vue` collect company details seamlessly during invoice creation.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/Dashboard.vue](file:///C:/Users/curth/git/swift-invoice/src/components/Dashboard.vue)
+- Remove hard blocker `alert('Please set up your company information...')` and forced redirection to `/onboarding` in `createNewInvoice`.
+- Allow all users (including those with incomplete profiles) to navigate directly to `/invoice/new`.
+
+#### [MODIFY] [src/components/CompanyInfoPrompt.vue](file:///C:/Users/curth/git/swift-invoice/src/components/CompanyInfoPrompt.vue)
+- Redesign from a restrictive warning banner to a high-converting **"Create First Invoice in 30 Seconds"** activation banner.
+- Change primary action to `"Create First Invoice"` (`/invoice/new`).
+- Add a secondary subtle action `"Complete Full Profile"` (`/onboarding`).
+- Display profile completion badge (e.g. `50% complete`) and quick-start tips with provider-agnostic account copy ("Your account profile details are ready").
+
+#### [MODIFY] [src/components/InvoiceEditor.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceEditor.vue)
+- **Account Profile Auto-Fallback**: When initializing a new invoice (`invoiceId === 'new'`), if `settings.company.name` is missing, auto-fallback `invoice.value.sender.name` to `userProfile.value?.name` or `user.value.displayName` or email prefix, and `invoice.value.sender.email` to `user.value.email`.
+- **Progressive Profile Enrichment Banner**:
+  - Insert a glassmorphic banner at the top of the editor when company profile is incomplete.
+  - Render provider-agnostic microcopy ("Your profile details are pre-filled below").
+  - Provide a one-click checkbox/button `[✓ Save as my default business info]` which updates `useUserSettings` in Firestore without interrupting invoice composition.
+- **Invoice Preview Custom Logo Hint**: Added non-printing small print hints (`data-html2canvas-ignore="true"` + `.no-print`) across `InvoiceEditor.vue` (preview dialog toolbar), `InvoiceView.vue` (view screen), and all 6 Single File Component invoice templates (`InvoiceTemplate.vue` through `InvoiceTemplate6.vue`). When a user hasn't uploaded a custom business logo, a helpful tip suggests: `* Upload custom logo in Settings` with a direct link to `/settings`.
+
+#### [MODIFY] [src/components/RegisterPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/RegisterPage.vue)
+- Harmonize signup redirection: Change post-registration watch handler from forcing `/onboarding` to landing directly on `/dashboard`. This unifies the onboarding experience so both Google One-Click users and manual email/password registrants enter the same zero-friction Progressive Profile Enrichment activation flow.
+
+#### [MODIFY] [src/composables/useUserSettings.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useUserSettings.js)
+- Ensure `updateUserSettings` can be called cleanly from `InvoiceEditor.vue` to persist sender/company updates as a side-effect when saving or toggling "Save as Default".
+
+### Verification Plan
+- **Google Auth & Email Registration Flow**: Test registration via both Google One-Click and manual Email/Password (`RegisterPage.vue`). Confirm both land on `/dashboard` and navigate smoothly to `/invoice/new` without forced onboarding modals.
+- **Auto-Fill Check**: Verify that sender name and email default to the user's registered name or Google profile name/email.
+- **Progressive Enrichment Check**: Test updating company details directly inside `InvoiceEditor.vue` and checking "Save as default company info". Verify Firestore settings update.
+- **Logo Hint Verification**: Open invoice preview / view screen without a custom logo. Verify small print hint appears on screen with link to `/settings`, and confirms hidden on PDF/Print.
+- **Build Checks**: Run `npm run build` to verify clean production compilation.
+
+
+## Facebook Messenger Direct Chat Integration (v82)
+
+### Purpose
+Add a direct, modern, branded Facebook Messenger chat link (`https://m.me/913313295207738`) to the site's contact cards and footers, enabling visitors and users to initiate an instant messenger support session with the ScanGo Invoice support team.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Add branded Facebook Messenger CTA button (`https://m.me/913313295207738`) inside the Contact card with icon `mdi-facebook-messenger`.
+- Add Facebook Messenger link to the footer navigation list (`target="_blank" rel="noopener noreferrer"`).
+- Add CSS styling for `.messenger-cta-btn` with Messenger blue gradient `#0084ff` -> `#00c6ff`, glowing hover effect, and responsive centering.
+
+#### [MODIFY] [src/components/AboutUsPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/AboutUsPage.vue)
+- Add branded Facebook Messenger CTA button (`https://m.me/913313295207738`) inside the Contact card with icon `mdi-facebook-messenger`.
+
+## Educational Instagram Carousel Post: Invoicing Inefficiency & Profit Loss (v83)
+
+### Purpose
+Create a high-impact, 5-slide educational Instagram carousel post targeting small business owners and service agencies. The post highlights hard data and real-world mechanics showing how delayed, inaccurate, or manual invoicing silently erodes profit margins, creates cash flow gaps, and degrades client trust, followed by actionable solutions and a strong call-to-action.
+
+### Proposed Changes
+
+#### [NEW] [instagram_post_invoicing_efficiency.md](file:///C:/Users/curth/.gemini/antigravity-cli/brain/513e2269-c086-43a7-85fd-e55c2c48a6c1/instagram_post_invoicing_efficiency.md)
+- Design and structure a 5-slide educational Instagram Carousel:
+  - **Slide 1: Hook (The Silent Profit Killer)** — Bold headline & visual stat callout on small business invoice delay costs.
+  - **Slide 2: Cost #1 (Delayed Invoicing = Extended Cash Flow Gaps)** — Explains the 30-60 day float cost and cash crunch caused by late billing.
+  - **Slide 3: Cost #2 (Inaccurate Line Items = Disputed Invoices & Unbilled Work)** — Highlights forgotten billable hours, receipt leakage, and dispute delays.
+  - **Slide 4: Cost #3 (Manual Overhead = High Operational Waste)** — Shows the hidden cost of manually building, tracking, and following up on invoices.
+  - **Slide 5: The Solution & Call to Action** — 3-step modern invoicing fix and CTA directing to ScanGo Invoice.
+- Provide comprehensive Instagram caption copywriting with engaging structure, emojis, data points, and clear CTA.
+- Curate 15 high-volume targeted hashtags for maximum organic reach among small business owners, agencies, and entrepreneurs.
+
+### Visual Design Specifications
+- **Format**: 5 Individual Standalone Carousel Slides (1:1 aspect ratio, high resolution 1080x1080, clean graphic assets without UI arrows/dots).
+- **Style**: Clean Minimalist Editorial featuring elevated light-gray floating cards with deep multi-layered drop shadows on off-white studio backdrops.
+
+
+## Facebook Educational Post: Simplified Invoicing & Profit Protection (v84)
+
+### Purpose
+Adapt the Instagram invoicing efficiency campaign into a high-engagement, simplified Facebook post. Rephrase financial mechanics into plain, everyday language and simple vocabulary tailored for small business owners, tradespeople, and service providers browsing Facebook.
+
+### Proposed Changes
+
+#### [NEW] [facebook_post_invoicing_efficiency.md](file:///C:/Users/curth/.gemini/antigravity-cli/brain/513e2269-c086-43a7-85fd-e55c2c48a6c1/facebook_post_invoicing_efficiency.md)
+- Draft plain-language Facebook post copy focusing on 3 simple points:
+  1. **Waiting to bill = waiting to get paid** (Why late billing drains bank accounts).
+  2. **Forgetting small costs = losing cash** (How missed hours and receipts eat profits).
+  3. **Unclear bills = delayed checks** (Why simple item lists get paid faster).
+- Provide a clear 3-step solution written in simple, everyday words.
+- Include a friendly discussion question to boost Facebook comments and algorithm reach.
+- Recommend visual photo layouts (single image vs multi-photo post) matching Facebook feed best practices.
+
+### Verification Plan
+- Ensure language is simple, clear, and free of overly technical corporate jargon.
+- Update free tier limit alert text from 3-invoice to 5-invoice limit for consistency.
+
+#### [MODIFY] [src/components/UpgradePrompt.vue](file:///C:/Users/curth/git/swift-invoice/src/components/UpgradePrompt.vue)
 - Add an optional close icon button (`mdi-close`) allowing users to dismiss the upgrade banner.
 - Store dismissal state in `localStorage` key `swift_invoice_upgrade_dismissed` so dismissed status persists across sessions.
 
@@ -2018,3 +2213,20 @@ Adapt the Instagram invoicing efficiency campaign into a high-engagement, simpli
 - **Active Free User Experience**: Create at least 1 invoice on a free account. Navigate to the Dashboard. Confirm that the Welcome banner is hidden and the "Unlock Pro Features!" banner is displayed.
 - **Banner Dismissal**: Click the close button on the Upgrade banner. Confirm the banner disappears and remains hidden on page refresh.
 - **Build Checks**: Run `npm run build` to confirm zero lint or compilation errors.
+
+## Dashboard WelcomePrompt Removal (v86)
+
+### Purpose
+Remove `WelcomePrompt.vue` from the `Dashboard.vue` layout to eliminate redundancy with `CompanyInfoPrompt.vue` (which already features a prominent "Create First Invoice" action). The `src/components/WelcomePrompt.vue` component remains in the codebase for potential future use.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/Dashboard.vue](file:///C:/Users/curth/git/swift-invoice/src/components/Dashboard.vue)
+- Remove `<WelcomePrompt>` component rendering from the template.
+- Remove `import WelcomePrompt from './WelcomePrompt.vue'` from `<script setup>`.
+- Restore standard `<UpgradePrompt>` condition for free plan users: `v-if="isFreePlan && !invoiceLimitReached && !settingsLoading"`.
+
+### Verification Plan
+- **Dashboard Inspection**: Log in as a free user (with or without invoices). Confirm that `CompanyInfoPrompt` and `UpgradePrompt` render cleanly without displaying a redundant `WelcomePrompt`.
+- **Codebase Integrity**: Confirm `src/components/WelcomePrompt.vue` remains present in the codebase.
+- **Build Checks**: Run `npm run build` to confirm zero compilation errors.

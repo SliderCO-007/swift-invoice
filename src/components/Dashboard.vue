@@ -9,7 +9,6 @@ import { userProfile } from '../composables/useAuth.js';
 import InvoiceTable from './InvoiceTable.vue';
 import CompanyInfoPrompt from './CompanyInfoPrompt.vue';
 import UpgradePrompt from './UpgradePrompt.vue';
-import WelcomePrompt from './WelcomePrompt.vue';
 import DashboardChart from './DashboardChart.vue';
 
 const router = useRouter();
@@ -205,8 +204,7 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
         </template>
       </v-alert>
 
-      <WelcomePrompt v-if="isFreePlan && !hasInvoices && !settingsLoading" />
-      <UpgradePrompt v-if="isFreePlan && hasInvoices && !invoiceLimitReached && !settingsLoading" />
+      <UpgradePrompt v-if="isFreePlan && !invoiceLimitReached && !settingsLoading" />
       <CompanyInfoPrompt v-if="!settings.company?.name && !settingsLoading" />
       
       <!-- Stripe Connect Prompt for Authenticated Users (Custom Glassmorphic Card) -->
