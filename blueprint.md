@@ -2224,9 +2224,9 @@ Remove `WelcomePrompt.vue` from the `Dashboard.vue` layout to eliminate redundan
 #### [MODIFY] [src/components/Dashboard.vue](file:///C:/Users/curth/git/swift-invoice/src/components/Dashboard.vue)
 - Remove `<WelcomePrompt>` component rendering from the template.
 - Remove `import WelcomePrompt from './WelcomePrompt.vue'` from `<script setup>`.
-- Restore standard `<UpgradePrompt>` condition for free plan users: `v-if="isFreePlan && !invoiceLimitReached && !settingsLoading"`.
+- Update `<UpgradePrompt>` condition for free plan users to require at least 1 invoice: `v-if="isFreePlan && hasInvoices && !invoiceLimitReached && !settingsLoading"`.
 
 ### Verification Plan
-- **Dashboard Inspection**: Log in as a free user (with or without invoices). Confirm that `CompanyInfoPrompt` and `UpgradePrompt` render cleanly without displaying a redundant `WelcomePrompt`.
+- **Dashboard Inspection**: Log in as a new free user (0 invoices). Confirm that neither `WelcomePrompt` nor `UpgradePrompt` ("Unlock Pro Features!") render on the dashboard. Create an invoice and confirm `UpgradePrompt` appears for free users.
 - **Codebase Integrity**: Confirm `src/components/WelcomePrompt.vue` remains present in the codebase.
 - **Build Checks**: Run `npm run build` to confirm zero compilation errors.

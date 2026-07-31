@@ -204,7 +204,7 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
         </template>
       </v-alert>
 
-      <UpgradePrompt v-if="isFreePlan && !invoiceLimitReached && !settingsLoading" />
+      <UpgradePrompt v-if="isFreePlan && hasInvoices && !invoiceLimitReached && !settingsLoading" />
       <CompanyInfoPrompt v-if="!settings.company?.name && !settingsLoading" />
       
       <!-- Stripe Connect Prompt for Authenticated Users (Custom Glassmorphic Card) -->
