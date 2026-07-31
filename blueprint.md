@@ -2007,28 +2007,6 @@ Adapt the Instagram invoicing efficiency campaign into a high-engagement, simpli
 
 ### Verification Plan
 - Ensure language is simple, clear, and free of overly technical corporate jargon.
-- Verify message alignment with the original Instagram campaign while optimizing for Facebook's reader audience.
-
-## Dashboard Onboarding & Pro Banner UX Optimization (v85)
-
-### Purpose
-Improve the onboarding experience for newly registered users by replacing the prominent "Unlock Pro Features!" banner on the workspace Dashboard with a warm, glassmorphic Welcome / Quick Start banner when the user has 0 invoices. The Pro Upgrade prompt is delayed until the user has created at least 1 invoice, preventing sales friction for brand-new users before they have experienced core product value.
-
-### Proposed Changes
-
-#### [NEW] [src/components/WelcomePrompt.vue](file:///C:/Users/curth/git/swift-invoice/src/components/WelcomePrompt.vue)
-- Create a glassmorphic Welcome / Quick Start prompt component matching the deep navy background (`#111d2f`) and theme design tokens.
-- Display a friendly title: *"Welcome to ScanGo Invoice! 🚀"*.
-- Provide clear onboarding guidance: *"Create and send professional invoices in minutes, log project hours & expenses, and accept instant online payments."*
-- Render quick action CTA buttons:
-  - **Primary CTA**: *"Create Your First Invoice"* (routing to `/invoice/new` with `mdi-plus` icon).
-  - **Secondary CTA**: *"Complete Business Profile"* (routing to `/onboarding` with `mdi-domain` icon).
-
-#### [MODIFY] [src/components/Dashboard.vue](file:///C:/Users/curth/git/swift-invoice/src/components/Dashboard.vue)
-- Import `WelcomePrompt.vue`.
-- Define `hasInvoices` computed property: `computed(() => invoices.value && invoices.value.length > 0)`.
-- Update `<UpgradePrompt>` condition: `v-if="isFreePlan && hasInvoices && !invoiceLimitReached && !settingsLoading"`.
-- Render `<WelcomePrompt v-if="isFreePlan && !hasInvoices && !settingsLoading" />` above the company and Stripe connect prompts.
 - Update free tier limit alert text from 3-invoice to 5-invoice limit for consistency.
 
 #### [MODIFY] [src/components/UpgradePrompt.vue](file:///C:/Users/curth/git/swift-invoice/src/components/UpgradePrompt.vue)
