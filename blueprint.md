@@ -2018,7 +2018,7 @@ Improve the onboarding experience for newly registered users by replacing the pr
 
 #### [NEW] [src/components/WelcomePrompt.vue](file:///C:/Users/curth/git/swift-invoice/src/components/WelcomePrompt.vue)
 - Create a glassmorphic Welcome / Quick Start prompt component matching the deep navy background (`#111d2f`) and theme design tokens.
-- Display a friendly title: *"Welcome to Swift Invoice! 🚀"*.
+- Display a friendly title: *"Welcome to ScanGo Invoice! 🚀"*.
 - Provide clear onboarding guidance: *"Create and send professional invoices in minutes, log project hours & expenses, and accept instant online payments."*
 - Render quick action CTA buttons:
   - **Primary CTA**: *"Create Your First Invoice"* (routing to `/invoice/new` with `mdi-plus` icon).
@@ -2036,7 +2036,7 @@ Improve the onboarding experience for newly registered users by replacing the pr
 - Store dismissal state in `localStorage` key `swift_invoice_upgrade_dismissed` so dismissed status persists across sessions.
 
 ### Verification Plan
-- **New User Registration Experience**: Register a new user (0 invoices). Confirm that the "Unlock Pro Features!" banner is NOT displayed on the Dashboard, and the "Welcome to Swift Invoice!" Quick Start banner is rendered instead with "Create Your First Invoice" and "Complete Business Profile" CTAs.
+- **New User Registration Experience**: Register a new user (0 invoices). Confirm that the "Unlock Pro Features!" banner is NOT displayed on the Dashboard, and the "Welcome to ScanGo Invoice!" Quick Start banner is rendered instead with "Create Your First Invoice" and "Complete Business Profile" CTAs.
 - **Active Free User Experience**: Create at least 1 invoice on a free account. Navigate to the Dashboard. Confirm that the Welcome banner is hidden and the "Unlock Pro Features!" banner is displayed.
 - **Banner Dismissal**: Click the close button on the Upgrade banner. Confirm the banner disappears and remains hidden on page refresh.
 - **Build Checks**: Run `npm run build` to confirm zero lint or compilation errors.

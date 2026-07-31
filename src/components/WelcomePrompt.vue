@@ -16,7 +16,7 @@
           </div>
           <div>
             <h3 class="text-h6 font-weight-bold text-white mb-1 d-flex align-center justify-center justify-sm-start ga-2">
-              Welcome to Swift Invoice! 🚀
+              Welcome to ScanGo Invoice! 🚀
             </h3>
             <p class="text-body-2 text-grey-lighten-1 mb-0" style="max-width: 540px; line-height: 1.5;">
               Create & send professional invoices in seconds, log project hours and receipts, and accept online credit card payments instantly.
