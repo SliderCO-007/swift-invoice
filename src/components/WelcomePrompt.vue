@@ -75,7 +75,7 @@
   background: rgba(20, 184, 166, 0.12);
   border: 1px solid rgba(20, 184, 166, 0.3);
   display: flex;
-  align-center: center;
+  align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
