@@ -56,8 +56,14 @@ service cloud.firestore {
       allow create: if isOrgOwner(request.resource.data.orgId) && (
           !userExists(request.auth.uid) ||
           getUserData(request.auth.uid).subscriptionStatus == 'active' ||
-          (getUserData(request.auth.uid).get('subscriptionStatus', 'free') == 'free' && getUserData(request.auth.uid).get('invoiceCount', 0) < 5)
+          (getUserData(request.auth.uid).get('subscriptionStatus', 'free') == 'free' && getUserData(request.auth.uid).get('invoiceCount', 0) < 3)
       );
+
+      // SMS activity logs for this invoice can be read by org members (written only by Cloud Functions backend)
+      match /smsLogs/{logId} {
+        allow read: if request.auth != null && isOrgMember(get(/databases/$(database)/documents/invoices/$(invoiceId)).data.orgId);
+        allow write: if false;
+      }
     }
     
     match /userSettings/{userId} {
