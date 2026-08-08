@@ -22,11 +22,23 @@ const {
   loading: stripeLoading
 } = useStripeConnect();
 
+const scrollToStripeConnect = () => {
+  if (window.location.hash === '#stripe-connect') {
+    setTimeout(() => {
+      const el = document.getElementById('stripe-connect');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 250);
+  }
+};
+
 onMounted(async () => {
   await isAuthReady;
   if (currentUser.value) {
     await fetchConnectStatus();
   }
+  scrollToStripeConnect();
 });
 
 
@@ -206,7 +218,7 @@ const goToPricing = () => {
             <h3>Payments & Integrations</h3>
             
             <!-- Stripe Connect Section -->
-            <div class="stripe-connect-card">
+            <div id="stripe-connect" class="stripe-connect-card">
               <div class="stripe-header">
                 <div class="stripe-title-wrapper">
                   <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" class="stripe-logo" crossorigin="anonymous" />

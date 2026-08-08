@@ -36,6 +36,12 @@ const isProcessing = ref(false);
 const saveError = ref(null);
 const stripeStatusHaveLoaded = ref(false);
 const saveAsDefaultCompany = ref(true);
+const isStripeBannerDismissed = ref(localStorage.getItem('swift_invoice_editor_stripe_dismissed') === 'true');
+
+const dismissStripeBanner = () => {
+  isStripeBannerDismissed.value = true;
+  localStorage.setItem('swift_invoice_editor_stripe_dismissed', 'true');
+};
 
 const isCompanyIncomplete = computed(() => {
   return !settings.value?.company?.name || !settings.value?.company?.address1;
@@ -280,27 +286,45 @@ onUnmounted(() => {
         <v-btn :to="{ name: 'Dashboard' }" color="white" variant="flat" class="text-indigo-darken-4 font-weight-bold">Back to Dashboard</v-btn>
       </header>
 
-      <!-- Stripe Connect Warning Alert for Authenticated Users (Custom Styled for mobile responsiveness) -->
+      <!-- Stripe Connect Tip Alert for Authenticated Users (Dismissable & Non-blocking) -->
       <div
-        v-if="user && !connectStatus.chargesEnabled && !settingsLoading && stripeStatusHaveLoaded"
-        class="stripe-warning-banner mb-6"
+        v-if="user && !connectStatus.chargesEnabled && !settingsLoading && stripeStatusHaveLoaded && !isStripeBannerDismissed"
+        class="stripe-tip-card mb-6 pa-4 rounded-xl d-flex align-center justify-space-between flex-wrap gap-3"
       >
-        <div class="banner-content">
-          <div class="banner-text-wrapper">
-            <v-icon color="#fbbf24" class="banner-icon mr-3">mdi-credit-card-outline</v-icon>
-            <div class="banner-text">
-              <span class="banner-title">Online Payments Not Connected</span>
-              <p class="banner-desc">You will not be able to accept credit cards, Apple Pay, or ACH payments on your invoices until you connect a payment account.</p>
-            </div>
+        <div class="d-flex align-center gap-3" style="flex: 1; min-width: 260px;">
+          <div class="tip-icon-bg">
+            <v-icon color="#635bff" size="22">mdi-credit-card-outline</v-icon>
           </div>
+          <div>
+            <div class="d-flex align-center gap-2">
+              <span class="font-weight-bold text-white text-subtitle-2">Accept Payments Online</span>
+              <span class="optional-pill text-caption">Optional</span>
+            </div>
+            <p class="text-caption text-grey-lighten-1 mb-0 mt-1" style="line-height: 1.4;">
+              You can create & send invoices right now! Connect Stripe when you're ready to collect credit card, Apple Pay, or ACH payments.
+            </p>
+          </div>
+        </div>
+
+        <div class="d-flex align-center gap-2 flex-shrink-0">
           <v-btn 
-            to="/settings" 
-            color="#fbbf24" 
+            to="/settings#stripe-connect" 
+            color="#635bff" 
             variant="flat" 
-            class="connect-btn-banner text-black font-weight-bold"
+            size="small"
+            class="text-none font-weight-bold rounded-lg px-4"
           >
-            Connect Now
+            Connect Stripe
+            <v-icon end size="14" class="ml-1">mdi-arrow-right</v-icon>
           </v-btn>
+          <v-btn
+            icon="mdi-close"
+            variant="text"
+            size="small"
+            color="grey-lighten-1"
+            @click="dismissStripeBanner"
+            title="Dismiss tip"
+          ></v-btn>
         </div>
       </div>
 
@@ -653,6 +677,32 @@ onUnmounted(() => {
 
 .hint-settings-link:hover {
   color: #38bdf8;
+}
+
+.stripe-tip-card {
+  background: rgba(99, 91, 255, 0.06);
+  border: 1px solid rgba(99, 91, 255, 0.2);
+  backdrop-filter: blur(12px);
+}
+
+.tip-icon-bg {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(99, 91, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.optional-pill {
+  background: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  font-size: 0.7rem;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-weight: 600;
 }
 
 @media print {

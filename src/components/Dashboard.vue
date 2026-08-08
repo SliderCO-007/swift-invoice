@@ -221,7 +221,7 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
             </div>
           </div>
           <v-btn 
-            to="/settings" 
+            to="/settings#stripe-connect" 
             color="#635bff" 
             variant="flat" 
             class="connect-btn-banner"
