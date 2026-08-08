@@ -193,9 +193,9 @@ exports.sendInvoiceEmail = onCall({ enforceAppCheck: false }, async (request) =>
     throw new HttpsError('unauthenticated', 'Authentication is required.');
   }
   const userDoc = await db.collection('users').doc(auth.uid).get();
-  if (!userDoc.exists || userDoc.data().subscriptionStatus !== 'active') {
-    console.error("Authorization failed: User does not have a valid subscription.");
-    throw new HttpsError('permission-denied', 'A Pro or Business plan is required to send invoices.');
+  if (!userDoc.exists) {
+    console.error("Authorization failed: User profile not found.");
+    throw new HttpsError('permission-denied', 'User profile not found.');
   }
 
   // 2. Data Validation

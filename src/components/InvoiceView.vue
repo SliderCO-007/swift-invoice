@@ -37,11 +37,6 @@ const smsLogs = ref([])
 const smsConsentAttested = ref(false)
 
 const openSmsModal = async () => {
-  if (isFreePlan.value) {
-    snackbarText.value = 'A paid subscription is required to send Text-2-Pay SMS invoices.'
-    snackbar.value = true
-    return
-  }
   smsPhone.value = invoice.value?.client?.phone || ''
   smsConsentAttested.value = false
   smsModal.value = true
@@ -321,10 +316,6 @@ const sendInvoiceEmail = async () => {
   snackbar.value = true
 
   try {
-    if (isFreePlan.value) {
-      throw { code: 'permission-denied', message: 'Subscription required.' }
-    }
-
     const pdfDataUri = await generatePDF('datauristring')
     if (!pdfDataUri) {
       throw new Error('Failed to generate PDF for email.')
@@ -553,67 +544,26 @@ const safeInvoice = computed(() => {
               Download PDF
             </v-btn>
 
-            <template v-if="isFreePlan">
-              <v-tooltip
-                location="top"
-                :text="
-                  isFreePlan ? 'Upgrade to a paid plan to send invoices via email.' : ''
-                "
-              >
-                <template v-slot:activator="{ props }">
-                  <div v-bind="props">
-                    <v-btn
-                      :disabled="isFreePlan"
-                      color="primary"
-                      large
-                      prepend-icon="mdi-email"
-                    >
-                      Send Email
-                    </v-btn>
-                  </div>
-                </template>
-              </v-tooltip>
-            </template>
-            <template v-else>
-              <v-btn
-                @click="sendInvoiceEmail"
-                :loading="isSendingEmail"
-                color="primary"
-                large
-                prepend-icon="mdi-email"
-              >
-                Send Email
-              </v-btn>
-            </template>
+            <v-btn
+              @click="sendInvoiceEmail"
+              :loading="isSendingEmail"
+              color="primary"
+              large
+              prepend-icon="mdi-email"
+            >
+              Send Email
+            </v-btn>
 
             <!-- Send via SMS (Text-2-Pay) -->
-            <template v-if="isFreePlan">
-              <v-tooltip location="top" text="Upgrade to a paid plan to send Text-2-Pay SMS invoices.">
-                <template v-slot:activator="{ props }">
-                  <div v-bind="props" class="d-inline-block">
-                    <v-btn
-                      :disabled="true"
-                      color="teal-accent-4"
-                      large
-                      prepend-icon="mdi-cellphone-text"
-                    >
-                      Send via SMS
-                    </v-btn>
-                  </div>
-                </template>
-              </v-tooltip>
-            </template>
-            <template v-else>
-              <v-btn
-                @click="openSmsModal"
-                color="teal-accent-4"
-                large
-                class="text-white"
-                prepend-icon="mdi-cellphone-text"
-              >
-                Send via SMS
-              </v-btn>
-            </template>
+            <v-btn
+              @click="openSmsModal"
+              color="teal-accent-4"
+              large
+              class="text-white"
+              prepend-icon="mdi-cellphone-text"
+            >
+              Send via SMS
+            </v-btn>
           </div>
         </div>
       </header>

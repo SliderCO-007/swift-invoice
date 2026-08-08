@@ -38,12 +38,12 @@ exports.sendSmsInvoice = onCall({ enforceAppCheck: false }, async (request) => {
 
   const db = admin.firestore();
 
-  // 2. Authorization (Pro/Paid Plan Gate)
+  // 2. Authorization
   const userDoc = await db.collection("users").doc(auth.uid).get();
-  if (!userDoc.exists || userDoc.data().subscriptionStatus !== "active") {
+  if (!userDoc.exists) {
     throw new HttpsError(
       "permission-denied",
-      "A Pro subscription is required to use Text-2-Pay SMS invoicing."
+      "User profile not found."
     );
   }
 
