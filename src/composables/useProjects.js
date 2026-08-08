@@ -13,58 +13,73 @@ const projects = ref([]);
 const loading = ref(true);
 const error = ref(null);
 let unsubscribe = null;
+let activeProjectsOrgId = null;
+
+const setupProjectListener = (profile) => {
+  const orgId = profile?.orgId || profile?.id || null;
+
+  if (!orgId) {
+    if (unsubscribe) {
+      unsubscribe();
+      unsubscribe = null;
+    }
+    activeProjectsOrgId = null;
+    projects.value = [];
+    loading.value = false;
+    return;
+  }
+
+  // Prevent teardown and re-subscription loop if already listening to the same orgId
+  if (activeProjectsOrgId === orgId && unsubscribe) {
+    return;
+  }
+
+  if (unsubscribe) {
+    unsubscribe();
+    unsubscribe = null;
+  }
+
+  activeProjectsOrgId = orgId;
+  loading.value = true;
+  error.value = null;
+
+  let q;
+  if (profile.role === 'member') {
+    q = query(
+      collection(db, 'projects'),
+      where('orgId', '==', orgId),
+      where('assignedMembers', 'array-contains', profile.id)
+    );
+  } else {
+    q = query(
+      collection(db, 'projects'),
+      where('orgId', '==', orgId)
+    );
+  }
+
+  unsubscribe = onSnapshot(q, (snapshot) => {
+    projects.value = snapshot.docs
+      .map(d => ({
+        id: d.id,
+        ...d.data(),
+        createdAt: d.data().createdAt?.toDate(),
+        updatedAt: d.data().updatedAt?.toDate(),
+      }))
+      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    loading.value = false;
+  }, (err) => {
+    error.value = 'Failed to fetch projects in real-time.';
+    console.error(err);
+    loading.value = false;
+  });
+};
+
+// Module-level watcher: runs once upon module load rather than per composable instantiation
+watch(userProfile, (newProfile) => {
+  setupProjectListener(newProfile);
+}, { immediate: true });
 
 const useProjects = () => {
-
-  // ---------------------------------------------------------------
-  // Project listener (mirrors useInvoices pattern)
-  // ---------------------------------------------------------------
-  const setupProjectListener = (profile) => {
-    if (unsubscribe) unsubscribe();
-
-    const orgId = profile.orgId || profile.id;
-    let q;
-
-    if (profile.role === 'member') {
-      q = query(
-        collection(db, 'projects'),
-        where('orgId', '==', orgId),
-        where('assignedMembers', 'array-contains', profile.id)
-      );
-    } else {
-      q = query(
-        collection(db, 'projects'),
-        where('orgId', '==', orgId)
-      );
-    }
-
-    unsubscribe = onSnapshot(q, (snapshot) => {
-      projects.value = snapshot.docs
-        .map(d => ({
-          id: d.id,
-          ...d.data(),
-          createdAt: d.data().createdAt?.toDate(),
-          updatedAt: d.data().updatedAt?.toDate(),
-        }))
-        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-      loading.value = false;
-    }, (err) => {
-      error.value = 'Failed to fetch projects in real-time.';
-      console.error(err);
-      loading.value = false;
-    });
-  };
-
-  watch(userProfile, (newProfile) => {
-    if (newProfile) {
-      loading.value = true;
-      setupProjectListener(newProfile);
-    } else {
-      if (unsubscribe) unsubscribe();
-      projects.value = [];
-      loading.value = false;
-    }
-  }, { immediate: true });
 
   // ---------------------------------------------------------------
   // Project CRUD

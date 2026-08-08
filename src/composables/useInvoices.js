@@ -11,80 +11,69 @@ const invoices = ref([]);
 const loading = ref(true);
 const error = ref(null);
 let unsubscribe = null;
+let activeOrgId = null;
 
-const useInvoices = () => {
-
-  const setupInvoiceListener = (orgId) => {
+const setupInvoiceListener = (orgId) => {
+  if (!orgId) {
     if (unsubscribe) {
       unsubscribe();
+      unsubscribe = null;
     }
-    const invoicesCollection = collection(db, 'invoices');
-    const q = query(invoicesCollection, where('orgId', '==', orgId));
+    activeOrgId = null;
+    invoices.value = [];
+    loading.value = false;
+    return;
+  }
 
-    unsubscribe = onSnapshot(q, (querySnapshot) => {
-      invoices.value = querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...data,
-          issueDate: data.issueDate?.toDate(),
-          dueDate: data.dueDate?.toDate(),
-          paidAt: data.paidAt?.toDate(),
-          total: calculateTotal(data),
-        };
-      });
-    }, (err) => {
-      error.value = 'Failed to fetch invoices in real-time.';
-      console.error(err);
+  // Prevent teardown and re-subscription loop if already listening to the same orgId
+  if (activeOrgId === orgId && unsubscribe) {
+    return;
+  }
+
+  if (unsubscribe) {
+    unsubscribe();
+    unsubscribe = null;
+  }
+
+  activeOrgId = orgId;
+  loading.value = true;
+  error.value = null;
+
+  const invoicesCollection = collection(db, 'invoices');
+  const q = query(invoicesCollection, where('orgId', '==', orgId));
+
+  unsubscribe = onSnapshot(q, (querySnapshot) => {
+    invoices.value = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        issueDate: data.issueDate?.toDate(),
+        dueDate: data.dueDate?.toDate(),
+        paidAt: data.paidAt?.toDate(),
+        total: calculateTotal(data),
+      };
     });
-  };
+    loading.value = false;
+  }, (err) => {
+    error.value = 'Failed to fetch invoices in real-time.';
+    console.error(err);
+    loading.value = false;
+  });
+};
 
+// Module-level watcher: runs once upon module load rather than per composable instantiation
+watch(userProfile, (newProfile) => {
+  error.value = null;
+  const orgId = newProfile ? (newProfile.orgId || newProfile.id) : null;
+  setupInvoiceListener(orgId);
+}, { immediate: true });
+
+const useInvoices = () => {
   const fetchInvoices = async (orgId) => {
-    loading.value = true;
-    error.value = null;
-    if (unsubscribe) {
-        unsubscribe();
-        unsubscribe = null;
-    }
-
-    if (!orgId) {
-      invoices.value = [];
-      loading.value = false;
-      return;
-    }
-
-    try {
-      const invoicesCollection = collection(db, 'invoices');
-      const q = query(invoicesCollection, where('orgId', '==', orgId));
-      const querySnapshot = await getDocs(q);
-      invoices.value = querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...data,
-          issueDate: data.issueDate?.toDate(),
-          dueDate: data.dueDate?.toDate(),
-          paidAt: data.paidAt?.toDate(),
-          total: calculateTotal(data),
-        };
-      });
-      setupInvoiceListener(orgId);
-    } catch (err) {
-      error.value = 'Failed to fetch invoices.';
-      console.error(err);
-    } finally {
-      loading.value = false;
-    }
+    const targetOrgId = orgId || (userProfile.value ? (userProfile.value.orgId || userProfile.value.id) : null);
+    setupInvoiceListener(targetOrgId);
   };
-
-  watch(userProfile, (newProfile) => {
-    error.value = null;
-    if (newProfile) {
-      fetchInvoices(newProfile.orgId || newProfile.id);
-    } else {
-      invoices.value = [];
-    }
-  }, { immediate: true });
 
   const calculateTotal = (invoice) => {
     const subtotal = (invoice.items || []).reduce((acc, item) => acc + (item.quantity || 0) * (item.price || 0), 0);
