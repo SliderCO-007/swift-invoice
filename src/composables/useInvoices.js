@@ -13,6 +13,35 @@ const error = ref(null);
 let unsubscribe = null;
 let activeOrgId = null;
 
+const calculateTotal = (invoice) => {
+  const subtotal = (invoice.items || []).reduce((acc, item) => acc + (item.quantity || 0) * (item.price || 0), 0);
+  const taxableSubtotal = (invoice.items || []).reduce((acc, item) => {
+    const isTaxable = item.taxable !== false;
+    return acc + (isTaxable ? (item.quantity || 0) * (item.price || 0) : 0);
+  }, 0);
+  
+  let discountAmount = 0;
+  if (invoice.discount) {
+    if (invoice.discountType === 'percentage') {
+      discountAmount = subtotal * (Number(invoice.discount) / 100);
+    } else {
+      discountAmount = Number(invoice.discount);
+    }
+  }
+  
+  const postDiscountSubtotal = subtotal - discountAmount;
+  
+  const rate = Number(invoice.taxRate) || 0;
+  let taxAmount = 0;
+  if (rate > 0 && subtotal > 0) {
+    const ratio = taxableSubtotal / subtotal;
+    const postDiscountTaxableSubtotal = taxableSubtotal - (discountAmount * ratio);
+    taxAmount = Math.max(0, postDiscountTaxableSubtotal) * (rate / 100);
+  }
+  
+  return postDiscountSubtotal + taxAmount;
+};
+
 const setupInvoiceListener = (orgId) => {
   if (!orgId) {
     if (unsubscribe) {
@@ -75,35 +104,6 @@ const useInvoices = () => {
     setupInvoiceListener(targetOrgId);
   };
 
-  const calculateTotal = (invoice) => {
-    const subtotal = (invoice.items || []).reduce((acc, item) => acc + (item.quantity || 0) * (item.price || 0), 0);
-    const taxableSubtotal = (invoice.items || []).reduce((acc, item) => {
-      const isTaxable = item.taxable !== false;
-      return acc + (isTaxable ? (item.quantity || 0) * (item.price || 0) : 0);
-    }, 0);
-    
-    let discountAmount = 0;
-    if (invoice.discount) {
-      if (invoice.discountType === 'percentage') {
-        discountAmount = subtotal * (Number(invoice.discount) / 100);
-      } else {
-        discountAmount = Number(invoice.discount);
-      }
-    }
-    
-    const postDiscountSubtotal = subtotal - discountAmount;
-    
-    const rate = Number(invoice.taxRate) || 0;
-    let taxAmount = 0;
-    if (rate > 0 && subtotal > 0) {
-      const ratio = taxableSubtotal / subtotal;
-      const postDiscountTaxableSubtotal = taxableSubtotal - (discountAmount * ratio);
-      taxAmount = Math.max(0, postDiscountTaxableSubtotal) * (rate / 100);
-    }
-    
-    return postDiscountSubtotal + taxAmount;
-  };
-
   const getInvoice = async (id) => {
     loading.value = true;
     error.value = null;
@@ -164,8 +164,8 @@ const useInvoices = () => {
           subscriptionStatus = userData.subscriptionStatus || 'free';
         }
 
-        if (subscriptionStatus === 'free' && invoiceCount >= 5) {
-          throw new Error("Invoice limit reached for free plan. Please upgrade.");
+        if (subscriptionStatus === 'free' && invoiceCount >= 3) {
+          throw new Error("Invoice limit reached for free plan (3 invoices per month). Please upgrade to Pro.");
         }
 
         const newInvoiceCounter = (settingsDoc.data()?.invoiceCounter || 0) + 1;

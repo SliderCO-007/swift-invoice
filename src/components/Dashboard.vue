@@ -82,7 +82,7 @@ const isInitialLoad = computed(() => !invoicesHaveLoaded.value || !settingsHaveL
 
 const hasError = computed(() => invoicesError.value || settingsError.value);
 const isFreePlan = computed(() => userProfile.value?.subscriptionStatus === 'free');
-const invoiceLimitReached = computed(() => isFreePlan.value && userProfile.value?.invoiceCount >= 5);
+const invoiceLimitReached = computed(() => isFreePlan.value && userProfile.value?.invoiceCount >= 3);
 const hasInvoices = computed(() => invoices.value && invoices.value.length > 0);
 const isDataLoading = computed(() => invoicesLoading.value || settingsLoading.value || stripeLoading.value);
 
@@ -91,7 +91,7 @@ const itemToDeleteId = ref(null);
 
 const createNewInvoice = () => {
   if (invoiceLimitReached.value) {
-    alert('You have reached the invoice limit. Please upgrade.');
+    alert('You have reached the free plan invoice limit (3 per month). Please upgrade to Pro for unlimited invoicing.');
     return;
   }
   router.push('/invoice/new');
