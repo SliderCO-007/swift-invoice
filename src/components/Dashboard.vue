@@ -209,7 +209,7 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
       
       <!-- Stripe Connect Prompt for Authenticated Users (Custom Glassmorphic Card) -->
       <div
-        v-if="settings.company?.name && !connectStatus.chargesEnabled && !connectStatus.invalidAccount && !settingsLoading"
+        v-if="hasInvoices && settings.company?.name && !connectStatus.chargesEnabled && !connectStatus.invalidAccount && !settingsLoading"
         class="stripe-warning-banner mb-4"
       >
         <div class="banner-content">
@@ -284,11 +284,20 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
               </div>
               <div v-else-if="!invoices.length && !isDataLoading" class="no-invoices-container">
                 <img src="/no_invoices.svg" alt="No Invoices Illustration" class="no-invoices-illustration" />
-                <h3 class="text-h5 font-weight-medium">Start Your Journey</h3>
-                <p class="text-body-1 text-grey-darken-1 mt-2 mb-6">Ready to get paid? Create your first invoice and take control of your billing.</p>
-                <v-btn color="primary" @click="createNewInvoice" size="large" class="mt-4" rounded="lg">
-                  <v-icon start>mdi-plus</v-icon>
-                  Create Your First Invoice
+                <h3 class="text-h5 font-weight-bold mb-2">Welcome to ScanGo Invoice</h3>
+                <p class="text-body-1 text-grey-lighten-1 mt-1 mb-6" style="max-width: 480px; margin: 0 auto; line-height: 1.5;">
+                  We pre-filled your registration details into a sample invoice. Click below to see your professional invoice in seconds!
+                </p>
+                <v-btn 
+                  to="/invoice/new?sample=true" 
+                  color="primary" 
+                  size="large" 
+                  rounded="lg"
+                  elevation="3"
+                  class="text-none font-weight-bold px-6 mt-2"
+                >
+                  <v-icon start class="mr-1">mdi-flash</v-icon>
+                  Create Your First Invoice (Prefilled)
                 </v-btn>
               </div>
 
