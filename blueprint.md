@@ -2230,3 +2230,24 @@ Remove `WelcomePrompt.vue` from the `Dashboard.vue` layout to eliminate redundan
 - **Dashboard Inspection**: Log in as a new free user (0 invoices). Confirm that neither `WelcomePrompt` nor `UpgradePrompt` ("Unlock Pro Features!") render on the dashboard. Create an invoice and confirm `UpgradePrompt` appears for free users.
 - **Codebase Integrity**: Confirm `src/components/WelcomePrompt.vue` remains present in the codebase.
 - **Build Checks**: Run `npm run build` to confirm zero compilation errors.
+
+## Platform Pricing Structure Strategy (v87)
+
+### Purpose
+Establish a zero-friction Pricing & Packaging Strategy for ScanGo Invoice while retaining the existing Stripe Price IDs ($9/month for Pro and $90/year for Agency). Transition the Free Starter tier from a 5-invoice lifetime limit to a resetting 3-invoices/month allowance with direct Email and Text-2-Pay SMS invoicing enabled to eliminate onboarding friction.
+
+### Strategy Blueprint Overview
+- **Zero Friction Activation**: Free Starter tier enables direct Email & Text-2-Pay SMS invoicing out of the box so users can complete their business profile and bill clients immediately.
+- **Stripe Price ID Continuity**: Retains existing Stripe price IDs (`monthly` @ $9/mo and `yearly` @ $90/yr).
+- **Plan Architecture**:
+  1. **Free Starter ($0/mo)**: 3 invoices/month allowance (resets monthly), Direct Email & Text-2-Pay SMS invoicing enabled, 0.50% ScanGo transaction fee.
+  2. **Pro Monthly ($9/mo)**: Unlimited invoices, receipt photo attachments, automated reminders, multi-user team seats, 0.25% ScanGo fee.
+  3. **Agency / Yearly ($90/yr)**: All Pro features, $7.50/mo equivalent (Save 2 months), priority support, 0.25% ScanGo fee.
+
+### Action Plan
+1. Update `PricingPage.vue` to display the updated Free Starter features (3 invoices/mo, direct Email & SMS included, 0.50% fee), Pro Monthly ($9/mo), and Agency Yearly ($90/yr).
+2. Update `UpgradePrompt.vue` and copy to reflect the 3-invoice/mo limit for free tier users.
+3. Verify `npm run build` compiles with zero errors.
+
+
+

@@ -28,7 +28,7 @@
             Unlock Pro Features!
           </h3>
           <p class="text-body-1 text-white opacity-80 mb-0">
-            Enable email sending, get detailed analytics, and access premium support.
+            Unlock unlimited invoices per month, receipt photo capture, auto-reminders, and 0.25% fees.
           </p>
         </div>
         <v-btn

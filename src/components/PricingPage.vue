@@ -15,7 +15,7 @@ const selectedPlan = ref(null);
 
 useMeta(
   'ScanGo Invoice | Pricing',
-  'ScanGo Invoice offers flexible pricing plans to fit your needs. Start for free with 5 invoices, or upgrade to monthly or yearly plans for unlimited invoicing and advanced features. All plans include professional invoice templates, client management, and secure payment options.',
+  'ScanGo Invoice offers flexible pricing plans to fit your needs. Start for free with 3 invoices per month, or upgrade to Pro ($9/mo) or Agency ($90/yr) plans for unlimited invoicing and advanced features. All plans include professional invoice templates, client management, and secure payment options.',
 );
 
 // Mapping of plan names to their corresponding Price IDs
@@ -104,7 +104,7 @@ onMounted(() => {
               <p class="feature-section-label">Invoicing</p>
               <div class="feature-item">
                 <v-icon size="18" color="success">mdi-check-circle</v-icon>
-                <span>5 invoices total</span>
+                <span><strong>3 invoices</strong> per month (resets monthly)</span>
               </div>
               <div class="feature-item">
                 <v-icon size="18" color="success">mdi-check-circle</v-icon>
@@ -138,7 +138,7 @@ onMounted(() => {
               </div>
               <div class="feature-item">
                 <v-icon size="18" color="success">mdi-check-circle</v-icon>
-                <span>Ultra-low 0.25% platform fee</span>
+                <span>0.50% platform fee</span>
               </div>
               <div class="feature-item">
                 <v-icon size="18" color="success">mdi-check-circle</v-icon>
@@ -154,12 +154,12 @@ onMounted(() => {
               </div>
 
               <p class="feature-section-label mt-4">Communication</p>
-              <div class="feature-item muted">
-                <v-icon size="18" color="rgba(255,255,255,0.2)">mdi-close-circle</v-icon>
-                <span>Email invoices to clients</span>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>Email invoices directly to clients</span>
               </div>
-              <div class="feature-item muted">
-                <v-icon size="18" color="rgba(255,255,255,0.2)">mdi-close-circle</v-icon>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
                 <span>Text-2-Pay SMS invoicing</span>
               </div>
 
@@ -168,9 +168,9 @@ onMounted(() => {
                 <v-icon size="18" color="success">mdi-check-circle</v-icon>
                 <span>Project &amp; time tracking</span>
               </div>
-              <div class="feature-item">
-                <v-icon size="18" color="success">mdi-check-circle</v-icon>
-                <span>Expense capture with receipts</span>
+              <div class="feature-item muted">
+                <v-icon size="18" color="rgba(255,255,255,0.2)">mdi-close-circle</v-icon>
+                <span>Expense capture with receipt photos</span>
               </div>
               <div class="feature-item">
                 <v-icon size="18" color="success">mdi-check-circle</v-icon>
@@ -184,7 +184,7 @@ onMounted(() => {
               <p class="feature-section-label mt-4">Support</p>
               <div class="feature-item">
                 <v-icon size="18" color="success">mdi-check-circle</v-icon>
-                <span>Email support</span>
+                <span>Standard email support</span>
               </div>
             </v-card-text>
 
