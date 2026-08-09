@@ -261,8 +261,11 @@ exports.createInvoicePaymentSession = onCall({ enforceAppCheck: false }, async (
     const totalAmount = subtotal + taxAmount;
     const totalAmountCents = Math.round(totalAmount * 100);
 
-    // Calculate application fee (0.25%)
-    const applicationFeeAmount = Math.round(totalAmountCents * 0.0025);
+    // Calculate application fee based on subscription tier: 0.50% for free starter, 0.25% for active Pro subscribers
+    const isPro = userDoc.data()?.subscriptionStatus === 'active';
+    const feeRate = isPro ? 0.0025 : 0.0050;
+    const applicationFeeAmount = Math.round(totalAmountCents * feeRate);
+
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],

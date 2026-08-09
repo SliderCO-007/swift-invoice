@@ -2264,7 +2264,22 @@ Automate payment follow-ups for merchants to reduce late payments and increase c
   - `src/composables/useUserSettings.js` & `src/composables/useInvoices.js`: Default state & persistence.
 
 ### Status
-- In Progress: Implementation of backend Cloud Function, composables, and frontend UI components.
+- Completed: Implementation of backend Cloud Function, composables, and frontend UI components.
+
+## Tiered Stripe Connect Application Fee Logic (v89)
+
+### Purpose
+Enforce dynamic tier-based Stripe Connect application fees on customer invoice checkouts matching the marketing and pricing site specs:
+- **Free Starter Users**: 0.50% (`0.0050`) transaction fee.
+- **Active Pro / Agency Subscribers**: Reduced 0.25% (`0.0025`) transaction fee.
+
+### Action Taken
+- Modified `createInvoicePaymentSession` in `functions/stripeConnect.js` to inspect `userDoc.data().subscriptionStatus`.
+- Computes `feeRate = isPro ? 0.0025 : 0.0050` and sets `applicationFeeAmount = Math.round(totalAmountCents * feeRate)`.
+
+### Status
+- Completed and verified.
+
 
 
 
