@@ -2277,8 +2277,22 @@ Enforce dynamic tier-based Stripe Connect application fees on customer invoice c
 - Modified `createInvoicePaymentSession` in `functions/stripeConnect.js` to inspect `userDoc.data().subscriptionStatus`.
 - Computes `feeRate = isPro ? 0.0025 : 0.0050` and sets `applicationFeeAmount = Math.round(totalAmountCents * feeRate)`.
 
+## Stripe Express Connect Account Migration & Single Sign-On (v90)
+
+### Purpose
+Migrate merchant Stripe Connect onboarding from Standard accounts to Stripe Express (`type: 'express'`). This prevents merchants from accessing standard Stripe invoice creation features outside ScanGo Invoice while providing a streamlined hosted portal for payouts, tax forms, and debit-card Instant Payout configuration.
+
+### Action Taken
+- **`functions/stripeConnect.js`**:
+  - Updated `stripe.accounts.create` to `type: 'express'` with capabilities `card_payments` & `transfers`.
+  - Added `createExpressDashboardLink` callable function (`stripe.accounts.createLoginLink(accountId)`).
+- **`functions/index.js`**: Exported `createExpressDashboardLink`.
+- **`src/composables/useStripeConnect.js`**: Added `openExpressDashboard` method.
+- **`src/components/UserSettings.vue`**: Added "Open Stripe Express Dashboard" button and Instant Payouts info text for connected merchants.
+
 ### Status
-- Completed and verified.
+- Completed and ready for build & deploy.
+
 
 
 

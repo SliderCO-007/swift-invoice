@@ -102,13 +102,33 @@ export default function useStripeConnect() {
     }
   };
 
+  const openExpressDashboard = async () => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const getDashboardLinkFn = httpsCallable(functions, 'createExpressDashboardLink');
+      const response = await getDashboardLinkFn();
+      if (response.data.url) {
+        window.open(response.data.url, '_blank');
+      }
+    } catch (err) {
+      console.error('Error opening Express Dashboard:', err);
+      error.value = err.message;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+
   return {
     loading,
     error,
     connectStatus,
     fetchConnectStatus,
     createConnectAccount,
+    openExpressDashboard,
     getInvoiceForPayment,
     createPaymentSession,
   };
 }
+

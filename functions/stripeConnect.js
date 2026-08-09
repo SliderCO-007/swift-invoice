@@ -23,11 +23,15 @@ exports.createConnectAccount = onCall({ enforceAppCheck: false }, async (request
   let accountId = userData.stripeConnectAccountId;
 
   try {
-    // 1. Create a Stripe account if one doesn't exist
+    // 1. Create a Stripe Express account if one doesn't exist
     if (!accountId) {
       const account = await stripe.accounts.create({
-        type: 'standard',
+        type: 'express',
         email: auth.token.email,
+        capabilities: {
+          card_payments: { requested: true },
+          transfers: { requested: true },
+        },
       });
       accountId = account.id;
       await userRef.update({ stripeConnectAccountId: accountId });
@@ -52,6 +56,35 @@ exports.createConnectAccount = onCall({ enforceAppCheck: false }, async (request
     throw new HttpsError('internal', error.message);
   }
 });
+
+/**
+ * Creates a single-sign-on login link for the Stripe Express Dashboard.
+ */
+exports.createExpressDashboardLink = onCall({ enforceAppCheck: false }, async (request) => {
+  const { auth } = request;
+  if (!auth) {
+    throw new HttpsError('unauthenticated', 'The function must be called while authenticated.');
+  }
+
+  const stripe = require("stripe")(stripeSecretKey.value());
+  const db = admin.firestore();
+
+  const userDoc = await db.collection('users').doc(auth.uid).get();
+  const accountId = userDoc.data()?.stripeConnectAccountId;
+
+  if (!accountId) {
+    throw new HttpsError('failed-precondition', 'No connected Stripe account found.');
+  }
+
+  try {
+    const loginLink = await stripe.accounts.createLoginLink(accountId);
+    return { url: loginLink.url };
+  } catch (error) {
+    console.error("Error creating Express Dashboard login link:", error);
+    throw new HttpsError('internal', error.message);
+  }
+});
+
 
 /**
  * Gets the Stripe Connect status for the current user.

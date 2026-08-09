@@ -33,10 +33,12 @@ exports.sendInviteEmail = inviteEmail.sendInviteEmail;
 
 const stripeConnect = require("./stripeConnect");
 exports.createConnectAccount = stripeConnect.createConnectAccount;
+exports.createExpressDashboardLink = stripeConnect.createExpressDashboardLink;
 exports.getStripeConnectStatus = stripeConnect.getStripeConnectStatus;
 exports.getInvoiceForPayment = stripeConnect.getInvoiceForPayment;
 exports.createInvoicePaymentSession = stripeConnect.createInvoicePaymentSession;
 exports.stripeConnectWebhook = stripeConnect.stripeConnectWebhook;
+
 
 const sendSmsInvoice = require("./sendSmsInvoice");
 exports.sendSmsInvoice = sendSmsInvoice.sendSmsInvoice;

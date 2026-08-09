@@ -19,8 +19,10 @@ const {
   connectStatus, 
   fetchConnectStatus,
   createConnectAccount,
+  openExpressDashboard,
   loading: stripeLoading
 } = useStripeConnect();
+
 
 const scrollToStripeConnect = () => {
   if (window.location.hash === '#stripe-connect') {
@@ -309,15 +311,34 @@ const goToPricing = () => {
                   Stripe Connect is used to securely accept credit cards, Apple Pay, Google Pay, and bank payments directly on your invoices.
                 </p>
                 
-                <v-btn 
-                  @click="handleStripeConnect"
-                  :loading="stripeLoading"
-                  color="indigo-darken-3" 
-                  class="stripe-btn mt-4" 
-                  prepend-icon="mdi-credit-card-outline"
-                >
-                  {{ connectStatus.connected ? 'Resume Stripe Setup' : 'Connect with Stripe' }}
-                </v-btn>
+                <div class="d-flex flex-wrap ga-3 align-center mt-4">
+                  <v-btn 
+                    @click="handleStripeConnect"
+                    :loading="stripeLoading"
+                    color="indigo-darken-3" 
+                    class="stripe-btn" 
+                    prepend-icon="mdi-credit-card-outline"
+                  >
+                    {{ connectStatus.connected ? 'Resume Stripe Onboarding' : 'Connect with Stripe' }}
+                  </v-btn>
+
+                  <v-btn 
+                    v-if="connectStatus.connected"
+                    @click="openExpressDashboard"
+                    :loading="stripeLoading"
+                    color="teal-darken-2" 
+                    variant="flat"
+                    class="stripe-btn" 
+                    prepend-icon="mdi-open-in-new"
+                  >
+                    Open Stripe Express Dashboard
+                  </v-btn>
+                </div>
+
+                <p v-if="connectStatus.connected" class="text-caption text-medium-emphasis mt-3">
+                  ⚡ <strong>Instant Payouts & Earnings:</strong> View payout history, tax documents, and add an eligible debit card for 30-minute Instant Payouts in your Stripe Express portal.
+                </p>
+
               </div>
             </div>
         </div>
