@@ -9,11 +9,13 @@ import { userProfile } from '../composables/useAuth.js';
 import InvoiceTable from './InvoiceTable.vue';
 import CompanyInfoPrompt from './CompanyInfoPrompt.vue';
 import UpgradePrompt from './UpgradePrompt.vue';
+import UpgradeModal from './UpgradeModal.vue';
 import DashboardChart from './DashboardChart.vue';
 
 const router = useRouter();
 const { mobile } = useDisplay();
 const activeTab = ref('invoices');
+const showLimitModal = ref(false);
 
 const { invoices, loading: invoicesLoading, error: invoicesError, deleteInvoice } = useInvoices();
 const { settings, loading: settingsLoading, error: settingsError } = useUserSettings();
@@ -91,7 +93,7 @@ const itemToDeleteId = ref(null);
 
 const createNewInvoice = () => {
   if (invoiceLimitReached.value) {
-    alert('You have reached the free plan invoice limit (3 per month). Please upgrade to Pro for unlimited invoicing.');
+    showLimitModal.value = true;
     return;
   }
   router.push('/invoice/new');
@@ -188,6 +190,8 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
         </div>
       </header>
 
+      <UpgradeModal v-model="showLimitModal" />
+
       <v-alert
         v-if="invoiceLimitReached"
         type="warning"
@@ -197,7 +201,7 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
         :icon="false"
       >
         <template v-slot:text>
-          You have reached the 5-invoice limit for the free plan. Please upgrade to create more invoices.
+          You have reached the 3-invoice limit for the free plan. Please upgrade to Pro for unlimited invoicing.
         </template>
         <template v-slot:append>
           <v-btn to="/pricing" color="warning" variant="flat">Upgrade</v-btn>

@@ -16,6 +16,7 @@ import InvoiceTemplate6 from './InvoiceTemplate6.vue';
 import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import Logo from './Logo.vue';
+import UpgradeModal from './UpgradeModal.vue';
 
 // --- Composables ---
 const { settings, loading: settingsLoading, fetchUserSettings, saveUserSettings } = useUserSettings();
@@ -34,6 +35,7 @@ const selectedCustomer = ref(null);
 const showPreview = ref(false);
 const isProcessing = ref(false);
 const saveError = ref(null);
+const showLimitModal = ref(false);
 const stripeStatusHaveLoaded = ref(false);
 const saveAsDefaultCompany = ref(true);
 const isStripeBannerDismissed = ref(localStorage.getItem('swift_invoice_editor_stripe_dismissed') === 'true');
@@ -142,6 +144,11 @@ const saveInvoice = async () => {
   } catch (error) {
     console.error("Failed to save invoice:", error);
     saveError.value = error.message || 'An unexpected error occurred.';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    if (error.message && (error.message.includes('limit reached') || error.message.includes('free plan') || error.message.includes('3 invoices'))) {
+      showLimitModal.value = true;
+    }
   } finally {
     isProcessing.value = false;
   }
@@ -181,6 +188,10 @@ const initializeInvoice = async () => {
     // NEW INVOICE MODE
     invoiceId.value = 'new';
     invoice.value = createFreshInvoice(); // Start with a clean slate
+
+    if (userProfile.value?.subscriptionStatus === 'free' && userProfile.value?.invoiceCount >= 3) {
+      showLimitModal.value = true;
+    }
 
     if (settings.value) {
       invoice.value.sender = { ...invoice.value.sender, ...(settings.value.company || {}) };
@@ -280,6 +291,7 @@ onUnmounted(() => {
 
 <template>
   <div class="editor-container">
+    <UpgradeModal v-model="showLimitModal" />
     <div class="editor-form-card">
       <header class="editor-header">
         <h1>{{ invoiceId === 'new' ? 'Create Invoice' : `Invoice #${invoice.invoiceNumber}` }}</h1>
