@@ -50,7 +50,9 @@ exports.createConnectAccount = onCall({ enforceAppCheck: false }, async (request
       type: 'account_onboarding',
     });
 
+    return { url: accountLink.url };
   } catch (error) {
+
     console.error("Error creating Connect account:", error);
     if (error.message && error.message.includes('platform-profile')) {
       throw new HttpsError(

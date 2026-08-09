@@ -54,9 +54,10 @@ export default function useStripeConnect() {
         returnUrl: window.location.origin + returnPath,
         refreshUrl: window.location.origin + returnPath,
       });
-      if (response.data.url) {
+      if (response.data?.url) {
         window.location.href = response.data.url;
       }
+
     } catch (err) {
       console.error('Error creating Connect account:', err);
       error.value = err.message;
