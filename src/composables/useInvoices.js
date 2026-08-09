@@ -168,7 +168,15 @@ const useInvoices = () => {
           throw new Error("Invoice limit reached for free plan (3 invoices per month). Please upgrade to Pro.");
         }
 
-        const newInvoiceCounter = (settingsDoc.data()?.invoiceCounter || 0) + 1;
+        const settingsData = settingsDoc.data() || {};
+        let currentCounter = settingsData.invoiceCounter || 0;
+        
+        // Fail-safe: Ensure invoiceCounter is at least equal to existing invoiceCount
+        if (currentCounter < invoiceCount) {
+          currentCounter = invoiceCount;
+        }
+
+        const newInvoiceCounter = currentCounter + 1;
         const invoiceNumber = String(newInvoiceCounter).padStart(6, '0');
 
         const newInvoiceRef = doc(collection(db, 'invoices'));

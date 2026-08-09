@@ -122,6 +122,9 @@ const saveUserSettings = async (newSettings, logoFile) => {
       company: { ...newSettings.company, logoUrl },
     };
     
+    // Strip invoiceCounter to prevent overwriting or resetting the incrementing invoice counter sequence
+    delete settingsToSave.invoiceCounter;
+    
     const docRef = doc(db, 'userSettings', orgId);
     await setDoc(docRef, settingsToSave, { merge: true });
 
