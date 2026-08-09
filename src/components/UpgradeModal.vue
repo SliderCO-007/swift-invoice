@@ -26,10 +26,15 @@
           <v-icon color="primary" class="mr-2" size="small">mdi-check-circle</v-icon>
           <span class="text-body-2 font-weight-medium text-slate-800">Reduced 0.25% ScanGo Fee</span>
         </div>
+        <div class="d-flex align-center mb-2">
+          <v-icon color="primary" class="mr-2" size="small">mdi-check-circle</v-icon>
+          <span class="text-body-2 font-weight-medium text-slate-800">Automated Payment Reminders (3d before, due date, 7d overdue)</span>
+        </div>
         <div class="d-flex align-center">
           <v-icon color="primary" class="mr-2" size="small">mdi-check-circle</v-icon>
           <span class="text-body-2 font-weight-medium text-slate-800">Expense Photo Scanning & Custom Branding</span>
         </div>
+
       </v-card>
 
       <div class="d-flex flex-column flex-sm-row gap-3 justify-center">

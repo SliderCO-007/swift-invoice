@@ -41,6 +41,9 @@ exports.stripeConnectWebhook = stripeConnect.stripeConnectWebhook;
 const sendSmsInvoice = require("./sendSmsInvoice");
 exports.sendSmsInvoice = sendSmsInvoice.sendSmsInvoice;
 
+const scheduledReminders = require("./scheduledReminders");
+exports.sendScheduledReminders = scheduledReminders.sendScheduledReminders;
+
 
 
 /**

@@ -16,8 +16,13 @@ function getInitialSettings() {
     defaultDiscountType: 'percentage',
     invoiceCounter: 0,
     currency: 'USD',
+    reminderSettings: {
+      enabled: true,
+      triggers: ['3_days_before', 'on_due_date', '7_days_overdue']
+    }
   };
 }
+
 
 const settings = ref(getInitialSettings());
 const loading = ref(true);

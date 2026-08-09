@@ -162,6 +162,11 @@ onMounted(() => {
                 <v-icon size="18" color="success">mdi-check-circle</v-icon>
                 <span>Text-2-Pay SMS invoicing</span>
               </div>
+              <div class="feature-item muted">
+                <v-icon size="18" color="rgba(255,255,255,0.2)">mdi-close-circle</v-icon>
+                <span>Automated payment reminders</span>
+              </div>
+
 
               <p class="feature-section-label mt-4">Project Tracking</p>
               <div class="feature-item">
@@ -275,9 +280,14 @@ onMounted(() => {
                 <span><strong>Text-2-Pay SMS invoicing</strong> &amp; receipts</span>
               </div>
               <div class="feature-item highlight-feature">
+                <v-icon size="18" color="amber-accent-3">mdi-bell-ring-outline</v-icon>
+                <span><strong>Automated payment reminders</strong> (3d before, due date, 7d overdue)</span>
+              </div>
+              <div class="feature-item highlight-feature">
                 <v-icon size="18" color="primary">mdi-check-circle</v-icon>
                 <span>Weekly revenue summary reports</span>
               </div>
+
 
               <p class="feature-section-label mt-4">Project Tracking</p>
               <div class="feature-item highlight-feature">

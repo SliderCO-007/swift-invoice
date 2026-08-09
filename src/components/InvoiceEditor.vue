@@ -67,8 +67,11 @@ function createFreshInvoice() {
     discountType: 'percentage',
     style: 'classic',
     primaryColor: '#1a3a52',
+    remindersEnabled: true,
+    remindersSent: [],
   };
 }
+
 
 // --- Computed Properties ---
 const formattedIssueDate = computed({
@@ -459,7 +462,26 @@ onUnmounted(() => {
 
 
         <div class="form-section responsive-grid">
-          <div><v-textarea label="Notes" v-model="invoice.notes" variant="solo"></v-textarea></div>
+          <div>
+            <v-textarea label="Notes" v-model="invoice.notes" variant="solo"></v-textarea>
+            
+            <div class="reminders-toggle-box mt-3 p-3 border-radius-8" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px; border-radius: 8px;">
+              <div v-if="userProfile?.subscriptionStatus === 'active'" class="d-flex align-center justify-space-between">
+                <div>
+                  <div class="font-weight-bold text-subtitle-2 text-white">Automated Payment Reminders</div>
+                  <div class="text-caption text-medium-emphasis">Sends email reminders 3 days before, on due date, and 7 days overdue.</div>
+                </div>
+                <v-switch v-model="invoice.remindersEnabled" color="indigo-lighten-1" hide-details density="compact"></v-switch>
+              </div>
+              <div v-else class="d-flex align-center justify-space-between">
+                <div>
+                  <div class="font-weight-bold text-subtitle-2 text-white">Automated Payment Reminders <v-chip color="amber" size="x-small" variant="flat" class="ml-1">PRO</v-chip></div>
+                  <div class="text-caption text-medium-emphasis">Upgrade to Pro to enable auto-reminders for this invoice.</div>
+                </div>
+                <v-btn size="small" variant="text" color="indigo-lighten-2" @click="showLimitModal = true">Unlock Pro</v-btn>
+              </div>
+            </div>
+          </div>
           <div>
             <v-row>
               <v-col cols="6"><v-text-field label="Discount" type="number" v-model.number="invoice.discount" variant="solo" density="comfortable"></v-text-field></v-col>

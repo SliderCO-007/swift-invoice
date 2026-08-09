@@ -2249,5 +2249,23 @@ Establish a zero-friction Pricing & Packaging Strategy for ScanGo Invoice while 
 2. Update `UpgradePrompt.vue` and copy to reflect the 3-invoice/mo limit for free tier users.
 3. Verify `npm run build` compiles with zero errors.
 
+## Automated Payment Reminders (v88)
+
+### Purpose
+Automate payment follow-ups for merchants to reduce late payments and increase cash flow. Automatically send dark-themed email reminders via Resend at 3 critical milestones: 3 days before due date, on due date, and 7 days overdue. Restricted to Pro Subscribers (`subscriptionStatus === 'active'`) as a high-value upgrade incentive.
+
+### Architecture & Schema
+- **`userSettings/{userId}`**: Includes `reminderSettings: { enabled: true, triggers: ['3_days_before', 'on_due_date', '7_days_overdue'] }`.
+- **`invoices/{invoiceId}`**: Includes `remindersEnabled: true` and `remindersSent: [...]` array.
+- **Backend Function (`functions/scheduledReminders.js`)**: Runs daily via `onSchedule("every day 09:00", ...)` to evaluate due dates, subscription eligibility, send emails, and track sent history.
+- **UI Integrations**:
+  - `src/components/UserSettings.vue`: Payment Reminders configuration card with master switch & trigger checkboxes (Pro lock for free users).
+  - `src/components/InvoiceEditor.vue`: Individual invoice toggle under Payment Terms options.
+  - `src/composables/useUserSettings.js` & `src/composables/useInvoices.js`: Default state & persistence.
+
+### Status
+- In Progress: Implementation of backend Cloud Function, composables, and frontend UI components.
+
+
 
 

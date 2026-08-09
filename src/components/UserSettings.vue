@@ -53,11 +53,30 @@ const localSettings = ref({
   company: { name: '', email: '', phone: '', address1: '', address2: '', city: '', state: '', zip: '', logoUrl: '', primaryColor: '#1a3a52' },
   taxRate: 0,
   currency: 'USD',
+  reminderSettings: {
+    enabled: true,
+    triggers: ['3_days_before', 'on_due_date', '7_days_overdue']
+  }
 });
 
 const isSubscribed = computed(() => {
   return userProfile.value?.subscriptionStatus === 'active';
 });
+
+const toggleTrigger = (triggerKey) => {
+  if (!localSettings.value.reminderSettings) {
+    localSettings.value.reminderSettings = { enabled: true, triggers: [] };
+  }
+  const triggers = localSettings.value.reminderSettings.triggers || [];
+  const idx = triggers.indexOf(triggerKey);
+  if (idx > -1) {
+    triggers.splice(idx, 1);
+  } else {
+    triggers.push(triggerKey);
+  }
+  localSettings.value.reminderSettings.triggers = [...triggers];
+};
+
 
 watch(settings, (newSettings) => {
   if (newSettings) {
@@ -171,6 +190,61 @@ const goToPricing = () => {
           Manage Team
         </v-btn>
       </div>
+
+      <div class="preview-section mt-4">
+        <div class="d-flex justify-space-between align-center mb-2">
+          <h3>Automated Payment Reminders</h3>
+          <v-chip v-if="!isSubscribed" color="amber" size="small" variant="flat" prepend-icon="mdi-crown">PRO FEATURE</v-chip>
+        </div>
+        <p class="text-subtitle-2 text-medium-emphasis">
+          Automatically send styled email reminders via Resend to clients when an invoice is coming due or overdue.
+        </p>
+
+        <div v-if="isSubscribed" class="mt-3">
+          <v-switch
+            v-model="localSettings.reminderSettings.enabled"
+            label="Enable Automated Payment Reminders for New Invoices"
+            color="indigo-lighten-1"
+            hide-details
+            class="mb-3"
+          ></v-switch>
+
+          <div v-if="localSettings.reminderSettings.enabled" class="reminder-triggers-grid pl-2">
+            <p class="text-caption text-medium-emphasis mb-2 font-weight-bold">ACTIVE MILESTONE TRIGGERS:</p>
+            <v-checkbox
+              :model-value="localSettings.reminderSettings.triggers?.includes('3_days_before')"
+              @update:model-value="toggleTrigger('3_days_before')"
+              label="3 Days Before Due Date (Friendly Heads Up)"
+              color="indigo-lighten-1"
+              density="compact"
+              hide-details
+            ></v-checkbox>
+            <v-checkbox
+              :model-value="localSettings.reminderSettings.triggers?.includes('on_due_date')"
+              @update:model-value="toggleTrigger('on_due_date')"
+              label="On Due Date (Due Today Notice)"
+              color="indigo-lighten-1"
+              density="compact"
+              hide-details
+            ></v-checkbox>
+            <v-checkbox
+              :model-value="localSettings.reminderSettings.triggers?.includes('7_days_overdue')"
+              @update:model-value="toggleTrigger('7_days_overdue')"
+              label="7 Days Overdue (Past Due Settlement Notice)"
+              color="indigo-lighten-1"
+              density="compact"
+              hide-details
+            ></v-checkbox>
+          </div>
+        </div>
+        <div v-else class="mt-3">
+          <p class="text-caption text-warning mb-3">Upgrade to Pro to automate client follow-ups and eliminate late payments.</p>
+          <v-btn @click="goToPricing" class="subscribe-btn" color="indigo-darken-3" prepend-icon="mdi-lightning-bolt">
+            Upgrade to Pro for Auto-Reminders
+          </v-btn>
+        </div>
+      </div>
+
 
       <form @submit.prevent="handleSave" class="settings-form">
         
