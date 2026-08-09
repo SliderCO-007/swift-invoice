@@ -118,7 +118,6 @@
                 <li><v-icon color="primary" class="mr-2 flex-shrink-0">mdi-check-circle</v-icon><span>Automated payment confirmation text receipts</span></li>
                 <li><v-icon color="primary" class="mr-2 flex-shrink-0">mdi-check-circle</v-icon><span>CTIA &amp; A2P 10DLC carrier compliant messaging</span></li>
               </ul>
-              <v-chip color="teal-accent-4" variant="tonal" size="small" class="mt-4" prepend-icon="mdi-cellphone-text">Included in Monthly &amp; Annual plans</v-chip>
             </div>
             <div class="feature-image">
               <div class="sms-mockup-card">
