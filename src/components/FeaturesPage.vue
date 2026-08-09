@@ -43,8 +43,9 @@
               <h2>Agency-Quality Templates</h2>
               <p>Make a lasting impression. Select from our library of versatile designs and fully customize them to align with your professional brand standards.</p>
               <ul class="feature-bullets">
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>4 High-conversion designs</li>
-                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Live preview while editing</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>6 High-conversion designs</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Preview full version of your invoice</li>
+                <li><v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>Customized to your brand</li>
               </ul>
             </div>
             <div class="feature-image">
