@@ -465,20 +465,58 @@ onUnmounted(() => {
           <div>
             <v-textarea label="Notes" v-model="invoice.notes" variant="solo"></v-textarea>
             
-            <div class="reminders-toggle-box mt-3 p-3 border-radius-8" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px; border-radius: 8px;">
-              <div v-if="userProfile?.subscriptionStatus === 'active'" class="d-flex align-center justify-space-between">
-                <div>
-                  <div class="font-weight-bold text-subtitle-2 text-white">Automated Payment Reminders</div>
-                  <div class="text-caption text-medium-emphasis">Sends email reminders 3 days before, on due date, and 7 days overdue.</div>
+            <div class="reminders-toggle-box">
+              <div class="reminders-header">
+                <div class="reminders-title-group">
+                  <div class="reminders-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="18px" fill="#818cf8" class="mr-2 icon-bell">
+                      <path d="M0 0h24v24H0V0z" fill="none"/>
+                      <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
+                    </svg>
+                    <span>Automated Payment Reminders</span>
+                    <v-chip v-if="userProfile?.subscriptionStatus !== 'active'" color="amber" size="x-small" variant="flat" class="ml-2 font-weight-bold">PRO</v-chip>
+                  </div>
+                  <p class="reminders-desc">
+                    {{ userProfile?.subscriptionStatus === 'active' 
+                        ? 'Sends automated email reminders 3 days before, on due date, and 7 days overdue.' 
+                        : 'Upgrade to Pro to enable automated payment reminders for this invoice.' }}
+                  </p>
                 </div>
-                <v-switch v-model="invoice.remindersEnabled" color="indigo-lighten-1" hide-details density="compact"></v-switch>
+                
+                <div class="reminders-action">
+                  <v-switch 
+                    v-if="userProfile?.subscriptionStatus === 'active'" 
+                    v-model="invoice.remindersEnabled" 
+                    color="indigo-lighten-1" 
+                    hide-details 
+                    density="compact"
+                  ></v-switch>
+                  <v-btn 
+                    v-else 
+                    size="small" 
+                    variant="tonal" 
+                    color="indigo-lighten-2" 
+                    @click="showLimitModal = true"
+                    class="unlock-pro-btn"
+                  >
+                    Unlock Pro
+                  </v-btn>
+                </div>
               </div>
-              <div v-else class="d-flex align-center justify-space-between">
-                <div>
-                  <div class="font-weight-bold text-subtitle-2 text-white">Automated Payment Reminders <v-chip color="amber" size="x-small" variant="flat" class="ml-1">PRO</v-chip></div>
-                  <div class="text-caption text-medium-emphasis">Upgrade to Pro to enable auto-reminders for this invoice.</div>
-                </div>
-                <v-btn size="small" variant="text" color="indigo-lighten-2" @click="showLimitModal = true">Unlock Pro</v-btn>
+
+              <div v-if="userProfile?.subscriptionStatus === 'active' && invoice.remindersEnabled" class="reminders-schedule-pills">
+                <span class="schedule-pill">
+                  <svg xmlns="http://www.w3.org/2000/svg" height="14px" viewBox="0 0 24 24" width="14px" fill="#818cf8" class="mr-1"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                  3 days before due
+                </span>
+                <span class="schedule-pill">
+                  <svg xmlns="http://www.w3.org/2000/svg" height="14px" viewBox="0 0 24 24" width="14px" fill="#34d399" class="mr-1"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                  On due date
+                </span>
+                <span class="schedule-pill">
+                  <svg xmlns="http://www.w3.org/2000/svg" height="14px" viewBox="0 0 24 24" width="14px" fill="#fb7185" class="mr-1"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+                  7 days overdue
+                </span>
               </div>
             </div>
           </div>
@@ -608,6 +646,98 @@ onUnmounted(() => {
   font-weight: 600;
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+/* Reminders Toggle Box Glassmorphism & High-Contrast Typography */
+.reminders-toggle-box {
+  margin-top: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.25rem;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease-in-out;
+}
+
+.reminders-toggle-box:hover {
+  border-color: rgba(129, 140, 248, 0.3);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.reminders-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.reminders-title-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.reminders-title {
+  display: flex;
+  align-items: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin-bottom: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.reminders-desc {
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.reminders-action {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding-top: 0.15rem;
+}
+
+.unlock-pro-btn {
+  text-transform: none;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.reminders-schedule-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.schedule-pill {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #e2e8f0;
+}
+
+@media (max-width: 600px) {
+  .reminders-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .reminders-action {
+    align-self: flex-start;
+  }
 }
 
 :deep(.v-list) { background: #fff !important; color: #1e293b !important; }

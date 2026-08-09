@@ -2293,8 +2293,16 @@ Migrate merchant Stripe Connect onboarding from Standard accounts to Stripe Expr
 ### Status
 - Completed and ready for build & deploy.
 
+## Invoice Editor Scheduled Reminders Layout & Style Fix (v91)
 
+### Purpose
+Review and refine the responsive layout and typography contrast of the `InvoiceEditor.vue` scheduled payment reminders box. Eliminate black/dark text on dark glassmorphism backgrounds by using high-contrast text tokens (`#f8fafc` for title, `#cbd5e1` for descriptions), improve padding and flex alignment to prevent crowded layouts, and add a responsive vertical layout stack for mobile viewports along with interactive reminder schedule badges (`3 days before due`, `On due date`, `7 days overdue`).
 
+### Proposed Changes
 
-
-
+#### [MODIFY] [src/components/InvoiceEditor.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceEditor.vue)
+- Replace inline style attributes on `.reminders-toggle-box` with clean, responsive scoped CSS rules using glassmorphism styling (`rgba(255, 255, 255, 0.03)` background, `rgba(255, 255, 255, 0.1)` border, `12px` blur).
+- Fix text contrast: replace `.text-medium-emphasis` with explicit light slate text classes (`.reminders-desc` with `#cbd5e1`, title with `#f8fafc`).
+- Restructure flex layout: separate title/description and toggle switch into flexible groups with adequate gap (`1rem`) and `flex-shrink: 0` on actions to prevent crowding.
+- Add an interactive schedule timeline pills row (`3 days before due`, `On due date`, `7 days overdue`) with SVG icons when auto-reminders are active.
+- Add responsive `@media (max-width: 600px)` media query to stack header content vertically on mobile devices so switch and text never collide.
