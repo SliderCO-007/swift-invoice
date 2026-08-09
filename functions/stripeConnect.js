@@ -50,12 +50,18 @@ exports.createConnectAccount = onCall({ enforceAppCheck: false }, async (request
       type: 'account_onboarding',
     });
 
-    return { url: accountLink.url };
   } catch (error) {
     console.error("Error creating Connect account:", error);
+    if (error.message && error.message.includes('platform-profile')) {
+      throw new HttpsError(
+        'failed-precondition',
+        'Stripe Connect Express onboarding requires platform profile confirmation in your Stripe Dashboard. Please visit https://dashboard.stripe.com/settings/connect/platform-profile to confirm loss responsibilities.'
+      );
+    }
     throw new HttpsError('internal', error.message);
   }
 });
+
 
 /**
  * Creates a single-sign-on login link for the Stripe Express Dashboard.
