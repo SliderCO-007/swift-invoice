@@ -2306,3 +2306,15 @@ Review and refine the responsive layout and typography contrast of the `InvoiceE
 - Restructure flex layout: separate title/description and toggle switch into flexible groups with adequate gap (`1rem`) and `flex-shrink: 0` on actions to prevent crowding.
 - Add an interactive schedule timeline pills row (`3 days before due`, `On due date`, `7 days overdue`) with SVG icons when auto-reminders are active.
 - Add responsive `@media (max-width: 600px)` media query to stack header content vertically on mobile devices so switch and text never collide.
+
+## Expense Category Dropdown Layout & Height Fix (v92)
+
+### Purpose
+Fix the layout and height mismatch of the Expense Category dropdown/input field in the inline expense form within `ProjectDetail.vue`. The `<v-select>` and `<v-combobox>` components were missing a wrapping `<div>` and `<label class="field-label">Category</label>`, causing them to stretch vertically to match the height of adjacent grid cells with labels, rendering the category input two lines tall instead of a single line.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/ProjectDetail.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ProjectDetail.vue)
+- Wrap `<v-select>` / `<v-combobox>` inside a `<div>` wrapper with `<label class="field-label">Category</label>` in `.form-grid-4`.
+- Ensure category input aligns with adjacent Date, Amount ($), and Billable fields in single-line compact height (~38px).
+

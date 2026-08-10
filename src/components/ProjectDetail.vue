@@ -377,8 +377,11 @@ onUnmounted(() => { stopEntries(); stopItems(); });
                 <label class="field-label">Amount ($)</label>
                 <v-text-field v-model.number="expenseForm.amount" type="number" min="0" step="0.01" variant="solo" density="compact" hide-details placeholder="0.00" />
               </div>
+              <div>
+                <label class="field-label">Category</label>
                 <v-select v-if="!isOwner" v-model="expenseForm.category" :items="expenseCategories" variant="solo" density="compact" hide-details placeholder="Choose Category" />
                 <v-combobox v-else v-model="expenseForm.category" :items="expenseCategories" variant="solo" density="compact" hide-details placeholder="e.g. Materials" />
+              </div>
               <div class="billable-toggle">
                 <label class="field-label">Billable</label>
                 <v-switch v-model="expenseForm.billable" color="primary" hide-details inset density="compact" />
