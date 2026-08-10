@@ -22,7 +22,7 @@ const router = useRouter();
 const route  = useRoute();
 const projectId = route.params.id;
 
-const { getProject, updateProject, deleteProject, getEntries, addEntry, updateEntry, deleteEntry, buildInvoicePayload } = useProjects();
+const { getProject, updateProject, deleteProject, getEntries, addEntry, updateEntry, deleteEntry, deleteReceiptStorageFile, buildInvoicePayload } = useProjects();
 const { items, fetchItems, stopFetching: stopItems } = useItems();
 
 // ── State ─────────────────────────────────────────────────────────
@@ -176,10 +176,22 @@ const submitExpenseEntry = async () => {
 };
 
 // ── Delete entry ───────────────────────────────────────────────────
-const removeEntry = async (entryId) => {
+const removeEntry = async (entryOrId, receiptUrlParam = null) => {
+  const entryId = typeof entryOrId === 'object' ? entryOrId.id : entryOrId;
+  const receiptUrl = typeof entryOrId === 'object' ? entryOrId.receiptUrl : receiptUrlParam;
   if (!confirm('Delete this entry?')) return;
-  await deleteEntry(projectId, entryId);
+  await deleteEntry(projectId, entryId, receiptUrl);
   await syncProjectTotals();
+};
+
+const removeEditReceipt = async () => {
+  if (editForm.value.receiptUrl) {
+    if (confirm('Permanently delete attached receipt photo?')) {
+      await deleteReceiptStorageFile(editForm.value.receiptUrl);
+      editForm.value.receiptUrl = null;
+      editForm.value.receiptName = null;
+    }
+  }
 };
 
 // ── Sync denormalized totals on project doc ────────────────────────
@@ -487,7 +499,12 @@ onUnmounted(() => { stopEntries(); stopItems(); });
             <v-text-field label="Amount ($)" type="number" v-model.number="editForm.amount" min="0" variant="solo" density="comfortable" class="mb-3" hide-details />
             <v-select v-if="!isOwner" label="Category" v-model="editForm.category" :items="expenseCategories" variant="solo" density="comfortable" class="mb-3" hide-details />
             <v-text-field v-else label="Category" v-model="editForm.category" variant="solo" density="comfortable" class="mb-3" hide-details />
-            <v-text-field v-if="editForm.receiptUrl" label="Receipt Image File Name" v-model="editForm.receiptName" variant="solo" density="comfortable" class="mb-3" hide-details prepend-inner-icon="mdi-file-image-outline" placeholder="e.g. HomeDepot_Receipt.jpg" />
+            <template v-if="editForm.receiptUrl">
+              <v-text-field label="Receipt Image File Name" v-model="editForm.receiptName" variant="solo" density="comfortable" class="mb-2" hide-details prepend-inner-icon="mdi-file-image-outline" placeholder="e.g. HomeDepot_Receipt.jpg" />
+              <div class="d-flex justify-end mb-3">
+                <v-btn size="x-small" color="red-lighten-3" variant="text" prepend-icon="mdi-delete-outline" @click="removeEditReceipt">Delete Receipt Photo</v-btn>
+              </div>
+            </template>
           </template>
           <v-text-field label="Description" v-model="editForm.description" variant="solo" density="comfortable" class="mb-3" hide-details />
           <v-switch label="Billable" v-model="editForm.billable" color="primary" inset hide-details />

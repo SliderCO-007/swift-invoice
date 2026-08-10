@@ -2318,3 +2318,24 @@ Fix the layout and height mismatch of the Expense Category dropdown/input field 
 - Wrap `<v-select>` / `<v-combobox>` inside a `<div>` wrapper with `<label class="field-label">Category</label>` in `.form-grid-4`.
 - Ensure category input aligns with adjacent Date, Amount ($), and Billable fields in single-line compact height (~38px).
 
+## Expense Receipt Storage Deletion on Expense & Project Cleanup (v93)
+
+### Purpose
+Eliminate orphaned receipt image files in Firebase Storage when expense entries or entire projects are deleted. Integrate Firebase Storage object deletion into single-entry deletion (`deleteEntry`), project cascading deletion (`deleteProject`), and receipt removal in the edit modal. Update Firebase Storage security rules to explicitly allow object deletion for authenticated users.
+
+### Proposed Changes
+
+#### [MODIFY] [storage.rules](file:///C:/Users/curth/git/swift-invoice/storage.rules)
+- Update `match /receipts/{userId}/{projectId}/{fileName}` to separate `allow create, update` and `allow delete: if request.auth != null;` to prevent rule rejection during `deleteObject` calls (where `request.resource` is null).
+
+#### [MODIFY] [src/composables/useProjects.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useProjects.js)
+- Import `deleteObject` from `firebase/storage`.
+- Create `deleteReceiptStorageFile(receiptUrl)` helper function to delete files from Firebase Storage by URL with safe error handling.
+- Update `deleteEntry(projectId, entryId, receiptUrl)` to delete the associated storage file before deleting the Firestore entry document.
+- Update `deleteProject(id)` cascading loop to delete receipt images for all expense entries belonging to the project prior to deleting entry and project documents.
+
+#### [MODIFY] [src/components/ProjectDetail.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ProjectDetail.vue)
+- Update `removeEntry` to pass entry objects (including `receiptUrl`) to `deleteEntry`.
+- Add a "Remove Photo" option in the edit modal to allow users to detach and delete receipt images from existing expense entries.
+
+

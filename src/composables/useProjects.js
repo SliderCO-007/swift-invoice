@@ -3,7 +3,7 @@ import {
   collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc,
   serverTimestamp, query, where, onSnapshot
 } from 'firebase/firestore';
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage } from './useFirebase';
 import { currentUser, userProfile } from './useAuth.js';
 import { useCustomers } from './useCustomers';
@@ -111,6 +111,16 @@ const useProjects = () => {
     });
   };
 
+  const deleteReceiptStorageFile = async (receiptUrl) => {
+    if (!receiptUrl) return;
+    try {
+      const fileRef = storageRef(storage, receiptUrl);
+      await deleteObject(fileRef);
+    } catch (err) {
+      console.warn('Could not delete storage receipt image:', err);
+    }
+  };
+
   const deleteProject = async (id) => {
     const profile = userProfile.value;
     if (!profile) throw new Error('Authentication required.');
@@ -120,9 +130,15 @@ const useProjects = () => {
     const orgId = profile.orgId || profile.id;
     const snap = await getDoc(doc(db, 'projects', id));
     if (snap.exists() && (snap.data().orgId || snap.data().userId) === orgId) {
-      // 1. Cascading delete of all subcollection entries
+      // 1. Cascading delete of all subcollection entries and receipt images
       const entriesSnap = await getDocs(collection(db, 'projects', id, 'entries'));
-      const deletePromises = entriesSnap.docs.map(entryDoc => deleteDoc(entryDoc.ref));
+      const deletePromises = entriesSnap.docs.map(async (entryDoc) => {
+        const data = entryDoc.data();
+        if (data.receiptUrl) {
+          await deleteReceiptStorageFile(data.receiptUrl);
+        }
+        await deleteDoc(entryDoc.ref);
+      });
       await Promise.all(deletePromises);
 
       // 2. Delete parent project document
@@ -245,7 +261,21 @@ const useProjects = () => {
     await updateDoc(doc(db, 'projects', projectId, 'entries', entryId), data);
   };
 
-  const deleteEntry = async (projectId, entryId) => {
+  const deleteEntry = async (projectId, entryId, receiptUrl = null) => {
+    let urlToDelete = receiptUrl;
+    if (!urlToDelete) {
+      try {
+        const snap = await getDoc(doc(db, 'projects', projectId, 'entries', entryId));
+        if (snap.exists()) {
+          urlToDelete = snap.data().receiptUrl || null;
+        }
+      } catch (e) {
+        // ignore fetch error
+      }
+    }
+    if (urlToDelete) {
+      await deleteReceiptStorageFile(urlToDelete);
+    }
     await deleteDoc(doc(db, 'projects', projectId, 'entries', entryId));
   };
 
@@ -355,6 +385,7 @@ const useProjects = () => {
     addEntry,
     updateEntry,
     deleteEntry,
+    deleteReceiptStorageFile,
     // Invoice bridge
     buildInvoicePayload,
   };
