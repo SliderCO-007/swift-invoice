@@ -311,7 +311,7 @@ const goToPricing = () => {
                   Stripe Connect is used to securely accept credit cards, Apple Pay, Google Pay, and bank payments directly on your invoices.
                 </p>
                 
-                <div class="d-flex flex-wrap ga-3 align-center mt-4">
+                <div class="stripe-actions d-flex flex-wrap ga-3 align-center mt-4">
                   <v-btn 
                     @click="handleStripeConnect"
                     :loading="stripeLoading"
@@ -357,16 +357,16 @@ const goToPricing = () => {
 <style scoped>
 .page-loading-container { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; gap: 1.5rem; color: #f1f5f9; }
 .settings-container { padding: 1rem; background-color: #111d2f; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; color: #f1f5f9; }
-.settings-card { width: 100%; max-width: 800px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(16px); border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); padding: 2.5rem; color: #f1f5f9; }
-.settings-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; }
+.settings-card { width: 100%; max-width: 800px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(16px); border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); padding: 2.5rem; color: #f1f5f9; box-sizing: border-box; }
+.settings-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; gap: 1rem; }
 .settings-header h1 { font-size: 2.2rem; font-weight: 700; color: #fff; }
 .settings-header p { color: #94a3b8; font-size: 1.1rem; }
 .preview-section { margin-bottom: 2.5rem; padding: 1.5rem; background: rgba(255, 255, 255, 0.02); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1); }
 .preview-section h3 { font-size: 1.3rem; font-weight: 600; margin-bottom: 0.5rem; color: #fff; }
 .preview-section p { margin-bottom: 1rem; color: #e2e8f0; }
-.preview-btn, .subscribe-btn { text-transform: none; }
+.preview-btn, .subscribe-btn { text-transform: none; max-width: 100%; }
 .preview-message { margin-top: 1rem; font-weight: 600; }
-.back-btn { text-transform: none; font-weight: 600; color: #1e293b !important; }
+.back-btn { text-transform: none; font-weight: 600; color: #1e293b !important; max-width: 100%; }
 .settings-form h3 { font-size: 1.3rem; font-weight: 600; margin-bottom: 1.5rem; color: #fff; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
 .uploaders-section { display: flex; gap: 3rem; margin-bottom: 2.5rem; justify-content: center; align-items: flex-start; text-align: center; }
 .uploader-item h3 { margin-bottom: 1.5rem; }
@@ -380,7 +380,7 @@ const goToPricing = () => {
 .form-group.full-width, .full-width { grid-column: 1 / -1; }
 .form-group label { font-weight: 600; display: block; margin-bottom: 0.5rem; color: #e2e8f0; }
 .settings-footer { display: flex; justify-content: flex-end; align-items: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); }
-.save-btn { text-transform: none; font-weight: 600; }
+.save-btn { text-transform: none; font-weight: 600; max-width: 100%; }
 .success-notification, .error-notification { margin-right: 1.5rem; font-weight: 600; }
 .success-notification { width: 100%; text-align: center; color: #4ade80; margin-bottom: 1.5rem; }
 .error-notification { color: #f87171; }
@@ -457,18 +457,38 @@ const goToPricing = () => {
   text-transform: none;
   font-weight: 600;
   letter-spacing: 0;
+  max-width: 100%;
 }
 
+/* Vuetify Button Responsive Wrapping Fix */
+:deep(.v-btn) {
+  height: auto !important;
+  min-height: 40px;
+  max-width: 100%;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+
+:deep(.v-btn__content) {
+  white-space: normal !important;
+  word-break: break-word;
+  text-align: center;
+  line-height: 1.35;
+}
 
 @media (max-width: 768px) {
-  .settings-card { padding: 1.5rem; }
-  .settings-header { flex-direction: column; align-items: flex-start; }
+  .settings-container { padding: 0.5rem; }
+  .settings-card { padding: 1.25rem; }
+  .settings-header { flex-direction: column; align-items: stretch; gap: 1rem; }
   .settings-header h1 { font-size: 1.8rem; }
-  .back-btn { margin-top: 1rem; width: 100%; text-align: center; }
+  .back-btn { margin-top: 0.5rem; width: 100%; text-align: center; }
   .uploaders-section { flex-direction: column; align-items: center; gap: 2rem; }
   .form-grid { grid-template-columns: 1fr; }
-  .settings-footer { flex-direction: column; }
+  .settings-footer { flex-direction: column; width: 100%; }
   .save-btn { width: 100%; }
   .success-notification, .error-notification { width: 100%; text-align: center; margin-bottom: 1rem; margin-right: 0; }
+  .stripe-actions { flex-direction: column; align-items: stretch !important; }
+  .stripe-btn { width: 100%; }
+  .preview-btn, .subscribe-btn { width: 100%; }
 }
 </style>

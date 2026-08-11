@@ -2334,8 +2334,23 @@ Eliminate orphaned receipt image files in Firebase Storage when expense entries 
 - Update `deleteEntry(projectId, entryId, receiptUrl)` to delete the associated storage file before deleting the Firestore entry document.
 - Update `deleteProject(id)` cascading loop to delete receipt images for all expense entries belonging to the project prior to deleting entry and project documents.
 
+
 #### [MODIFY] [src/components/ProjectDetail.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ProjectDetail.vue)
 - Update `removeEntry` to pass entry objects (including `receiptUrl`) to `deleteEntry`.
 - Add a "Remove Photo" option in the edit modal to allow users to detach and delete receipt images from existing expense entries.
+
+## UserSettings Responsive Button Layout & Text Wrap Fix (v94)
+
+### Purpose
+Fix button text overflow in `UserSettings.vue` on narrow and mobile viewports. On smaller screens, long text on Vuetify `<v-btn>` elements (e.g., "Upgrade to Pro for Auto-Reminders", "Resume Stripe Onboarding", "Open Stripe Express Dashboard", and "Back to Dashboard") extends beyond button borders due to default `white-space: nowrap`, rigid button heights, and flex container alignment.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/UserSettings.vue](file:///C:/Users/curth/git/swift-invoice/src/components/UserSettings.vue)
+- Add deep CSS targeting for Vuetify buttons (`.v-btn`) inside `.settings-container` to set `max-width: 100%`, `height: auto !important`, `min-height: 40px`, and adequate padding.
+- Override Vuetify's default `:deep(.v-btn__content)` styling to allow `white-space: normal !important`, `word-break: break-word`, and proper alignment.
+- Update flex containers around action buttons (such as Stripe Connect buttons and section buttons) to stack vertically (`flex-direction: column; width: 100%`) on mobile breakpoints (`max-width: 600px`).
+- Ensure icons and multi-line text inside buttons remain visually centered and balanced across all screen widths down to 320px.
+
 
 
