@@ -3,6 +3,8 @@
 ## Overview
 ScanGo Invoice is a modern, responsive Vue.js application that allows users to create, send, and track professional invoices. It features multiple invoice templates, PDF generation, instant online payments via Stripe Connect, and a full project time/expense tracking workflow.
 
+> **Note on Branding & Workspace Names:** While the repository folder (`swift-invoice`), package name, and Firebase workspace configuration reference the internal/legacy identifier `Swift Invoice`, the official consumer-facing product and platform name is **ScanGo Invoice**.
+
 ## Application Architecture & Design System
 - **Core Functionality:** User authentication, invoice creation with line items, tax calculation, client management.
 - **Templates:** Classic, Modern, Corporate, and Solid invoice styles.
@@ -2351,6 +2353,35 @@ Fix button text overflow in `UserSettings.vue` on narrow and mobile viewports. O
 - Override Vuetify's default `:deep(.v-btn__content)` styling to allow `white-space: normal !important`, `word-break: break-word`, and proper alignment.
 - Update flex containers around action buttons (such as Stripe Connect buttons and section buttons) to stack vertically (`flex-direction: column; width: 100%`) on mobile breakpoints (`max-width: 600px`).
 - Ensure icons and multi-line text inside buttons remain visually centered and balanced across all screen widths down to 320px.
+
+## No-Paywall Campaign Landing Page & Attribution (v95)
+
+### Purpose
+Create a dedicated marketing landing page (`/lp/no-paywall`) tailored specifically for the Facebook Ad campaign promoting "Breaking down the paywall" and "What's a paywall?". The landing page aligns with ad creative messaging by contrasting legacy paywalled billing software against ScanGo's free, transparent value proposition (free direct Email & Text-2-Pay SMS invoicing, instant Stripe QR scan-to-pay, jobsite receipt/time tracking, and a monthly resetting 3-invoice allowance with no credit card required).
+
+### Proposed Changes
+
+#### [NEW] [src/components/NoPaywallLandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/NoPaywallLandingPage.vue)
+- Create wrapper component that mounts `LandingPage.vue` with `variant="no_paywall"`.
+- Set session attribution `signup_source` to `lp_no_paywall` in `sessionStorage` on mount.
+
+#### [MODIFY] [src/components/LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Add `no_paywall` variant support in computed copy properties:
+  - `heroTitleText`: "What's a Paywall?"
+  - `heroTitleHighlight`: "Send Invoices for $0."
+  - `heroSubtitleText`: "Stop paying $40/mo subscriptions just to bill your clients. ScanGo unlocks direct Email & Text-2-Pay SMS, instant Stripe QR checkout, and jobsite tracking—with zero forced upgrades to get started."
+  - `riskReductionText`: "100% Free Starter Plan. No credit card required."
+  - `badges`: custom 4-badge suite emphasizing Free SMS/Email, Instant Stripe QR checkout, Jobsite Receipt/Time tracking, and 3 recurring invoices/month.
+  - `trustRatingText`: "Loved by hundreds of contractors, freelancers, and small business owners."
+  - `metaTitle` and `metaDescription` for search engines and Meta card previews.
+- Ensure Meta Pixel `ViewContent` event correctly tags `LP - no_paywall`.
+
+#### [MODIFY] [src/router/index.js](file:///C:/Users/curth/git/swift-invoice/src/router/index.js)
+- Register route `/lp/no-paywall` pointing to dynamic import `NoPaywallLandingPage.vue`.
+
+#### [MODIFY] [scripts/generate-lp-meta.js](file:///C:/Users/curth/git/swift-invoice/scripts/generate-lp-meta.js)
+- Add `/lp/no-paywall` entry with full Open Graph and Twitter Card metadata to ensure social scrapers and Facebook link previews render high-converting previews.
+
 
 
 

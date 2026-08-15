@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScanGo Invoice - Multi-Platform Carousel Studio (Facebook & Instagram)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Syne:wght@700;800;900&display=swap" rel="stylesheet">
+  <!-- html2canvas for 1-click PNG image export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --bg-dark: #070a12;
+      --card-bg: rgba(17, 29, 47, 0.85);
+      --accent-cyan: #00d2ff;
+      --accent-blue: #3a7bd5;
+      --accent-yellow: #facc15;
+      --accent-green: #34d399;
+      --accent-red: #ef4444;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #04070d;
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 20px;
+    }
+
+    .header-bar {
+      max-width: 1240px;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .header-title h1 {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .header-title p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .format-switcher {
+      display: flex;
+      background: #0f172a;
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      gap: 4px;
+    }
+    .format-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .format-btn.active {
+      background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0, 210, 255, 0.25);
+    }
+
+    .main-layout {
+      display: flex;
+      gap: 32px;
+      max-width: 1240px;
+      width: 100%;
+      align-items: flex-start;
+    }
+
+    /* Carousel Stage */
+    .stage-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    /* 4:5 (Portrait - 1080x1350) vs 1:1 (Square - 1080x1080 for Facebook) */
+    .slide-wrapper {
+      position: relative;
+      background: radial-gradient(circle at 50% 0%, #172a46 0%, #080d1a 100%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 30px 60px -15px rgba(0, 210, 255, 0.2), 0 0 0 1px rgba(255,255,255,0.05);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* 4:5 Instagram Mode */
+    .slide-wrapper.mode-portrait {
+      width: 440px;
+      height: 550px;
+      border-radius: 28px;
+      padding: 36px 30px 28px;
+    }
+
+    /* 1:1 Facebook / LinkedIn Mode */
+    .slide-wrapper.mode-square {
+      width: 480px;
+      height: 480px;
+      border-radius: 24px;
+      padding: 28px 28px 22px;
+    }
+
+    /* Ambient Background Glow */
+    .slide-glow {
+      position: absolute;
+      top: -80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 320px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(0, 210, 255, 0.18), transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Header in Slide */
+    .slide-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+    .badge-pill {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 100px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--accent-cyan);
+    }
+    .badge-pill.danger {
+      color: #f87171;
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+    .slide-brand {
+      font-size: 13px;
+      font-weight: 800;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .brand-icon {
+      width: 18px;
+      height: 18px;
+      background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+      border-radius: 4px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    /* Slide Main Content */
+    .slide-content {
+      position: relative;
+      z-index: 2;
+      margin: auto 0;
+    }
+    .slide-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+    .mode-portrait .slide-title.huge {
+      font-size: 38px;
+      line-height: 1.08;
+    }
+    .mode-square .slide-title.huge {
+      font-size: 34px;
+      line-height: 1.1;
+    }
+    .slide-subtitle {
+      font-size: 14px;
+      color: #cbd5e1;
+      line-height: 1.45;
+      margin-bottom: 14px;
+    }
+
+    /* Feature Cards inside slides */
+    .feature-card {
+      background: rgba(17, 29, 47, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(16px);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+    .feature-card:last-child {
+      margin-bottom: 0;
+    }
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 12.5px;
+      line-height: 1.4;
+      color: #e2e8f0;
+      margin-bottom: 8px;
+    }
+    .feature-item:last-child {
+      margin-bottom: 0;
+    }
+    .feature-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* Footer / Swipe Cue */
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .swipe-cue {
+      color: var(--accent-cyan);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 800;
+    }
+
+    /* Facebook Live Mock Preview */
+    .fb-mock-card {
+      width: 480px;
+      background: #242526;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 14px;
+      font-size: 13px;
+      color: #e4e6eb;
+    }
+    .fb-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .fb-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      color: #fff;
+    }
+    .fb-name {
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .fb-time {
+      font-size: 11px;
+      color: #b0b3b8;
+    }
+
+    /* Controls Panel */
+    .controls-panel {
+      flex: 1;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .slide-nav-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      background: #334155;
+    }
+    .btn.primary {
+      background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+      border: none;
+      color: #fff;
+      box-shadow: 0 8px 16px rgba(0, 210, 255, 0.25);
+    }
+    .btn.success {
+      background: linear-gradient(135deg, #10b981, #059669);
+      border: none;
+      color: #fff;
+    }
+    .btn.fb-blue {
+      background: #1877f2;
+      border: none;
+      color: #fff;
+    }
+
+    .slide-thumbnail-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .slide-thumb {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 10px 6px;
+      border-radius: 10px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #94a3b8;
+      transition: all 0.2s;
+    }
+    .slide-thumb.active {
+      background: rgba(0, 210, 255, 0.15);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+
+    .platform-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .platform-tab {
+      background: #1e293b;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #94a3b8;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .platform-tab.active {
+      background: rgba(0, 210, 255, 0.15);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+
+    .caption-box {
+      background: #0b1120;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 12.5px;
+      color: #cbd5e1;
+      line-height: 1.55;
+      max-height: 150px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header-bar">
+    <div class="header-title">
+      <h1>📱 Multi-Platform Carousel Studio</h1>
+      <p>Switch between Facebook 1:1 Square and Instagram 4:5 Portrait with 1-click PNG export.</p>
+    </div>
+
+    <!-- Format Switcher -->
+    <div class="format-switcher">
+      <button class="format-btn active" id="btnSquare" data-mode="mode-square">
+        <span>🟦</span> Facebook / LinkedIn (1:1 Square)
+      </button>
+      <button class="format-btn" id="btnPortrait" data-mode="mode-portrait">
+        <span>📱</span> Instagram (4:5 Portrait)
+      </button>
+    </div>
+
+    <div class="slide-nav-buttons">
+      <button class="btn success" id="downloadCurrentBtn">📥 Download Current Slide (PNG)</button>
+      <button class="btn primary" id="downloadAllBtn">📦 Export All 8 Slides</button>
+    </div>
+  </div>
+
+  <div class="main-layout">
+    <!-- Carousel Stage (Facebook Square by default) -->
+    <div class="stage-container">
+      <div class="slide-wrapper mode-square" id="captureSlide">
+        <div class="slide-glow"></div>
+        
+        <!-- Top Bar -->
+        <div class="slide-top-bar">
+          <div class="badge-pill danger" id="slideBadge">⚠️ CONFESSION</div>
+          <div class="slide-brand">
+            <div class="brand-icon">⚡</div>
+            <span>ScanGo Invoice</span>
+          </div>
+        </div>
+
+        <!-- Center Content -->
+        <div class="slide-content" id="slideContent">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <!-- Footer -->
+        <div class="slide-footer">
+          <span id="slideCounter">Slide 1 of 8</span>
+          <div class="swipe-cue" id="slideSwipeCue">
+            <span>Swipe for the truth</span>
+            <span>➔</span>
+          </div>
+        </div>
+      </div>
+      <div style="font-size: 11px; color: #64748b; font-weight: 600;" id="dimensionLabel">
+        Resolution: 1080 x 1080px (1:1 Native Facebook Square)
+      </div>
+    </div>
+
+    <!-- Director Controls Panel -->
+    <div class="controls-panel">
+      <div>
+        <h2 style="font-size: 16px; font-weight: 800; margin-bottom: 6px;">Select Slide</h2>
+        <div class="slide-thumbnail-grid">
+          <div class="slide-thumb active" data-idx="0">1. Hook 🤫</div>
+          <div class="slide-thumb" data-idx="1">2. The Lie ❌</div>
+          <div class="slide-thumb" data-idx="2">3. Field Track ⏱️</div>
+          <div class="slide-thumb" data-idx="3">4. 1-Click ⚡</div>
+          <div class="slide-thumb" data-idx="4">5. QR Pay 📲</div>
+          <div class="slide-thumb" data-idx="5">6. Templates ✨</div>
+          <div class="slide-thumb" data-idx="6">7. Full Stack 📊</div>
+          <div class="slide-thumb" data-idx="7">8. Start Free 🚀</div>
+        </div>
+      </div>
+
+      <div class="slide-nav-buttons">
+        <button class="btn" id="prevBtn">← Previous Slide</button>
+        <button class="btn" id="nextBtn">Next Slide →</button>
+      </div>
+
+      <!-- Platform Caption Tabs -->
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <div class="platform-tabs">
+            <div class="platform-tab active" id="tabFb">Facebook Copy (Direct Link)</div>
+            <div class="platform-tab" id="tabIg">Instagram Copy (Bio Link)</div>
+            <div class="platform-tab" id="tabLi">LinkedIn Copy</div>
+          </div>
+          <button class="btn" id="copyCaptionBtn" style="padding: 6px 12px; font-size: 11.5px;">📋 Copy</button>
+        </div>
+        <div class="caption-box" id="captionText"></div>
+      </div>
+
+      <!-- Facebook Tips Box -->
+      <div style="background: rgba(24, 119, 242, 0.1); border: 1px solid rgba(24, 119, 242, 0.25); border-radius: 12px; padding: 12px;">
+        <div style="font-size: 12px; font-weight: 800; color: #60a5fa; display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+          <span>💡</span> Facebook Carousel Pro Tip:
+        </div>
+        <div style="font-size: 11.5px; color: #cbd5e1; line-height: 1.4;">
+          Facebook's feed displays images in <strong>1:1 Square</strong>. Using this Square mode guarantees zero cropping on mobile feed cards or multi-photo uploads!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const captions = {
+      fb: `Sorry... we lied to you. 🤫
+
+When we built ScanGo Invoice, we called it an "invoicing app." 
+
+But the truth is, creating invoices is only 20% of the battle. Freelancers and contractors were still:
+❌ Losing receipt paper in their trucks
+❌ Guessing how many hours they worked last Tuesday
+❌ Spending Sunday nights re-typing everything into a template
+❌ Waiting 30 days just to get paid
+
+So we built the full workflow:
+1️⃣ Track project hours & snap receipt photos on site
+2️⃣ Convert tracked jobs to designer invoices in 1 click
+3️⃣ Let clients scan a dynamic Stripe QR code to pay on the spot
+4️⃣ Export clean monthly sales & tax reports
+
+No complicated setup. No juggling 4 different subscriptions.
+
+👉 Try ScanGo Invoice free today: https://swift-invoice-7a760.web.app
+
+#invoicing #smallbusiness #contractors #freelancing #businessowner #stripepayments #scangoinvoice`,
+
+      ig: `Sorry... we lied to you. 🤫
+
+When we built ScanGo Invoice, we called it an "invoicing app." 
+
+But the truth is, creating invoices is only 20% of the battle. Freelancers and contractors were still:
+❌ Losing receipt paper in their trucks
+❌ Guessing how many hours they worked last Tuesday
+❌ Spending Sunday nights re-typing everything into a template
+❌ Waiting 30 days just to get paid
+
+So we built the full workflow:
+1️⃣ Track project hours & snap receipt photos on site
+2️⃣ Convert tracked jobs to designer invoices in 1 click
+3️⃣ Let clients scan a dynamic Stripe QR code to pay on the spot
+4️⃣ Export clean monthly sales & tax reports
+
+No complicated setup. No juggling 4 different subscriptions.
+
+Try ScanGo Invoice for free today — link in bio! 🔗
+
+#invoicing #freelancetips #smallbusinessowner #contractorlife #sidehustle #productivitytools #stripepayments #scangoinvoice`,
+
+      li: `We told people ScanGo Invoice was an invoicing app. We lied.
+
+Invoicing alone doesn’t fix cash flow or save billable hours. The real friction happens before and after the invoice:
+• Tracking jobsite hours accurately
+• Keeping track of material receipts
+• Re-entering data into templates
+• Following up on payment collection
+
+That’s why ScanGo is a complete lightweight business workflow:
+✓ Live project hour tracking
+✓ In-app receipt expense capture
+✓ 1-click conversion from tracked jobs to 6 designer templates
+✓ Built-in Stripe Connect Scan-to-Pay QR codes
+✓ Multi-seat team collaboration with hidden billing rates
+
+Swipe through the carousel above to see how it works, or try it free today at the link in the comments. 👇
+
+#SmallBusiness #Freelancing #Entrepreneurship #Fintech #Productivity #Invoicing`
+    };
+
+    const slides = [
+      {
+        badge: "⚠️ CONFESSION",
+        badgeClass: "badge-pill danger",
+        title: "SORRY, WE LIED.",
+        hugeTitle: true,
+        subtitle: "We told you ScanGo Invoice was just an invoicing app...",
+        bodyHtml: `
+          <div class="feature-card" style="border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.06);">
+            <div style="font-size: 13.5px; font-weight: 700; color: #fca5a5;">🤫 We have to be honest with you.</div>
+            <div style="font-size: 12.5px; color: #cbd5e1; margin-top: 4px;">Generating PDF invoices is only 20% of running a business. Here is what we actually built...</div>
+          </div>
+        `,
+        swipe: "Swipe for the truth"
+      },
+      {
+        badge: "THE MYTH VS REALITY",
+        badgeClass: "badge-pill",
+        title: "What we built instead.",
+        subtitle: "Invoicing apps only solve half the problem. You still had to juggle 4 other tools.",
+        bodyHtml: `
+          <div class="feature-card" style="border-color: rgba(239,68,68,0.3); padding: 10px 14px;">
+            <div style="font-size: 11px; font-weight: 800; color: #f87171; text-transform: uppercase;">What you expected: ❌</div>
+            <div style="font-size: 13px; font-weight: 600; margin-top: 2px;">Just another static PDF invoice template.</div>
+          </div>
+          <div class="feature-card" style="border-color: rgba(0, 210, 255, 0.4); background: rgba(0, 210, 255, 0.08); padding: 10px 14px;">
+            <div style="font-size: 11px; font-weight: 800; color: #00d2ff; text-transform: uppercase;">What you actually get: ✅</div>
+            <div style="font-size: 13px; font-weight: 600; margin-top: 2px;">A complete mobile business command center with time tracking, receipt scanning, and instant checkout.</div>
+          </div>
+        `,
+        swipe: "See Feature #1"
+      },
+      {
+        badge: "01 / FIELD TRACKING",
+        badgeClass: "badge-pill",
+        title: "Log hours & snap receipts on site.",
+        subtitle: "Never lose another billable hour or material receipt in your truck.",
+        bodyHtml: `
+          <div class="feature-card">
+            <div class="feature-item">
+              <span class="feature-icon">📸</span>
+              <div><strong>Instant Receipt Photos:</strong> Snap photos of material receipts on the job. Saved and categorized securely.</div>
+            </div>
+            <div class="feature-item">
+              <span class="feature-icon">⏱️</span>
+              <div><strong>Jobsite Time Tracking:</strong> Log labor hours directly under client projects with custom billable rates.</div>
+            </div>
+            <div class="feature-item">
+              <span class="feature-icon">👥</span>
+              <div><strong>Team Crew Seats:</strong> Invite helpers to log hours without exposing your financial rates.</div>
+            </div>
+          </div>
+        `,
+        swipe: "See Feature #2"
+      },
+      {
+        badge: "02 / ZERO RE-TYPING",
+        badgeClass: "badge-pill",
+        title: "1-Click: Project ➔ Final Invoice.",
+        subtitle: "Finished the job? Turn all logged labor and expenses into an invoice in literally 1 second.",
+        bodyHtml: `
+          <div class="feature-card" style="border-color: rgba(52, 211, 153, 0.4); background: rgba(52, 211, 153, 0.06);">
+            <div class="feature-item">
+              <span class="feature-icon">🚫</span>
+              <div><strong>Zero Double Data Entry:</strong> No typing numbers from scratch into Word or Excel.</div>
+            </div>
+            <div class="feature-item">
+              <span class="feature-icon">⚡</span>
+              <div><strong>1-Click Conversion:</strong> Automatically compiles hours and itemized materials.</div>
+            </div>
+            <div class="feature-item">
+              <span class="feature-icon">🧮</span>
+              <div><strong>Smart Tax Handling:</strong> Automatically separates taxable materials from labor.</div>
+            </div>
+          </div>
+        `,
+        swipe: "See Feature #3"
+      },
+      {
+        badge: "03 / INSTANT CHECKOUT",
+        badgeClass: "badge-pill",
+        title: "Get paid before you leave the site.",
+        subtitle: "Stop waiting 30 days and chasing clients for payment.",
+        bodyHtml: `
+          <div class="feature-card">
+            <div class="feature-item">
+              <span class="feature-icon">📲</span>
+              <div><strong>Stripe Scan-to-Pay QR:</strong> Clients scan the QR code on your invoice with their phone camera.</div>
+            </div>
+            <div class="feature-item">
+              <span class="feature-icon">💳</span>
+              <div><strong>All Payment Methods:</strong> Apple Pay, Google Pay, Credit Cards, and direct ACH bank transfers.</div>
+            </div>
+            <div class="feature-item">
+              <span class="feature-icon">⚡</span>
+              <div><strong>Instant Deposit:</strong> Connected directly to your Stripe account with low 0.25% platform fee.</div>
+            </div>
+          </div>
+        `,
+        swipe: "See Feature #4"
+      },
+      {
+        badge: "04 / BRAND IDENTITY",
+        badgeClass: "badge-pill",
+        title: "6 Designer Invoice Templates.",
+        subtitle: "Look like a Fortune 500 company on every single client delivery.",
+        bodyHtml: `
+          <div class="feature-card">
+            <div class="feature-item">
+              <span class="feature-icon">🎨</span>
+              <div><strong>Modern Layouts:</strong> Switch between Tech Grid, Modern, Classic, Corporate, and Creative styles.</div>
+            </div>
+            <div class="feature-item">
+              <span class="feature-icon">🏷️</span>
+              <div><strong>Brand Accent Matching:</strong> Upload your logo and sync custom brand color accents in real time.</div>
+            </div>
+            <div class="feature-item">
+              <span class="feature-icon">📄</span>
+              <div><strong>Vector PDF & Print Ready:</strong> High-resolution export for clean client delivery.</div>
+            </div>
+          </div>
+        `,
+        swipe: "See The Full Stack"
+      },
+      {
+        badge: "THE ALL-IN-ONE WORKFLOW",
+        badgeClass: "badge-pill",
+        title: "Everything in 1 pocket tool:",
+        subtitle: "Replace 4 separate monthly subscriptions with ScanGo Invoice:",
+        bodyHtml: `
+          <div class="feature-card">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11.5px; font-weight: 700;">
+              <div style="background: rgba(255,255,255,0.04); padding: 7px 8px; border-radius: 8px;">⏱️ Time Tracker</div>
+              <div style="background: rgba(255,255,255,0.04); padding: 7px 8px; border-radius: 8px;">🧾 Receipt Scanner</div>
+              <div style="background: rgba(255,255,255,0.04); padding: 7px 8px; border-radius: 8px;">📄 Invoice Builder</div>
+              <div style="background: rgba(255,255,255,0.04); padding: 7px 8px; border-radius: 8px;">💳 Stripe QR Pay</div>
+            </div>
+            <div style="margin-top: 8px; font-size: 12px; color: #34d399; font-weight: 700; text-align: center;">
+              📊 Plus: Monthly Sales & Tax Reports
+            </div>
+          </div>
+        `,
+        swipe: "How to get started"
+      },
+      {
+        badge: "🚀 START TODAY",
+        badgeClass: "badge-pill",
+        title: "Stop juggling 4 different apps.",
+        subtitle: "Join freelancers & contractors getting hours back every week with ScanGo Invoice.",
+        bodyHtml: `
+          <div class="feature-card" style="border-color: rgba(0, 210, 255, 0.4); text-align: center; padding: 14px;">
+            <div style="font-size: 16px; font-weight: 800; color: #00d2ff; margin-bottom: 4px;">Try It 100% Free</div>
+            <div style="font-size: 12px; color: #cbd5e1; margin-bottom: 10px;">No credit card required. Up to 5 free invoices & unlimited projects.</div>
+            <div style="background: linear-gradient(135deg, #00d2ff, #3a7bd5); color: #fff; font-weight: 800; padding: 8px 14px; border-radius: 8px; font-size: 13px;">
+              👉 swift-invoice-7a760.web.app
+            </div>
+          </div>
+        `,
+        swipe: "Save for later 📌"
+      }
+    ];
+
+    let currentSlide = 0;
+
+    function renderSlide(idx) {
+      currentSlide = idx;
+      const data = slides[idx];
+
+      document.getElementById('slideBadge').innerText = data.badge;
+      document.getElementById('slideBadge').className = data.badgeClass;
+      
+      let html = `
+        <h2 class="slide-title ${data.hugeTitle ? 'huge' : ''}">${data.title}</h2>
+        <p class="slide-subtitle">${data.subtitle}</p>
+        ${data.bodyHtml}
+      `;
+      document.getElementById('slideContent').innerHTML = html;
+
+      document.getElementById('slideCounter').innerText = `Slide ${idx + 1} of ${slides.length}`;
+      document.getElementById('slideSwipeCue').innerHTML = `<span>${data.swipe}</span> <span>➔</span>`;
+
+      document.querySelectorAll('.slide-thumb').forEach((th, i) => {
+        th.classList.toggle('active', i === idx);
+      });
+    }
+
+    // Format Switching (Square vs Portrait)
+    const slideWrapper = document.getElementById('captureSlide');
+    const dimensionLabel = document.getElementById('dimensionLabel');
+
+    document.getElementById('btnSquare').addEventListener('click', () => {
+      document.getElementById('btnSquare').classList.add('active');
+      document.getElementById('btnPortrait').classList.remove('active');
+      slideWrapper.className = 'slide-wrapper mode-square';
+      dimensionLabel.innerText = 'Resolution: 1080 x 1080px (1:1 Native Facebook Square)';
+    });
+
+    document.getElementById('btnPortrait').addEventListener('click', () => {
+      document.getElementById('btnPortrait').classList.add('active');
+      document.getElementById('btnSquare').classList.remove('active');
+      slideWrapper.className = 'slide-wrapper mode-portrait';
+      dimensionLabel.innerText = 'Resolution: 1080 x 1350px (4:5 Instagram Portrait)';
+    });
+
+    // Thumbnail Navigation
+    document.querySelectorAll('.slide-thumb').forEach((th) => {
+      th.addEventListener('click', () => {
+        renderSlide(parseInt(th.dataset.idx));
+      });
+    });
+
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      if (currentSlide > 0) renderSlide(currentSlide - 1);
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      if (currentSlide < slides.length - 1) renderSlide(currentSlide + 1);
+    });
+
+    // Platform Caption Tabs
+    document.getElementById('captionText').innerText = captions.fb;
+    document.getElementById('tabFb').addEventListener('click', () => {
+      setActiveTab('tabFb');
+      document.getElementById('captionText').innerText = captions.fb;
+    });
+    document.getElementById('tabIg').addEventListener('click', () => {
+      setActiveTab('tabIg');
+      document.getElementById('captionText').innerText = captions.ig;
+    });
+    document.getElementById('tabLi').addEventListener('click', () => {
+      setActiveTab('tabLi');
+      document.getElementById('captionText').innerText = captions.li;
+    });
+
+    function setActiveTab(id) {
+      document.querySelectorAll('.platform-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    // 1-Click PNG Download for Current Slide
+    document.getElementById('downloadCurrentBtn').addEventListener('click', () => {
+      const node = document.getElementById('captureSlide');
+      const isSquare = slideWrapper.classList.contains('mode-square');
+      html2canvas(node, {
+        scale: isSquare ? 2.25 : 2.5, // 1080x1080 or 1080x1350
+        useCORS: true,
+        backgroundColor: '#070a12'
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `ScanGo_${isSquare ? 'Facebook_Square' : 'Instagram_Portrait'}_Slide_${currentSlide + 1}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    });
+
+    // 1-Click Export All 8 Slides
+    document.getElementById('downloadAllBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('downloadAllBtn');
+      const isSquare = slideWrapper.classList.contains('mode-square');
+      btn.innerText = "⏳ Exporting All Slides...";
+      btn.disabled = true;
+
+      for (let i = 0; i < slides.length; i++) {
+        renderSlide(i);
+        await new Promise(r => setTimeout(r, 350));
+        const node = document.getElementById('captureSlide');
+        const canvas = await html2canvas(node, { 
+          scale: isSquare ? 2.25 : 2.5, 
+          useCORS: true, 
+          backgroundColor: '#070a12' 
+        });
+        const link = document.createElement('a');
+        link.download = `ScanGo_${isSquare ? 'Facebook_1x1' : 'Instagram_4x5'}_Slide_${i + 1}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        await new Promise(r => setTimeout(r, 200));
+      }
+
+      btn.innerText = "✅ All 8 Slides Exported!";
+      setTimeout(() => {
+        btn.innerText = "📦 Export All 8 Slides";
+        btn.disabled = false;
+      }, 3000);
+    });
+
+    // Copy Caption
+    document.getElementById('copyCaptionBtn').addEventListener('click', () => {
+      const text = document.getElementById('captionText').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        document.getElementById('copyCaptionBtn').innerText = "✅ Copied!";
+        setTimeout(() => {
+          document.getElementById('copyCaptionBtn').innerText = "📋 Copy";
+        }, 2000);
+      });
+    });
+
+    // Initial render
+    renderSlide(0);
+  </script>
+</body>
+</html>

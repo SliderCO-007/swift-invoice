@@ -25,6 +25,11 @@ const routes = [
     component: () => import('../components/TimeIsMoneyLandingPage.vue'),
   },
   {
+    path: '/lp/no-paywall',
+    name: 'NoPaywallLandingPage',
+    component: () => import('../components/NoPaywallLandingPage.vue'),
+  },
+  {
     path: '/features',
     name: 'Features',
     component: () => import('../components/FeaturesPage.vue'),

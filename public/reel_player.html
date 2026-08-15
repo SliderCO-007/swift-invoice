@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScanGo Invoice - Script 2 Reel Animator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Syne:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --bg-card: rgba(17, 29, 47, 0.85);
+      --accent-cyan: #00d2ff;
+      --accent-blue: #3a7bd5;
+      --accent-amber: #f59e0b;
+      --accent-emerald: #10b981;
+      --accent-red: #ef4444;
+      --text-white: #ffffff;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background: #06090e;
+      color: #fff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    .studio-container {
+      display: flex;
+      gap: 32px;
+      align-items: flex-start;
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    /* 9:16 Phone Mockup / Reel Stage */
+    .reel-viewport {
+      width: 380px;
+      height: 675px; /* 9:16 ratio */
+      border-radius: 40px;
+      background: radial-gradient(circle at top, #152238, #070a12);
+      border: 8px solid #1e293b;
+      box-shadow: 0 25px 60px -15px rgba(0, 210, 255, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Screen Elements */
+    .screen-scene {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 36px 20px 24px;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.96);
+      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .screen-scene.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+
+    /* Dynamic Island */
+    .dynamic-island {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 24px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+    }
+    .island-cam {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #0a192f;
+      border: 1px solid #1e293b;
+    }
+
+    /* Captions / Kinetic Typography */
+    .caption-pill {
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(12px);
+      padding: 10px 18px;
+      border-radius: 100px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.2px;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 auto 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+    .highlight-yellow {
+      color: #facc15;
+    }
+    .highlight-cyan {
+      color: #00d2ff;
+    }
+    .highlight-green {
+      color: #34d399;
+    }
+
+    /* Scene 1: Confession Hook */
+    .hook-badge {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 6px 14px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      display: inline-block;
+      align-self: center;
+      animation: pulse 1.5s infinite;
+    }
+    .hook-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 42px;
+      font-weight: 900;
+      line-height: 1.05;
+      text-align: center;
+      margin-top: 40px;
+      background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hook-sub {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 16px;
+      margin-top: 14px;
+      font-weight: 600;
+    }
+
+    /* Glass Cards */
+    .glass-card {
+      background: rgba(17, 29, 47, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 16px;
+      margin-top: 12px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    }
+
+    /* App UI Mockups */
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .app-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 15px;
+      color: #fff;
+    }
+    .app-logo-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .metric-box {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 12px;
+      border-radius: 14px;
+    }
+    .metric-val {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      margin-top: 4px;
+    }
+
+    /* Scanner Animation */
+    .scanner-box {
+      position: relative;
+      height: 180px;
+      background: #0f172a;
+      border: 2px dashed rgba(0, 210, 255, 0.5);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-top: 12px;
+    }
+    .scanner-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: #00d2ff;
+      box-shadow: 0 0 15px 4px #00d2ff;
+      animation: scanAnim 1.8s infinite ease-in-out;
+    }
+    @keyframes scanAnim {
+      0% { top: 5%; opacity: 0.2; }
+      50% { top: 85%; opacity: 1; }
+      100% { top: 5%; opacity: 0.2; }
+    }
+
+    .receipt-mock {
+      width: 110px;
+      height: 130px;
+      background: #ffffff;
+      color: #1e293b;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 8px;
+      font-family: monospace;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+      transform: rotate(-3deg);
+    }
+
+    /* 1-Click Convert Button */
+    .btn-convert {
+      background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+      border: none;
+      color: #fff;
+      font-weight: 800;
+      font-size: 15px;
+      padding: 14px 20px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 10px 25px rgba(0, 210, 255, 0.35);
+      margin-top: 16px;
+      animation: pulseGlow 2s infinite;
+    }
+
+    /* QR Code Display */
+    .qr-showcase {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      background: #ffffff;
+      border-radius: 20px;
+      color: #0f172a;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      margin-top: 12px;
+    }
+    .qr-img {
+      width: 140px;
+      height: 140px;
+      margin: 10px 0;
+    }
+
+    /* Controls Panel (Right Side) */
+    .studio-panel {
+      flex: 1;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 24px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .timeline-bar {
+      height: 8px;
+      background: #1e293b;
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+    .timeline-progress {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+      transition: width 0.1s linear;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+    }
+    .btn-action {
+      background: #1e293b;
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .btn-action:hover {
+      background: #334155;
+    }
+    .btn-action.primary {
+      background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+      color: #fff;
+      border: none;
+    }
+
+    .scene-step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .scene-step-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .scene-step-item.active {
+      background: rgba(0, 210, 255, 0.12);
+      border-color: rgba(0, 210, 255, 0.4);
+      color: #00d2ff;
+      font-weight: 700;
+    }
+
+    .audio-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: #94a3b8;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(0.97); }
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 10px 25px rgba(0, 210, 255, 0.35); }
+      50% { box-shadow: 0 10px 35px rgba(0, 210, 255, 0.7); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="studio-container">
+    <!-- 9:16 Vertical Video Screen -->
+    <div class="reel-viewport" id="reelViewport">
+      <div class="dynamic-island">
+        <div class="island-cam"></div>
+        <div style="font-size: 10px; font-weight: 800; color: #64748b;">9:41</div>
+        <div style="font-size: 10px; color: #64748b;">5G 🔋</div>
+      </div>
+
+      <!-- SCENE 1 (0-3s): The Confession -->
+      <div class="screen-scene active" id="scene1">
+        <span class="hook-badge">⚠️ CONFESSION</span>
+        <div class="hook-title">SORRY,<br>WE LIED.</div>
+        <div class="hook-sub">We have to be honest with you.</div>
+        <div style="margin-top: auto;">
+          <div class="caption-pill">
+            <span>🤫</span>
+            <span>Sorry... we <span class="highlight-yellow">lied to you</span>.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 2 (3-7s): Invoicing App Myth -->
+      <div class="screen-scene" id="scene2">
+        <div class="app-header">
+          <div class="app-brand">
+            <div class="app-logo-dot">⚡</div>
+            <span>ScanGo Invoice</span>
+          </div>
+          <span style="font-size: 11px; background: rgba(0, 210, 255, 0.15); color: #00d2ff; padding: 4px 8px; border-radius: 6px; font-weight: 700;">PRO</span>
+        </div>
+
+        <div class="metric-grid">
+          <div class="metric-box">
+            <div style="font-size: 11px; color: #94a3b8;">Total Revenue</div>
+            <div class="metric-val">$18,450</div>
+          </div>
+          <div class="metric-box">
+            <div style="font-size: 11px; color: #94a3b8;">Paid Rate</div>
+            <div class="metric-val" style="color: #34d399;">98.4%</div>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div style="font-size: 12px; font-weight: 700; margin-bottom: 8px; color: #94a3b8;">Recent Invoices</div>
+          <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <span>#INV-00104 (Apex Corp)</span>
+            <span style="font-weight: 700; color: #34d399;">$4,200.00</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0;">
+            <span>#INV-00103 (Metro Design)</span>
+            <span style="font-weight: 700; color: #34d399;">$1,850.00</span>
+          </div>
+        </div>
+
+        <div style="margin-top: auto;">
+          <div class="caption-pill">
+            <span>📱</span>
+            <span>We said it was <span class="highlight-cyan">just for invoices...</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 3 (7-12s): Jobsite Hours & Receipt Scanner -->
+      <div class="screen-scene" id="scene3">
+        <div style="font-size: 13px; font-weight: 800; color: #00d2ff; text-transform: uppercase; letter-spacing: 1px;">Project Tracking</div>
+        <div style="font-size: 18px; font-weight: 800; margin-top: 4px;">Kitchen Remodel #402</div>
+
+        <div class="scanner-box">
+          <div class="scanner-line"></div>
+          <div class="receipt-mock">
+            <strong>HARDWARE DEPOT</strong><br>
+            -----------------<br>
+            Copper Pipes $124.50<br>
+            Valves (x4)  $88.00<br>
+            Fittings     $45.20<br>
+            -----------------<br>
+            <strong>TOTAL: $257.70</strong><br>
+            [SCAN SUCCESS]
+          </div>
+        </div>
+
+        <div class="glass-card" style="margin-top: 10px; padding: 10px 14px;">
+          <div style="display: flex; justify-content: space-between; font-size: 13px;">
+            <span>⏱️ Labor Logged:</span>
+            <span style="font-weight: 800; color: #00d2ff;">14.5 hrs ($1,160)</span>
+          </div>
+        </div>
+
+        <div style="margin-top: auto;">
+          <div class="caption-pill">
+            <span>🧾</span>
+            <span>Track <span class="highlight-yellow">hours + receipt photos</span> on site!</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 4 (12-17s): 1-Click Convert & 6 Templates -->
+      <div class="screen-scene" id="scene4">
+        <div style="text-align: center; margin-top: 20px;">
+          <div style="font-size: 12px; font-weight: 700; color: #34d399; letter-spacing: 1px;">ZERO DOUBLE DATA ENTRY</div>
+          <div style="font-size: 22px; font-weight: 900; margin-top: 4px;">Job Complete?</div>
+        </div>
+
+        <div class="btn-convert">
+          <span>⚡</span>
+          <span>CONVERT TO INVOICE</span>
+        </div>
+
+        <div class="glass-card" style="margin-top: 16px;">
+          <div style="font-size: 11px; color: #94a3b8; margin-bottom: 6px;">SELECT DESIGN TEMPLATE</div>
+          <div style="display: flex; gap: 8px;">
+            <div style="flex:1; background: #1e293b; padding: 8px; border-radius: 8px; text-align: center; font-size: 11px; border: 1px solid #00d2ff; color: #00d2ff; font-weight: 700;">Tech Grid</div>
+            <div style="flex:1; background: #1e293b; padding: 8px; border-radius: 8px; text-align: center; font-size: 11px;">Modern</div>
+            <div style="flex:1; background: #1e293b; padding: 8px; border-radius: 8px; text-align: center; font-size: 11px;">Corporate</div>
+          </div>
+        </div>
+
+        <div style="margin-top: auto;">
+          <div class="caption-pill">
+            <span>✨</span>
+            <span><span class="highlight-green">1-Click Convert</span> to Designer Templates</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 5 (17-21s): Stripe Scan-to-Pay QR -->
+      <div class="screen-scene" id="scene5">
+        <div class="qr-showcase">
+          <div style="font-weight: 800; font-size: 15px;">Instant Client Checkout</div>
+          <div style="font-size: 11px; color: #64748b;">Powered by Stripe Connect</div>
+          <img class="qr-img" src="/placeholder-qr.svg" alt="Scan to pay QR" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://swift-invoice-7a760.web.app'">
+          <div style="display: flex; gap: 8px; font-size: 11px; font-weight: 700; color: #0f172a; margin-top: 4px;">
+            <span>💳 Card</span> • <span>🍎 Apple Pay</span> • <span>🏦 ACH</span>
+          </div>
+        </div>
+
+        <div style="margin-top: auto;">
+          <div class="caption-pill">
+            <span>📲</span>
+            <span>Get paid on site with <span class="highlight-cyan">Scan-to-Pay QR</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 6 (21-25s): CTA & Outro -->
+      <div class="screen-scene" id="scene6">
+        <div style="text-align: center; margin-top: 60px;">
+          <div class="app-logo-dot" style="width: 56px; height: 56px; font-size: 28px; margin: 0 auto 16px;">⚡</div>
+          <div style="font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 900; line-height: 1.1;">ScanGo<br>Invoice</div>
+          <div style="color: #94a3b8; font-size: 15px; margin-top: 12px; font-weight: 600;">Your Entire Workflow in One App.</div>
+        </div>
+
+        <div style="margin-top: auto;">
+          <div class="caption-pill" style="border-color: #00d2ff; background: rgba(0, 210, 255, 0.15);">
+            <span>🚀</span>
+            <span><span class="highlight-cyan">Try Free Today</span> • Link in Bio</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Studio Director & Teleprompter Controls -->
+    <div class="studio-panel">
+      <div>
+        <h2 style="font-size: 22px; font-weight: 800; color: #fff;">🎬 Script 2: Studio Player & Teleprompter</h2>
+        <p style="color: #94a3b8; font-size: 14px; margin-top: 4px;">Preview the exact 24-second animated video reel in real time with synchronized audio.</p>
+      </div>
+
+      <div>
+        <div style="display: flex; justify-content: space-between; font-size: 13px; color: #94a3b8; margin-bottom: 6px;">
+          <span>Timeline Progress</span>
+          <span id="timeCounter">00:00 / 00:24</span>
+        </div>
+        <div class="timeline-bar">
+          <div class="timeline-progress" id="timelineProgress"></div>
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn-action primary" id="playBtn">▶ Play Reel</button>
+        <button class="btn-action" id="resetBtn">↺ Reset</button>
+      </div>
+
+      <div class="audio-toggle">
+        <input type="checkbox" id="voiceoverToggle" checked>
+        <label for="voiceoverToggle">Enable Automated Voiceover (Web Speech TTS + Sound FX)</label>
+      </div>
+
+      <div>
+        <h3 style="font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin-bottom: 10px;">Scene Breakdown (Click to jump)</h3>
+        <div class="scene-step-list">
+          <div class="scene-step-item active" data-scene="1">
+            <strong>0:00 - 0:03</strong> | The Confession Hook ("Sorry, we lied.")
+          </div>
+          <div class="scene-step-item" data-scene="2">
+            <strong>0:03 - 0:07</strong> | Myth Busting ("More than an invoicing tool")
+          </div>
+          <div class="scene-step-item" data-scene="3">
+            <strong>0:07 - 0:12</strong> | Jobsite Hours & Receipt Scanner
+          </div>
+          <div class="scene-step-item" data-scene="4">
+            <strong>0:12 - 0:17</strong> | 1-Click Convert & 6 Designer Templates
+          </div>
+          <div class="scene-step-item" data-scene="5">
+            <strong>0:17 - 0:21</strong> | Stripe Scan-to-Pay QR Code Checkout
+          </div>
+          <div class="scene-step-item" data-scene="6">
+            <strong>0:21 - 0:24</strong> | Call to Action ("Try it free - Link in bio")
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const scenes = [
+      { id: 'scene1', start: 0, duration: 3.5, text: "Sorry, we lied to you." },
+      { id: 'scene2', start: 3.5, duration: 4.0, text: "We called ScanGo an invoicing tool, but it is actually your entire business workflow in your pocket." },
+      { id: 'scene3', start: 7.5, duration: 5.0, text: "Track your job site hours and snap receipt photos on the go." },
+      { id: 'scene4', start: 12.5, duration: 4.5, text: "Convert them to six designer invoice templates in literally one second." },
+      { id: 'scene5', start: 17.0, duration: 4.0, text: "And let clients scan to pay you on the spot before you even leave the site." },
+      { id: 'scene6', start: 21.0, duration: 3.5, text: "Stop juggling four different apps. Link in bio to try free." }
+    ];
+
+    const totalDuration = 24.5;
+    let isPlaying = false;
+    let startTime = 0;
+    let animationFrame = null;
+    let currentSceneIdx = 0;
+
+    // Web Audio Sound FX Generator
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playDing() {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, audioCtx.currentTime); // A5
+      osc.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.15); // A6
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.5);
+    }
+
+    function playWhoosh() {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.2);
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.2);
+    }
+
+    function speakText(text) {
+      if (!document.getElementById('voiceoverToggle').checked) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1.15;
+      utterance.pitch = 1.0;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function showScene(idx) {
+      if (idx < 0 || idx >= scenes.length) return;
+      currentSceneIdx = idx;
+      document.querySelectorAll('.screen-scene').forEach((sc, i) => {
+        sc.classList.toggle('active', i === idx);
+      });
+      document.querySelectorAll('.scene-step-item').forEach((item, i) => {
+        item.classList.toggle('active', i === idx);
+      });
+
+      if (idx === 4) playDing();
+      else playWhoosh();
+
+      if (isPlaying) {
+        speakText(scenes[idx].text);
+      }
+    }
+
+    function updatePlayback() {
+      if (!isPlaying) return;
+      const elapsed = (performance.now() - startTime) / 1000;
+      const progress = Math.min((elapsed / totalDuration) * 100, 100);
+      document.getElementById('timelineProgress').style.width = `${progress}%`;
+
+      const sec = Math.floor(elapsed);
+      document.getElementById('timeCounter').innerText = `00:${sec < 10 ? '0' : ''}${sec} / 00:24`;
+
+      // Determine active scene
+      for (let i = 0; i < scenes.length; i++) {
+        if (elapsed >= scenes[i].start && elapsed < scenes[i].start + scenes[i].duration) {
+          if (currentSceneIdx !== i) {
+            showScene(i);
+          }
+          break;
+        }
+      }
+
+      if (elapsed >= totalDuration) {
+        stopReel();
+        return;
+      }
+
+      animationFrame = requestAnimationFrame(updatePlayback);
+    }
+
+    function startReel() {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      isPlaying = true;
+      startTime = performance.now();
+      document.getElementById('playBtn').innerText = '⏸ Pause';
+      showScene(0);
+      speakText(scenes[0].text);
+      animationFrame = requestAnimationFrame(updatePlayback);
+    }
+
+    function stopReel() {
+      isPlaying = false;
+      document.getElementById('playBtn').innerText = '▶ Play Reel';
+      if (animationFrame) cancelAnimationFrame(animationFrame);
+      window.speechSynthesis.cancel();
+    }
+
+    document.getElementById('playBtn').addEventListener('click', () => {
+      if (isPlaying) stopReel();
+      else startReel();
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      stopReel();
+      document.getElementById('timelineProgress').style.width = '0%';
+      document.getElementById('timeCounter').innerText = '00:00 / 00:24';
+      showScene(0);
+    });
+
+    document.querySelectorAll('.scene-step-item').forEach((item, idx) => {
+      item.addEventListener('click', () => {
+        stopReel();
+        showScene(idx);
+        const scene = scenes[idx];
+        document.getElementById('timelineProgress').style.width = `${(scene.start / totalDuration) * 100}%`;
+        const sec = Math.floor(scene.start);
+        document.getElementById('timeCounter').innerText = `00:${sec < 10 ? '0' : ''}${sec} / 00:24`;
+      });
+    });
+  </script>
+</body>
+</html>

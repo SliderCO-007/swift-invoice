@@ -628,6 +628,8 @@ const heroTitleText = computed(() => {
     return 'Keep Your Weekends for Yourself.'
   } else if (props.variant === 'time_is_money') {
     return 'Because Time is Money.'
+  } else if (props.variant === 'no_paywall') {
+    return "What's a Paywall?"
   }
   return 'Turn Tracked Work into Paid Invoices'
 })
@@ -639,6 +641,8 @@ const heroTitleHighlight = computed(() => {
     return 'Reclaim Your Sundays.'
   } else if (props.variant === 'time_is_money') {
     return 'Stop Giving Yours Away.'
+  } else if (props.variant === 'no_paywall') {
+    return 'Send Invoices for $0.'
   }
   return 'in One Click.'
 })
@@ -650,6 +654,8 @@ const heroSubtitleText = computed(() => {
     return 'Stop spending your Saturdays and Sundays writing invoices and sorting crumpled receipts. Invoice your clients directly from the field in under 60 seconds and let the cash flow automatically.'
   } else if (props.variant === 'time_is_money') {
     return 'Stop losing billable hours and forgetting project expenses. ScanGo Invoice tracks time, receipts, and expenses on the go for you and your team—all from your phone.'
+  } else if (props.variant === 'no_paywall') {
+    return 'Stop paying $40/mo subscriptions just to bill your clients. ScanGo unlocks direct Email & Text-2-Pay SMS, instant Stripe QR checkout, and jobsite tracking—with zero paywalls to get started.'
   }
   return 'Digitize your workflow on the go. Snap receipts to track expenses, log project hours, and get paid instantly via customer "Scan-to-Pay" QR codes.'
 })
@@ -659,6 +665,8 @@ const riskReductionText = computed(() => {
     return 'Plumbers & contractors start free forever. No credit card required.'
   } else if (props.variant === 'weekend') {
     return 'Free up your weekends today. No credit card required.'
+  } else if (props.variant === 'no_paywall') {
+    return '100% Free Starter Plan. No credit card required.'
   }
   return 'Free tier includes unlimited projects and 5 free invoices. No credit card required.'
 })
@@ -733,6 +741,29 @@ const badges = computed(() => {
         subtitle: 'Send billing links and auto-receipts directly to client smartphones via text message'
       }
     ]
+  } else if (props.variant === 'no_paywall') {
+    return [
+      {
+        type: 'sms',
+        title: 'Free SMS & Email Invoicing',
+        subtitle: 'Send invoices directly to client inboxes or text instant payment links to their phones'
+      },
+      {
+        type: 'convert',
+        title: 'Instant Stripe QR Checkout',
+        subtitle: 'Clients scan to pay on the spot via Apple Pay, Google Pay, Cards, or ACH'
+      },
+      {
+        type: 'tracking',
+        title: 'Receipt & Hours Tracking',
+        subtitle: 'Snap jobsite receipt photos and log billable project hours without extra app fees'
+      },
+      {
+        type: 'invoice',
+        title: '3 Invoices Every Month',
+        subtitle: 'Your free allowance resets automatically on the 1st of every month as your business grows'
+      }
+    ]
   }
   return [
     {
@@ -765,6 +796,8 @@ const trustRatingText = computed(() => {
     return 'Loved by hundreds of busy business owners.'
   } else if (props.variant === 'time_is_money') {
     return 'Loved by hundreds of field crews and service professionals.'
+  } else if (props.variant === 'no_paywall') {
+    return 'Loved by hundreds of contractors, freelancers, and small business owners.'
   }
   return 'Loved by 20,000+ freelancers and agency owners worldwide.'
 })
@@ -774,7 +807,7 @@ const testimonials = computed(() => {
     {
       text: '"ScanGo cut my invoicing time by 80%. Now I bill clients right from the job site and get paid before I even drive home."',
       author: 'David K.',
-      role: 'HVAC Contractor',
+      role: 'HVAC & Plumbing Pro',
       bgClass: 'bg-indigo-darken-1'
     },
     {
@@ -910,7 +943,9 @@ const metaTitle = props.variant === 'contractor'
     ? 'Reclaim Your Weekends | ScanGo Invoice Simple On-Site Billing'
     : props.variant === 'time_is_money'
       ? 'ScanGo Invoice - Time is Money | Professional Mobile Invoicing'
-      : 'ScanGo Invoice | Simple Digital Invoicing';
+      : props.variant === 'no_paywall'
+        ? "What's a Paywall? | ScanGo Free Invoicing & Instant Mobile Payments"
+        : 'ScanGo Invoice | Simple Digital Invoicing';
 
 const metaDescription = props.variant === 'contractor'
   ? 'The ultimate mobile invoicing tool for plumbers, contractors, and local service providers. Send professional invoices on the job in under 60 seconds and accept cards/ACH instantly.'
@@ -918,7 +953,9 @@ const metaDescription = props.variant === 'contractor'
     ? 'Stop wasting Sunday nights on paperwork. Track project time, snap receipt photos on the go, and convert to invoices in one click. Free up your weekends.'
     : props.variant === 'time_is_money'
       ? 'Track time and expenses on your phone for you and your team. Stop losing billable hours and turn tracked work into paid client invoices instantly.'
-      : 'Create, download, and track professional invoices for a simple monthly or yearly price. ScanGo Invoice generates branded payment links and QR codes so customers can pay instantly.';
+      : props.variant === 'no_paywall'
+        ? 'Stop paying monthly subscriptions just to bill clients. ScanGo unlocks free email & Text-2-Pay SMS invoicing, instant Stripe QR codes, and jobsite tracking with no credit card required.'
+        : 'Create, download, and track professional invoices for a simple monthly or yearly price. ScanGo Invoice generates branded payment links and QR codes so customers can pay instantly.';
 
 useMeta(
   metaTitle,

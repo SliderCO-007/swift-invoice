@@ -33,6 +33,12 @@ const pages = [
     title: 'ScanGo Invoice - Time is Money | Professional Mobile Invoicing',
     description: 'Track time and expenses on your phone for you and your team. Stop losing billable hours and turn tracked work into paid client invoices instantly.',
     url: 'https://scangoinvoice.com/lp/time-is-money/'
+  },
+  {
+    path: 'lp/no-paywall',
+    title: "What's a Paywall? | ScanGo Free Invoicing & Instant Mobile Payments",
+    description: 'Stop paying monthly subscriptions just to bill clients. ScanGo unlocks free email & Text-2-Pay SMS invoicing, instant Stripe QR codes, and jobsite tracking with no credit card required.',
+    url: 'https://scangoinvoice.com/lp/no-paywall/'
   }
 ];
 
