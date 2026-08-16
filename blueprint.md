@@ -2382,6 +2382,14 @@ Create a dedicated marketing landing page (`/lp/no-paywall`) tailored specifical
 #### [MODIFY] [scripts/generate-lp-meta.js](file:///C:/Users/curth/git/swift-invoice/scripts/generate-lp-meta.js)
 - Add `/lp/no-paywall` entry with full Open Graph and Twitter Card metadata to ensure social scrapers and Facebook link previews render high-converting previews.
 
+## Landing Page FAQ Copy Updates (v96)
 
+### Purpose
+Update the FAQ section on the landing page to remove outdated paywall and plan restrictions:
+1. Removed `(available on Pro plans)` from the "How does Text-2-Pay SMS invoicing work?" answer.
+2. Removed `on the Monthly or Annual plan` from the "Can I track project time and expenses?" answer, accurately reflecting that registered users on the free plan can also create projects, log billable hours, and track expenses.
 
-
+### Proposed Changes
+#### [MODIFY] [src/components/LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Update `faqs` item for "How does Text-2-Pay SMS invoicing work?" to remove "(available on Pro plans)".
+- Update `faqs` item for "Can I track project time and expenses?" to remove "on the Monthly or Annual plan".

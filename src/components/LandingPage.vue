@@ -834,7 +834,7 @@ const faqs = ref([
   {
     question: 'How does Text-2-Pay SMS invoicing work?',
     answer:
-      'With Text-2-Pay (available on Pro plans), you can send an SMS payment link directly to your client\'s mobile phone from any invoice. Your client taps the link, pays online instantly via Apple Pay or Credit Card, and an automated SMS payment receipt is dispatched right away.',
+      'With Text-2-Pay, you can send an SMS payment link directly to your client\'s mobile phone from any invoice. Your client taps the link, pays online instantly via Apple Pay or Credit Card, and an automated SMS payment receipt is dispatched right away.',
   },
   {
     question: 'Do I need a separate payment account?',
@@ -852,7 +852,7 @@ const faqs = ref([
   {
     question: 'Can I track project time and expenses?',
     answer:
-      'Yes — on the Monthly or Annual plan you can create projects, log billable hours and expenses (with receipt photos), and convert them directly to a pre-filled invoice with one click. Labor and expenses are automatically rolled up into clean line items.',
+      'Yes — you can create projects, log billable hours and expenses (with receipt photos), and convert them directly to a pre-filled invoice with one click. Labor and expenses are automatically rolled up into clean line items.',
   },
   {
     question: 'Is ScanGo secure?',
