@@ -2393,3 +2393,27 @@ Update the FAQ section on the landing page to remove outdated paywall and plan r
 #### [MODIFY] [src/components/LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
 - Update `faqs` item for "How does Text-2-Pay SMS invoicing work?" to remove "(available on Pro plans)".
 - Update `faqs` item for "Can I track project time and expenses?" to remove "on the Monthly or Annual plan".
+
+## Footer Social Media Repositioning & Messenger Cleanup (v97)
+
+### Purpose
+Reposition Facebook and Instagram social media buttons directly into the website footer alongside the Trustpilot widget, and remove legacy Facebook Messenger links and buttons across the site:
+1. Position Facebook icon to the left and Instagram icon to the right of the Trustpilot widget on desktop layouts.
+2. Ensure responsive behavior stacks the Facebook and Instagram icons together above the Trustpilot widget on mobile/narrow screen widths.
+3. Remove unused/deprecated Facebook Messenger links and CTA buttons from the landing page footer and contact sections.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Remove legacy `#contact` section.
+- Update `<footer class="footer">` to wrap Facebook link, `<Trustpilot />`, and Instagram link in `.footer-trust-social`.
+- Remove Facebook Messenger link from the footer navigation line.
+- Update CSS styling with `.footer-trust-social`, `.footer-trustpilot-wrapper`, and responsive flex ordering (`order: 1` Facebook, `order: 2` Instagram, `order: 3` Trustpilot with full width) so social icons group together above Trustpilot on mobile.
+- Remove obsolete Messenger CTA button and Messenger social link styles.
+
+#### [MODIFY] [src/components/AboutUsPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/AboutUsPage.vue)
+- Remove Messenger CTA button and Messenger social link from Contact card.
+- Clean up unused `.messenger-cta-btn` and `.social-link-messenger` styles.
+
+#### [MODIFY] [src/components/FeaturesPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/FeaturesPage.vue)
+- Update `<footer class="footer">` to include the matching `.footer-trust-social` layout with Facebook and Instagram icons flanking `<Trustpilot />` for cross-page visual consistency.

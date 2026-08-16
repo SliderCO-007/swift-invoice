@@ -492,48 +492,38 @@
         </div>
       </section>
 
-      <!-- Contact Section -->
-      <section id="contact" class="contact-section">
-        <div class="container text-center">
-          <h2 class="text-h4 font-weight-bold text-white mb-2">Get in Touch</h2>
-          <p class="text-body-1 text-grey-lighten-1 mb-8" style="max-width: 600px; margin: 0 auto;">
-            Have questions about integrations, setup, or subscriptions? Drop us a line or follow us on social media.
-          </p>
-          <v-card class="contact-card mx-auto pa-6" style="max-width: 500px;">
-            <div class="d-flex flex-column align-center ga-4">
-              <a href="mailto:support@scangoinvoice.com" class="contact-email-link d-flex align-center ga-2 text-decoration-none">
-                <v-icon color="primary" size="24">mdi-email-outline</v-icon>
-                <span class="text-white font-weight-medium">support@scangoinvoice.com</span>
-              </a>
-              <a href="https://m.me/913313295207738" target="_blank" rel="noopener noreferrer" class="messenger-cta-btn d-flex align-center justify-center ga-2 text-decoration-none">
-                <v-icon size="20">mdi-facebook-messenger</v-icon>
-                <span>Message us on Facebook</span>
-              </a>
-              <v-divider class="w-100 border-opacity-10 my-2" color="white"></v-divider>
-              <div class="d-flex align-center justify-center ga-6">
-                <a href="https://www.facebook.com/scangoinvoice" target="_blank" rel="noopener noreferrer" class="social-link-facebook" title="Facebook">
-                  <v-icon size="24">mdi-facebook</v-icon>
-                </a>
-                <a href="https://m.me/913313295207738" target="_blank" rel="noopener noreferrer" class="social-link-messenger" title="Facebook Messenger">
-                  <v-icon size="24">mdi-facebook-messenger</v-icon>
-                </a>
-                <a href="https://www.instagram.com/scangoinvoice" target="_blank" rel="noopener noreferrer" class="social-link-instagram" title="Instagram">
-                  <v-icon size="24">mdi-instagram</v-icon>
-                </a>
-              </div>
-            </div>
-          </v-card>
-        </div>
-      </section>
     </main>
 
     <footer class="footer">
       <div class="container">
-        <Trustpilot />
+        <div class="footer-trust-social">
+          <a
+            href="https://www.facebook.com/scangoinvoice"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="social-link-facebook"
+            title="Facebook"
+            aria-label="Facebook"
+          >
+            <v-icon size="22">mdi-facebook</v-icon>
+          </a>
+          <div class="footer-trustpilot-wrapper">
+            <Trustpilot />
+          </div>
+          <a
+            href="https://www.instagram.com/scangoinvoice"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="social-link-instagram"
+            title="Instagram"
+            aria-label="Instagram"
+          >
+            <v-icon size="22">mdi-instagram</v-icon>
+          </a>
+        </div>
         <p>
           &copy; 2026 ScanGo Invoice. All rights reserved. |
           <a href="mailto:support@scangoinvoice.com">support@scangoinvoice.com</a> |
-          <a href="https://m.me/913313295207738" target="_blank" rel="noopener noreferrer">Facebook Messenger</a> |
           <router-link to="/about">About Us</router-link> |
           <router-link to="/guide">User Guide</router-link> |
           <router-link to="/privacy">Privacy Policy</router-link> |
@@ -2329,127 +2319,89 @@ main section[id] {
   }
 }
 
-/* Branded Glassmorphic Social Links */
+/* Branded Glassmorphic Social Links & Footer Trust Layout */
+.footer-trust-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.footer-trustpilot-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .social-link-facebook {
   text-decoration: none !important;
   color: #1877f2 !important;
-  background: rgba(24, 119, 242, 0.05) !important;
-  border: 1px solid rgba(24, 119, 242, 0.15) !important;
+  background: rgba(24, 119, 242, 0.08) !important;
+  border: 1px solid rgba(24, 119, 242, 0.25) !important;
   backdrop-filter: blur(8px);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   padding: 10px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 .social-link-facebook:hover {
-  background: rgba(24, 119, 242, 0.15) !important;
-  border-color: rgba(24, 119, 242, 0.45) !important;
-  transform: translateY(-3px) scale(1.05);
+  background: rgba(24, 119, 242, 0.2) !important;
+  border-color: rgba(24, 119, 242, 0.5) !important;
+  transform: translateY(-2px) scale(1.05);
   box-shadow: 0 0 15px rgba(24, 119, 242, 0.4) !important;
-}
-
-/* Branded Messenger CTA Button & Social Icon */
-.messenger-cta-btn {
-  background: linear-gradient(135deg, #0084ff 0%, #00c6ff 100%) !important;
-  color: #ffffff !important;
-  padding: 10px 22px;
-  border-radius: 24px;
-  font-weight: 600;
-  font-size: 0.95rem;
-  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-  box-shadow: 0 4px 15px rgba(0, 132, 255, 0.35);
-  width: 100%;
-  max-width: 320px;
-}
-
-.messenger-cta-btn:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 6px 22px rgba(0, 132, 255, 0.55);
-  filter: brightness(1.08);
-}
-
-.social-link-messenger {
-  text-decoration: none !important;
-  color: #0084ff !important;
-  background: rgba(0, 132, 255, 0.05) !important;
-  border: 1px solid rgba(0, 132, 255, 0.15) !important;
-  backdrop-filter: blur(8px);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  padding: 10px;
-  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-
-.social-link-messenger:hover {
-  background: rgba(0, 132, 255, 0.15) !important;
-  border-color: rgba(0, 132, 255, 0.45) !important;
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 0 15px rgba(0, 132, 255, 0.4) !important;
 }
 
 .social-link-instagram {
   text-decoration: none !important;
   color: #e1306c !important;
-  background: rgba(225, 48, 108, 0.05) !important;
-  border: 1px solid rgba(225, 48, 108, 0.15) !important;
+  background: rgba(225, 48, 108, 0.08) !important;
+  border: 1px solid rgba(225, 48, 108, 0.25) !important;
   backdrop-filter: blur(8px);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   padding: 10px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 .social-link-instagram:hover {
-  background: rgba(225, 48, 108, 0.15) !important;
-  border-color: rgba(225, 48, 108, 0.45) !important;
-  transform: translateY(-3px) scale(1.05);
+  background: rgba(225, 48, 108, 0.2) !important;
+  border-color: rgba(225, 48, 108, 0.5) !important;
+  transform: translateY(-2px) scale(1.05);
   box-shadow: 0 0 15px rgba(225, 48, 108, 0.4) !important;
 }
 
-.contact-section {
-  position: relative;
-  z-index: 1;
-  padding: 4rem 0;
-}
-
 @media (max-width: 600px) {
-  .final-cta {
-    padding-bottom: 1.5rem !important;
+  .footer-trust-social {
+    flex-wrap: wrap;
+    gap: 1rem 1.25rem;
   }
-  .contact-section {
-    padding: 0.5rem 0 1.5rem 0 !important;
+
+  .social-link-facebook {
+    order: 1;
   }
-}
 
-.contact-card {
-  background: rgba(255, 255, 255, 0.03) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  backdrop-filter: blur(16px);
-  border-radius: 20px !important;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3) !important;
-  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-}
+  .social-link-instagram {
+    order: 2;
+  }
 
-.contact-card:hover {
-  border-color: rgba(0, 242, 254, 0.2) !important;
-  box-shadow: 0 20px 45px rgba(0, 242, 254, 0.05) !important;
-}
-
-.contact-email-link {
-  color: #94a3b8;
-  transition: all 0.3s ease;
-  font-size: 1.1rem;
-}
-
-.contact-email-link:hover {
-  color: #ffffff;
-  text-shadow: 0 0 8px rgba(0, 242, 254, 0.4);
+  .footer-trustpilot-wrapper {
+    order: 3;
+    width: 100%;
+    margin-top: 0.25rem;
+  }
 }
 </style>

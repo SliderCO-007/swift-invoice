@@ -147,7 +147,31 @@
 
     <footer class="footer">
       <div class="container">
-        <Trustpilot />
+        <div class="footer-trust-social">
+          <a
+            href="https://www.facebook.com/scangoinvoice"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="social-link-facebook"
+            title="Facebook"
+            aria-label="Facebook"
+          >
+            <v-icon size="22">mdi-facebook</v-icon>
+          </a>
+          <div class="footer-trustpilot-wrapper">
+            <Trustpilot />
+          </div>
+          <a
+            href="https://www.instagram.com/scangoinvoice"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="social-link-instagram"
+            title="Instagram"
+            aria-label="Instagram"
+          >
+            <v-icon size="22">mdi-instagram</v-icon>
+          </a>
+        </div>
         <p>&copy; 2026 ScanGo Invoice. All rights reserved. | <a
             href="mailto:support@scangoinvoice.com">support@scangoinvoice.com</a> | <router-link to="/about">About Us</router-link> | <router-link to="/privacy">Privacy
             Policy</router-link> | <router-link to="/terms">Terms of Service</router-link></p>
@@ -562,7 +586,7 @@ useMeta(
 .footer {
   background-color: #0a111c;
   color: #94a3b8;
-  padding: 2rem 0;
+  padding: 2.5rem 1rem 2rem;
   text-align: center;
   margin-top: auto;
 }
@@ -574,6 +598,92 @@ useMeta(
 
 .footer a:hover {
   text-decoration: underline;
+}
+
+/* Footer Trust & Social Layout */
+.footer-trust-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.footer-trustpilot-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.social-link-facebook {
+  text-decoration: none !important;
+  color: #1877f2 !important;
+  background: rgba(24, 119, 242, 0.08) !important;
+  border: 1px solid rgba(24, 119, 242, 0.25) !important;
+  backdrop-filter: blur(8px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  padding: 10px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.social-link-facebook:hover {
+  background: rgba(24, 119, 242, 0.2) !important;
+  border-color: rgba(24, 119, 242, 0.5) !important;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 0 15px rgba(24, 119, 242, 0.4) !important;
+}
+
+.social-link-instagram {
+  text-decoration: none !important;
+  color: #e1306c !important;
+  background: rgba(225, 48, 108, 0.08) !important;
+  border: 1px solid rgba(225, 48, 108, 0.25) !important;
+  backdrop-filter: blur(8px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  padding: 10px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.social-link-instagram:hover {
+  background: rgba(225, 48, 108, 0.2) !important;
+  border-color: rgba(225, 48, 108, 0.5) !important;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 0 15px rgba(225, 48, 108, 0.4) !important;
+}
+
+@media (max-width: 600px) {
+  .footer-trust-social {
+    flex-wrap: wrap;
+    gap: 1rem 1.25rem;
+  }
+
+  .social-link-facebook {
+    order: 1;
+  }
+
+  .social-link-instagram {
+    order: 2;
+  }
+
+  .footer-trustpilot-wrapper {
+    order: 3;
+    width: 100%;
+    margin-top: 0.25rem;
+  }
 }
 
 @media (max-width: 900px) {
