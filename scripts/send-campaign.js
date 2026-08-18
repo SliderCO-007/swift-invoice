@@ -68,6 +68,30 @@ try {
 
 // Parse command-line flags
 const args = process.argv.slice(2);
+
+if (args.includes('--help') || args.includes('-h')) {
+  console.log(`================================================================================`);
+  console.log(`📢 SCANGO INVOICE - FREE TIER ANNOUNCEMENT CAMPAIGN CLI`);
+  console.log(`================================================================================`);
+  console.log(`\nDescription:`);
+  console.log(`  Dispatches the free tier upgrade announcement (3 monthly invoices, free direct`);
+  console.log(`  email & text-2-pay SMS, Stripe Connect integration) to Free plan users.`);
+  console.log(`\nUsage:`);
+  console.log(`  node scripts/send-campaign.js [OPTIONS]`);
+  console.log(`\nOptions:`);
+  console.log(`  --all-free-users         Target all active users on the free plan.`);
+  console.log(`  --dry-run                Simulate target finding without sending emails.`);
+  console.log(`  --to=<email>             Target a single recipient directly (test mode).`);
+  console.log(`  --from=<sender>          Sender address (default: Curtis <curtis@scangoinvoice.com>).`);
+  console.log(`  -h, --help               Show this help message and exit.`);
+  console.log(`\nExamples:`);
+  console.log(`  node scripts/send-campaign.js --to you@example.com --dry-run`);
+  console.log(`  node scripts/send-campaign.js --all-free-users --dry-run`);
+  console.log(`  node scripts/send-campaign.js --all-free-users`);
+  console.log(`================================================================================`);
+  process.exit(0);
+}
+
 const isDryRun = args.includes('--dry-run');
 const isForce = args.includes('--force');
 const targetAllFreeUsers = args.includes('--all-free-users');

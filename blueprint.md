@@ -2454,3 +2454,36 @@ Transform ScanGo Invoice into a mobile web app with native-feeling mobile naviga
 - **[MODIFY] `src/components/ProjectsView.vue`, `ProjectEditor.vue`, `CustomersView.vue`, `UserSettings.vue`**: Added responsive bottom clearances and safe-area handling.
 - **[MODIFY] `src/components/PricingPage.vue`**: Enhanced Yearly Pro plan card with distinguishable value propositions, colored iconography, gold crown badge, and glassmorphic highlight styling.
 
+## Mobile-First Announcement & Re-engagement Outreach (v98)
+
+### Purpose
+Provide an automated yet interactive CLI script (`scripts/send-mobile-announcement.js`) to re-engage inactive users (who haven't logged in for 14+ days) by announcing the new Mobile First design, bottom navigation bar, quick action creation (+) sheet, jobsite receipt/time tracking, and instant Stripe payment integrations.
+
+### Key Capabilities
+1. **Inactivity Detection**:
+   - Queries Firebase Authentication (`admin.auth().listUsers()`) for exact `lastSignInTime` metadata across all accounts.
+   - Cross-references Firestore `users` collection for user names, subscription status, invoice count, and previous dispatch flags (`lastMobileAnnouncementSentAt`).
+   - Default filter matches users inactive for `>= 14` days (customizable via `--days-min` and `--days-max`).
+2. **Interactive CLI Workflow**:
+   - `--dry-run`: Generates a full candidate audit and plain text email preview with emoticons without sending.
+   - Numbered Candidate List & Exclusion Filter: Allows selective exclusion of recipients (e.g. `2, 4`) or sending to all.
+   - Confirmation Safety Gate: Prompts `(y/N)` before sending in live mode.
+   - Single-target override: `--to=user@example.com` for instant end-to-end testing (supports `--name="Name"`).
+   - Force override: `--force` to re-send to previously contacted users.
+   - Built-in Documentation: Supports `-h` / `--help` flags for quick CLI reference and examples.
+3. **Engaging Plain Text Copy**:
+   - Plain text format for 100% inbox delivery and high open rates across mobile email clients.
+   - Emoticons highlighting Mobile Bottom Nav, 1-tap quick action FAB, jobsite receipt capture, and instant Stripe checkout.
+   - Direct founder sign-off from Curtis with open reply invitation.
+
+## Mobile Hero Animation WebP Update (v99)
+
+### Purpose
+Update the landing page mobile hero animation with the new recording asset (`public/mobile_hero.gif`), converting it to an optimized, high-fidelity animated WebP file (`public/new_hero.webp`).
+
+### Changes
+- Converted `public/mobile_hero.gif` (8 frames, 1080x2400 resolution, 800ms frame duration, 6.4s loop duration) to animated WebP format.
+- Replaced `public/new_hero.webp` with the new WebP animation (626 KB, quality 90, infinite loop), delivering full visual clarity while reducing file size relative to the raw GIF.
+
+
+

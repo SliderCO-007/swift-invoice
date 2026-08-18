@@ -68,6 +68,31 @@ try {
 
 // Parse command-line flags
 const args = process.argv.slice(2);
+
+if (args.includes('--help') || args.includes('-h')) {
+  console.log(`================================================================================`);
+  console.log(`🔍 SCANGO INVOICE - RE-ENGAGEMENT EMAIL TARGET FINDER CLI`);
+  console.log(`================================================================================`);
+  console.log(`\nDescription:`);
+  console.log(`  Finds newly registered users (2-7 days ago) with 0 invoices created and sends`);
+  console.log(`  a re-engagement email notifying them that setup forms have been pre-filled.`);
+  console.log(`\nUsage:`);
+  console.log(`  node scripts/send-reengagement-emails.js [OPTIONS]`);
+  console.log(`\nOptions:`);
+  console.log(`  --dry-run                Preview matched users without sending emails.`);
+  console.log(`  --days-min=<n>           Minimum days since registration (default: 2).`);
+  console.log(`  --days-max=<n>           Maximum days since registration (default: 7).`);
+  console.log(`  --to=<email>             Target a single recipient directly.`);
+  console.log(`  --from=<sender>          Sender address (default: Curtis <curtis@scangoinvoice.com>).`);
+  console.log(`  --force                  Send email even if previously sent.`);
+  console.log(`  -h, --help               Show this help message and exit.`);
+  console.log(`\nExamples:`);
+  console.log(`  node scripts/send-reengagement-emails.js --dry-run`);
+  console.log(`  node scripts/send-reengagement-emails.js --to you@example.com`);
+  console.log(`================================================================================`);
+  process.exit(0);
+}
+
 const isDryRun = args.includes('--dry-run');
 const isForce = args.includes('--force');
 
@@ -117,8 +142,52 @@ try {
 
 const subject = "Your invoice draft is waiting for you";
 
-function getPlainTextBody(name) {
-  const firstName = (name || 'there').split(' ')[0];
+function resolveFirstName(name, email) {
+  const genericPlaceholders = [
+    'valued user',
+    'valued',
+    'new user',
+    'target user',
+    'recipient',
+    'user',
+    'customer',
+    'member',
+    'owner',
+    'admin',
+    'test',
+    'there'
+  ];
+
+  if (name && typeof name === 'string') {
+    let clean = name.trim();
+    if (!clean.includes('@')) {
+      const firstToken = clean.split(/\s+/)[0].replace(/^[^a-zA-Z]+/, '');
+      if (firstToken && !genericPlaceholders.includes(firstToken.toLowerCase())) {
+        return firstToken.charAt(0).toUpperCase() + firstToken.slice(1).toLowerCase();
+      }
+    } else {
+      email = clean;
+    }
+  }
+
+  if (email && typeof email === 'string' && email.includes('@')) {
+    const localPart = email.split('@')[0];
+    const firstSegment = localPart.split(/[._+-]/)[0].replace(/^[^a-zA-Z]+/, '');
+    if (
+      firstSegment &&
+      firstSegment.length >= 2 &&
+      !genericPlaceholders.includes(firstSegment.toLowerCase()) &&
+      !/^\d+$/.test(firstSegment)
+    ) {
+      return firstSegment.charAt(0).toUpperCase() + firstSegment.slice(1).toLowerCase();
+    }
+  }
+
+  return 'there';
+}
+
+function getPlainTextBody(name, email) {
+  const firstName = resolveFirstName(name, email);
   return `Hi ${firstName},
 
 I noticed you signed up for ScanGo Invoice recently, but didn't get a chance to send your first invoice.
@@ -163,7 +232,15 @@ async function main() {
 
   if (targetOverride) {
     console.log(`🎯 Sending directly to single recipient: ${targetOverride}`);
-    const candidate = { id: 'manual', email: targetOverride, name: 'Recipient', daysAgo: 'N/A' };
+    let resolvedName = '';
+    try {
+      const snap = await db.collection('users').where('email', '==', targetOverride).limit(1).get();
+      if (!snap.empty) {
+        resolvedName = snap.docs[0].data().name || '';
+      }
+    } catch (e) {}
+
+    const candidate = { id: 'manual', email: targetOverride, name: resolvedName, daysAgo: 'N/A' };
     await processCandidates([candidate]);
     return;
   }
@@ -263,7 +340,7 @@ async function dispatchEmails(targetList) {
 
   for (const user of targetList) {
     try {
-      const textBody = getPlainTextBody(user.name);
+      const textBody = getPlainTextBody(user.name, user.email);
       const { data, error } = await resend.emails.send({
         from: senderEmail,
         to: user.email,
