@@ -4,17 +4,11 @@ import { useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify';
 import useProjects from '../composables/useProjects';
 import { userProfile } from '../composables/useAuth';
-import UpgradePrompt from './UpgradePrompt.vue';
 
 const { mobile } = useDisplay();
 
 const router = useRouter();
 const { projects, loading } = useProjects();
-
-// Subscription gate
-const isPaidUser = computed(() =>
-  userProfile.value?.subscriptionStatus === 'active'
-);
 
 const isOwner = computed(() =>
   userProfile.value?.role === 'owner'
@@ -73,16 +67,6 @@ const formatCurrency = (val) =>
           >New Project</v-btn>
         </div>
       </header>
-
-      <!-- Free Plan Project Alert Banner -->
-      <div v-if="!isPaidUser && isOwner" class="free-projects-banner mb-6">
-        <v-icon icon="mdi-information-outline" color="primary" class="mr-3" />
-        <div class="banner-text">
-          <strong>Project tracking is fully enabled on your Free Plan!</strong> 
-          Upgrade to a paid subscription to unlock direct email sending and unlimited invoicing.
-        </div>
-        <v-btn to="/pricing" color="primary" variant="flat" size="small" class="ml-auto rounded-pill">Upgrade</v-btn>
-      </div>
 
       <!-- Status filter tabs -->
       <div class="filter-tabs">
@@ -352,23 +336,6 @@ const formatCurrency = (val) =>
   text-align: center;
 }
 
-.free-projects-banner {
-  display: flex;
-  align-items: center;
-  background: rgba(59, 130, 246, 0.08);
-  border: 1px solid rgba(59, 130, 246, 0.25);
-  border-radius: 8px;
-  padding: 1rem 1.25rem;
-  color: #e2e8f0;
-  font-size: 0.9rem;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.banner-text {
-  flex: 1;
-}
-
 @media (max-width: 640px) {
   .projects-container {
     padding: 1rem 0.75rem calc(80px + env(safe-area-inset-bottom, 0px));
@@ -384,16 +351,6 @@ const formatCurrency = (val) =>
 
   .project-grid {
     grid-template-columns: 1fr;
-  }
-
-  .free-projects-banner {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .free-projects-banner .v-btn {
-    margin-left: 0 !important;
-    margin-top: 0.5rem;
-    width: 100%;
   }
 }
 </style>
