@@ -21,9 +21,20 @@ const isAuth = computed(() => !!currentUser.value);
 
 <style>
 /* Responsive Mobile App Shell Layout */
+html,
+body,
+.app-shell,
+.v-application,
+.v-application__wrap,
+.v-main {
+  background-color: #111d2f !important;
+  min-height: 100vh;
+}
+
 @media (max-width: 959px) {
   .has-mobile-bottom-nav {
     padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+    background-color: #111d2f !important;
   }
 }
 </style>

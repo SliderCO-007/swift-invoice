@@ -4,8 +4,8 @@
 :root {
   --primary-color: #4A90E2; /* A modern, friendly blue */
   --secondary-color: #50E3C2; /* A vibrant accent teal */
-  --text-color: #333;
-  --background-color: #F4F7F9;
+  --text-color: #f1f5f9;
+  --background-color: #111d2f;
   --white-color: #FFFFFF;
   --shadow-color: rgba(0, 0, 0, 0.1);
   
@@ -20,16 +20,19 @@
   --sar: env(safe-area-inset-right, 0px);
 }
 
-body {
+html, body {
   font-family: 'Poppins', sans-serif;
-  background-color: var(--background-color);
+  background-color: #111d2f;
   color: var(--text-color);
   -webkit-tap-highlight-color: transparent;
+  min-height: 100%;
 }
 
-.v-application {
+.v-application,
+.v-application__wrap {
   font-family: 'Poppins', sans-serif;
-  background-color: var(--background-color) !important;
+  background-color: #111d2f !important;
+  min-height: 100vh;
 }
 
 .container {
