@@ -16,7 +16,7 @@ const sections = [
     steps: [
       {
         title: 'Start a New Invoice',
-        desc: 'Log in and navigate to the **Dashboard**. Click the floating **`+` (Plus)** button in the bottom-right corner, or click **"Create Your First Invoice"** if you are new to the platform.'
+        desc: 'Log in and navigate to the **Dashboard**. On mobile, tap the centered **`+` (Plus)** action launcher in the bottom bar. On desktop, click **"New Invoice"** in the top bar, or click **"Create Your First Invoice"** if you are new to the platform.'
       },
       {
         title: 'Select or Enter Client Information',
@@ -36,7 +36,7 @@ const sections = [
       },
       {
         title: 'Save or Preview',
-        desc: 'Click **"Preview"** to see how the invoice looks. Click **"Save Invoice"** to finalize the record. (Free plan allows up to 5 finalized invoices).'
+        desc: 'Click **"Preview"** to see how the invoice looks. Click **"Save Invoice"** to finalize the record. (Free Starter plan allows 3 finalized invoices per month with automatic monthly reset, while Pro allows unlimited invoices).'
       }
     ]
   },
@@ -193,22 +193,46 @@ const sections = [
     ]
   },
   {
+    id: 'mobile-app',
+    title: 'How to Use the Mobile Web App & Quick Actions',
+    icon: 'mdi-cellphone-text',
+    color: '#00E5FF', // Cyan accent
+    steps: [
+      {
+        title: 'Bottom Navigation Bar',
+        desc: 'When using ScanGo Invoice on a smartphone, a fixed bottom navigation bar provides instant one-handed access to your **Dashboard**, **Projects**, **Customers**, and **More** menu drawer.'
+      },
+      {
+        title: 'Elevated Quick Actions (+) Launcher',
+        desc: 'Tap the centered **`+` (Plus)** action button in the bottom navigation bar from anywhere in the app to instantly open the Quick Actions modal. Create a **New Invoice**, **New Project**, **Add Customer**, or manage **Saved Items & Rates** with a single tap.'
+      },
+      {
+        title: 'Contextual Back Navigation & Unsaved Protection',
+        desc: 'When editing invoices, projects, or settings on mobile, a contextual **`←` Back Button** appears in the header. If you make modifications without saving, ScanGo Invoice prompts you with an **Unsaved Changes** confirmation dialog so you never lose data.'
+      },
+      {
+        title: 'Install to Your Home Screen',
+        desc: 'For an app-like full-screen experience, tap **Share > Add to Home Screen** in iOS Safari, or tap the three dots **Menu > Install / Add to Home screen** in Android Chrome.'
+      }
+    ]
+  },
+  {
     id: 'team-collaboration',
     title: 'How to Manage Team Seats & Collaboration',
     icon: 'mdi-account-multiple-plus-outline',
     color: '#E65100', // Deep orange
     steps: [
       {
-        title: 'Invite Team Members',
-        desc: 'Organization Owners can navigate to **Team Settings** under the User Menu and invite members via email address.'
+        title: 'Invite Team Members (1 Free Seat Included)',
+        desc: 'Organization Owners can navigate to **Team Settings** under the User Menu. **Free Starter accounts include 1 team member seat for $0**, allowing you to collaborate on projects without upgrading. Pro & Agency plans include **unlimited team seats**.'
       },
       {
-        title: 'Manage Invitations',
-        desc: 'View active and pending team members in Team Settings. Owners can cancel/revoke any sent pending invitations instantly with the "Cancel Invite" action.'
+        title: 'Manage Invitations & Seat Usage',
+        desc: 'Track active members, seat counters (e.g. "0 of 1 Free Team Seat Used"), and pending invitations in Team Settings. Owners can cancel or revoke any pending invitations instantly.'
       },
       {
         title: 'Member Role Restrictions',
-        desc: 'Invited team members register as **Members** who inherit your organization ID but are locked out of sensitive billing details. They only see the **Projects** and **Guide** pages, cannot access invoices, settings, reports, or Stripe connections, and cannot see or adjust hourly rates, billing totals, or create custom expense categories.'
+        desc: 'Invited team members register as **Members** who inherit your organization ID but are locked out of sensitive billing details. They only see the **Projects** and **Guide** pages, cannot access invoices, settings, reports, or Stripe configurations, and cannot see or adjust hourly rates, billing totals, or create custom expense categories.'
       },
       {
         title: 'Owner Role Permissions',
