@@ -1,15 +1,17 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import useProjects from '../composables/useProjects';
 import { useCustomers } from '../composables/useCustomers';
 import { useOrganization } from '../composables/useOrganization';
 import { userProfile } from '../composables/useAuth';
+import { useMobileNav } from '../composables/useMobileNav';
 
 const router = useRouter();
 const route  = useRoute();
 const { createProject, updateProject, getProject, deleteProject } = useProjects();
 const { customers } = useCustomers();
+const { setFormDirty } = useMobileNav();
 
 const isEdit   = computed(() => !!route.params.id);
 const pageTitle = computed(() => isEdit.value ? 'Edit Project' : 'New Project');
@@ -25,6 +27,14 @@ const form = ref({
   defaultRate: 0,
   status:      'active',
   assignedMembers: []
+});
+
+watch(form, () => {
+  setFormDirty(true);
+}, { deep: true });
+
+onUnmounted(() => {
+  setFormDirty(false);
 });
 
 const teamMembersList = computed(() => {
@@ -74,9 +84,11 @@ const handleSubmit = async () => {
   try {
     if (isEdit.value) {
       await updateProject(route.params.id, form.value);
+      setFormDirty(false);
       router.push({ name: 'ProjectDetail', params: { id: route.params.id } });
     } else {
       const id = await createProject(form.value);
+      setFormDirty(false);
       router.push({ name: 'ProjectDetail', params: { id } });
     }
   } catch (err) {
@@ -96,6 +108,7 @@ const handleDelete = async () => {
   try {
     await deleteProject(route.params.id);
     showDeleteConfirm.value = false;
+    setFormDirty(false);
     router.push({ name: 'Projects' });
   } catch (err) {
     formError.value = err.message || 'Failed to delete project.';
@@ -106,6 +119,7 @@ const handleDelete = async () => {
 };
 
 const cancel = () => {
+  setFormDirty(false);
   if (isEdit.value) {
     router.push({ name: 'ProjectDetail', params: { id: route.params.id } });
   } else {
@@ -363,7 +377,13 @@ const cancel = () => {
 :deep(.v-list-item) { color: #1e293b !important; }
 
 @media (max-width: 640px) {
-  .editor-container, .editor-card { padding: 1rem; }
+  .editor-container {
+    padding: 1rem 0.75rem calc(80px + env(safe-area-inset-bottom, 0px));
+  }
+  .editor-card {
+    padding: 1rem;
+    border-radius: 16px;
+  }
   .field-half { max-width: 100%; }
   .form-actions {
     flex-direction: column-reverse;

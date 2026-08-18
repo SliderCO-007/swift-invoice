@@ -1,12 +1,19 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useDisplay } from 'vuetify';
+import { useRoute } from 'vue-router';
 import { useCustomers } from '../composables/useCustomers';
 import { exportToCSV } from '../utils/exportCsv';
 
 const { mobile } = useDisplay();
-// CORRECTED: fetchCustomers and stopFetching are no longer needed here as the composable is fully reactive.
+const route = useRoute();
 const { customers, loading, addCustomer, updateCustomer, deleteCustomer } = useCustomers();
+
+onMounted(() => {
+  if (route.query.action === 'new') {
+    openDialog();
+  }
+});
 
 const dialog = ref(false);
 const deleting = ref(false);
@@ -317,4 +324,10 @@ const exportCustomersOutput = () => {
 :deep(.text-medium-emphasis) { color: #94a3b8 !important; }
 :deep(.v-icon) { color: #94a3b8 !important; }
 :deep(a.text-decoration-none) { color: #64B5F6 !important; }
+
+@media (max-width: 959px) {
+  .customers-view {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
 </style>

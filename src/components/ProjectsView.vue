@@ -370,9 +370,12 @@ const formatCurrency = (val) =>
 }
 
 @media (max-width: 640px) {
-  .projects-container,
+  .projects-container {
+    padding: 1rem 0.75rem calc(80px + env(safe-area-inset-bottom, 0px));
+  }
   .projects-card {
     padding: 1rem;
+    border-radius: 16px;
   }
 
   .projects-header {

@@ -477,8 +477,8 @@ const goToPricing = () => {
 }
 
 @media (max-width: 768px) {
-  .settings-container { padding: 0.5rem; }
-  .settings-card { padding: 1.25rem; }
+  .settings-container { padding: 0.75rem 0.5rem calc(80px + env(safe-area-inset-bottom, 0px)); }
+  .settings-card { padding: 1.25rem; border-radius: 16px; }
   .settings-header { flex-direction: column; align-items: stretch; gap: 1rem; }
   .settings-header h1 { font-size: 1.8rem; }
   .back-btn { margin-top: 0.5rem; width: 100%; text-align: center; }

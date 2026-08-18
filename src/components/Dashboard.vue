@@ -145,6 +145,36 @@ const formatDate = (timestamp) => {
 const formatInvoiceNumber = (num) => `#${num}`;
 const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'currency', currency: settings.value?.currency || 'USD' }).format(value || 0);
 
+// Mobile KPI stats computation
+const totalPaidRevenue = computed(() =>
+  (invoices.value || [])
+    .filter(i => i.status && i.status.toLowerCase() === 'paid')
+    .reduce((sum, i) => sum + (i.total || 0), 0)
+);
+
+const totalPendingRevenue = computed(() => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return (invoices.value || [])
+    .filter(i => {
+      const status = i.status ? i.status.toLowerCase() : '';
+      const dueDate = i.dueDate && typeof i.dueDate.toDate === 'function' ? i.dueDate.toDate() : new Date(i.dueDate);
+      return status === 'pending' && dueDate >= today;
+    })
+    .reduce((sum, i) => sum + (i.total || 0), 0);
+});
+
+const totalOverdueRevenue = computed(() => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return (invoices.value || [])
+    .filter(i => {
+      const status = i.status ? i.status.toLowerCase() : '';
+      const dueDate = i.dueDate && typeof i.dueDate.toDate === 'function' ? i.dueDate.toDate() : new Date(i.dueDate);
+      return status === 'overdue' || (status === 'pending' && dueDate < today);
+    })
+    .reduce((sum, i) => sum + (i.total || 0), 0);
+});
 </script>
 
 <template>
@@ -305,7 +335,47 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
                 </v-btn>
               </div>
 
-              <InvoiceTable v-else :invoices="invoices" @delete-invoice="openDeleteDialog" @edit-invoice="editInvoice"/>
+              <div v-else>
+                <!-- Mobile Glanceable KPI Carousel -->
+                <div v-if="invoices && invoices.length" class="mobile-stats-carousel d-md-none mb-4">
+                  <div class="mobile-scroll-row no-scrollbar">
+                    <!-- Total Revenue Card -->
+                    <div class="mobile-kpi-card glass-emerald mobile-scroll-item">
+                      <div class="kpi-icon-wrap emerald-icon">
+                        <v-icon icon="mdi-cash-check" size="20" color="#34d399"></v-icon>
+                      </div>
+                      <div class="kpi-content">
+                        <span class="kpi-label">Paid Revenue</span>
+                        <span class="kpi-value">{{ formatCurrency(totalPaidRevenue) }}</span>
+                      </div>
+                    </div>
+
+                    <!-- Pending Card -->
+                    <div class="mobile-kpi-card glass-blue mobile-scroll-item">
+                      <div class="kpi-icon-wrap blue-icon">
+                        <v-icon icon="mdi-cash-clock" size="20" color="#38bdf8"></v-icon>
+                      </div>
+                      <div class="kpi-content">
+                        <span class="kpi-label">Pending</span>
+                        <span class="kpi-value">{{ formatCurrency(totalPendingRevenue) }}</span>
+                      </div>
+                    </div>
+
+                    <!-- Overdue Card -->
+                    <div class="mobile-kpi-card glass-amber mobile-scroll-item">
+                      <div class="kpi-icon-wrap amber-icon">
+                        <v-icon icon="mdi-alert-circle-outline" size="20" color="#fbbf24"></v-icon>
+                      </div>
+                      <div class="kpi-content">
+                        <span class="kpi-label">Overdue</span>
+                        <span class="kpi-value">{{ formatCurrency(totalOverdueRevenue) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <InvoiceTable :invoices="invoices" @delete-invoice="openDeleteDialog" @edit-invoice="editInvoice"/>
+              </div>
             </div>
           </main>
         </v-window-item>
@@ -318,7 +388,19 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
         </v-window-item>
       </v-window>
 
-      <v-fab icon="mdi-plus" location="bottom right" size="64" color="primary" app appear @click="createNewInvoice" title="Create New Invoice" class="fab-button" :disabled="isDataLoading || invoiceLimitReached"></v-fab>
+      <!-- Desktop Floating Action Button (Hidden on Mobile where BottomNav FAB exists) -->
+      <v-fab 
+        icon="mdi-plus" 
+        location="bottom right" 
+        size="64" 
+        color="primary" 
+        app 
+        appear 
+        @click="createNewInvoice" 
+        title="Create New Invoice" 
+        class="fab-button d-none d-md-flex" 
+        :disabled="isDataLoading || invoiceLimitReached"
+      ></v-fab>
 
       <v-dialog v-model="dialogDelete" max-width="500px">
         <v-card>
@@ -487,5 +569,78 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
     .connect-btn-banner {
       width: 100%;
     }
+}
+
+/* Mobile KPI Carousel Styles */
+.mobile-stats-carousel {
+  margin-top: 0.5rem;
+}
+
+.mobile-kpi-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 160px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.glass-emerald {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.glass-blue {
+  background: rgba(56, 189, 248, 0.08);
+  border-color: rgba(56, 189, 248, 0.2);
+}
+
+.glass-amber {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.2);
+}
+
+.kpi-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.emerald-icon {
+  background: rgba(16, 185, 129, 0.15);
+}
+
+.blue-icon {
+  background: rgba(56, 189, 248, 0.15);
+}
+
+.amber-icon {
+  background: rgba(245, 158, 11, 0.15);
+}
+
+.kpi-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.kpi-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
 }
 </style>

@@ -2417,3 +2417,40 @@ Reposition Facebook and Instagram social media buttons directly into the website
 
 #### [MODIFY] [src/components/FeaturesPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/FeaturesPage.vue)
 - Update `<footer class="footer">` to include the matching `.footer-trust-social` layout with Facebook and Instagram icons flanking `<Trustpilot />` for cross-page visual consistency.
+
+## Mobile Web App Responsive Redesign (v10)
+
+### Purpose
+Transform ScanGo Invoice into a mobile web app with native-feeling mobile navigation, bottom action bar, contextual mobile header with back-navigation, quick-action creation sheets, and touch-optimized invoice management.
+
+### Key Architecture & Decisions
+1. **Authenticated Mobile Bottom Navigation (`MobileBottomNav.vue`)**:
+   - Visible on mobile viewports (< 960px) exclusively when authenticated.
+   - Primary tabs: **Dashboard** (`mdi-view-dashboard-outline`), **Projects** (`mdi-folder-multiple-outline`), **Customers** (`mdi-account-group-outline`), and **More** (`mdi-menu` / `mdi-dots-horizontal`).
+   - Centered elevated (+) FAB trigger that opens a mobile **Quick Action Sheet** (New Invoice, New Project, New Customer, Scan Receipt).
+   - Safe-area bottom inset support (`env(safe-area-inset-bottom)`).
+2. **Contextual Mobile Header (`AppBar.vue`)**:
+   - Shows ScanGo logo on main hub views, or contextual screen title + Back Button on sub-routes (`/invoice/:id`, `/projects/:id`, `/settings`).
+   - "More" drawer / bottom sheet for secondary links (**Items**, **Reports**, **Team Settings**, **User Guide**, **Logout**).
+   - Desktop navigation remains clean and untouched.
+3. **App Viewport & Safe Insets (`index.html`, `style.css`, `App.vue`)**:
+   - Configure `viewport-fit=cover`, theme colors, and touch optimizations (`touch-action: manipulation`).
+   - Add responsive container padding so page content never clips behind the bottom navigation bar on mobile.
+4. **Dashboard & Invoice Cards Optimization (`Dashboard.vue`, `InvoiceTable.vue`)**:
+   - Horizontal-scrolling glanceable KPI metric cards for mobile.
+   - Touch-optimized invoice list items with quick actions (Edit, Duplicate, Delete, Preview).
+5. **Mobile-Optimized Invoice Editor (`InvoiceEditor.vue`)**:
+   - Card-based line item inputs on small screens instead of overflowing wide tables.
+   - Sticky mobile action bar for Save Draft, Preview, and Send.
+
+### Implemented Changes & Features
+- **[NEW] `src/components/MobileBottomNav.vue`**: Bottom navigation bar with elevated centered (+) quick action sheet, secondary navigation drawer with top chevron & bottom thumb-friendly close buttons, safe-area bottom padding, and unsaved changes confirmation dialog.
+- **[NEW] `src/composables/useMobileNav.js`**: Centralized mobile navigation state (quick actions, more drawer, dirty form tracking, and discard dialog).
+- **[MODIFY] `src/components/AppBar.vue`**: Added contextual back button and subpage titles for mobile, decoupled desktop and mobile layout rendering, and fixed brand text truncation on narrow viewports.
+- **[MODIFY] `src/App.vue`**: Mounted `<MobileBottomNav />` with responsive layout wrapper and safe-area bottom padding.
+- **[MODIFY] `index.html` & `src/style.css`**: Added mobile viewport cover (`viewport-fit=cover`), touch manipulation rules, and horizontal KPI scroll utilities.
+- **[MODIFY] `src/components/Dashboard.vue`**: Added mobile KPI carousel and responsive bottom clearance.
+- **[MODIFY] `src/components/InvoiceEditor.vue`**: Mobile line item cards, sticky bottom action bar, and dirty form integration.
+- **[MODIFY] `src/components/ProjectsView.vue`, `ProjectEditor.vue`, `CustomersView.vue`, `UserSettings.vue`**: Added responsive bottom clearances and safe-area handling.
+- **[MODIFY] `src/components/PricingPage.vue`**: Enhanced Yearly Pro plan card with distinguishable value propositions, colored iconography, gold crown badge, and glassmorphic highlight styling.
+

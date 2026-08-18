@@ -17,12 +17,14 @@ import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import Logo from './Logo.vue';
 import UpgradeModal from './UpgradeModal.vue';
+import { useMobileNav } from '../composables/useMobileNav';
 
 // --- Composables ---
 const { settings, loading: settingsLoading, fetchUserSettings, saveUserSettings } = useUserSettings();
 const { createInvoice, getInvoice, updateInvoice } = useInvoices();
 const { customers } = useCustomers(); // Automatically fetches and updates based on auth
 const { items, fetchItems, stopFetching: stopFetchingItems } = useItems();
+const { setFormDirty } = useMobileNav();
  
 const { connectStatus, fetchConnectStatus } = useStripeConnect();
 const router = useRouter();
@@ -39,6 +41,11 @@ const showLimitModal = ref(false);
 const stripeStatusHaveLoaded = ref(false);
 const saveAsDefaultCompany = ref(true);
 const isStripeBannerDismissed = ref(localStorage.getItem('swift_invoice_editor_stripe_dismissed') === 'true');
+
+// Watch for changes to mark form as dirty
+watch(invoice, () => {
+  setFormDirty(true);
+}, { deep: true });
 
 const dismissStripeBanner = () => {
   isStripeBannerDismissed.value = true;
@@ -143,6 +150,7 @@ const saveInvoice = async () => {
       }
     }
 
+    setFormDirty(false);
     router.push({ name: 'InvoiceView', params: { id: finalInvoiceId } });
   } catch (error) {
     console.error("Failed to save invoice:", error);
@@ -288,6 +296,7 @@ const openDatePicker = (event) => {
 };
 
 onUnmounted(() => {
+  setFormDirty(false);
   stopFetchingItems(); // Clean up item listener when component is destroyed
 });
 </script>
@@ -535,7 +544,35 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <footer class="editor-footer">
+        <!-- Mobile Sticky Action Bar for One-Handed Quick Save / Preview -->
+        <div class="mobile-editor-sticky-bar d-md-none">
+          <v-btn 
+            @click="showPreview = true" 
+            variant="tonal" 
+            color="secondary" 
+            rounded="lg"
+            size="large"
+            class="mobile-action-btn flex-grow-1"
+          >
+            <v-icon start class="mr-1">mdi-eye-outline</v-icon>
+            Preview
+          </v-btn>
+          <v-btn 
+            @click="saveInvoice" 
+            :loading="isProcessing" 
+            color="primary" 
+            variant="flat"
+            rounded="lg"
+            size="large"
+            class="mobile-action-btn flex-grow-1 font-weight-bold"
+            elevation="3"
+          >
+            <v-icon start class="mr-1">mdi-content-save-outline</v-icon>
+            {{ isProcessing ? 'Saving...' : 'Save' }}
+          </v-btn>
+        </div>
+
+        <footer class="editor-footer d-none d-md-flex">
           <v-btn @click="showPreview = true" color="secondary">Preview Invoice</v-btn>
           <v-btn @click="saveInvoice" :loading="isProcessing" color="primary">{{ isProcessing ? 'Saving...' : 'Save Invoice' }}</v-btn>
         </footer>
@@ -872,6 +909,49 @@ onUnmounted(() => {
 @media print {
   .no-print {
     display: none !important;
+  }
+}
+
+/* Mobile Editor Responsive Enhancements */
+.mobile-editor-sticky-bar {
+  position: fixed;
+  bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  left: 0;
+  right: 0;
+  padding: 12px 16px;
+  background: rgba(17, 29, 47, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  gap: 12px;
+  z-index: 900;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.mobile-action-btn {
+  height: 48px !important;
+  text-transform: none !important;
+}
+
+@media (max-width: 959px) {
+  .editor-container {
+    padding: 1rem 0.75rem calc(120px + env(safe-area-inset-bottom, 0px));
+  }
+  .editor-form-card {
+    padding: 1.25rem;
+    border-radius: 16px;
+  }
+  .responsive-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .item-row {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 12px;
   }
 }
 </style>
