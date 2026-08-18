@@ -181,9 +181,9 @@ onMounted(() => {
                 <v-icon size="18" color="success">mdi-check-circle</v-icon>
                 <span>One-click project-to-invoice</span>
               </div>
-              <div class="feature-item muted">
-                <v-icon size="18" color="rgba(255,255,255,0.2)">mdi-close-circle</v-icon>
-                <span>Multi-user team seats &amp; collaboration</span>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span><strong>1 team member seat</strong> included</span>
               </div>
 
               <p class="feature-section-label mt-4">Support</p>
@@ -312,7 +312,7 @@ onMounted(() => {
               </div>
               <div class="feature-item highlight-feature">
                 <v-icon size="18" color="primary">mdi-check-circle</v-icon>
-                <span>Multi-user team seats &amp; collaboration</span>
+                <span><strong>Unlimited team member seats</strong> &amp; collaboration</span>
               </div>
 
               <p class="feature-section-label mt-4">Support</p>
@@ -432,7 +432,7 @@ onMounted(() => {
               </div>
               <div class="feature-item highlight-feature">
                 <v-icon size="18" color="primary">mdi-account-multiple-check</v-icon>
-                <span>Multi-user team seats &amp; collaboration</span>
+                <span><strong>Unlimited team member seats</strong> &amp; collaboration</span>
               </div>
 
               <p class="feature-section-label mt-4">Yearly Exclusives</p>

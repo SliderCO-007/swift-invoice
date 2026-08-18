@@ -32,6 +32,23 @@ const isPaid = computed(() => {
   return userProfile.value?.subscriptionStatus === "active";
 });
 
+const nonOwnerMembers = computed(() => {
+  return teamMembers.value.filter(m => m.role !== 'owner');
+});
+
+const pendingInvites = computed(() => {
+  return invitations.value.filter(i => i.status === 'pending');
+});
+
+const totalSeatsUsed = computed(() => {
+  return nonOwnerMembers.value.length + pendingInvites.value.length;
+});
+
+const isSeatLimitReached = computed(() => {
+  if (isPaid.value) return false;
+  return totalSeatsUsed.value >= 1;
+});
+
 const handleInvite = async () => {
   if (!inviteEmail.value) return;
   inviteLoading.value = true;
@@ -162,32 +179,42 @@ const handleDeleteInvitation = async (invite) => {
           </v-btn>
         </div>
       </header>
-      <p class="text-subtitle-1 mb-6">
-        Invite team members to log project hours and scan receipts, and manage active seats.
-      </p>
+      
+      <div class="d-flex align-center justify-space-between mb-6 flex-wrap ga-2">
+        <p class="text-subtitle-1 mb-0">
+          Invite team members to log project hours and scan receipts, and manage active seats.
+        </p>
+        <v-chip 
+          :color="isPaid ? 'primary' : (isSeatLimitReached ? 'amber-darken-2' : 'teal')" 
+          variant="tonal" 
+          class="font-weight-bold"
+        >
+          <v-icon start :icon="isPaid ? 'mdi-crown' : 'mdi-account-group'"></v-icon>
+          {{ isPaid ? 'Unlimited Team Seats (Pro Plan)' : `${totalSeatsUsed} of 1 Free Team Seat Used` }}
+        </v-chip>
+      </div>
 
-      <!-- Subscription Gating Warning -->
-      <div v-if="!isPaid" class="promo-banner">
+      <!-- Free Plan Seat Limit Notice -->
+      <div v-if="!isPaid && isSeatLimitReached" class="promo-banner mb-6">
         <v-icon color="amber" class="mr-2">mdi-shield-alert-outline</v-icon>
         <div>
-          <h4>Upgrade to Pro to Invite Team Members</h4>
+          <h4>Free Plan Seat Limit Reached (1/1)</h4>
           <p>
-            Multi-user seat functionality is a premium feature. Upgrade your
-            subscription to start collaborating with your team.
+            Your Free Plan includes 1 active team member seat. Upgrade to Pro for unlimited team member seats and collaboration.
           </p>
           <v-btn
             @click="router.push({ name: 'Pricing' })"
-            class="upgrade-btn mt-2"
+            class="upgrade-btn mt-2 font-weight-bold"
             color="indigo-darken-1"
             size="small"
           >
-            Upgrade Now
+            Upgrade to Pro
           </v-btn>
         </div>
       </div>
 
       <!-- Invite Member Form -->
-      <div v-if="isPaid" class="team-section invite-section">
+      <div class="team-section invite-section">
         <h3>Invite a New Member</h3>
         <p class="section-desc">
           Invited users will receive access to log hours and expenses for your
@@ -201,15 +228,18 @@ const handleDeleteInvitation = async (invite) => {
               label="Member Email Address"
               type="email"
               required
+              :disabled="isSeatLimitReached"
               density="comfortable"
               variant="outlined"
               class="invite-input"
               prepend-inner-icon="mdi-email-outline"
+              :placeholder="isSeatLimitReached ? 'Upgrade to Pro to add more members' : 'colleague@example.com'"
             ></v-text-field>
             <v-btn
               type="submit"
               color="indigo-darken-3"
               :loading="inviteLoading"
+              :disabled="isSeatLimitReached"
               class="invite-btn"
               height="48"
             >
@@ -295,7 +325,7 @@ const handleDeleteInvitation = async (invite) => {
       </div>
 
       <!-- Pending Invitations -->
-      <div v-if="isPaid && invitations.length > 0" class="team-section mt-6">
+      <div v-if="invitations.length > 0" class="team-section mt-6">
         <h3>Pending Invitations</h3>
         <div class="table-responsive">
           <table class="team-table">

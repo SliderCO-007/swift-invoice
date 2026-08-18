@@ -68,13 +68,18 @@ export const useOrganization = () => {
   const inviteMember = async (email) => {
     const profile = userProfile.value;
     if (!profile) throw new Error("Not authenticated.");
-    if (profile.role !== 'owner') throw new Error("Only organization owners can invite members.");
-    if (profile.subscriptionStatus !== 'active') {
-      throw new Error("Team collaboration features are only available to paid subscribers. Please upgrade your plan to invite members.");
-    }
-
     const orgId = profile.orgId || profile.id;
     const formattedEmail = email.toLowerCase().trim();
+
+    // Check free plan seat limit (1 team member seat)
+    const isPaid = profile.subscriptionStatus === 'active';
+    if (!isPaid) {
+      const activeMembersCount = teamMembers.value.filter(m => m.role !== 'owner').length;
+      const pendingInvitesCount = invitations.value.filter(i => i.status === 'pending').length;
+      if (activeMembersCount + pendingInvitesCount >= 1) {
+        throw new Error("Free plans include 1 team member seat. Please upgrade to Pro for unlimited team seats.");
+      }
+    }
 
     try {
       loading.value = true;
