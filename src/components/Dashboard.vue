@@ -328,10 +328,10 @@ const totalOverdueRevenue = computed(() => {
                   size="large" 
                   rounded="lg"
                   elevation="3"
-                  class="text-none font-weight-bold px-6 mt-2"
+                  class="text-none font-weight-bold first-invoice-btn mt-2"
                 >
                   <v-icon start class="mr-1">mdi-flash</v-icon>
-                  Create Your First Invoice (Prefilled)
+                  <span>Create Your First Invoice (Prefilled)</span>
                 </v-btn>
               </div>
 
@@ -537,12 +537,40 @@ const totalOverdueRevenue = computed(() => {
   flex-shrink: 0;
 }
 
+.first-invoice-btn {
+  height: auto !important;
+  min-height: 48px;
+  padding: 12px 24px !important;
+  white-space: normal !important;
+  text-align: center;
+  max-width: 100%;
+  line-height: 1.35;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:deep(.first-invoice-btn .v-btn__content) {
+  white-space: normal !important;
+  text-align: center;
+  line-height: 1.35;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
 @media (max-width: 600px) {
     .dashboard-container { padding: 0.5rem; }
     .dashboard-header { text-align: center; padding: 1.5rem 0.5rem 0 0.5rem; }
     .welcome-message { font-size: 1.8rem; }
     .invoices-header-desktop { display: none; }
     .dashboard-footer { padding: 2rem 0.5rem 1rem; }
+    .no-invoices-container { padding: 2.5rem 1rem; }
+    .first-invoice-btn {
+      width: 100%;
+      max-width: 340px;
+      padding: 12px 16px !important;
+      font-size: 0.95rem;
+    }
 
     /* Warning banner mobile adjustments */
     .stripe-warning-banner, .stripe-error-banner {
