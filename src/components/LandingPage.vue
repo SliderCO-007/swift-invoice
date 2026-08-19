@@ -658,7 +658,7 @@ const riskReductionText = computed(() => {
   } else if (props.variant === 'no_paywall') {
     return '100% Free Starter Plan. No credit card required.'
   }
-  return 'Free tier includes unlimited projects and 5 free invoices. No credit card required.'
+  return 'Free tier includes unlimited projects and 3 free invoices per month. No credit card required.'
 })
 
 const badges = computed(() => {

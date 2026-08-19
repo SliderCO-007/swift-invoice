@@ -44,7 +44,7 @@ ScanGo Invoice is a modern, premium, glassmorphic Vue.js web application that em
 - **Project & Time Tracking**: Track projects, log hourly labor entries, log expenses with receipt image uploads, and convert billable items directly to pre-filled invoices with 1 click.
 - **Robust Client & Items Directories**: Access auto-saving directories of your customers and frequent services/goods for lightning-fast autocomplete creation.
 - **Comprehensive Reporting**: Filter and analyze your business with dedicated **Sales Reports** showing monthly sales totals, tax collection summaries, average invoice size, daily revenue charts, and detailed data exports (CSV and print-ready PDF).
-- **Freemium Upgrade Funnel**: Includes soft caps (e.g. 5 invoices limit for free tier) and upgrade prompts to easily convert free accounts into paid Pro subscribers.
+- **Freemium Upgrade Funnel**: Includes soft caps (e.g. 3 invoices per month for free tier) and upgrade prompts to easily convert free accounts into paid Pro subscribers.
 
 ---
 

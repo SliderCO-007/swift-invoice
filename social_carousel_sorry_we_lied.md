@@ -128,7 +128,7 @@
 * **Sub-headline:**
   *Join freelancers & contractors getting hours back every week with ScanGo Invoice.*
 * **Offer Box:**
-  - 🌟 **Try It 100% Free** (No credit card required. Up to 5 free invoices & unlimited projects)
+  - 🌟 **Try It 100% Free** (No credit card required. 3 free invoices per month & unlimited projects)
   - 👉 **`swift-invoice-7a760.web.app`**
 * **Swipe Cue:** `Save for later 📌`
 

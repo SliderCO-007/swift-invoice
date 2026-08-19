@@ -28,7 +28,6 @@ const profile = computed(() => userProfile.value);
 
 const isFreePlan = computed(() => profile.value?.subscriptionStatus === 'free');
 const invoiceLimitReached = computed(() => isFreePlan.value && (profile.value?.invoiceCount || 0) >= 3);
-const projectLimitReached = computed(() => isFreePlan.value && (profile.value?.projectCount || 0) >= 1);
 
 // Hide on public landing pages or guest routes
 const isPublicRoute = computed(() => {
@@ -60,10 +59,6 @@ const handleQuickNewInvoice = () => {
 
 const handleQuickNewProject = () => {
   closeQuickActions();
-  if (projectLimitReached.value) {
-    router.push('/pricing');
-    return;
-  }
   router.push('/projects/new');
 };
 

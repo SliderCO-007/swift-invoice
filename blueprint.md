@@ -2499,6 +2499,14 @@ Resolve production errors with Stripe Connect Express where:
 - **Client Popup Blocker Handling (`src/composables/useStripeConnect.js`)**: Added redirect fallback when `window.open` is blocked by mobile popup blockers and updated invalid account detection.
 - **User Settings UI (`src/components/UserSettings.vue`)**: Added clear error notifications, dynamic button states ("Reconnect with Stripe" vs "Resume Stripe Onboarding"), and disabled broken actions when an account requires reconnection.
 
+## Free Tier Consistency Alignment (v101)
 
+### Purpose
+Ensure all landing page copy, mobile navigation workflows, and public/internal marketing documentation accurately state and enforce the verified Free Starter tier allowances: **3 free invoices per month (with automatic monthly resets)** and **unlimited projects**.
 
-
+### Changes
+- **Landing Page (`src/components/LandingPage.vue`)**: Updated `riskReductionText` fallback computed property from "5 free invoices" to `'Free tier includes unlimited projects and 3 free invoices per month. No credit card required.'`
+- **Mobile Bottom Navigation (`src/components/MobileBottomNav.vue`)**: Removed legacy and unused `projectLimitReached` check from `handleQuickNewProject` to ensure free tier users can create unlimited projects as advertised.
+- **Carousel Generator (`public/carousel_generator.html`)**: Updated slide 8 CTA copy to "3 free invoices per month & unlimited projects".
+- **Social Marketing Copy (`social_carousel_sorry_we_lied.md`)**: Updated Slide 8 offer box to "3 free invoices per month & unlimited projects".
+- **Project Documentation (`README.md`)**: Updated freemium upgrade funnel description from "5 invoices limit" to "3 invoices per month".
