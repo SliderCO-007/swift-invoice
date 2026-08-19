@@ -2485,5 +2485,20 @@ Update the landing page mobile hero animation with the new recording asset (`pub
 - Converted `public/mobile_hero.gif` (8 frames, 1080x2400 resolution, 800ms frame duration, 6.4s loop duration) to animated WebP format.
 - Replaced `public/new_hero.webp` with the new WebP animation (626 KB, quality 90, infinite loop), delivering full visual clarity while reducing file size relative to the raw GIF.
 
+## Stripe Express Resilience & Auto-Healing (v100)
+
+### Purpose
+Resolve production errors with Stripe Connect Express where:
+1. Inaccessible/deleted or invalid Stripe account IDs blocked users from reconnecting or creating a new Express account.
+2. `createExpressDashboardLink` threw `StripeInvalidRequestError` for accounts without direct Express Dashboard edit link access or with incomplete onboarding.
+3. Popup blockers silently dropped the Stripe portal redirect on mobile browsers.
+
+### Changes
+- **Auto-Healing Account Creation (`functions/stripeConnect.js`)**: Updated `createConnectAccount` to verify existing accounts via `stripe.accounts.retrieve()` and automatically provision a clean new Stripe Express account if the previous account was deleted, inaccessible, or invalid (e.g. 403 `account_invalid` or 404 `resource_missing`).
+- **Dashboard Link Fallback (`functions/stripeConnect.js`)**: Updated `createExpressDashboardLink` to inspect account state; if onboarding is incomplete, it routes to `type: 'account_onboarding'`, and if `createLoginLink` fails due to dashboard permission restrictions, it falls back seamlessly to `type: 'account_update'` Account Links.
+- **Client Popup Blocker Handling (`src/composables/useStripeConnect.js`)**: Added redirect fallback when `window.open` is blocked by mobile popup blockers and updated invalid account detection.
+- **User Settings UI (`src/components/UserSettings.vue`)**: Added clear error notifications, dynamic button states ("Reconnect with Stripe" vs "Resume Stripe Onboarding"), and disabled broken actions when an account requires reconnection.
+
+
 
 

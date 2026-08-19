@@ -20,7 +20,8 @@ const {
   fetchConnectStatus,
   createConnectAccount,
   openExpressDashboard,
-  loading: stripeLoading
+  loading: stripeLoading,
+  error: stripeError,
 } = useStripeConnect();
 
 
@@ -302,7 +303,7 @@ const goToPricing = () => {
                 </div>
                 <div class="stripe-status" :class="{ 'connected': connectStatus.chargesEnabled }">
                   <span class="status-indicator"></span>
-                  {{ connectStatus.invalidAccount ? 'Connection Error' : (connectStatus.chargesEnabled ? 'Connected & Verified' : (connectStatus.connected ? 'Pending Verification' : 'Not Connected')) }}
+                  {{ connectStatus.invalidAccount ? 'Connection Error - Reconnect Required' : (connectStatus.chargesEnabled ? 'Connected & Verified' : (connectStatus.connected ? 'Pending Verification' : 'Not Connected')) }}
                 </div>
               </div>
               
@@ -310,6 +311,10 @@ const goToPricing = () => {
                 <p>
                   Stripe Connect is used to securely accept credit cards, Apple Pay, Google Pay, and bank payments directly on your invoices.
                 </p>
+
+                <div v-if="stripeError" class="error-notification mt-3">
+                  {{ stripeError }}
+                </div>
                 
                 <div class="stripe-actions d-flex flex-wrap ga-3 align-center mt-4">
                   <v-btn 
@@ -319,11 +324,11 @@ const goToPricing = () => {
                     class="stripe-btn" 
                     prepend-icon="mdi-credit-card-outline"
                   >
-                    {{ connectStatus.connected ? 'Resume Stripe Onboarding' : 'Connect with Stripe' }}
+                    {{ connectStatus.invalidAccount ? 'Reconnect with Stripe' : (connectStatus.connected ? 'Resume Stripe Onboarding' : 'Connect with Stripe') }}
                   </v-btn>
 
                   <v-btn 
-                    v-if="connectStatus.connected"
+                    v-if="connectStatus.connected && !connectStatus.invalidAccount"
                     @click="openExpressDashboard"
                     :loading="stripeLoading"
                     color="teal-darken-2" 
@@ -335,7 +340,7 @@ const goToPricing = () => {
                   </v-btn>
                 </div>
 
-                <p v-if="connectStatus.connected" class="text-caption text-medium-emphasis mt-3">
+                <p v-if="connectStatus.connected && !connectStatus.invalidAccount" class="text-caption text-medium-emphasis mt-3">
                   ⚡ <strong>Instant Payouts & Earnings:</strong> View payout history, tax documents, and add an eligible debit card for 30-minute Instant Payouts in your Stripe Express portal.
                 </p>
 

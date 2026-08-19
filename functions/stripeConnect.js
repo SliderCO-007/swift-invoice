@@ -21,27 +21,50 @@ exports.createConnectAccount = onCall({ enforceAppCheck: false }, async (request
   const userData = userDoc.data() || {};
 
   let accountId = userData.stripeConnectAccountId;
+  let needNewAccount = !accountId;
+
+  // Verify that the existing account actually exists and is accessible in Stripe
+  if (accountId) {
+    try {
+      const existingAccount = await stripe.accounts.retrieve(accountId);
+      if (existingAccount.deleted) {
+        console.warn(`Stripe account ${accountId} is marked deleted. Creating a fresh account.`);
+        needNewAccount = true;
+      }
+    } catch (err) {
+      console.warn(`Stripe account ${accountId} verification failed (${err.message}). Creating a fresh account.`);
+      needNewAccount = true;
+    }
+  }
 
   try {
-    // 1. Create a Stripe Express account if one doesn't exist
-    if (!accountId) {
-      const account = await stripe.accounts.create({
+    // 1. Create a Stripe Express account if none exists or previous was invalid
+    if (needNewAccount) {
+      const userEmail = auth.token?.email || userData.email || undefined;
+      const accountParams = {
         type: 'express',
-        email: auth.token.email,
         capabilities: {
           card_payments: { requested: true },
           transfers: { requested: true },
         },
-      });
+      };
+      if (userEmail) {
+        accountParams.email = userEmail;
+      }
+
+      const account = await stripe.accounts.create(accountParams);
       accountId = account.id;
-      await userRef.update({ stripeConnectAccountId: accountId });
+      await userRef.update({ 
+        stripeConnectAccountId: accountId,
+        chargesEnabled: false,
+        detailsSubmitted: false
+      });
+      console.log(`Created new Stripe Express account ${accountId} for user ${auth.uid}`);
     }
 
     // 2. Create an Account Link for onboarding
-    const { returnUrl, refreshUrl } = data;
-    if (!returnUrl || !refreshUrl) {
-      throw new HttpsError('invalid-argument', 'returnUrl and refreshUrl are required.');
-    }
+    const returnUrl = data?.returnUrl || 'https://scangoinvoice.com/settings';
+    const refreshUrl = data?.refreshUrl || returnUrl;
 
     const accountLink = await stripe.accountLinks.create({
       account: accountId,
@@ -52,7 +75,6 @@ exports.createConnectAccount = onCall({ enforceAppCheck: false }, async (request
 
     return { url: accountLink.url };
   } catch (error) {
-
     console.error("Error creating Connect account:", error);
     if (error.message && error.message.includes('platform-profile')) {
       throw new HttpsError(
@@ -66,10 +88,11 @@ exports.createConnectAccount = onCall({ enforceAppCheck: false }, async (request
 
 
 /**
- * Creates a single-sign-on login link for the Stripe Express Dashboard.
+ * Creates a single-sign-on login link for the Stripe Express Dashboard,
+ * or falls back to an account_update / account_onboarding link.
  */
 exports.createExpressDashboardLink = onCall({ enforceAppCheck: false }, async (request) => {
-  const { auth } = request;
+  const { auth, data } = request;
   if (!auth) {
     throw new HttpsError('unauthenticated', 'The function must be called while authenticated.');
   }
@@ -84,11 +107,54 @@ exports.createExpressDashboardLink = onCall({ enforceAppCheck: false }, async (r
     throw new HttpsError('failed-precondition', 'No connected Stripe account found.');
   }
 
+  const returnUrl = data?.returnUrl || 'https://scangoinvoice.com/settings';
+  const refreshUrl = data?.refreshUrl || returnUrl;
+
   try {
-    const loginLink = await stripe.accounts.createLoginLink(accountId);
-    return { url: loginLink.url };
+    const account = await stripe.accounts.retrieve(accountId);
+
+    if (account.deleted) {
+      throw new HttpsError('not-found', 'Your Stripe Connect account has been deleted. Please reconnect.');
+    }
+
+    // If details are not submitted yet, route directly to onboarding
+    if (!account.details_submitted) {
+      const accountLink = await stripe.accountLinks.create({
+        account: accountId,
+        refresh_url: refreshUrl,
+        return_url: returnUrl,
+        type: 'account_onboarding',
+      });
+      return { url: accountLink.url, type: 'onboarding' };
+    }
+
+    // Try creating single sign-on login link to Stripe Express Dashboard
+    try {
+      const loginLink = await stripe.accounts.createLoginLink(accountId);
+      return { url: loginLink.url, type: 'login_link' };
+    } catch (loginErr) {
+      console.warn(`createLoginLink failed for ${accountId} (${loginErr.message}). Falling back to account_update account link.`);
+      const updateLink = await stripe.accountLinks.create({
+        account: accountId,
+        refresh_url: refreshUrl,
+        return_url: returnUrl,
+        type: 'account_update',
+      });
+      return { url: updateLink.url, type: 'account_update' };
+    }
   } catch (error) {
-    console.error("Error creating Express Dashboard login link:", error);
+    console.error("Error creating Express Dashboard / Account link:", error);
+    const errMsg = error.message || "";
+    if (
+      error.code === 'account_invalid' || 
+      error.code === 'resource_missing' || 
+      error.statusCode === 404 || 
+      error.statusCode === 403 ||
+      errMsg.includes('No such account') ||
+      errMsg.includes('account_invalid')
+    ) {
+      throw new HttpsError('not-found', 'Your Stripe Connect account is no longer valid or accessible. Please reconnect your account in Settings.');
+    }
     throw new HttpsError('internal', error.message);
   }
 });
@@ -110,16 +176,20 @@ exports.getStripeConnectStatus = onCall({ enforceAppCheck: false }, async (reque
   const accountId = userDoc.data()?.stripeConnectAccountId;
 
   if (!accountId) {
-    return { connected: false, chargesEnabled: false, detailsSubmitted: false };
+    return { connected: false, chargesEnabled: false, detailsSubmitted: false, invalidAccount: false };
   }
 
   try {
     const account = await stripe.accounts.retrieve(accountId);
+
+    if (account.deleted) {
+      return { connected: false, chargesEnabled: false, detailsSubmitted: false, invalidAccount: true };
+    }
     
     // Keep Firestore user document in sync with Stripe
     await db.collection('users').doc(auth.uid).update({
-      chargesEnabled: account.charges_enabled,
-      detailsSubmitted: account.details_submitted
+      chargesEnabled: !!account.charges_enabled,
+      detailsSubmitted: !!account.details_submitted
     });
 
     // AUTO-SYNC business details if they are empty in userSettings
@@ -183,24 +253,38 @@ exports.getStripeConnectStatus = onCall({ enforceAppCheck: false }, async (reque
     return {
       connected: true,
       accountId: account.id,
-      chargesEnabled: account.charges_enabled,
-      detailsSubmitted: account.details_submitted,
+      chargesEnabled: !!account.charges_enabled,
+      detailsSubmitted: !!account.details_submitted,
+      invalidAccount: false,
     };
   } catch (error) {
     console.error("Error retrieving Connect account:", error);
-    // Check if the account was deleted or access was revoked in Stripe
     const errMsg = error.message || "";
-    if (
+    const isInvalid = 
+      error.code === 'account_invalid' || 
       error.code === 'resource_missing' || 
       error.statusCode === 404 || 
+      error.statusCode === 403 || 
+      error.raw?.code === 'account_invalid' ||
       error.raw?.code === 'resource_missing' ||
       errMsg.includes('No such account') || 
       errMsg.includes('resource_missing') || 
       errMsg.includes('does not have access to account') || 
       errMsg.includes('account does not exist') || 
-      errMsg.includes('revoked')
-    ) {
+      errMsg.includes('account_invalid') ||
+      errMsg.includes('revoked');
+
+    if (isInvalid) {
       console.warn(`Stripe Connect account ${accountId} not found or inaccessible in Stripe. Returning invalidAccount status.`);
+      try {
+        await db.collection('users').doc(auth.uid).update({
+          chargesEnabled: false,
+          detailsSubmitted: false
+        });
+      } catch (dbErr) {
+        console.error("Failed to update user chargesEnabled after invalid account check:", dbErr);
+      }
+
       return {
         connected: false,
         invalidAccount: true,

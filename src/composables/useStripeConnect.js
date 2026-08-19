@@ -34,9 +34,12 @@ export default function useStripeConnect() {
         errMsg.includes('resource_missing') || 
         errMsg.includes('does not have access to account') || 
         errMsg.includes('account does not exist') || 
+        errMsg.includes('account_invalid') ||
         errMsg.includes('revoked')
       ) {
         connectStatus.value.invalidAccount = true;
+        connectStatus.value.connected = false;
+        connectStatus.value.chargesEnabled = false;
       } else {
         error.value = err.message;
       }
@@ -57,7 +60,6 @@ export default function useStripeConnect() {
       if (response.data?.url) {
         window.location.href = response.data.url;
       }
-
     } catch (err) {
       console.error('Error creating Connect account:', err);
       error.value = err.message;
@@ -103,23 +105,37 @@ export default function useStripeConnect() {
     }
   };
 
-  const openExpressDashboard = async () => {
+  const openExpressDashboard = async (returnPath = '/settings') => {
     loading.value = true;
     error.value = null;
     try {
       const getDashboardLinkFn = httpsCallable(functions, 'createExpressDashboardLink');
-      const response = await getDashboardLinkFn();
-      if (response.data.url) {
-        window.open(response.data.url, '_blank');
+      const response = await getDashboardLinkFn({
+        returnUrl: window.location.origin + returnPath,
+        refreshUrl: window.location.origin + returnPath,
+      });
+      if (response.data?.url) {
+        const popup = window.open(response.data.url, '_blank');
+        if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+          window.location.href = response.data.url;
+        }
       }
     } catch (err) {
       console.error('Error opening Express Dashboard:', err);
+      const errMsg = err.message || "";
+      if (
+        errMsg.includes('no longer valid') ||
+        errMsg.includes('No such account') ||
+        errMsg.includes('account_invalid') ||
+        errMsg.includes('resource_missing')
+      ) {
+        connectStatus.value.invalidAccount = true;
+      }
       error.value = err.message;
     } finally {
       loading.value = false;
     }
   };
-
 
   return {
     loading,
