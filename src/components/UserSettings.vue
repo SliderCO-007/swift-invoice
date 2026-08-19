@@ -329,7 +329,7 @@ const goToPricing = () => {
 
                   <v-btn 
                     v-if="connectStatus.connected && !connectStatus.invalidAccount"
-                    @click="openExpressDashboard"
+                    @click="() => openExpressDashboard('/settings')"
                     :loading="stripeLoading"
                     color="teal-darken-2" 
                     variant="flat"

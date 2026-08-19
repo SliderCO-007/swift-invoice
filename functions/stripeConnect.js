@@ -5,6 +5,23 @@ const { defineString } = require("firebase-functions/params");
 const stripeSecretKey = defineString("STRIPE_SECRET_KEY");
 
 /**
+ * Validates and sanitizes a URL, falling back to a safe default if invalid.
+ */
+function sanitizeUrl(rawUrl, defaultUrl = 'https://scangoinvoice.com/settings') {
+  if (typeof rawUrl === 'string' && (rawUrl.startsWith('http://') || rawUrl.startsWith('https://'))) {
+    try {
+      const parsed = new URL(rawUrl);
+      if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+        return parsed.href;
+      }
+    } catch (e) {
+      // Not a valid URL string
+    }
+  }
+  return defaultUrl;
+}
+
+/**
  * Creates a Stripe Connect account for a user and returns an account onboarding link.
  */
 exports.createConnectAccount = onCall({ enforceAppCheck: false }, async (request) => {
@@ -63,8 +80,8 @@ exports.createConnectAccount = onCall({ enforceAppCheck: false }, async (request
     }
 
     // 2. Create an Account Link for onboarding
-    const returnUrl = data?.returnUrl || 'https://scangoinvoice.com/settings';
-    const refreshUrl = data?.refreshUrl || returnUrl;
+    const returnUrl = sanitizeUrl(data?.returnUrl);
+    const refreshUrl = sanitizeUrl(data?.refreshUrl, returnUrl);
 
     const accountLink = await stripe.accountLinks.create({
       account: accountId,
@@ -107,8 +124,8 @@ exports.createExpressDashboardLink = onCall({ enforceAppCheck: false }, async (r
     throw new HttpsError('failed-precondition', 'No connected Stripe account found.');
   }
 
-  const returnUrl = data?.returnUrl || 'https://scangoinvoice.com/settings';
-  const refreshUrl = data?.refreshUrl || returnUrl;
+  const returnUrl = sanitizeUrl(data?.returnUrl);
+  const refreshUrl = sanitizeUrl(data?.refreshUrl, returnUrl);
 
   try {
     const account = await stripe.accounts.retrieve(accountId);

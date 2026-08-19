@@ -51,11 +51,12 @@ export default function useStripeConnect() {
   const createConnectAccount = async (returnPath = '/settings') => {
     loading.value = true;
     error.value = null;
+    const path = typeof returnPath === 'string' && returnPath.startsWith('/') ? returnPath : '/settings';
     try {
       const createAccountFn = httpsCallable(functions, 'createConnectAccount');
       const response = await createAccountFn({
-        returnUrl: window.location.origin + returnPath,
-        refreshUrl: window.location.origin + returnPath,
+        returnUrl: window.location.origin + path,
+        refreshUrl: window.location.origin + path,
       });
       if (response.data?.url) {
         window.location.href = response.data.url;
@@ -108,11 +109,12 @@ export default function useStripeConnect() {
   const openExpressDashboard = async (returnPath = '/settings') => {
     loading.value = true;
     error.value = null;
+    const path = typeof returnPath === 'string' && returnPath.startsWith('/') ? returnPath : '/settings';
     try {
       const getDashboardLinkFn = httpsCallable(functions, 'createExpressDashboardLink');
       const response = await getDashboardLinkFn({
-        returnUrl: window.location.origin + returnPath,
-        refreshUrl: window.location.origin + returnPath,
+        returnUrl: window.location.origin + path,
+        refreshUrl: window.location.origin + path,
       });
       if (response.data?.url) {
         const popup = window.open(response.data.url, '_blank');
