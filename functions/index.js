@@ -46,6 +46,9 @@ exports.sendSmsInvoice = sendSmsInvoice.sendSmsInvoice;
 const scheduledReminders = require("./scheduledReminders");
 exports.sendScheduledReminders = scheduledReminders.sendScheduledReminders;
 
+const monthlyReset = require("./monthlyReset");
+exports.resetMonthlyInvoiceCounts = monthlyReset.resetMonthlyInvoiceCounts;
+
 
 
 /**

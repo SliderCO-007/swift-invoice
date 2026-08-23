@@ -84,7 +84,12 @@ const isInitialLoad = computed(() => !invoicesHaveLoaded.value || !settingsHaveL
 
 const hasError = computed(() => invoicesError.value || settingsError.value);
 const isFreePlan = computed(() => userProfile.value?.subscriptionStatus === 'free');
-const invoiceLimitReached = computed(() => isFreePlan.value && userProfile.value?.invoiceCount >= 3);
+const invoiceLimitReached = computed(() => {
+  if (!isFreePlan.value) return false;
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  if (userProfile.value?.invoiceCountMonth !== currentMonth) return false;
+  return (userProfile.value?.invoiceCount || 0) >= 3;
+});
 const hasInvoices = computed(() => invoices.value && invoices.value.length > 0);
 const isDataLoading = computed(() => invoicesLoading.value || settingsLoading.value || stripeLoading.value);
 

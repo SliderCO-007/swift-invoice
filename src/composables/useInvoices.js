@@ -155,13 +155,18 @@ const useInvoices = () => {
         const userDoc = await transaction.get(userRef);
         const settingsDoc = await transaction.get(settingsRef);
 
+        const currentMonthKey = new Date().toISOString().slice(0, 7);
         let invoiceCount = 0;
         let subscriptionStatus = 'free';
 
         if (userDoc.exists()) {
           const userData = userDoc.data();
-          invoiceCount = userData.invoiceCount || 0;
           subscriptionStatus = userData.subscriptionStatus || 'free';
+          if (userData.invoiceCountMonth === currentMonthKey) {
+            invoiceCount = userData.invoiceCount || 0;
+          } else {
+            invoiceCount = 0; // New month rollover
+          }
         }
 
         if (subscriptionStatus === 'free' && invoiceCount >= 3) {
@@ -170,11 +175,6 @@ const useInvoices = () => {
 
         const settingsData = settingsDoc.data() || {};
         let currentCounter = settingsData.invoiceCounter || 0;
-        
-        // Fail-safe: Ensure invoiceCounter is at least equal to existing invoiceCount
-        if (currentCounter < invoiceCount) {
-          currentCounter = invoiceCount;
-        }
 
         const newInvoiceCounter = currentCounter + 1;
         const invoiceNumber = String(newInvoiceCounter).padStart(6, '0');
@@ -194,6 +194,7 @@ const useInvoices = () => {
         if (userDoc.exists()) {
           transaction.update(userRef, { 
             invoiceCount: newInvoiceCount,
+            invoiceCountMonth: currentMonthKey,
             subscriptionStatus: subscriptionStatus
           });
         }
@@ -285,8 +286,13 @@ const useInvoices = () => {
         transaction.delete(invoiceRef);
         
         if (userDoc.exists()) {
-            const currentCount = userDoc.data().invoiceCount || 0;
-            transaction.update(userRef, { invoiceCount: Math.max(0, currentCount - 1) });
+          const currentMonthKey = new Date().toISOString().slice(0, 7);
+          const userData = userDoc.data();
+          const currentCount = userData.invoiceCountMonth === currentMonthKey ? (userData.invoiceCount || 0) : 0;
+          transaction.update(userRef, { 
+            invoiceCount: Math.max(0, currentCount - 1),
+            invoiceCountMonth: currentMonthKey
+          });
         }
       });
     } catch (err) {

@@ -124,6 +124,23 @@ const fetchUserProfile = async (userId) => {
         }
       }
       
+      // Lazy monthly invoice count reset for free plan users
+      const currentMonthKey = new Date().toISOString().slice(0, 7);
+      if (profile.subscriptionStatus === 'free' && profile.invoiceCountMonth !== currentMonthKey) {
+        try {
+          await updateDoc(userRef, {
+            invoiceCount: 0,
+            invoiceCountMonth: currentMonthKey
+          });
+          profile.invoiceCount = 0;
+          profile.invoiceCountMonth = currentMonthKey;
+        } catch (resetErr) {
+          console.warn("Error lazily resetting monthly invoice count in Firestore:", resetErr);
+          profile.invoiceCount = 0;
+          profile.invoiceCountMonth = currentMonthKey;
+        }
+      }
+      
       userProfile.value = profile;
       return profile;
     } else {
@@ -185,6 +202,7 @@ const createInitialUserData = async (user) => {
       createdAt: serverTimestamp(),
       subscriptionStatus: role === 'owner' ? 'free' : 'member', // members inherit owner's sub status dynamically
       invoiceCount: 0,
+      invoiceCountMonth: new Date().toISOString().slice(0, 7),
       orgId,
       role,
       signupSource

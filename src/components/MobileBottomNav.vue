@@ -27,7 +27,12 @@ const user = computed(() => currentUser.value);
 const profile = computed(() => userProfile.value);
 
 const isFreePlan = computed(() => profile.value?.subscriptionStatus === 'free');
-const invoiceLimitReached = computed(() => isFreePlan.value && (profile.value?.invoiceCount || 0) >= 3);
+const invoiceLimitReached = computed(() => {
+  if (!isFreePlan.value) return false;
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  if (profile.value?.invoiceCountMonth !== currentMonth) return false;
+  return (profile.value?.invoiceCount || 0) >= 3;
+});
 
 // Hide on public landing pages or guest routes
 const isPublicRoute = computed(() => {

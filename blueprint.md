@@ -2510,3 +2510,29 @@ Ensure all landing page copy, mobile navigation workflows, and public/internal m
 - **Carousel Generator (`public/carousel_generator.html`)**: Updated slide 8 CTA copy to "3 free invoices per month & unlimited projects".
 - **Social Marketing Copy (`social_carousel_sorry_we_lied.md`)**: Updated Slide 8 offer box to "3 free invoices per month & unlimited projects".
 - **Project Documentation (`README.md`)**: Updated freemium upgrade funnel description from "5 invoices limit" to "3 invoices per month".
+
+## Team Member Invitation Security Rules Alignment (v102)
+
+### Purpose
+Fix production `FirebaseError: Missing or insufficient permissions` encountered when organization owners send member invitations (`inviteMember`). The Firestore security rules for `/invitations/{invitationId}` previously had a stale restriction (`getUserData(request.auth.uid).get('subscriptionStatus', 'free') == 'active'`), which blocked organization owners on the Free Starter plan (who are granted 1 free team member seat) from creating invitation documents.
+
+### Changes
+- **Firestore Security Rules (`firestore.rules`)**: Updated `match /invitations/{invitationId}` `allow create` rule to allow any authenticated organization owner (`request.auth != null && isOrgOwner(request.resource.data.orgId)`) to create invitations, aligning the backend security rules with the Free Starter 1-seat feature and Pro unlimited seats model.
+
+## Monthly Invoice Limit Tracking & Automatic Reset (v103)
+
+### Purpose
+Resolve the issue where Free Starter tier accounts that created invoices in past months or during initial testing remain permanently blocked with the "You have reached the 3-invoice limit for the free plan" banner. The system now tracks invoice usage on a monthly rolling cycle (`invoiceCountMonth` in `YYYY-MM` format) and provides seamless automatic resets on a scheduled basis (1st of each month) and on-demand lazy evaluation when loading user profiles or creating invoices in a new calendar month.
+
+### Changes
+- **User Authentication & Profile (`src/composables/useAuth.js`)**:
+  - Initialized new user accounts with `invoiceCountMonth` tracking the current calendar month (`YYYY-MM`).
+  - Added lazy monthly reset in `fetchUserProfile`: if an owner on the free plan logs in and their `invoiceCountMonth` is from a previous month, automatically reset their `invoiceCount` to `0` and update `invoiceCountMonth` to current.
+- **Invoice Composable (`src/composables/useInvoices.js`)**:
+  - Scoped invoice creation and deletion transaction checks to `invoiceCountMonth`.
+  - Automatically resets invoice count to 0 if an invoice is created in a new month, ensuring users receive their fresh 3 invoices/month allowance.
+- **Dashboard & Navigation UI (`src/components/Dashboard.vue`, `src/components/MobileBottomNav.vue`, `src/components/InvoiceEditor.vue`)**:
+  - Updated `invoiceLimitReached` computed properties across views to verify `invoiceCountMonth === currentMonthKey` before evaluating if the count is $\ge 3$.
+- **Cloud Functions (`functions/monthlyReset.js`, `functions/index.js`)**:
+  - Implemented `resetMonthlyInvoiceCounts` scheduled on the 1st of every month (`0 0 1 * *`) via Cloud Functions v2 Scheduler to batch-reset `invoiceCount: 0` for all free tier users.
+

@@ -200,7 +200,10 @@ const initializeInvoice = async () => {
     invoiceId.value = 'new';
     invoice.value = createFreshInvoice(); // Start with a clean slate
 
-    if (userProfile.value?.subscriptionStatus === 'free' && userProfile.value?.invoiceCount >= 3) {
+    const currentMonthKey = new Date().toISOString().slice(0, 7);
+    const isCurrentMonth = userProfile.value?.invoiceCountMonth === currentMonthKey;
+    const currentMonthCount = isCurrentMonth ? (userProfile.value?.invoiceCount || 0) : 0;
+    if (userProfile.value?.subscriptionStatus === 'free' && currentMonthCount >= 3) {
       showLimitModal.value = true;
     }
 

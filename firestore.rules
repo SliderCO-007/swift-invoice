@@ -118,10 +118,7 @@ service cloud.firestore {
         request.auth.token.email == resource.data.email || 
         isOrgOwner(resource.data.orgId)
       );
-      allow create: if request.auth != null && isOrgOwner(request.resource.data.orgId) && (
-        userExists(request.auth.uid) &&
-        getUserData(request.auth.uid).get('subscriptionStatus', 'free') == 'active'
-      );
+      allow create: if request.auth != null && isOrgOwner(request.resource.data.orgId);
       allow update: if request.auth != null && (
         isOrgOwner(resource.data.orgId) ||
         (request.resource.data.status == 'accepted' && request.resource.data.acceptedBy == request.auth.uid)
