@@ -2536,3 +2536,13 @@ Resolve the issue where Free Starter tier accounts that created invoices in past
 - **Cloud Functions (`functions/monthlyReset.js`, `functions/index.js`)**:
   - Implemented `resetMonthlyInvoiceCounts` scheduled on the 1st of every month (`0 0 1 * *`) via Cloud Functions v2 Scheduler to batch-reset `invoiceCount: 0` for all free tier users.
 
+## Guest Navigation Cleanup (v104)
+
+### Purpose
+Remove the non-functional "Create Invoice" button from the guest/unauthenticated desktop navigation bar on `AppBar.vue` that resulted in no-op redirects back to `/login`.
+
+### Changes
+- **AppBar Component (`src/components/AppBar.vue`)**:
+  - Removed `<v-btn color="primary" variant="flat" to="/invoice/new">Create Invoice</v-btn>` from the unauthenticated desktop navigation block.
+  - Made the `Register` button the primary filled CTA (`color="primary" variant="flat"`), providing a clean and intuitive guest navigation flow (`Features | About Us | FAQ | Pricing | Login | Register`).
+
