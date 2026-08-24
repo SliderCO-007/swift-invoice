@@ -107,6 +107,14 @@ export default function useStripeConnect() {
   };
 
   const openExpressDashboard = async (returnPath = '/settings') => {
+    // Pre-open a blank tab synchronously during user click to bypass browser popup blocker restrictions
+    let newWindow = null;
+    try {
+      newWindow = window.open('about:blank', '_blank');
+    } catch (e) {
+      console.warn('Could not pre-open blank window for Stripe Express:', e);
+    }
+
     loading.value = true;
     error.value = null;
     const path = typeof returnPath === 'string' && returnPath.startsWith('/') ? returnPath : '/settings';
@@ -117,12 +125,26 @@ export default function useStripeConnect() {
         refreshUrl: window.location.origin + path,
       });
       if (response.data?.url) {
-        const popup = window.open(response.data.url, '_blank');
-        if (!popup || popup.closed || typeof popup.closed === 'undefined') {
-          window.location.href = response.data.url;
+        if (newWindow && !newWindow.closed) {
+          newWindow.location.href = response.data.url;
+          if (newWindow.focus) {
+            newWindow.focus();
+          }
+        } else {
+          const fallbackPopup = window.open(response.data.url, '_blank');
+          if (!fallbackPopup || fallbackPopup.closed || typeof fallbackPopup.closed === 'undefined') {
+            window.location.href = response.data.url;
+          }
+        }
+      } else {
+        if (newWindow && !newWindow.closed) {
+          newWindow.close();
         }
       }
     } catch (err) {
+      if (newWindow && !newWindow.closed) {
+        newWindow.close();
+      }
       console.error('Error opening Express Dashboard:', err);
       const errMsg = err.message || "";
       if (

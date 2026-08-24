@@ -2546,3 +2546,14 @@ Remove the non-functional "Create Invoice" button from the guest/unauthenticated
   - Removed `<v-btn color="primary" variant="flat" to="/invoice/new">Create Invoice</v-btn>` from the unauthenticated desktop navigation block.
   - Made the `Register` button the primary filled CTA (`color="primary" variant="flat"`), providing a clean and intuitive guest navigation flow (`Features | About Us | FAQ | Pricing | Login | Register`).
 
+## Stripe Express New Window Navigation (v105)
+
+### Purpose
+Ensure clicking "Open Stripe Express Dashboard" in the Settings Payments section reliably opens Stripe Express in a new tab/window instead of navigating away from the current window.
+
+### Changes
+- **Stripe Connect Composable (`src/composables/useStripeConnect.js`)**:
+  - Updated `openExpressDashboard` to pre-open a blank tab (`window.open('about:blank', '_blank')`) synchronously within the user's click interaction.
+  - Set the new window's URL to the generated Stripe login link once the asynchronous Cloud Function completes, bypassing browser popup blocker restrictions that previously forced navigation in the current window.
+  - Cleaned up the opened window if an error occurs or if no link is returned.
+
