@@ -71,6 +71,7 @@ const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'cur
 const getStatusColor = (status) => {
   switch (status.toLowerCase()) {
     case 'paid': return 'green-darken-2';
+    case 'payment_processing': return 'indigo-darken-1';
     case 'pending': return 'orange-darken-2';
     case 'overdue': return 'red-darken-2';
     case 'estimate': return 'blue-darken-1';

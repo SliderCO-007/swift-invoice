@@ -4,33 +4,40 @@ SCANGO INVOICE - RE-ENGAGEMENT EMAIL TEMPLATE (PROGRESSIVE FLOW)
 Use this template for outreach to users who registered (via Google One-Click 
 or email) but dropped off before creating their first invoice. 
 
-Since upfront setup has been eliminated, this email emphasizes that 
-NO SETUP IS REQUIRED and their profile details are already pre-filled.
+Since upfront setup has been eliminated, this email emphasizes sending a 
+quick, zero-pressure 60-second test invoice to experience the platform.
 
 --------------------------------------------------------------------------------
 SUBJECT LINE OPTIONS:
 --------------------------------------------------------------------------------
-Option 1 (Primary - Action-Oriented & High-Converting):
-Subject: Your invoice draft is waiting for you
+Option 1 (Primary - Friction Eliminator & Experience-Focused):
+Subject: Send yourself a test invoice in 60 seconds
 
-Option 2 (Conversational & High Open Rate):
-Subject: quick question about your invoice draft
+Option 2 (Outcome-Focused & High Benefit):
+Subject: See what your clients see before you send an invoice
 
-Option 3 (Value & Zero-Friction Focused):
-Subject: No setup needed — your first invoice is ready in 30 seconds
+Option 3 (Short & Conversational):
+Subject: quick test of ScanGo Invoice?
 
 --------------------------------------------------------------------------------
 EMAIL BODY (Plain Text - Recommended for maximum deliverability & response):
 --------------------------------------------------------------------------------
 Hi [First Name],
 
-I noticed you signed up for ScanGo Invoice recently, but didn't get a chance to send your first invoice.
+When you signed up for ScanGo, you were probably looking for a faster, cleaner way to bill clients.
 
-Good news: we've removed all setup forms! Your account profile details have been automatically pre-filled, so you can draft and send an invoice in less than 30 seconds.
+The best way to see how easy it is? Send a quick test invoice to yourself:
 
-👉 Complete your invoice here: https://scangoinvoice.com/invoice/new
+👉 Send a 60-second test invoice: https://scangoinvoice.com/invoice/new
 
-You can add your line items, customize your business details, and preview your invoice right inside the editor—no configuration required.
+Here's what you'll experience:
+1. Tap to add an item (takes 20 seconds).
+2. Preview the professional client view with Apple Pay, Google Pay, and credit card options.
+3. Send it straight to your own email or phone via SMS Text-2-Pay.
+
+No commitment and zero setup needed—your business info is already pre-filled.
+
+Give it a spin and see what your clients will see.
 
 If you ran into any issues or have feedback on how we can make ScanGo better for your business, just hit reply to this email—I read every message!
 
@@ -39,28 +46,36 @@ Best,
 Curtis
 ScanGo Invoice
 curtis@scangoinvoice.com
+https://scangoinvoice.com
 
 ================================================================================
 HTML EMAIL TEMPLATE (For automated sequences via Resend / Postmark / SendGrid):
 ================================================================================
-Subject: Your invoice draft is waiting for you
+Subject: Send yourself a test invoice in 60 seconds
 
 <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; background-color: #111d2f; color: #f1f5f9; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);">
   <div style="margin-bottom: 24px; text-align: center;">
-    <h2 style="color: #ffffff; font-size: 22px; font-weight: 700; margin: 0 0 8px 0;">Your First Invoice is Ready ⚡</h2>
-    <p style="color: #94a3b8; font-size: 15px; margin: 0;">No setup forms required — start drafting in 30 seconds.</p>
+    <h2 style="color: #ffffff; font-size: 22px; font-weight: 700; margin: 0 0 8px 0;">See What Your Clients See ⚡</h2>
+    <p style="color: #94a3b8; font-size: 15px; margin: 0;">Send a quick 60-second test invoice to yourself — zero setup needed.</p>
   </div>
   
   <p style="font-size: 15px; line-height: 1.6; color: #cbd5e1;">Hi {{first_name}},</p>
-  <p style="font-size: 15px; line-height: 1.6; color: #cbd5e1;">We noticed you signed up for ScanGo Invoice recently, but haven't sent your first invoice yet.</p>
-  <p style="font-size: 15px; line-height: 1.6; color: #cbd5e1;">We've streamlined the experience so you don't need to fill out any company setup forms. Your profile details are pre-filled and ready to go.</p>
+  <p style="font-size: 15px; line-height: 1.6; color: #cbd5e1;">When you signed up for ScanGo, you were probably looking for a faster, cleaner way to bill clients.</p>
+  <p style="font-size: 15px; line-height: 1.6; color: #cbd5e1;">The easiest way to test drive the experience without any pressure is to send a quick test invoice straight to your own email or phone.</p>
+
+  <div style="background-color: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 18px; margin: 24px 0;">
+    <p style="font-size: 14px; font-weight: 700; color: #00f2fe; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">What you'll experience:</p>
+    <p style="font-size: 14px; line-height: 1.5; color: #cbd5e1; margin: 0 0 6px 0;">⚡ <strong>Tap to add an item</strong> (takes 20 seconds)</p>
+    <p style="font-size: 14px; line-height: 1.5; color: #cbd5e1; margin: 0 0 6px 0;">💳 <strong>Preview the client portal</strong> with Apple Pay, Google Pay, & Card checkout</p>
+    <p style="font-size: 14px; line-height: 1.5; color: #cbd5e1; margin: 0;">📱 <strong>Send via Email or SMS Text-2-Pay</strong> straight to your phone</p>
+  </div>
 
   <div style="text-align: center; margin: 32px 0;">
-    <a href="https://scangoinvoice.com/invoice/new" style="background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #0f172a; text-decoration: none; padding: 14px 28px; font-weight: 700; font-size: 15px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);">Create Your Invoice Now →</a>
+    <a href="https://scangoinvoice.com/invoice/new" style="background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #0f172a; text-decoration: none; padding: 14px 28px; font-weight: 700; font-size: 15px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);">Send a Test Invoice (60s) →</a>
   </div>
 
   <p style="font-size: 14px; line-height: 1.5; color: #94a3b8; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; margin-top: 32px;">
-    Questions or feedback? Just reply to this email and our team will be happy to help.
+    Questions or feedback? Just reply to this email—Curtis reads every message!
   </p>
 </div>
 

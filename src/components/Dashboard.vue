@@ -135,6 +135,7 @@ const getStatusInfo = (status) => {
   const s = status ? status.toLowerCase() : 'pending';
   switch (s) {
     case 'paid': return { color: '#4CAF50', icon: 'mdi-check-circle-outline' };
+    case 'payment_processing': return { color: '#3F51B5', icon: 'mdi-bank-transfer-in' };
     case 'overdue': return { color: '#F44336', icon: 'mdi-alert-circle-outline' };
     case 'pending': return { color: '#2196F3', icon: 'mdi-cash-clock' };
     default: return { color: '#9E9E9E', icon: 'mdi-help-circle-outline' };

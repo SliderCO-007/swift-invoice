@@ -17,7 +17,7 @@ function loadEnvFiles() {
     'functions/.env',
     'functions/.env.local'
   ];
-  
+
   for (const file of envFiles) {
     const fullPath = path.resolve(process.cwd(), file);
     if (fs.existsSync(fullPath)) {
@@ -74,8 +74,8 @@ if (args.includes('--help') || args.includes('-h')) {
   console.log(`🔍 SCANGO INVOICE - RE-ENGAGEMENT EMAIL TARGET FINDER CLI`);
   console.log(`================================================================================`);
   console.log(`\nDescription:`);
-  console.log(`  Finds newly registered users (2-7 days ago) with 0 invoices created and sends`);
-  console.log(`  a re-engagement email notifying them that setup forms have been pre-filled.`);
+  console.log(`  Finds newly registered users (2-7 days ago) with 0 invoices created and sends
+  a re-engagement email inviting them to send a 60-second test invoice to themselves.`);
   console.log(`\nUsage:`);
   console.log(`  node scripts/send-reengagement-emails.js [OPTIONS]`);
   console.log(`\nOptions:`);
@@ -140,7 +140,7 @@ try {
   process.exit(1);
 }
 
-const subject = "Your invoice draft is waiting for you";
+const subject = "Send yourself a test invoice in 60 seconds";
 
 function resolveFirstName(name, email) {
   const genericPlaceholders = [
@@ -190,13 +190,20 @@ function getPlainTextBody(name, email) {
   const firstName = resolveFirstName(name, email);
   return `Hi ${firstName},
 
-I noticed you signed up for ScanGo Invoice recently, but didn't get a chance to send your first invoice.
+When you signed up for ScanGo Invoice, you were probably looking for a faster, cleaner way to bill clients.
 
-Good news: we've removed all setup forms! Your account profile details have been automatically pre-filled, so you can draft and send an invoice in less than 30 seconds.
+The best way to see how easy it is? Send a quick test invoice to yourself:
 
-👉 Complete your invoice here: https://scangoinvoice.com/invoice/new
+👉 Send a 60-second test invoice: https://scangoinvoice.com/invoice/new
 
-You can add your line items, customize your business details, and preview your invoice right inside the editor—no configuration required.
+Here's what you'll experience:
+1. Tap to add an item (takes 20 seconds).
+2. Preview the professional client view with Apple Pay, Google Pay, and credit card options. (Requires a Stripe Connected account)
+3. Send it straight to your own email or phone via SMS Text-2-Pay.
+
+No commitment and zero setup needed—your business info is already pre-filled.
+
+Give it a spin and see what your clients will see.
 
 If you ran into any issues or have feedback on how we can make ScanGo better for your business, just hit reply to this email—I read every message!
 
@@ -238,7 +245,7 @@ async function main() {
       if (!snap.empty) {
         resolvedName = snap.docs[0].data().name || '';
       }
-    } catch (e) {}
+    } catch (e) { }
 
     const candidate = { id: 'manual', email: targetOverride, name: resolvedName, daysAgo: 'N/A' };
     await processCandidates([candidate]);
@@ -304,6 +311,13 @@ async function processCandidates(candidates) {
     console.log(`  [${idx + 1}] ${user.name} <${user.email}>`);
     console.log(`      Registered: ${user.daysAgo} days ago | UID: ${user.id}`);
   });
+
+  console.log(`\n--------------------------------------------------------------------------------`);
+  console.log(`EMAIL PREVIEW FOR FIRST RECIPIENT (${candidates[0].email}):`);
+  console.log(`Subject: ${subject}`);
+  console.log(`--------------------------------------------------------------------------------`);
+  console.log(getPlainTextBody(candidates[0].name, candidates[0].email));
+  console.log(`--------------------------------------------------------------------------------`);
 
   if (isDryRun) {
     console.log(`\n--------------------------------------------------------------------------------`);

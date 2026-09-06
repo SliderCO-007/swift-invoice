@@ -426,13 +426,24 @@
     </div>
 
     <!-- Format Switcher -->
-    <div class="format-switcher">
-      <button class="format-btn active" id="btnSquare" data-mode="mode-square">
-        <span>🟦</span> Facebook / LinkedIn (1:1 Square)
-      </button>
-      <button class="format-btn" id="btnPortrait" data-mode="mode-portrait">
-        <span>📱</span> Instagram (4:5 Portrait)
-      </button>
+    <!-- Campaign Switcher & Format Switcher -->
+    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 8px; background: #0f172a; padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1);">
+        <span style="font-size: 12px; font-weight: 700; color: #94a3b8;">Campaign:</span>
+        <select id="campaignSelect" style="background: #1e293b; color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 6px 12px; font-size: 12.5px; font-weight: 700; cursor: pointer; outline: none;">
+          <option value="sundayTrap" selected>🏠 The Sunday Night Paperwork Trap (4 Slides)</option>
+          <option value="sorryLied">🤫 Sorry, We Lied - Full Stack (8 Slides)</option>
+        </select>
+      </div>
+
+      <div class="format-switcher">
+        <button class="format-btn active" id="btnSquare" data-mode="mode-square">
+          <span>🟦</span> Facebook / LinkedIn (1:1 Square)
+        </button>
+        <button class="format-btn" id="btnPortrait" data-mode="mode-portrait">
+          <span>📱</span> Instagram (4:5 Portrait)
+        </button>
+      </div>
     </div>
 
     <div class="slide-nav-buttons">
@@ -476,18 +487,10 @@
     </div>
 
     <!-- Director Controls Panel -->
-    <div class="controls-panel">
       <div>
-        <h2 style="font-size: 16px; font-weight: 800; margin-bottom: 6px;">Select Slide</h2>
-        <div class="slide-thumbnail-grid">
-          <div class="slide-thumb active" data-idx="0">1. Hook 🤫</div>
-          <div class="slide-thumb" data-idx="1">2. The Lie ❌</div>
-          <div class="slide-thumb" data-idx="2">3. Field Track ⏱️</div>
-          <div class="slide-thumb" data-idx="3">4. 1-Click ⚡</div>
-          <div class="slide-thumb" data-idx="4">5. QR Pay 📲</div>
-          <div class="slide-thumb" data-idx="5">6. Templates ✨</div>
-          <div class="slide-thumb" data-idx="6">7. Full Stack 📊</div>
-          <div class="slide-thumb" data-idx="7">8. Start Free 🚀</div>
+        <h2 style="font-size: 16px; font-weight: 800; margin-bottom: 6px;" id="campaignHeaderLabel">Select Slide (Campaign 1: Sunday Paperwork Trap)</h2>
+        <div class="slide-thumbnail-grid" id="slideThumbnailGrid">
+          <!-- Rendered dynamically -->
         </div>
       </div>
 
@@ -522,8 +525,341 @@
   </div>
 
   <script>
-    const captions = {
-      fb: `Sorry... we lied to you. 🤫
+    const campaignData = {
+      sundayTrap: {
+        name: "The Sunday Night Paperwork Trap (4 Slides)",
+        captions: {
+          fb: `It’s 8:30 PM on a Sunday. 😫
+
+You’ve put in 50 hours on the tools this week, but instead of relaxing with your family, you’re stuck at the kitchen table:
+❌ Sorting crumpled receipts from your truck console
+❌ Guessing how many labor hours you worked last Tuesday
+❌ Fighting clunky Word & Excel invoice templates
+❌ Waiting 30-45 days just to get paid
+
+ScanGo Invoice was built for contractors, plumbers, electricians, and local pros who hate paperwork:
+
+1️⃣ Snap receipt photos & log project hours right on the jobsite
+2️⃣ Turn tracked work into a designer invoice with 1 click (zero re-typing!)
+3️⃣ Let clients scan your invoice QR code and pay via Apple Pay, Google Pay, or Card before you leave the driveway
+
+Stop sacrificing your weekends. Bill in under 60 seconds.
+
+👉 Start 100% Free (No Credit Card Required): https://scangoinvoice.com
+
+#contractors #plumber #electrician #landscaping #smallbusinessowner #invoicing #constructionlife #scangoinvoice #getpaidfaster`,
+
+          ig: `It’s 8:30 PM on a Sunday. 😫
+
+You’ve put in 50 hours on the tools this week, but instead of relaxing with your family, you’re stuck at the kitchen table:
+❌ Sorting crumpled receipts from your truck console
+❌ Guessing how many labor hours you worked last Tuesday
+❌ Fighting clunky Word & Excel invoice templates
+❌ Waiting 30-45 days just to get paid
+
+ScanGo Invoice was built for contractors, plumbers, electricians, and local pros who hate paperwork:
+
+1️⃣ Snap receipt photos & log project hours right on the jobsite
+2️⃣ Turn tracked work into a designer invoice with 1 click (zero re-typing!)
+3️⃣ Let clients scan your invoice QR code and pay via Apple Pay, Google Pay, or Card before you leave the driveway
+
+Stop sacrificing your weekends. Bill in under 60 seconds.
+
+Try ScanGo Invoice 100% Free — Link in Bio! 🔗
+
+#contractors #plumber #electrician #landscaping #smallbusinessowner #invoicing #constructionlife #scangoinvoice #getpaidfaster`,
+
+          li: `For trade business owners and contractors, invoicing is the #1 unpaid job eating up their weekends.
+
+After a 50-hour week on the tools, most service professionals spend Sunday night:
+• Sifting through glovebox receipt paper
+• Estimating billable labor hours from memory
+• Manually re-typing items into spreadsheets
+• Waiting 30+ days for payment checks
+
+ScanGo Invoice streamlines this into a simple 3-step field workflow:
+1. Live On-Site Tracking: Snap receipt photos at the supply house and track crew hours on mobile.
+2. 1-Click Invoice Generation: Auto-populate labor & expenses into 6 designer invoice templates in 1 second.
+3. Point-of-Sale QR Checkout: Clients scan the on-invoice QR code to pay instantly via Apple Pay, Google Pay, Card, or ACH.
+
+Eliminate the Sunday paperwork trap. Try it free: https://scangoinvoice.com
+
+#SmallBusiness #Contractors #TradeServices #Invoicing #Fintech #Productivity #CashFlow`
+        },
+        slides: [
+          {
+            badge: "⚠️ THE SUNDAY TRAP",
+            badgeClass: "badge-pill danger",
+            title: "STILL DOING INVOICES ON SUNDAY NIGHT? 😫",
+            hugeTitle: true,
+            subtitle: "You worked 50 hours on the tools. Why spend your weekend doing unpaid paperwork?",
+            bodyHtml: `
+              <div class="feature-card" style="border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.08);">
+                <div class="feature-item" style="color: #fca5a5;">
+                  <span class="feature-icon">❌</span>
+                  <div><strong>Lost Receipts:</strong> Sorting crumpled paper from your truck console.</div>
+                </div>
+                <div class="feature-item" style="color: #fca5a5;">
+                  <span class="feature-icon">❌</span>
+                  <div><strong>Forgotten Hours:</strong> Guessing billable labor from 4 days ago.</div>
+                </div>
+                <div class="feature-item" style="color: #fca5a5;">
+                  <span class="feature-icon">❌</span>
+                  <div><strong>Delayed Cash:</strong> Waiting 30+ days for clients to mail paper checks.</div>
+                </div>
+              </div>
+            `,
+            swipe: "Stop the weekend grind",
+            shortLabel: "1. The Trap 😫"
+          },
+          {
+            badge: "STEP 01 / ON THE JOBSITE",
+            badgeClass: "badge-pill",
+            title: "Log hours & snap receipts in 5s. ⏱️🧾",
+            subtitle: "Capture every billable dollar before you even put your tools back in the truck.",
+            bodyHtml: `
+              <div class="feature-card">
+                <div class="feature-item">
+                  <span class="feature-icon">📸</span>
+                  <div><strong>Receipt Photo Snapping:</strong> Snap photos of material receipts at the register. Saved and organized securely.</div>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-icon">⏱️</span>
+                  <div><strong>Jobsite Time Tracking:</strong> Log labor hours by project on mobile with custom hourly rates.</div>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-icon">👥</span>
+                  <div><strong>Crew Member Seats:</strong> Let helpers track hours without exposing your customer billing rates.</div>
+                </div>
+              </div>
+            `,
+            swipe: "See 1-click conversion",
+            shortLabel: "2. Track On-Site ⏱️"
+          },
+          {
+            badge: "STEP 02 / ZERO RE-TYPING",
+            badgeClass: "badge-pill",
+            title: "1-Click: Job Done ➔ Invoice. ⚡",
+            subtitle: "Turn logged hours & material receipts into a polished invoice in literally 1 second.",
+            bodyHtml: `
+              <div class="feature-card" style="border-color: rgba(52, 211, 153, 0.4); background: rgba(52, 211, 153, 0.06);">
+                <div class="feature-item">
+                  <span class="feature-icon">⚡</span>
+                  <div><strong>Instant Auto-Fill:</strong> All labor hours & itemized materials compiled automatically.</div>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-icon">🚫</span>
+                  <div><strong>Zero Double Data Entry:</strong> Never re-type numbers into Word or Excel again.</div>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-icon">🎨</span>
+                  <div><strong>6 Designer Templates:</strong> Look like a top commercial contractor with custom logo & brand colors.</div>
+                </div>
+              </div>
+            `,
+            swipe: "Get paid on the spot",
+            shortLabel: "3. 1-Click Convert ⚡"
+          },
+          {
+            badge: "STEP 03 / INSTANT CHECKOUT",
+            badgeClass: "badge-pill",
+            title: "Get paid before you leave. 📲💳",
+            subtitle: "Clients scan your invoice QR code and pay with Apple Pay, Google Pay, Card, or ACH.",
+            bodyHtml: `
+              <div class="feature-card" style="border-color: rgba(0, 210, 255, 0.4); background: rgba(0, 210, 255, 0.08); text-align: center; padding: 14px;">
+                <div style="font-size: 13.5px; font-weight: 800; color: #00d2ff; margin-bottom: 4px;">📲 Instant Stripe Scan-to-Pay QR</div>
+                <div style="font-size: 11.5px; color: #cbd5e1; margin-bottom: 10px;">Stop waiting 30-45 days for checks. Collect payment right in the driveway.</div>
+                <div style="background: linear-gradient(135deg, #00d2ff, #3a7bd5); color: #fff; font-weight: 800; padding: 9px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 6px;">
+                  🚀 Start 100% Free: scangoinvoice.com
+                </div>
+                <div style="font-size: 10.5px; color: #94a3b8;">3 free invoices/mo • Unlimited projects • No card required</div>
+              </div>
+            `,
+            swipe: "Claim your free account ⚡",
+            shortLabel: "4. Instant Pay 🚀"
+          }
+        ]
+      },
+      sorryLied: {
+        name: "Sorry, We Lied - Full Stack (8 Slides)",
+        captions: {
+          fb: captions_sorry_fb,
+          ig: captions_sorry_ig,
+          li: captions_sorry_li
+        },
+        slides: [
+          {
+            badge: "⚠️ CONFESSION",
+            badgeClass: "badge-pill danger",
+            title: "SORRY, WE LIED.",
+            hugeTitle: true,
+            subtitle: "We told you ScanGo Invoice was just an invoicing app...",
+            bodyHtml: `
+              <div class="feature-card" style="border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.06);">
+                <div style="font-size: 13.5px; font-weight: 700; color: #fca5a5;">🤫 We have to be honest with you.</div>
+                <div style="font-size: 12.5px; color: #cbd5e1; margin-top: 4px;">Generating PDF invoices is only 20% of running a business. Here is what we actually built...</div>
+              </div>
+            `,
+            swipe: "Swipe for the truth",
+            shortLabel: "1. Hook 🤫"
+          },
+          {
+            badge: "THE MYTH VS REALITY",
+            badgeClass: "badge-pill",
+            title: "What we built instead.",
+            subtitle: "Invoicing apps only solve half the problem. You still had to juggle 4 other tools.",
+            bodyHtml: `
+              <div class="feature-card" style="border-color: rgba(239,68,68,0.3); padding: 10px 14px;">
+                <div style="font-size: 11px; font-weight: 800; color: #f87171; text-transform: uppercase;">What you expected: ❌</div>
+                <div style="font-size: 13px; font-weight: 600; margin-top: 2px;">Just another static PDF invoice template.</div>
+              </div>
+              <div class="feature-card" style="border-color: rgba(0, 210, 255, 0.4); background: rgba(0, 210, 255, 0.08); padding: 10px 14px;">
+                <div style="font-size: 11px; font-weight: 800; color: #00d2ff; text-transform: uppercase;">What you actually get: ✅</div>
+                <div style="font-size: 13px; font-weight: 600; margin-top: 2px;">A complete mobile business command center with time tracking, receipt scanning, and instant checkout.</div>
+              </div>
+            `,
+            swipe: "See Feature #1",
+            shortLabel: "2. The Lie ❌"
+          },
+          {
+            badge: "01 / FIELD TRACKING",
+            badgeClass: "badge-pill",
+            title: "Log hours & snap receipts on site.",
+            subtitle: "Never lose another billable hour or material receipt in your truck.",
+            bodyHtml: `
+              <div class="feature-card">
+                <div class="feature-item">
+                  <span class="feature-icon">📸</span>
+                  <div><strong>Instant Receipt Photos:</strong> Snap photos of material receipts on the job. Saved and categorized securely.</div>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-icon">⏱️</span>
+                  <div><strong>Jobsite Time Tracking:</strong> Log labor hours directly under client projects with custom billable rates.</div>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-icon">👥</span>
+                  <div><strong>Team Crew Seats:</strong> Invite helpers to log hours without exposing your financial rates.</div>
+                </div>
+              </div>
+            `,
+            swipe: "See Feature #2",
+            shortLabel: "3. Field Track ⏱️"
+          },
+          {
+            badge: "02 / ZERO RE-TYPING",
+            badgeClass: "badge-pill",
+            title: "1-Click: Project ➔ Final Invoice.",
+            subtitle: "Finished the job? Turn all logged labor and expenses into an invoice in literally 1 second.",
+            bodyHtml: `
+              <div class="feature-card" style="border-color: rgba(52, 211, 153, 0.4); background: rgba(52, 211, 153, 0.06);">
+                <div class="feature-item">
+                  <span class="feature-icon">🚫</span>
+                  <div><strong>Zero Double Data Entry:</strong> No typing numbers from scratch into Word or Excel.</div>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-icon">⚡</span>
+                  <div><strong>1-Click Conversion:</strong> Automatically compiles hours and itemized materials.</div>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-icon">🧮</span>
+                  <div><strong>Smart Tax Handling:</strong> Automatically separates taxable materials from labor.</div>
+                </div>
+              </div>
+            `,
+            swipe: "See Feature #3",
+            shortLabel: "4. 1-Click ⚡"
+          },
+          {
+            badge: "03 / INSTANT CHECKOUT",
+            badgeClass: "badge-pill",
+            title: "Get paid before you leave the site.",
+            subtitle: "Stop waiting 30 days and chasing clients for payment.",
+            bodyHtml: `
+              <div class="feature-card">
+                <div class="feature-item">
+                  <span class="feature-icon">📲</span>
+                  <div><strong>Stripe Scan-to-Pay QR:</strong> Clients scan the QR code on your invoice with their phone camera.</div>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-icon">💳</span>
+                  <div><strong>All Payment Methods:</strong> Apple Pay, Google Pay, Credit Cards, and direct ACH bank transfers.</div>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-icon">⚡</span>
+                  <div><strong>Instant Deposit:</strong> Connected directly to your Stripe account with low 0.25% platform fee.</div>
+                </div>
+              </div>
+            `,
+            swipe: "See Feature #4",
+            shortLabel: "5. QR Pay 📲"
+          },
+          {
+            badge: "04 / BRAND IDENTITY",
+            badgeClass: "badge-pill",
+            title: "6 Designer Invoice Templates.",
+            subtitle: "Look like a Fortune 500 company on every single client delivery.",
+            bodyHtml: `
+              <div class="feature-card">
+                <div class="feature-item">
+                  <span class="feature-icon">🎨</span>
+                  <div><strong>Modern Layouts:</strong> Switch between Tech Grid, Modern, Classic, Corporate, and Creative styles.</div>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-icon">🏷️</span>
+                  <div><strong>Brand Accent Matching:</strong> Upload your logo and sync custom brand color accents in real time.</div>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-icon">📄</span>
+                  <div><strong>Vector PDF & Print Ready:</strong> High-resolution export for clean client delivery.</div>
+                </div>
+              </div>
+            `,
+            swipe: "See The Full Stack",
+            shortLabel: "6. Templates ✨"
+          },
+          {
+            badge: "THE ALL-IN-ONE WORKFLOW",
+            badgeClass: "badge-pill",
+            title: "Everything in 1 pocket tool:",
+            subtitle: "Replace 4 separate monthly subscriptions with ScanGo Invoice:",
+            bodyHtml: `
+              <div class="feature-card">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11.5px; font-weight: 700;">
+                  <div style="background: rgba(255,255,255,0.04); padding: 7px 8px; border-radius: 8px;">⏱️ Time Tracker</div>
+                  <div style="background: rgba(255,255,255,0.04); padding: 7px 8px; border-radius: 8px;">🧾 Receipt Scanner</div>
+                  <div style="background: rgba(255,255,255,0.04); padding: 7px 8px; border-radius: 8px;">📄 Invoice Builder</div>
+                  <div style="background: rgba(255,255,255,0.04); padding: 7px 8px; border-radius: 8px;">💳 Stripe QR Pay</div>
+                </div>
+                <div style="margin-top: 8px; font-size: 12px; color: #34d399; font-weight: 700; text-align: center;">
+                  📊 Plus: Monthly Sales & Tax Reports
+                </div>
+              </div>
+            `,
+            swipe: "How to get started",
+            shortLabel: "7. Full Stack 📊"
+          },
+          {
+            badge: "🚀 START TODAY",
+            badgeClass: "badge-pill",
+            title: "Stop juggling 4 different apps.",
+            subtitle: "Join freelancers & contractors getting hours back every week with ScanGo Invoice.",
+            bodyHtml: `
+              <div class="feature-card" style="border-color: rgba(0, 210, 255, 0.4); text-align: center; padding: 14px;">
+                <div style="font-size: 16px; font-weight: 800; color: #00d2ff; margin-bottom: 4px;">Try It 100% Free</div>
+                <div style="font-size: 12px; color: #cbd5e1; margin-bottom: 10px;">No credit card required. 3 free invoices per month & unlimited projects.</div>
+                <div style="background: linear-gradient(135deg, #00d2ff, #3a7bd5); color: #fff; font-weight: 800; padding: 8px 14px; border-radius: 8px; font-size: 13px;">
+                  👉 scangoinvoice.com
+                </div>
+              </div>
+            `,
+            swipe: "Save for later 📌",
+            shortLabel: "8. Start Free 🚀"
+          }
+        ]
+      }
+    };
+
+    const captions_sorry_fb = `Sorry... we lied to you. 🤫
 
 When we built ScanGo Invoice, we called it an "invoicing app." 
 
@@ -541,11 +877,11 @@ So we built the full workflow:
 
 No complicated setup. No juggling 4 different subscriptions.
 
-👉 Try ScanGo Invoice free today: https://swift-invoice-7a760.web.app
+👉 Try ScanGo Invoice free today: https://scangoinvoice.com
 
-#invoicing #smallbusiness #contractors #freelancing #businessowner #stripepayments #scangoinvoice`,
+#invoicing #smallbusiness #contractors #freelancing #businessowner #stripepayments #scangoinvoice`;
 
-      ig: `Sorry... we lied to you. 🤫
+    const captions_sorry_ig = `Sorry... we lied to you. 🤫
 
 When we built ScanGo Invoice, we called it an "invoicing app." 
 
@@ -565,9 +901,9 @@ No complicated setup. No juggling 4 different subscriptions.
 
 Try ScanGo Invoice for free today — link in bio! 🔗
 
-#invoicing #freelancetips #smallbusinessowner #contractorlife #sidehustle #productivitytools #stripepayments #scangoinvoice`,
+#invoicing #freelancetips #smallbusinessowner #contractorlife #sidehustle #productivitytools #stripepayments #scangoinvoice`;
 
-      li: `We told people ScanGo Invoice was an invoicing app. We lied.
+    const captions_sorry_li = `We told people ScanGo Invoice was an invoicing app. We lied.
 
 Invoicing alone doesn’t fix cash flow or save billable hours. The real friction happens before and after the invoice:
 • Tracking jobsite hours accurately
@@ -584,176 +920,40 @@ That’s why ScanGo is a complete lightweight business workflow:
 
 Swipe through the carousel above to see how it works, or try it free today at the link in the comments. 👇
 
-#SmallBusiness #Freelancing #Entrepreneurship #Fintech #Productivity #Invoicing`
-    };
+#SmallBusiness #Freelancing #Entrepreneurship #Fintech #Productivity #Invoicing`;
 
-    const slides = [
-      {
-        badge: "⚠️ CONFESSION",
-        badgeClass: "badge-pill danger",
-        title: "SORRY, WE LIED.",
-        hugeTitle: true,
-        subtitle: "We told you ScanGo Invoice was just an invoicing app...",
-        bodyHtml: `
-          <div class="feature-card" style="border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.06);">
-            <div style="font-size: 13.5px; font-weight: 700; color: #fca5a5;">🤫 We have to be honest with you.</div>
-            <div style="font-size: 12.5px; color: #cbd5e1; margin-top: 4px;">Generating PDF invoices is only 20% of running a business. Here is what we actually built...</div>
-          </div>
-        `,
-        swipe: "Swipe for the truth"
-      },
-      {
-        badge: "THE MYTH VS REALITY",
-        badgeClass: "badge-pill",
-        title: "What we built instead.",
-        subtitle: "Invoicing apps only solve half the problem. You still had to juggle 4 other tools.",
-        bodyHtml: `
-          <div class="feature-card" style="border-color: rgba(239,68,68,0.3); padding: 10px 14px;">
-            <div style="font-size: 11px; font-weight: 800; color: #f87171; text-transform: uppercase;">What you expected: ❌</div>
-            <div style="font-size: 13px; font-weight: 600; margin-top: 2px;">Just another static PDF invoice template.</div>
-          </div>
-          <div class="feature-card" style="border-color: rgba(0, 210, 255, 0.4); background: rgba(0, 210, 255, 0.08); padding: 10px 14px;">
-            <div style="font-size: 11px; font-weight: 800; color: #00d2ff; text-transform: uppercase;">What you actually get: ✅</div>
-            <div style="font-size: 13px; font-weight: 600; margin-top: 2px;">A complete mobile business command center with time tracking, receipt scanning, and instant checkout.</div>
-          </div>
-        `,
-        swipe: "See Feature #1"
-      },
-      {
-        badge: "01 / FIELD TRACKING",
-        badgeClass: "badge-pill",
-        title: "Log hours & snap receipts on site.",
-        subtitle: "Never lose another billable hour or material receipt in your truck.",
-        bodyHtml: `
-          <div class="feature-card">
-            <div class="feature-item">
-              <span class="feature-icon">📸</span>
-              <div><strong>Instant Receipt Photos:</strong> Snap photos of material receipts on the job. Saved and categorized securely.</div>
-            </div>
-            <div class="feature-item">
-              <span class="feature-icon">⏱️</span>
-              <div><strong>Jobsite Time Tracking:</strong> Log labor hours directly under client projects with custom billable rates.</div>
-            </div>
-            <div class="feature-item">
-              <span class="feature-icon">👥</span>
-              <div><strong>Team Crew Seats:</strong> Invite helpers to log hours without exposing your financial rates.</div>
-            </div>
-          </div>
-        `,
-        swipe: "See Feature #2"
-      },
-      {
-        badge: "02 / ZERO RE-TYPING",
-        badgeClass: "badge-pill",
-        title: "1-Click: Project ➔ Final Invoice.",
-        subtitle: "Finished the job? Turn all logged labor and expenses into an invoice in literally 1 second.",
-        bodyHtml: `
-          <div class="feature-card" style="border-color: rgba(52, 211, 153, 0.4); background: rgba(52, 211, 153, 0.06);">
-            <div class="feature-item">
-              <span class="feature-icon">🚫</span>
-              <div><strong>Zero Double Data Entry:</strong> No typing numbers from scratch into Word or Excel.</div>
-            </div>
-            <div class="feature-item">
-              <span class="feature-icon">⚡</span>
-              <div><strong>1-Click Conversion:</strong> Automatically compiles hours and itemized materials.</div>
-            </div>
-            <div class="feature-item">
-              <span class="feature-icon">🧮</span>
-              <div><strong>Smart Tax Handling:</strong> Automatically separates taxable materials from labor.</div>
-            </div>
-          </div>
-        `,
-        swipe: "See Feature #3"
-      },
-      {
-        badge: "03 / INSTANT CHECKOUT",
-        badgeClass: "badge-pill",
-        title: "Get paid before you leave the site.",
-        subtitle: "Stop waiting 30 days and chasing clients for payment.",
-        bodyHtml: `
-          <div class="feature-card">
-            <div class="feature-item">
-              <span class="feature-icon">📲</span>
-              <div><strong>Stripe Scan-to-Pay QR:</strong> Clients scan the QR code on your invoice with their phone camera.</div>
-            </div>
-            <div class="feature-item">
-              <span class="feature-icon">💳</span>
-              <div><strong>All Payment Methods:</strong> Apple Pay, Google Pay, Credit Cards, and direct ACH bank transfers.</div>
-            </div>
-            <div class="feature-item">
-              <span class="feature-icon">⚡</span>
-              <div><strong>Instant Deposit:</strong> Connected directly to your Stripe account with low 0.25% platform fee.</div>
-            </div>
-          </div>
-        `,
-        swipe: "See Feature #4"
-      },
-      {
-        badge: "04 / BRAND IDENTITY",
-        badgeClass: "badge-pill",
-        title: "6 Designer Invoice Templates.",
-        subtitle: "Look like a Fortune 500 company on every single client delivery.",
-        bodyHtml: `
-          <div class="feature-card">
-            <div class="feature-item">
-              <span class="feature-icon">🎨</span>
-              <div><strong>Modern Layouts:</strong> Switch between Tech Grid, Modern, Classic, Corporate, and Creative styles.</div>
-            </div>
-            <div class="feature-item">
-              <span class="feature-icon">🏷️</span>
-              <div><strong>Brand Accent Matching:</strong> Upload your logo and sync custom brand color accents in real time.</div>
-            </div>
-            <div class="feature-item">
-              <span class="feature-icon">📄</span>
-              <div><strong>Vector PDF & Print Ready:</strong> High-resolution export for clean client delivery.</div>
-            </div>
-          </div>
-        `,
-        swipe: "See The Full Stack"
-      },
-      {
-        badge: "THE ALL-IN-ONE WORKFLOW",
-        badgeClass: "badge-pill",
-        title: "Everything in 1 pocket tool:",
-        subtitle: "Replace 4 separate monthly subscriptions with ScanGo Invoice:",
-        bodyHtml: `
-          <div class="feature-card">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11.5px; font-weight: 700;">
-              <div style="background: rgba(255,255,255,0.04); padding: 7px 8px; border-radius: 8px;">⏱️ Time Tracker</div>
-              <div style="background: rgba(255,255,255,0.04); padding: 7px 8px; border-radius: 8px;">🧾 Receipt Scanner</div>
-              <div style="background: rgba(255,255,255,0.04); padding: 7px 8px; border-radius: 8px;">📄 Invoice Builder</div>
-              <div style="background: rgba(255,255,255,0.04); padding: 7px 8px; border-radius: 8px;">💳 Stripe QR Pay</div>
-            </div>
-            <div style="margin-top: 8px; font-size: 12px; color: #34d399; font-weight: 700; text-align: center;">
-              📊 Plus: Monthly Sales & Tax Reports
-            </div>
-          </div>
-        `,
-        swipe: "How to get started"
-      },
-      {
-        badge: "🚀 START TODAY",
-        badgeClass: "badge-pill",
-        title: "Stop juggling 4 different apps.",
-        subtitle: "Join freelancers & contractors getting hours back every week with ScanGo Invoice.",
-        bodyHtml: `
-          <div class="feature-card" style="border-color: rgba(0, 210, 255, 0.4); text-align: center; padding: 14px;">
-            <div style="font-size: 16px; font-weight: 800; color: #00d2ff; margin-bottom: 4px;">Try It 100% Free</div>
-            <div style="font-size: 12px; color: #cbd5e1; margin-bottom: 10px;">No credit card required. 3 free invoices per month & unlimited projects.</div>
-            <div style="background: linear-gradient(135deg, #00d2ff, #3a7bd5); color: #fff; font-weight: 800; padding: 8px 14px; border-radius: 8px; font-size: 13px;">
-              👉 swift-invoice-7a760.web.app
-            </div>
-          </div>
-        `,
-        swipe: "Save for later 📌"
-      }
-    ];
-
+    let activeCampaignKey = 'sundayTrap';
     let currentSlide = 0;
 
+    function getActiveCampaign() {
+      return campaignData[activeCampaignKey];
+    }
+
+    function renderThumbnailGrid() {
+      const camp = getActiveCampaign();
+      const grid = document.getElementById('slideThumbnailGrid');
+      grid.style.gridTemplateColumns = `repeat(${camp.slides.length}, 1fr)`;
+      grid.innerHTML = camp.slides.map((s, idx) => `
+        <div class="slide-thumb ${idx === currentSlide ? 'active' : ''}" data-idx="${idx}">
+          ${s.shortLabel || `Slide ${idx + 1}`}
+        </div>
+      `).join('');
+
+      document.querySelectorAll('.slide-thumb').forEach(th => {
+        th.addEventListener('click', () => {
+          renderSlide(parseInt(th.dataset.idx));
+        });
+      });
+
+      document.getElementById('downloadAllBtn').innerText = `📦 Export All ${camp.slides.length} Slides`;
+    }
+
     function renderSlide(idx) {
+      const camp = getActiveCampaign();
+      if (idx < 0) idx = 0;
+      if (idx >= camp.slides.length) idx = camp.slides.length - 1;
       currentSlide = idx;
-      const data = slides[idx];
+      const data = camp.slides[idx];
 
       document.getElementById('slideBadge').innerText = data.badge;
       document.getElementById('slideBadge').className = data.badgeClass;
@@ -765,13 +965,30 @@ Swipe through the carousel above to see how it works, or try it free today at th
       `;
       document.getElementById('slideContent').innerHTML = html;
 
-      document.getElementById('slideCounter').innerText = `Slide ${idx + 1} of ${slides.length}`;
+      document.getElementById('slideCounter').innerText = `Slide ${idx + 1} of ${camp.slides.length}`;
       document.getElementById('slideSwipeCue').innerHTML = `<span>${data.swipe}</span> <span>➔</span>`;
 
       document.querySelectorAll('.slide-thumb').forEach((th, i) => {
         th.classList.toggle('active', i === idx);
       });
     }
+
+    function updateCaptions() {
+      const camp = getActiveCampaign();
+      const activeTabId = document.querySelector('.platform-tab.active').id;
+      if (activeTabId === 'tabFb') document.getElementById('captionText').innerText = camp.captions.fb;
+      else if (activeTabId === 'tabIg') document.getElementById('captionText').innerText = camp.captions.ig;
+      else if (activeTabId === 'tabLi') document.getElementById('captionText').innerText = camp.captions.li;
+    }
+
+    // Campaign Switcher Listener
+    document.getElementById('campaignSelect').addEventListener('change', (e) => {
+      activeCampaignKey = e.target.value;
+      currentSlide = 0;
+      renderThumbnailGrid();
+      renderSlide(0);
+      updateCaptions();
+    });
 
     // Format Switching (Square vs Portrait)
     const slideWrapper = document.getElementById('captureSlide');
@@ -791,34 +1008,27 @@ Swipe through the carousel above to see how it works, or try it free today at th
       dimensionLabel.innerText = 'Resolution: 1080 x 1350px (4:5 Instagram Portrait)';
     });
 
-    // Thumbnail Navigation
-    document.querySelectorAll('.slide-thumb').forEach((th) => {
-      th.addEventListener('click', () => {
-        renderSlide(parseInt(th.dataset.idx));
-      });
-    });
-
     document.getElementById('prevBtn').addEventListener('click', () => {
       if (currentSlide > 0) renderSlide(currentSlide - 1);
     });
 
     document.getElementById('nextBtn').addEventListener('click', () => {
-      if (currentSlide < slides.length - 1) renderSlide(currentSlide + 1);
+      const camp = getActiveCampaign();
+      if (currentSlide < camp.slides.length - 1) renderSlide(currentSlide + 1);
     });
 
     // Platform Caption Tabs
-    document.getElementById('captionText').innerText = captions.fb;
     document.getElementById('tabFb').addEventListener('click', () => {
       setActiveTab('tabFb');
-      document.getElementById('captionText').innerText = captions.fb;
+      updateCaptions();
     });
     document.getElementById('tabIg').addEventListener('click', () => {
       setActiveTab('tabIg');
-      document.getElementById('captionText').innerText = captions.ig;
+      updateCaptions();
     });
     document.getElementById('tabLi').addEventListener('click', () => {
       setActiveTab('tabLi');
-      document.getElementById('captionText').innerText = captions.li;
+      updateCaptions();
     });
 
     function setActiveTab(id) {
@@ -836,20 +1046,21 @@ Swipe through the carousel above to see how it works, or try it free today at th
         backgroundColor: '#070a12'
       }).then(canvas => {
         const link = document.createElement('a');
-        link.download = `ScanGo_${isSquare ? 'Facebook_Square' : 'Instagram_Portrait'}_Slide_${currentSlide + 1}.png`;
+        link.download = `ScanGo_${activeCampaignKey}_${isSquare ? 'Facebook_Square' : 'Instagram_Portrait'}_Slide_${currentSlide + 1}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
       });
     });
 
-    // 1-Click Export All 8 Slides
+    // 1-Click Export All Slides
     document.getElementById('downloadAllBtn').addEventListener('click', async () => {
+      const camp = getActiveCampaign();
       const btn = document.getElementById('downloadAllBtn');
       const isSquare = slideWrapper.classList.contains('mode-square');
-      btn.innerText = "⏳ Exporting All Slides...";
+      btn.innerText = `⏳ Exporting ${camp.slides.length} Slides...`;
       btn.disabled = true;
 
-      for (let i = 0; i < slides.length; i++) {
+      for (let i = 0; i < camp.slides.length; i++) {
         renderSlide(i);
         await new Promise(r => setTimeout(r, 350));
         const node = document.getElementById('captureSlide');
@@ -859,15 +1070,15 @@ Swipe through the carousel above to see how it works, or try it free today at th
           backgroundColor: '#070a12' 
         });
         const link = document.createElement('a');
-        link.download = `ScanGo_${isSquare ? 'Facebook_1x1' : 'Instagram_4x5'}_Slide_${i + 1}.png`;
+        link.download = `ScanGo_${activeCampaignKey}_${isSquare ? 'Facebook_1x1' : 'Instagram_4x5'}_Slide_${i + 1}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
         await new Promise(r => setTimeout(r, 200));
       }
 
-      btn.innerText = "✅ All 8 Slides Exported!";
+      btn.innerText = `✅ All ${camp.slides.length} Slides Exported!`;
       setTimeout(() => {
-        btn.innerText = "📦 Export All 8 Slides";
+        btn.innerText = `📦 Export All ${camp.slides.length} Slides`;
         btn.disabled = false;
       }, 3000);
     });
@@ -883,8 +1094,10 @@ Swipe through the carousel above to see how it works, or try it free today at th
       });
     });
 
-    // Initial render
+    // Initial setup
+    renderThumbnailGrid();
     renderSlide(0);
+    updateCaptions();
   </script>
 </body>
 </html>

@@ -409,11 +409,14 @@ exports.createInvoicePaymentSession = onCall({ enforceAppCheck: false }, async (
     const applicationFeeAmount = Math.round(totalAmountCents * feeRate);
 
 
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
+    const currency = (invoiceData.currency || 'USD').toLowerCase();
+    const paymentMethodTypes = currency === 'usd' ? ['card', 'us_bank_account'] : ['card'];
+
+    const sessionParams = {
+      payment_method_types: paymentMethodTypes,
       line_items: [{
         price_data: {
-          currency: (invoiceData.currency || 'USD').toLowerCase(),
+          currency: currency,
           product_data: {
             name: `Invoice #${invoiceData.invoiceNumber}`,
             description: `Payment for invoice to ${invoiceData.client?.name || 'Client'}`,
@@ -432,7 +435,19 @@ exports.createInvoicePaymentSession = onCall({ enforceAppCheck: false }, async (
       client_reference_id: invoiceId,
       success_url: successUrl,
       cancel_url: cancelUrl,
-    }, {
+    };
+
+    if (currency === 'usd') {
+      sessionParams.payment_method_options = {
+        us_bank_account: {
+          financial_connections: {
+            permissions: ['payment_method'],
+          },
+        },
+      };
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams, {
       stripeAccount: connectAccountId,
     });
 
@@ -445,6 +460,30 @@ exports.createInvoicePaymentSession = onCall({ enforceAppCheck: false }, async (
 
 const { onRequest } = require("firebase-functions/v2/https");
 const stripeConnectWebhookSecret = defineString("STRIPE_CONNECT_WEBHOOK_SECRET");
+
+/**
+ * Helper to mark an invoice as paid and trigger automated receipt SMS
+ */
+const markInvoicePaid = async (db, invoiceId, paymentIntentId) => {
+  const invoiceRef = db.collection('invoices').doc(invoiceId);
+  await invoiceRef.update({
+    status: 'paid',
+    stripePaymentIntentId: paymentIntentId || null,
+    paidAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+  console.log(`Successfully marked invoice ${invoiceId} as paid.`);
+
+  try {
+    const invoiceDoc = await invoiceRef.get();
+    if (invoiceDoc.exists) {
+      const sendSmsInvoice = require("./sendSmsInvoice");
+      await sendSmsInvoice.sendPaymentReceiptSmsHelper(invoiceId, invoiceDoc.data());
+    }
+  } catch (smsErr) {
+    console.error(`Error sending automated payment receipt SMS for invoice ${invoiceId}:`, smsErr);
+  }
+};
 
 /**
  * Handles incoming webhooks from Stripe Connect accounts.
@@ -475,22 +514,41 @@ exports.stripeConnectWebhook = onRequest(async (req, res) => {
         const invoiceId = session.client_reference_id;
         
         if (invoiceId) {
+          if (session.payment_status === 'paid') {
+            await markInvoicePaid(db, invoiceId, session.payment_intent);
+          } else {
+            // Asynchronous payment method (e.g. ACH Direct Debit / us_bank_account) is processing
+            const invoiceRef = db.collection('invoices').doc(invoiceId);
+            await invoiceRef.update({
+              status: 'payment_processing',
+              stripePaymentIntentId: session.payment_intent || null,
+              updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+            console.log(`Invoice ${invoiceId} payment is currently processing (ACH bank transfer).`);
+          }
+        }
+        break;
+      }
+      case 'checkout.session.async_payment_succeeded': {
+        const session = event.data.object;
+        const invoiceId = session.client_reference_id;
+        if (invoiceId) {
+          await markInvoicePaid(db, invoiceId, session.payment_intent);
+          console.log(`Async payment succeeded for invoice ${invoiceId}.`);
+        }
+        break;
+      }
+      case 'checkout.session.async_payment_failed': {
+        const session = event.data.object;
+        const invoiceId = session.client_reference_id;
+        if (invoiceId) {
           const invoiceRef = db.collection('invoices').doc(invoiceId);
           await invoiceRef.update({
-            status: 'paid',
-            stripePaymentIntentId: session.payment_intent,
+            status: 'pending',
+            paymentFailedReason: 'Async ACH payment transfer failed or returned.',
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           });
-          console.log(`Successfully marked invoice ${invoiceId} as paid.`);
-
-          try {
-            const invoiceDoc = await invoiceRef.get();
-            if (invoiceDoc.exists) {
-              const sendSmsInvoice = require("./sendSmsInvoice");
-              await sendSmsInvoice.sendPaymentReceiptSmsHelper(invoiceId, invoiceDoc.data());
-            }
-          } catch (smsErr) {
-            console.error(`Error sending automated payment receipt SMS for invoice ${invoiceId}:`, smsErr);
-          }
+          console.warn(`Async payment failed for invoice ${invoiceId}. Status reverted to pending.`);
         }
         break;
       }

@@ -205,8 +205,247 @@ const generatePDF = async (outputType = 'save') => {
     await document.fonts.ready
     await new Promise((resolve) => setTimeout(resolve, 500))
 
+    // Injected print & layout normalization styles for clean PDF output
+    const pdfNormStyles = iframeDoc.createElement('style')
+    pdfNormStyles.textContent = `
+      .invoice-paper, .invoice-corporate, .invoice-modern, .invoice-sidebar-layout, .tech-invoice-container, .solid-invoice-container {
+        box-shadow: none !important;
+        border-radius: 0 !important;
+      }
+      .pdf-page-break-spacer {
+        display: block !important;
+        width: 100% !important;
+        clear: both !important;
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      tr.pdf-page-break-spacer {
+        display: table-row !important;
+      }
+      tr.pdf-page-break-spacer td {
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: transparent !important;
+      }
+    `
+    iframeDoc.head.appendChild(pdfNormStyles)
+
     const contentElement = iframeDoc.body.firstElementChild
-    const contentRect = contentElement.getBoundingClientRect()
+    if (!contentElement) throw new Error('No content element found in iframe.')
+
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' })
+    const pdfWidth = pdf.internal.pageSize.getWidth()
+    const pdfHeight = pdf.internal.pageSize.getHeight()
+    const margin = 40
+    const imgWidth = pdfWidth - margin
+
+    let contentRect = contentElement.getBoundingClientRect()
+    let scaleFactor = imgWidth / contentRect.width
+    let pageHeightPx = pdfHeight / scaleFactor
+
+    // 1. Single-Page Tolerance Optimization:
+    // If the invoice overflows 1 page by less than ~15%, apply a subtle compacting rule
+    // so that an invoice with ~8 items fits on 1 single cohesive page rather than stranding a near-empty 2nd page.
+    if (contentRect.height > pageHeightPx && contentRect.height <= pageHeightPx * 1.15) {
+      const compactStyle = iframeDoc.createElement('style')
+      compactStyle.id = 'pdf-compact-override'
+      compactStyle.textContent = `
+        .header-banner { padding: 1.6rem 2.5rem !important; }
+        .status-bar { padding: 0.6rem 2.5rem !important; }
+        .content-wrapper { padding: 1.6rem 2.5rem !important; }
+        .top-section { margin-bottom: 1.4rem !important; }
+        .items-table { margin-bottom: 1.4rem !important; }
+        .items-table th, .items-table td { padding: 0.65rem 1rem !important; }
+        .summary-container, .invoice-summary-and-notes, .summary-section, .notes-and-totals {
+          margin-top: 1.2rem !important;
+          padding-top: 1.2rem !important;
+          gap: 1.2rem !important;
+        }
+        .payment-qr-code img, .qr-section img, .qr-code {
+          max-width: 105px !important;
+          max-height: 105px !important;
+        }
+        .footer-section, .promo-footer, .footer {
+          margin-top: 1.2rem !important;
+          padding-top: 1rem !important;
+        }
+      `
+      iframeDoc.head.appendChild(compactStyle)
+      contentRect = contentElement.getBoundingClientRect()
+      scaleFactor = imgWidth / contentRect.width
+      pageHeightPx = pdfHeight / scaleFactor
+
+      // If it still overflows after compacting, remove compact styles and let multi-page pagination handle it cleanly
+      if (contentRect.height > pageHeightPx) {
+        compactStyle.remove()
+        contentRect = contentElement.getBoundingClientRect()
+        scaleFactor = imgWidth / contentRect.width
+        pageHeightPx = pdfHeight / scaleFactor
+      }
+    }
+
+    // 2. Multi-Page Pagination & Page-Break Avoidance:
+    // Ensures table rows, the summary/totals container, and especially the QR code are NEVER split across pages.
+    if (contentRect.height > pageHeightPx) {
+      const pageTopMarginPx = 36 / scaleFactor // ~25pt top clearance on subsequent pages
+      const pageBottomMarginPx = 36 / scaleFactor // ~25pt bottom clearance before page break
+      const maxAllowedSectionHeight = pageHeightPx - pageTopMarginPx - pageBottomMarginPx
+
+      const pushElementToNextPage = (el, targetTop) => {
+        const elRect = el.getBoundingClientRect()
+        const currentTop = elRect.top - contentElement.getBoundingClientRect().top
+        const spacerHeight = Math.ceil(targetTop - currentTop)
+        if (spacerHeight <= 0) return 0
+
+        if (el.tagName === 'TR') {
+          const spacerTr = iframeDoc.createElement('tr')
+          spacerTr.className = 'pdf-page-break-spacer'
+          const td = iframeDoc.createElement('td')
+          td.colSpan = 100
+          td.style.height = `${spacerHeight}px`
+          td.style.padding = '0'
+          td.style.margin = '0'
+          td.style.border = 'none'
+          td.style.background = 'transparent'
+          spacerTr.appendChild(td)
+          el.parentNode.insertBefore(spacerTr, el)
+        } else {
+          const spacerDiv = iframeDoc.createElement('div')
+          spacerDiv.className = 'pdf-page-break-spacer'
+          spacerDiv.style.height = `${spacerHeight}px`
+          spacerDiv.style.width = '100%'
+          spacerDiv.style.clear = 'both'
+          spacerDiv.style.margin = '0'
+          spacerDiv.style.padding = '0'
+          spacerDiv.style.border = 'none'
+          spacerDiv.style.background = 'transparent'
+          el.parentNode.insertBefore(spacerDiv, el)
+        }
+        return spacerHeight
+      }
+
+      // Check table rows in tbody so individual rows are not cut horizontally
+      const tableRows = Array.from(contentElement.querySelectorAll('.items-table tbody tr, table tbody tr'))
+      for (const row of tableRows) {
+        if (row.classList.contains('pdf-page-break-spacer')) continue
+        const cTop = contentElement.getBoundingClientRect().top
+        const rowRect = row.getBoundingClientRect()
+        const rowTop = rowRect.top - cTop
+        const rowBottom = rowRect.bottom - cTop
+        const rowHeight = rowRect.height
+
+        const pageIndex = Math.floor(rowTop / pageHeightPx) + 1
+        const pageBreakY = pageIndex * pageHeightPx
+        const pageCutoffY = pageBreakY - pageBottomMarginPx
+
+        if ((rowTop < pageCutoffY && rowBottom > pageCutoffY) || (rowTop >= pageCutoffY && rowTop < pageBreakY)) {
+          if (rowHeight <= maxAllowedSectionHeight) {
+            const targetY = pageBreakY + pageTopMarginPx
+            pushElementToNextPage(row, targetY)
+          }
+        }
+      }
+
+      // Check compound summary containers so Notes, QR Code, and Totals remain unified on the next page
+      const summarySelectors = [
+        '.summary-container',
+        '.invoice-summary-and-notes',
+        '.summary-section',
+        '.notes-and-totals',
+        '.tech-bottom-section'
+      ]
+      const summaryContainer = contentElement.querySelector(summarySelectors.join(','))
+      if (summaryContainer) {
+        const cTop = contentElement.getBoundingClientRect().top
+        const sRect = summaryContainer.getBoundingClientRect()
+        const sTop = sRect.top - cTop
+        const sBottom = sRect.bottom - cTop
+        const sHeight = sRect.height
+
+        const pageIndex = Math.floor(sTop / pageHeightPx) + 1
+        const pageBreakY = pageIndex * pageHeightPx
+        const pageCutoffY = pageBreakY - pageBottomMarginPx
+
+        if ((sTop < pageCutoffY && sBottom > pageCutoffY) || (sTop >= pageCutoffY && sTop < pageBreakY)) {
+          if (sHeight <= maxAllowedSectionHeight) {
+            const targetY = pageBreakY + pageTopMarginPx
+            pushElementToNextPage(summaryContainer, targetY)
+          }
+        }
+      }
+
+      // Explicit QR Code Safety Barrier: verify QR code container never crosses page break
+      const qrContainerSelectors = ['.payment-qr-code', '.qr-section', '.tech-payment-box', '.sidebar-section.payment-section']
+      const qrContainers = Array.from(contentElement.querySelectorAll(qrContainerSelectors.join(',')))
+      for (const qrBox of qrContainers) {
+        const cTop = contentElement.getBoundingClientRect().top
+        const qrBoxRect = qrBox.getBoundingClientRect()
+        const qrTop = qrBoxRect.top - cTop
+        const qrBottom = qrBoxRect.bottom - cTop
+        const qrHeight = qrBoxRect.height
+
+        const pageIndex = Math.floor(qrTop / pageHeightPx) + 1
+        const pageBreakY = pageIndex * pageHeightPx
+        const pageCutoffY = pageBreakY - pageBottomMarginPx
+
+        if ((qrTop < pageCutoffY && qrBottom > pageCutoffY) || (qrTop >= pageCutoffY && qrTop < pageBreakY)) {
+          if (qrHeight <= maxAllowedSectionHeight) {
+            const targetY = pageBreakY + pageTopMarginPx
+            pushElementToNextPage(qrBox, targetY)
+          }
+        }
+      }
+
+      // Check Totals container if standalone
+      const totalsSelectors = ['.totals', '.totals-section', '.totals-column', '.tech-totals-table', '.tech-bottom-right']
+      const totalsContainers = Array.from(contentElement.querySelectorAll(totalsSelectors.join(',')))
+      for (const totBox of totalsContainers) {
+        const cTop = contentElement.getBoundingClientRect().top
+        const totRect = totBox.getBoundingClientRect()
+        const totTop = totRect.top - cTop
+        const totBottom = totRect.bottom - cTop
+        const totHeight = totRect.height
+
+        const pageIndex = Math.floor(totTop / pageHeightPx) + 1
+        const pageBreakY = pageIndex * pageHeightPx
+        const pageCutoffY = pageBreakY - pageBottomMarginPx
+
+        if ((totTop < pageCutoffY && totBottom > pageCutoffY) || (totTop >= pageCutoffY && totTop < pageBreakY)) {
+          if (totHeight <= maxAllowedSectionHeight) {
+            const targetY = pageBreakY + pageTopMarginPx
+            pushElementToNextPage(totBox, targetY)
+          }
+        }
+      }
+
+      // Check footer container
+      const footerSelectors = ['.promo-footer', '.footer', '.tech-footer', '.footer-section']
+      const footers = Array.from(contentElement.querySelectorAll(footerSelectors.join(',')))
+      for (const footer of footers) {
+        const cTop = contentElement.getBoundingClientRect().top
+        const fRect = footer.getBoundingClientRect()
+        const fTop = fRect.top - cTop
+        const fBottom = fRect.bottom - cTop
+        const fHeight = fRect.height
+
+        const pageIndex = Math.floor(fTop / pageHeightPx) + 1
+        const pageBreakY = pageIndex * pageHeightPx
+        const pageCutoffY = pageBreakY - pageBottomMarginPx
+
+        if ((fTop < pageCutoffY && fBottom > pageCutoffY) || (fTop >= pageCutoffY && fTop < pageBreakY)) {
+          if (fHeight <= maxAllowedSectionHeight) {
+            const targetY = pageBreakY + pageTopMarginPx
+            pushElementToNextPage(footer, targetY)
+          }
+        }
+      }
+    }
+
+    // Re-measure updated dimensions after pagination spacers
+    contentRect = contentElement.getBoundingClientRect()
     const contentHeight = contentRect.height
     const heightBuffer = 150
     iframe.style.height = `${contentHeight + heightBuffer}px`
@@ -218,24 +457,20 @@ const generatePDF = async (outputType = 'save') => {
     })
 
     const imgData = canvas.toDataURL('image/png')
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' })
-
-    const pdfWidth = pdf.internal.pageSize.getWidth()
-    const pdfHeight = pdf.internal.pageSize.getHeight()
-    const margin = 40
-    const imgWidth = pdfWidth - margin
     const imgHeight = (canvas.height * imgWidth) / canvas.width
-    
+    scaleFactor = imgWidth / contentRect.width
+
+    // Locate the QR code and its payment URL anchor after layout
     let qrRect = null
     let qrUrl = null
-    const qrCodeEl = iframeDoc.querySelector('.qr-section img, .payment-qr-code img')
-    const qrAnchorEl = iframeDoc.querySelector('.qr-section a, .payment-qr-code a')
-    
-    if (qrCodeEl && qrAnchorEl && qrAnchorEl.href) {
-      qrRect = qrCodeEl.getBoundingClientRect()
+    const qrCodeEl = iframeDoc.querySelector('.qr-section img, .payment-qr-code img, .tech-payment-box img')
+    const qrAnchorEl = iframeDoc.querySelector('.qr-section a, .payment-qr-code a, .tech-payment-box a')
+
+    if (qrAnchorEl && qrAnchorEl.href) {
       qrUrl = qrAnchorEl.href
+      const targetEl = qrCodeEl || qrAnchorEl
+      qrRect = targetEl.getBoundingClientRect()
     }
-    const scaleFactor = imgWidth / contentRect.width
 
     let heightLeft = imgHeight
     let position = 0
@@ -247,12 +482,13 @@ const generatePDF = async (outputType = 'save') => {
       const qrPdfX = margin / 2 + (qrRect.left - contentRect.left) * scaleFactor
       const qrPdfW = qrRect.width * scaleFactor
       const qrPdfH = qrRect.height * scaleFactor
-      
+
       const qrPageY = qrPdfYTotal + currentPos
-      
-      if (qrPageY + qrPdfH > 0 && qrPageY < pdfHeight) {
+
+      // Place link on this page only if the QR code is located on this page
+      if (qrPageY >= -1 && qrPageY + qrPdfH <= pdfHeight + 1) {
         pdf.setPage(pageNumber)
-        pdf.link(qrPdfX, qrPageY, qrPdfW, qrPdfH, { url: qrUrl })
+        pdf.link(qrPdfX, Math.max(0, qrPageY), qrPdfW, qrPdfH, { url: qrUrl })
       }
     }
 
@@ -269,7 +505,8 @@ const generatePDF = async (outputType = 'save') => {
     addQrLinkIfOnPage(position)
     heightLeft -= pdfHeight
 
-    while (heightLeft > 0) {
+    // Avoid trailing blank page due to sub-pixel rounding (threshold of 10pt)
+    while (heightLeft > 10) {
       position -= pdfHeight
       pageNumber++
       pdf.addPage()

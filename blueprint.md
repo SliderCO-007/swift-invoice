@@ -2557,3 +2557,88 @@ Ensure clicking "Open Stripe Express Dashboard" in the Settings Payments section
   - Set the new window's URL to the generated Stripe login link once the asynchronous Cloud Function completes, bypassing browser popup blocker restrictions that previously forced navigation in the current window.
   - Cleaned up the opened window if an error occurs or if no link is returned.
 
+## Custom 'Get Paid Faster' Promotion Landing Page (v106)
+
+### Purpose
+Provide a high-converting, dedicated destination landing page at `/lp/get-paid-faster` designed to receive paid and organic traffic from the Meta (Facebook/Instagram) and LinkedIn 5-slide carousel campaign based on the *AllBusiness* "8 Ways to Get Paid Faster by Your Clients" publication.
+
+### Changes
+- **Dedicated Landing Page Component (`src/components/ContractorLandingPage.vue`)**:
+  - Engineered a standalone responsive page featuring the 5 proven cash flow strategies (Shorten Terms, Collect at Point of Sale, Bill in the Truck, Frictionless Text-to-Pay, Automated Reminders).
+  - Integrated interactive hero section with dynamic mobile invoice mockup displaying on-site QR Code and Text-to-Pay link workflow.
+  - Added "The Reality Check" comparison table contrasting traditional 38-day payment cycles with ScanGo's < 5-minute on-site collection.
+  - Integrated authentic contractor reviews & testimonials, structured FAQ accordion with Schema.org `FAQPage` metadata, and instant Google One-Tap / Email registration.
+  - Configured Meta Pixel `ViewContent` analytics tracking and `sessionStorage.setItem('signup_source', 'lp_get_paid_faster')`.
+- **Pre-Render Metadata Generator (`scripts/generate-lp-meta.js`)**:
+  - Generated pre-rendered meta HTML and Open Graph properties for `https://scangoinvoice.com/lp/get-paid-faster/` during production builds.
+
+## ACH Direct Debit Payment & Webhook Support (v107)
+
+### Purpose
+Enable ACH Direct Debit (`us_bank_account`) via Stripe Checkout for connected merchant accounts, offering small business owners and contractors lower processing fees on high-ticket invoices alongside credit cards, Apple Pay, and Google Pay. Implement asynchronous webhook handling (`checkout.session.async_payment_succeeded` and `checkout.session.async_payment_failed`) to accurately track when ACH payments clear (2-5 business days) and avoid premature or erroneous "paid" statuses.
+
+### Changes
+- **Cloud Functions (`functions/stripeConnect.js`)**:
+  - In `createInvoicePaymentSession`: Added `us_bank_account` to `payment_method_types` and configured `financial_connections` permissions for USD invoices.
+  - In `stripeConnectWebhook`: Added asynchronous lifecycle handling for `checkout.session.completed` (handles instant vs `payment_processing`), `checkout.session.async_payment_succeeded` (marks invoice as `paid` and sends SMS receipt upon settlement), and `checkout.session.async_payment_failed` (reverts invoice status to `pending`).
+- **Frontend Status Alignment (`src/components/InvoiceTable.vue`, `src/components/Dashboard.vue`, `src/components/ReportsView.vue`)**:
+## Public Payment Verification Fix (v108)
+
+### Purpose
+Fix client-side verification timeout on the Payment Success screen (`/payment-success?type=invoice&invoiceId=...`) when public/unauthenticated payers complete an invoice payment. Ensure immediate confirmation by polling the public `getInvoiceForPayment` Cloud Function instead of relying on client-side `onSnapshot` (which is restricted by Firestore security rules for unauthenticated users) and correct receipt navigation links.
+
+### Changes
+- **Payment Success View (`src/components/PaymentSuccess.vue`)**:
+  - Replaced direct unauthenticated `onSnapshot` listener on `invoices/{invoiceId}` with active polling of `getInvoiceForPayment` Cloud Function (every 2s with immediate first call).
+  - Maintained optional `onSnapshot` listener for authenticated merchants previewing payments with graceful permission-error catching.
+  - Corrected action button links from non-existent `/payment/:id` to public invoice portal `/pay/:id`.
+  - Added full cleanup of intervals and timeouts on component unmount and verification resolution.
+
+## Facebook Ad Campaign - 'The Sunday Night Paperwork Trap' (v109)
+
+### Purpose
+Launch a high-converting Facebook/Meta Ad Campaign targeting trade contractors and local service professionals (plumbers, electricians, landscapers, HVAC, general contractors) who suffer from lost weekends doing paperwork. Highlight the unique value proposition (UVP) of ScanGo Invoice through a relatable 4-slide storytelling arc: The Sunday Night Paperwork Trap ➔ Live On-Site Time Tracking & Receipt Snapping ➔ 1-Click Invoice Conversion ➔ Instant QR Code Checkout & Free Starter Registration.
+
+### Changes
+- **Interactive Multi-Campaign Carousel Studio (`public/carousel_generator.html`)**:
+  - Integrated dynamic campaign selector supporting both Campaign 1 ("The Sunday Night Paperwork Trap" - 4 Slides) and Campaign 2 ("Sorry, We Lied" - 8 Slides).
+  - Implemented 1:1 Native Facebook Square (`1080 x 1080px`) and 4:5 Instagram Portrait (`1080 x 1350px`) responsive stages with high-resolution 1-click PNG image exporter (`html2canvas`).
+  - Added platform-specific ad copy tabs (Facebook direct-link copy, Instagram bio copy, LinkedIn professional copy) with 1-click copy-to-clipboard functionality.
+- **Campaign Strategy & Copywriting Asset (`facebook_ad_campaign_sunday_trap.md`)**:
+  - Documented Meta Ads Manager campaign architecture ($7/day - $210/mo budget, Advantage+ Placements, custom `CompleteRegistration` Pixel conversion event).
+  - Created 4 high-converting Ad Copy variations (Storytelling Narrative, Problem-Agitate-Solve, AIDA Framework, and Straight-to-Business Hook).
+  - Provided complete laser-targeting guidelines (Interests, Demographics, Behaviors, Mobile-only device filter).
+
+## Re-Engagement Email Copy Upgrade - 60-Second Self-Test (v110)
+
+### Purpose
+Upgrade the inactive user re-engagement email sequence (`scripts/send-reengagement-emails.js` and `manual_onboarding_email.txt`) targeting registered users with 0 invoices created. Replace the previous accusatory "I noticed you didn't send an invoice" copy and misleading "Your invoice draft is waiting" subject line with a low-friction, high-converting "Send yourself a 60-second test invoice" activation hook.
+
+### Key Changes
+- **Updated Subject Line**: Replaced misleading draft promise with action-oriented benefit: `"Send yourself a test invoice in 60 seconds"`.
+- **Friction Eliminator Hook**: Re-framed outreach from user inaction/guilt to low-stakes curiosity and value—encouraging the user to send a sample invoice to their own phone/email to preview the client payment portal.
+- **Clear Value Milestones**: Itemized the 3 core benefits (tap to add an item in 20s, preview Apple Pay/Google Pay checkout, send via Email or Text-2-Pay SMS).
+- **Synchronized Assets**:
+  - `scripts/send-reengagement-emails.js`: Updated `subject`, CLI description, `getPlainTextBody` function, and added candidate email preview logging in dry-run/preview mode.
+
+## Multi-Page Invoice PDF Generation & QR Code Page-Break Protection (v111)
+
+### Purpose
+Resolve a critical defect where multi-line invoices (e.g. converted from project tracking with 8+ labor and material entries) caused the Stripe payment QR code and summary totals to land directly on a page break in generated PDFs. Naive bitmap slicing split the QR code horizontally across pages 1 and 2, rendering the QR code un-scannable and creating broken link annotations. Accommodate multi-page invoices with intelligent page-break avoidance, keeping table rows, summary totals, and QR codes intact, while providing single-page fit optimization for invoices that only barely overflow.
+
+### Key Changes
+- **PDF Generation Pipeline (`src/components/InvoiceView.vue`)**:
+  - **Single-Page Tolerance Optimization**: When content height exceeds single-page letter height by $\le 15\%$, intelligently tighten whitespace and padding so that standard ~8-item invoices fit cleanly on a single page without stranding an empty second page.
+  - **Dynamic Page-Break Avoidance**:
+    - Calculate exact PDF page boundaries in DOM coordinates ($Y = k \times \text{pageHeightPx}$).
+    - Enforce safe margins ($\sim 25\text{pt}$ top and bottom) on page transitions.
+    - Inspect table rows (`<tr>`): if a row crosses a page cutoff, insert a clean spacer row (`tr.pdf-page-break-spacer`) so the row starts at the top of the next page with margin.
+    - Protect compound summary containers (`.summary-container`, `.invoice-summary-and-notes`, `.summary-section`, etc.): if the summary container crosses a break, push the entire block (Notes, QR Code, and Totals together) to the next page so financial totals and payment details stay unified.
+    - Explicit QR Code safety barrier: verify `.payment-qr-code` bounding box to guarantee the QR code image is never split.
+    - Eliminate trailing blank pages by enforcing a minimum content threshold (`heightLeft > 10pt`).
+  - **Accurate Multi-Page Link Mapping**:
+    - Re-measure QR code and anchor bounding boxes *after* page-break spacers are applied.
+    - Place jsPDF `.link()` annotations strictly on the page where the QR code actually resides, preventing phantom or split-page links.
+- **Invoice Templates (`src/components/InvoiceTemplate*.vue`)**:
+  - Unify payment CTA text and QR code inside the `<a>` tag so both the graphic and text are clickable on web and PDF.
+  - Apply `break-inside: avoid; page-break-inside: avoid;` across table rows, summary containers, and payment sections.

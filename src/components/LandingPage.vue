@@ -613,7 +613,7 @@ const trackDownload = (location) => {
 // Copy content customization
 const heroTitleText = computed(() => {
   if (props.variant === 'contractor') {
-    return 'Get Paid 3x Faster. Invoice Clients'
+    return 'The 5-Step Blueprint to'
   } else if (props.variant === 'weekend') {
     return 'Keep Your Weekends for Yourself.'
   } else if (props.variant === 'time_is_money') {
@@ -626,7 +626,7 @@ const heroTitleText = computed(() => {
 
 const heroTitleHighlight = computed(() => {
   if (props.variant === 'contractor') {
-    return 'Directly On-Site.'
+    return 'Get Paid in Minutes.'
   } else if (props.variant === 'weekend') {
     return 'Reclaim Your Sundays.'
   } else if (props.variant === 'time_is_money') {
@@ -639,7 +639,7 @@ const heroTitleHighlight = computed(() => {
 
 const heroSubtitleText = computed(() => {
   if (props.variant === 'contractor') {
-    return 'Plumbers, contractors, and local service pros: stop chasing unpaid invoices and paperwork. Create professional invoices right from your phone and accept instant mobile payments in under 60 seconds.'
+    return 'As featured in AllBusiness: stop waiting 30+ days for clients to pay. Shorten payment terms, collect on-site with Scan-to-Pay QR codes, and text 1-click payment links directly from your phone in under 60 seconds.'
   } else if (props.variant === 'weekend') {
     return 'Stop spending your Saturdays and Sundays writing invoices and sorting crumpled receipts. Invoice your clients directly from the field in under 60 seconds and let the cash flow automatically.'
   } else if (props.variant === 'time_is_money') {
@@ -652,7 +652,7 @@ const heroSubtitleText = computed(() => {
 
 const riskReductionText = computed(() => {
   if (props.variant === 'contractor') {
-    return 'Plumbers & contractors start free forever. No credit card required.'
+    return 'Free tier includes 3 free invoices per month & unlimited projects. No credit card required.'
   } else if (props.variant === 'weekend') {
     return 'Free up your weekends today. No credit card required.'
   } else if (props.variant === 'no_paywall') {
@@ -665,24 +665,24 @@ const badges = computed(() => {
   if (props.variant === 'contractor') {
     return [
       {
-        type: 'invoice',
-        title: 'On-the-Job Invoicing',
-        subtitle: 'Bill clients immediately after the job is done before you even start your truck'
+        type: 'convert',
+        title: '1. Shorten Payment Terms',
+        subtitle: 'Switch terms to "Due Upon Receipt" or Net 10 with 1 click to get paid first'
       },
       {
         type: 'tracking',
-        title: 'Receipt & Hours Tracking',
-        subtitle: 'Log project hours and upload receipt photos directly from the job site'
+        title: '2. On-Site Scan-to-Pay',
+        subtitle: 'Let clients scan your QR code with their phone camera before you drive away'
       },
       {
-        type: 'convert',
-        title: '1-Click Invoice Sync',
-        subtitle: 'Roll all logged labor and expenses straight into a pre-filled client invoice'
+        type: 'invoice',
+        title: '3. 60-Sec Truck Invoicing',
+        subtitle: 'Convert logged job hours and material receipts into a PDF invoice on the spot'
       },
       {
         type: 'sms',
-        title: 'Text-2-Pay SMS Invoicing',
-        subtitle: 'Text payment links straight to your client\'s phone for instant 1-click mobile payments'
+        title: '4. Frictionless Text-2-Pay',
+        subtitle: 'Text secure payment links for instant 1-tap Apple Pay or Card checkout'
       }
     ]
   } else if (props.variant === 'weekend') {

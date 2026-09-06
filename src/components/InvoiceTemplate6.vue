@@ -180,18 +180,20 @@ const primaryRgb = computed(() => {
           class="tech-payment-box payment-qr-code"
           :style="{ borderColor: `rgba(${primaryRgb}, 0.25)` }"
         >
-          <div class="tech-payment-grid">
-            <div class="qr-code-holder">
-              <a :href="paymentUrl" target="_blank" rel="noopener noreferrer" style="position: relative; display: inline-block;">
-                <img :src="paymentQrImageUrl" alt="Pay via Stripe" class="tech-qr-img" crossorigin="anonymous" style="display: block;" />
-                <img v-if="userProfile?.chargesEnabled && settings?.company?.logoUrl" :src="settings.company.logoUrl" crossorigin="anonymous" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 28%; height: 28%; object-fit: contain; background: white; border-radius: 4px; padding: 2px;" />
-              </a>
+          <a :href="paymentUrl" target="_blank" rel="noopener noreferrer" class="payment-link" style="text-decoration: none; color: inherit; display: block;">
+            <div class="tech-payment-grid">
+              <div class="qr-code-holder">
+                <div style="position: relative; display: inline-block;">
+                  <img :src="paymentQrImageUrl" alt="Pay via Stripe" class="tech-qr-img" crossorigin="anonymous" style="display: block;" />
+                  <img v-if="userProfile?.chargesEnabled && settings?.company?.logoUrl" :src="settings.company.logoUrl" crossorigin="anonymous" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 28%; height: 28%; object-fit: contain; background: white; border-radius: 4px; padding: 2px;" />
+                </div>
+              </div>
+              <div class="payment-instructions">
+                <p class="instr-header" :style="{ color: primaryColor }">[ SECURE_PAYMENT_NODE ]</p>
+                <p class="instr-body">Stripe secure transfer protocols initialized. Scan QR code or click image to finalize invoice transaction online.</p>
+              </div>
             </div>
-            <div class="payment-instructions">
-              <p class="instr-header" :style="{ color: primaryColor }">[ SECURE_PAYMENT_NODE ]</p>
-              <p class="instr-body">Stripe secure transfer protocols initialized. Scan QR code or click image to finalize invoice transaction online.</p>
-            </div>
-          </div>
+          </a>
         </div>
       </div>
 
@@ -407,6 +409,11 @@ const primaryRgb = computed(() => {
   text-align: right;
 }
 
+.tech-items-table tbody tr {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
 .tech-items-table td {
   padding: 1rem;
   color: #2c2c35;
@@ -417,6 +424,8 @@ const primaryRgb = computed(() => {
   grid-template-columns: 1.3fr 1fr;
   gap: 2rem;
   margin-bottom: 2rem;
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 .tech-bottom-left {
@@ -435,6 +444,8 @@ const primaryRgb = computed(() => {
   border: 1px solid #ddd;
   border-radius: 4px;
   padding: 1rem;
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 .tech-payment-grid {

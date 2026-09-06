@@ -128,14 +128,16 @@ const primaryRgb = computed(() => {
         v-if="userProfile?.chargesEnabled && paymentQrImageUrl"
         class="sidebar-section payment-section payment-qr-code"
       >
-        <p class="section-label" :style="{ color: primaryColor }">SECURE PAYMENT</p>
-        <div class="qr-wrapper">
-          <a :href="paymentUrl" target="_blank" rel="noopener noreferrer" style="position: relative; display: inline-block;">
-            <img :src="paymentQrImageUrl" alt="Pay via Stripe" class="qr-img" crossorigin="anonymous" style="display: block;" />
-            <img v-if="userProfile?.chargesEnabled && settings?.company?.logoUrl" :src="settings.company.logoUrl" crossorigin="anonymous" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 28%; height: 28%; object-fit: contain; background: white; border-radius: 4px; padding: 2px;" />
-          </a>
-        </div>
-        <p class="payment-cta" :style="{ color: primaryColor }">Scan or click to pay</p>
+        <a :href="paymentUrl" target="_blank" rel="noopener noreferrer" class="payment-link" style="text-decoration: none; color: inherit; display: block; text-align: center;">
+          <p class="section-label" :style="{ color: primaryColor }">SECURE PAYMENT</p>
+          <div class="qr-wrapper">
+            <div style="position: relative; display: inline-block;">
+              <img :src="paymentQrImageUrl" alt="Pay via Stripe" class="qr-img" crossorigin="anonymous" style="display: block;" />
+              <img v-if="userProfile?.chargesEnabled && settings?.company?.logoUrl" :src="settings.company.logoUrl" crossorigin="anonymous" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 28%; height: 28%; object-fit: contain; background: white; border-radius: 4px; padding: 2px;" />
+            </div>
+          </div>
+          <p class="payment-cta" :style="{ color: primaryColor }">Scan or click to pay</p>
+        </a>
       </div>
     </aside>
 
@@ -405,6 +407,11 @@ const primaryRgb = computed(() => {
   color: #444;
 }
 
+.items-table tbody tr {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
 .items-table tr:hover td {
   background-color: #fafafa;
 }
@@ -427,6 +434,8 @@ const primaryRgb = computed(() => {
   display: flex;
   justify-content: space-between;
   gap: 2rem;
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 .notes-block {

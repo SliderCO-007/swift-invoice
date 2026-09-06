@@ -148,10 +148,12 @@ const formatCurrency = (value) => {
           v-if="userProfile?.chargesEnabled && paymentQrImageUrl"
           class="payment-qr-code payment-qr-code-modern"
         >
-          <p class="qr-label">Scan or click to pay Online Securely</p>
-          <a :href="paymentUrl" target="_blank" rel="noopener noreferrer" style="position: relative; display: inline-block;">
-            <img :src="paymentQrImageUrl" alt="Pay via Stripe" class="qr-img" crossorigin="anonymous" style="display: block;" />
-            <img v-if="userProfile?.chargesEnabled && settings?.company?.logoUrl" :src="settings.company.logoUrl" crossorigin="anonymous" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 28%; height: 28%; object-fit: contain; background: white; border-radius: 4px; padding: 2px;" />
+          <a :href="paymentUrl" target="_blank" rel="noopener noreferrer" class="payment-link" style="text-decoration: none; color: inherit; display: inline-block;">
+            <p class="qr-label">Scan or click to pay Online Securely</p>
+            <div style="position: relative; display: inline-block;">
+              <img :src="paymentQrImageUrl" alt="Pay via Stripe" class="qr-img" crossorigin="anonymous" style="display: block;" />
+              <img v-if="userProfile?.chargesEnabled && settings?.company?.logoUrl" :src="settings.company.logoUrl" crossorigin="anonymous" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 28%; height: 28%; object-fit: contain; background: white; border-radius: 4px; padding: 2px;" />
+            </div>
           </a>
         </div>
       </div>
@@ -363,6 +365,11 @@ const formatCurrency = (value) => {
   text-align: right;
 }
 
+.items-table tbody tr {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
 .items-table th.col-qty, .items-table th.col-price, .items-table th.col-total {
   text-align: right;
 }
@@ -374,6 +381,8 @@ const formatCurrency = (value) => {
   border-top: 2px solid #f0f0f0;
   padding-top: 2rem;
   margin-top: 2rem;
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 .notes-and-qr-modern {
@@ -401,7 +410,9 @@ const formatCurrency = (value) => {
 
 .payment-qr-code-modern {
   text-align: center;
-  margin-top: auto; 
+  margin-top: auto;
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 .qr-label {

@@ -500,6 +500,7 @@ const getStatusColor = (status) => {
   const s = status ? status.toLowerCase() : 'pending';
   switch (s) {
     case 'paid': return '#4CAF50';
+    case 'payment_processing': return '#3F51B5';
     case 'overdue': return '#F44336';
     case 'pending': return '#2196F3';
     case 'sent': return '#FF9800';
