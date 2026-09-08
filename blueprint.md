@@ -2666,3 +2666,6 @@ Establish an educational Content & Resource Hub on `scangoinvoice.com/blog` targ
   - Added "Blog" to guest navigation menu and public page footers.
 - **SEO & Pre-Render Pipeline (`scripts/generate-lp-meta.js`)**:
   - Automated generation of static HTML shells for `/blog/` and `/blog/:slug/` with customized `<title>`, Open Graph tags, canonical URLs, and `Schema.org` `BlogPosting` JSON-LD during `npm run build`.
+- **Mobile Viewport Top Spacing Optimization (`src/components/BlogIndex.vue`, `src/components/BlogPost.vue`)**:
+  - Eliminated redundant `padding-top: 80px` and excessive container margins that created a blank void below `<v-app-bar>` on mobile devices.
+  - Added dedicated `@media (max-width: 860px)` and `@media (max-width: 768px)` overrides with compact top padding (`4px`), tighter breadcrumb spacing, and scaled typography for Android and iOS mobile viewports.

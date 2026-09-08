@@ -3,7 +3,7 @@
     <main class="page-content">
       <!-- Hero Section -->
       <section class="blog-hero">
-        <v-container class="hero-container">
+        <v-container class="hero-container px-4 py-2">
           <div class="hero-badge">
             <v-icon size="16" class="mr-1">mdi-book-open-page-variant-outline</v-icon>
             <span>ScanGo Resource Hub</span>
@@ -30,7 +30,7 @@
 
       <!-- Main Content Grid -->
       <section class="articles-section">
-        <v-container class="articles-container">
+        <v-container class="articles-container px-4 py-2">
           <!-- Featured Post (Shown when on "All" or matching category) -->
           <div
             v-if="featuredPost && (selectedCategory === 'All' || featuredPost.category === selectedCategory)"
@@ -225,13 +225,13 @@ useHead({
 }
 
 .page-content {
-  padding-top: 80px;
+  padding-top: 24px;
   padding-bottom: 60px;
 }
 
 /* Hero Section */
 .blog-hero {
-  padding: 40px 0 20px;
+  padding: 16px 0 20px;
   text-align: center;
 }
 
@@ -562,6 +562,38 @@ useHead({
 }
 
 @media (max-width: 860px) {
+  .page-content {
+    padding-top: 4px;
+    padding-bottom: 36px;
+  }
+  .blog-hero {
+    padding: 6px 0 10px;
+  }
+  .hero-badge {
+    margin-bottom: 10px;
+    padding: 4px 12px;
+    font-size: 0.78rem;
+  }
+  .hero-title {
+    font-size: 1.75rem;
+    margin-bottom: 10px;
+  }
+  .hero-subtitle {
+    font-size: 0.95rem;
+    margin-bottom: 18px;
+    padding: 0 8px;
+  }
+  .category-filters {
+    margin-top: 2px;
+    gap: 6px;
+  }
+  .filter-pill {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+  }
+  .articles-section {
+    padding: 16px 0 36px;
+  }
   .cta-inner {
     flex-direction: column;
     text-align: center;
@@ -573,10 +605,10 @@ useHead({
     width: 100%;
   }
   .featured-card {
-    padding: 24px;
+    padding: 20px;
   }
   .blog-cta-banner {
-    padding: 28px;
+    padding: 24px 18px;
   }
 }
 </style>

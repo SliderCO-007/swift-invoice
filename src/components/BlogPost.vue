@@ -3,8 +3,8 @@
     <main class="page-content" v-if="post">
       <!-- Article Header & Breadcrumbs -->
       <header class="article-header">
-        <v-container class="article-header-container">
-          <nav class="breadcrumb-nav mb-6" aria-label="Breadcrumb">
+        <v-container class="article-header-container px-4 py-2">
+          <nav class="breadcrumb-nav mb-3" aria-label="Breadcrumb">
             <router-link to="/">Home</router-link>
             <span class="separator">/</span>
             <router-link to="/blog">Blog & Resources</router-link>
@@ -272,13 +272,13 @@ watch(
 }
 
 .page-content {
-  padding-top: 80px;
+  padding-top: 24px;
   padding-bottom: 60px;
 }
 
 /* Header Section */
 .article-header {
-  padding: 30px 0 20px;
+  padding: 16px 0 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -770,9 +770,42 @@ watch(
 }
 
 @media (max-width: 768px) {
+  .page-content {
+    padding-top: 4px;
+    padding-bottom: 36px;
+  }
+  .article-header {
+    padding: 8px 0 14px;
+  }
+  .breadcrumb-nav {
+    margin-bottom: 10px !important;
+    font-size: 0.8rem;
+  }
+  .article-meta-top {
+    margin-bottom: 10px !important;
+  }
+  .article-title {
+    font-size: 1.75rem;
+    margin-bottom: 10px;
+    line-height: 1.25;
+  }
+  .article-subtitle {
+    font-size: 1rem;
+    margin-bottom: 18px;
+    line-height: 1.5;
+  }
+  .article-body-wrapper {
+    padding: 24px 0 36px;
+  }
   .author-share-bar {
     flex-direction: column;
     align-items: flex-start;
+    gap: 12px;
+    padding-top: 14px;
+  }
+  .share-actions {
+    width: 100%;
+    justify-content: flex-start;
   }
   .cta-box-content {
     flex-direction: column;
