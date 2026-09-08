@@ -24,6 +24,7 @@ const guestNav = [
   { title: 'About Us', to: '/about', icon: 'mdi-information-outline' },
   { title: 'FAQ', to: '/#faq', icon: 'mdi-help-circle-outline' },
   { title: 'Pricing', to: '/pricing', icon: 'mdi-tag-outline' },
+  { title: 'Blog', to: '/blog', icon: 'mdi-book-open-page-variant-outline' },
   { title: 'Login', to: '/login', icon: 'mdi-login' },
 ];
 
@@ -68,6 +69,8 @@ const subPageTitles = {
   'Reports': 'Reports & Analytics',
   'TeamSettings': 'Team Members',
   'UserGuide': 'User Guide',
+  'BlogIndex': 'Resource Hub',
+  'BlogPost': 'Guide',
 };
 
 const isSubPage = computed(() => {
@@ -192,6 +195,7 @@ const onBackClick = () => {
           <v-btn text to="/about" class="font-weight-bold">About Us</v-btn>
           <v-btn text to="/#faq" class="font-weight-bold">FAQ</v-btn>
           <v-btn text to="/pricing" class="font-weight-bold">Pricing</v-btn>
+          <v-btn text to="/blog" class="font-weight-bold">Blog</v-btn>
           <v-btn text to="/login" class="font-weight-bold">Login</v-btn>
           <v-btn color="primary" variant="flat" to="/register" class="font-weight-bold ml-2">Register</v-btn>
         </div>

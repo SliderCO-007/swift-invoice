@@ -2642,3 +2642,27 @@ Resolve a critical defect where multi-line invoices (e.g. converted from project
 - **Invoice Templates (`src/components/InvoiceTemplate*.vue`)**:
   - Unify payment CTA text and QR code inside the `<a>` tag so both the graphic and text are clickable on web and PDF.
   - Apply `break-inside: avoid; page-break-inside: avoid;` across table rows, summary containers, and payment sections.
+
+## Blog & Small Business Resource Hub (v112)
+
+### Purpose
+Establish an educational Content & Resource Hub on `scangoinvoice.com/blog` targeting trade contractors, freelancers, and female entrepreneurs. The hub serves as a top-of-funnel organic search acquisition driver, provides practical cash flow and invoicing guides, and connects readers directly to the Free Starter plan. To ensure zero ongoing CMS costs and maximum SEO performance, articles are statically organized via local Git-based data files and pre-rendered with rich Open Graph, Twitter Cards, and Schema.org `BlogPosting` JSON-LD during build.
+
+### Key Changes
+- **Content Composable & Data Repository (`src/data/blogPosts.js`)**:
+  - Structured article dataset with slugs, titles, excerpts, categories, author info, reading times, tags, and rich HTML content sections.
+  - Seed articles addressing contractor cash flow, female entrepreneur pricing confidence, Net 30 vs Due on Receipt payment terms, and card reader-free mobile payments.
+- **Blog Hub View (`src/components/BlogIndex.vue`)**:
+  - Glassmorphic hero section and category filter tabs (All, Contractor Cash Flow, Women in Business, Payment Strategy, Mobile Payments).
+  - Responsive card grid displaying reading time, publication date, tags, and reading previews.
+  - Prominent free tier conversion callouts.
+- **Article Reader View (`src/components/BlogPost.vue`)**:
+  - Clean typographic layout optimized for readability with breadcrumb navigation.
+  - Actionable callout boxes, pro-tips, and integrated "Try ScanGo Free" conversion banners.
+  - Native Web Share API integration (`navigator.share`) with automatic clipboard fallback, copy-to-clipboard URL with visual feedback toast, and related article suggestions.
+- **Router Registration (`src/router/index.js`)**:
+  - Registered `/blog` and `/blog/:slug` routes.
+- **Navigation Integration (`src/components/AppBar.vue`, `src/components/LandingPage.vue`, `src/components/FeaturesPage.vue`, `src/components/AboutUsPage.vue`)**:
+  - Added "Blog" to guest navigation menu and public page footers.
+- **SEO & Pre-Render Pipeline (`scripts/generate-lp-meta.js`)**:
+  - Automated generation of static HTML shells for `/blog/` and `/blog/:slug/` with customized `<title>`, Open Graph tags, canonical URLs, and `Schema.org` `BlogPosting` JSON-LD during `npm run build`.

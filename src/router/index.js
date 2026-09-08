@@ -60,6 +60,16 @@ const routes = [
     component: () => import('../components/PricingPage.vue'),
   },
   {
+    path: '/blog',
+    name: 'BlogIndex',
+    component: () => import('../components/BlogIndex.vue'),
+  },
+  {
+    path: '/blog/:slug',
+    name: 'BlogPost',
+    component: () => import('../components/BlogPost.vue'),
+  },
+  {
     path: '/register',
     name: 'Register',
     component: () => import('../components/RegisterPage.vue'),

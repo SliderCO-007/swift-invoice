@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { blogPosts } from '../src/data/blogPosts.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,7 +16,8 @@ if (!fs.existsSync(indexPath)) {
 
 const originalHtml = fs.readFileSync(indexPath, 'utf-8');
 
-const pages = [
+// Marketing Landing Pages
+const landingPages = [
   {
     path: 'lp/weekend-freedom',
     title: 'Reclaim Your Weekends | ScanGo Invoice Simple On-Site Billing',
@@ -39,10 +41,31 @@ const pages = [
     title: "What's a Paywall? | ScanGo Free Invoicing & Instant Mobile Payments",
     description: 'Stop paying monthly subscriptions just to bill clients. ScanGo unlocks free email & Text-2-Pay SMS invoicing, instant Stripe QR codes, and jobsite tracking with no credit card required.',
     url: 'https://scangoinvoice.com/lp/no-paywall/'
+  },
+  {
+    path: 'blog',
+    title: 'Guides & Resources for Contractors & Small Businesses | ScanGo Invoice',
+    description: 'Practical cash-flow strategies, confident pricing blueprints, and mobile invoicing tips for trade contractors, freelancers, and female entrepreneurs.',
+    url: 'https://scangoinvoice.com/blog/'
   }
 ];
 
-pages.forEach((page) => {
+// Combine Landing Pages and Blog Articles
+const allPages = [...landingPages];
+
+blogPosts.forEach((post) => {
+  allPages.push({
+    path: `blog/${post.slug}`,
+    title: `${post.title} | ScanGo Invoice Blog`,
+    description: post.metaDescription,
+    url: `https://scangoinvoice.com/blog/${post.slug}/`,
+    isArticle: true,
+    publishedAt: post.publishedAt,
+    author: post.author.name
+  });
+});
+
+allPages.forEach((page) => {
   const targetDir = path.join(distPath, page.path);
   if (!fs.existsSync(targetDir)) {
     fs.mkdirSync(targetDir, { recursive: true });
@@ -55,6 +78,19 @@ pages.forEach((page) => {
     /<title>[\s\S]*?<\/title>/i,
     `<title>${page.title}</title>`
   );
+
+  // Replace Meta Description
+  if (/<meta\s+name="description"\s+content="[\s\S]*?"\s*\/?>/i.test(modifiedHtml)) {
+    modifiedHtml = modifiedHtml.replace(
+      /<meta\s+name="description"\s+content="[\s\S]*?"\s*\/?>/i,
+      `<meta name="description" content="${page.description}" />`
+    );
+  } else {
+    modifiedHtml = modifiedHtml.replace(
+      /<\/head>/i,
+      `  <meta name="description" content="${page.description}" />\n</head>`
+    );
+  }
 
   // Replace Open Graph tags
   modifiedHtml = modifiedHtml.replace(
@@ -71,6 +107,50 @@ pages.forEach((page) => {
     /<meta\s+property="og:url"\s+content="[\s\S]*?"\s*\/?>/i,
     `<meta property="og:url" content="${page.url}" />`
   );
+
+  if (page.isArticle) {
+    // Inject article og:type & Schema.org JSON-LD
+    modifiedHtml = modifiedHtml.replace(
+      /<meta\s+property="og:type"\s+content="[\s\S]*?"\s*\/?>/i,
+      `<meta property="og:type" content="article" />`
+    );
+
+    const schemaJson = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": page.title,
+      "description": page.description,
+      "datePublished": page.publishedAt,
+      "author": {
+        "@type": "Organization",
+        "name": "ScanGo Invoice",
+        "url": "https://scangoinvoice.com"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "ScanGo Invoice",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://scangoinvoice.com/Logo.webp"
+        }
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": page.url
+      }
+    });
+
+    const injection = `
+  <link rel="canonical" href="${page.url}" />
+  <script type="application/ld+json">
+  ${schemaJson}
+  </script>
+</head>`;
+    modifiedHtml = modifiedHtml.replace(/<\/head>/i, injection);
+  } else {
+    const canonical = `  <link rel="canonical" href="${page.url}" />\n</head>`;
+    modifiedHtml = modifiedHtml.replace(/<\/head>/i, canonical);
+  }
 
   fs.writeFileSync(path.join(targetDir, 'index.html'), modifiedHtml, 'utf-8');
   console.log(`Successfully generated dynamic meta HTML for: ${page.url}`);
