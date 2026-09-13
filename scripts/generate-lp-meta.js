@@ -108,6 +108,17 @@ allPages.forEach((page) => {
     `<meta property="og:url" content="${page.url}" />`
   );
 
+  // Replace Twitter Card tags
+  modifiedHtml = modifiedHtml.replace(
+    /<meta\s+name="twitter:title"\s+content="[\s\S]*?"\s*\/?>/i,
+    `<meta name="twitter:title" content="${page.title}" />`
+  );
+
+  modifiedHtml = modifiedHtml.replace(
+    /<meta\s+name="twitter:description"\s+content="[\s\S]*?"\s*\/?>/i,
+    `<meta name="twitter:description" content="${page.description}" />`
+  );
+
   if (page.isArticle) {
     // Inject article og:type & Schema.org JSON-LD
     modifiedHtml = modifiedHtml.replace(

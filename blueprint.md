@@ -2669,3 +2669,19 @@ Establish an educational Content & Resource Hub on `scangoinvoice.com/blog` targ
 - **Mobile Viewport Top Spacing Optimization (`src/components/BlogIndex.vue`, `src/components/BlogPost.vue`)**:
   - Eliminated redundant `padding-top: 80px` and excessive container margins that created a blank void below `<v-app-bar>` on mobile devices.
   - Added dedicated `@media (max-width: 860px)` and `@media (max-width: 768px)` overrides with compact top padding (`4px`), tighter breadcrumb spacing, and scaled typography for Android and iOS mobile viewports.
+
+## Platform Meta Tags & "Free Invoice Software" SEO Optimization (v113)
+
+### Purpose
+Optimize platform discoverability and search engine ranking for queries targeting "free invoice software", "free invoicing", and instant billing solutions. Replace legacy price-focused meta descriptions with high-relevance SEO tags, full Open Graph tags, and Twitter Cards across the root document and static pre-rendering pipeline.
+
+### Key Changes
+- **Root Document Meta Enhancement (`index.html`)**:
+  - Updated `<title>` to: `Free Invoice Software & Instant Online Payments | ScanGo Invoice`.
+  - Added primary `<meta name="description">`: `"Create, download, and send professional invoices with ScanGo Invoice — free invoice software. Generate branded payment links and instant QR codes."`.
+  - Added `<meta name="keywords">`: `"free invoice software, free invoicing, invoice generator, contractor invoicing, instant payments, QR code invoice, billing software"`.
+  - Updated Open Graph metadata (`og:title`, `og:description` cleanly focused without price-based copy).
+  - Added complete Twitter Card metadata (`twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`).
+- **Static Meta Generation Pipeline (`scripts/generate-lp-meta.js`)**:
+  - Added dynamic replacement rules for `twitter:title` and `twitter:description` during `npm run build` so that all marketing landing pages (`/lp/*`) and blog articles (`/blog/*`) receive page-specific Twitter cards synchronized with their unique titles and descriptions.
+
