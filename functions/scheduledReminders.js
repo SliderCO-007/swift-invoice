@@ -209,8 +209,8 @@ exports.sendScheduledReminders = onSchedule("every day 09:00", async (event) => 
       const companyName = settings.company?.name || user.name || 'ScanGo Merchant';
 
       // App payment URL
-      const appHost = process.env.VITE_APP_URL || "https://swift-invoice.web.app";
-      const paymentUrl = `${appHost}/#/payment/${invoiceId}`;
+      const appHost = process.env.APP_URL || process.env.VITE_APP_URL || "https://scangoinvoice.com";
+      const paymentUrl = `${appHost}/pay/${invoiceId}`;
 
       const emailHtml = buildReminderEmailHtml({
         companyName,

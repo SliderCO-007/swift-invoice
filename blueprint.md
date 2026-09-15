@@ -2732,5 +2732,20 @@ Transform the Monday weekly invoice report from a passive summary into an action
   - **Summary Metrics Bar**: Added a high-contrast card for **Overdue** (`$totalOverdue`, badge in urgent red `#f87171`) alongside Paid and Due This Week.
   - **Action Required: Overdue Section**: Prominent alert card with glassmorphic red gradient, action badge, itemized list of overdue invoices (with invoice #, client name, amount, and days overdue), and direct "Review in Dashboard" action button.
 
+## Automated Reminder Email Payment Link Domain & Route Resolution (v116)
+
+### Purpose
+Resolve broken payment links in automated client reminder emails. Previously, automated reminder emails sent to clients contained a payment link pointing to `https://swift-invoice.web.app/#/payment/:id`, which failed because the default domain was an unconfigured legacy ID rather than the production domain (`https://scangoinvoice.com`), and Vue Router operates in HTML5 history mode (`createWebHistory()`) where hash fragments are ignored and the primary public payment route is `/pay/:id`.
+
+### Key Changes
+- **Cloud Function Payment Link Alignment (`functions/scheduledReminders.js`)**:
+  - Replaced fallback host `https://swift-invoice.web.app` with production custom domain `https://scangoinvoice.com` (with fallback to `process.env.APP_URL` or `process.env.VITE_APP_URL`).
+  - Standardized reminder payment URL generation to `${appHost}/pay/${invoiceId}`, perfectly aligning with SMS notifications (`sendSmsInvoice.js`), invoice templates, and Stripe cancel redirect URLs.
+- **Frontend Backward-Compatible Route Redirection (`src/router/index.js`)**:
+  - Added explicit route redirect for `/payment/:invoiceId` -> `/pay/:invoiceId`.
+  - Added hash interceptor inside `router.beforeEach` to detect incoming URLs containing `#/payment/:id` or `#/pay/:id` and seamlessly forward them to `/pay/:invoiceId` with browser URL replacement.
+  - Wrapped hash selector querying in `scrollBehavior` within a `try-catch` block to prevent invalid selector DOM exceptions when encountering hash paths.
+
+
 
 

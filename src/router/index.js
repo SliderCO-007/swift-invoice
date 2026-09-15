@@ -170,6 +170,10 @@ const routes = [
     meta: { requiresAuth: false }
   },
   {
+    path: '/payment/:invoiceId',
+    redirect: to => `/pay/${to.params.invoiceId}`
+  },
+  {
     path: '/invoices',
     name: 'InvoiceList',
     component: () => import('../components/InvoiceList.vue'),
@@ -214,7 +218,16 @@ const router = createRouter({
     if (to.hash) {
       return new Promise((resolve) => {
         setTimeout(() => {
-          resolve({ el: to.hash, behavior: 'smooth' });
+          try {
+            const el = document.querySelector(to.hash);
+            if (el) {
+              resolve({ el: to.hash, behavior: 'smooth' });
+              return;
+            }
+          } catch {
+            // Ignore invalid CSS selector in hash
+          }
+          resolve({ top: 0 });
         }, 300); // A short delay to allow the page to render
       });
     }
@@ -226,6 +239,16 @@ const router = createRouter({
 // This guard is now much cleaner. It waits for the initial auth check to complete
 // before making any decisions about routing.
 router.beforeEach(async (to, from, next) => {
+  // Support legacy or email hash-based payment URLs (e.g., #/payment/:id or #/pay/:id)
+  if (to.path === '/' && typeof window !== 'undefined' && window.location.hash) {
+    const hash = window.location.hash;
+    const match = hash.match(/^#\/(?:payment|pay)\/([^/?#]+)/);
+    if (match) {
+      const invoiceId = match[1];
+      return next({ path: `/pay/${invoiceId}`, replace: true });
+    }
+  }
+
   // Wait for the authIsReady promise to resolve.
   await isAuthReady;
 
