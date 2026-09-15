@@ -19,6 +19,9 @@ exports.sendWeeklyReport = weeklyReport.sendWeeklyReport;
 const previewReport = require("./previewReport");
 exports.sendPreviewReport = previewReport.sendPreviewReport;
 
+const unsubscribeEndpoint = require("./unsubscribeEndpoint");
+exports.unsubscribeWeeklyReport = unsubscribeEndpoint.unsubscribeWeeklyReport;
+
 const generateVenmoQR = require("./generateVenmoQR");
 exports.generateVenmoQR = generateVenmoQR.generateVenmoQR;
 

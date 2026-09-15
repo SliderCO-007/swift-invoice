@@ -2685,3 +2685,35 @@ Optimize platform discoverability and search engine ranking for queries targetin
 - **Static Meta Generation Pipeline (`scripts/generate-lp-meta.js`)**:
   - Added dynamic replacement rules for `twitter:title` and `twitter:description` during `npm run build` so that all marketing landing pages (`/lp/*`) and blog articles (`/blog/*`) receive page-specific Twitter cards synchronized with their unique titles and descriptions.
 
+## Weekly Reports for All Registered Users & Opt-Out Functionality (v114)
+
+### Purpose
+Offer weekly invoice activity reports to all registered ScanGo Invoice users (free and subscribed) by default to keep the brand top-of-mind and increase user awareness and retention. Provide a frictionless opt-out mechanism via both in-app settings and signed 1-click email unsubscribe links. For users with zero invoice activity, provide an encouraging "All Caught Up" summary with re-engagement tips, and present free-tier users with a non-intrusive Pro upgrade banner. Provide an admin script to announce this enhancement via Resend.
+
+### Key Changes
+- **HMAC Unsubscribe Helper (`functions/unsubscribeHelper.js`)**:
+  - Cryptographic token generation and verification using HMAC-SHA256 based on user ID and a secure secret to prevent tampering or unauthorized unsubscriptions.
+- **Unsubscribe Cloud Function HTTP Endpoint (`functions/index.js` - `unsubscribeWeeklyReport`)**:
+  - Public endpoint supporting CORS and direct browser GET requests.
+  - Verifies signed token and updates `users/{uid}.weeklyReportOptOut = true` and timestamp in Firestore.
+  - Serves a branded ScanGo Invoice confirmation page with a button to return to dashboard.
+- **Scheduled Weekly Report Engine (`functions/weeklyReport.js`)**:
+  - Removed strict active-subscription filter so all registered accounts are eligible.
+  - Checks `user.weeklyReportOptOut !== true` before sending.
+  - When paid/due invoice count is zero: delivers an "All Caught Up" state with cash flow pro-tips and quick-action links to create an invoice.
+  - Freemium differentiation: embeds a sleek Pro upgrade banner for non-subscribers highlighting automated payment reminders, receipt OCR, and billable project hours.
+  - Email footer includes a signed 1-click unsubscribe link and RFC 8058 `List-Unsubscribe` headers.
+- **Preview Report Cloud Function (`functions/previewReport.js`)**:
+  - Removed subscription restriction so all registered users can test and preview weekly report emails from their settings.
+- **Frontend Unsubscribe Page (`src/components/UnsubscribePage.vue` & `src/router/index.js`)**:
+  - Branded `/unsubscribe` page allowing users who land via email links to verify and manage their subscription status with one click, with an instant option to re-enable.
+- **User Settings Opt-Out Toggle (`src/components/UserSettings.vue` & `src/composables/useUserSettings.js`)**:
+  - Added responsive toggle switch under "Weekly Report" allowing users to easily opt out or re-enroll at any time.
+  - Syncs changes across `userSettings` and `users/{uid}.weeklyReportOptOut`.
+- **Pricing Tier Realignment (`src/components/PricingPage.vue`)**:
+  - Updated feature bullet on Starter/Free plan to "Basic weekly invoice summary report" and Pro/Business to "Advanced revenue & tax reports + automated client reminders".
+- **Admin Announcement CLI Script (`scripts/send-weekly-report-announcement.js`)**:
+  - Node.js CLI script integrating Firebase Admin and Resend to send the responsive dark-themed launch announcement to all registered users.
+  - Features `--dry-run`, `--test <email>`, `--limit <n>`, recipient filtering (skips opted-out accounts), progress bars, and error recovery.
+
+

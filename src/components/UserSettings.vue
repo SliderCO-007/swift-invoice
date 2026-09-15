@@ -59,7 +59,8 @@ const localSettings = ref({
   reminderSettings: {
     enabled: true,
     triggers: ['3_days_before', 'on_due_date', '7_days_overdue']
-  }
+  },
+  weeklyReportEnabled: true
 });
 
 const isSubscribed = computed(() => {
@@ -84,6 +85,9 @@ const toggleTrigger = (triggerKey) => {
 watch(settings, (newSettings) => {
   if (newSettings) {
     localSettings.value = JSON.parse(JSON.stringify(newSettings));
+    if (localSettings.value.weeklyReportEnabled === undefined) {
+      localSettings.value.weeklyReportEnabled = true;
+    }
     logoPreview.value = newSettings.company.logoUrl;
   }
 }, { deep: true, immediate: true });
@@ -171,18 +175,55 @@ const goToPricing = () => {
       <div v-if="successMessage" class="success-notification">{{ successMessage }}</div>
       
       <div class="preview-section">
-        <h3>Weekly Report</h3>
-        <div v-if="isSubscribed">
-          <p>As a subscriber, you get a weekly report emailed to you. Send a preview of the report to your email.</p>
-          <v-btn @click="handleSendPreview" :loading="previewLoading" class="preview-btn" color="indigo-darken-3">
-            Send Preview
-          </v-btn>
-          <div v-if="previewMessage" class="preview-message success-notification">{{ previewMessage }}</div>
-          <div v-if="previewError" class="preview-message error-notification">{{ previewError }}</div>
+        <div class="d-flex justify-space-between align-center mb-2">
+          <div>
+            <h3>Weekly Invoice Report</h3>
+            <p class="text-subtitle-2 text-medium-emphasis">
+              Get an automated summary emailed every Monday at 8:00 AM with paid invoices, upcoming due dates, and cash flow tips.
+            </p>
+          </div>
+          <v-chip v-if="localSettings.weeklyReportEnabled !== false" color="green-darken-1" size="small" variant="flat" prepend-icon="mdi-email-check">
+            ACTIVE
+          </v-chip>
+          <v-chip v-else color="grey-darken-1" size="small" variant="flat" prepend-icon="mdi-email-off">
+            OPTED OUT
+          </v-chip>
         </div>
-        <div v-else>
-          <p>Upgrade to a premium plan to receive automated weekly reports summarizing your invoice activity.</p>
-          <v-btn @click="goToPricing" class="subscribe-btn" color="green-darken-1">Subscribe Now</v-btn>
+
+        <div class="mt-3">
+          <v-switch
+            v-model="localSettings.weeklyReportEnabled"
+            label="Receive Weekly Invoice Reports via Email"
+            color="indigo-lighten-1"
+            hide-details
+            class="mb-3"
+          ></v-switch>
+
+          <p v-if="localSettings.weeklyReportEnabled !== false" class="text-caption text-success mb-3">
+            ✓ Automated reports will be delivered every Monday morning to {{ localSettings.company.email || currentUser?.email || 'your email' }}.
+          </p>
+          <p v-else class="text-caption text-warning mb-3">
+            ⚠️ You have opted out of weekly invoice reports. You will not receive summary emails.
+          </p>
+
+          <div class="d-flex flex-wrap align-center gap-3">
+            <v-btn
+              @click="handleSendPreview"
+              :loading="previewLoading"
+              class="preview-btn"
+              color="indigo-darken-3"
+              prepend-icon="mdi-send"
+              :disabled="localSettings.weeklyReportEnabled === false"
+            >
+              Send Test Preview
+            </v-btn>
+            <span v-if="localSettings.weeklyReportEnabled === false" class="text-caption text-medium-emphasis ml-2">
+              (Enable reports above to test preview)
+            </span>
+          </div>
+
+          <div v-if="previewMessage" class="preview-message success-notification mt-3">{{ previewMessage }}</div>
+          <div v-if="previewError" class="preview-message error-notification mt-3">{{ previewError }}</div>
         </div>
       </div>
 

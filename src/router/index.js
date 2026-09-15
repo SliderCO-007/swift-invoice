@@ -192,6 +192,12 @@ const routes = [
   { path: '/projects/:id',      name: 'ProjectDetail', component: () => import('../components/ProjectDetail.vue'), meta: { requiresAuth: true } },
   { path: '/projects/:id/edit', name: 'ProjectEdit',   component: () => import('../components/ProjectEditor.vue'), meta: { requiresAuth: true } },
   {
+    path: '/unsubscribe',
+    name: 'Unsubscribe',
+    component: () => import('../components/UnsubscribePage.vue'),
+    meta: { requiresAuth: false }
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('../components/NotFound.vue')

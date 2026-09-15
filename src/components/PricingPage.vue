@@ -166,6 +166,10 @@ onMounted(() => {
                 <v-icon size="18" color="rgba(255,255,255,0.2)">mdi-close-circle</v-icon>
                 <span>Automated payment reminders</span>
               </div>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>Weekly invoice summary reports</span>
+              </div>
 
 
               <p class="feature-section-label mt-4">Project Tracking</p>
@@ -285,7 +289,7 @@ onMounted(() => {
               </div>
               <div class="feature-item highlight-feature">
                 <v-icon size="18" color="primary">mdi-check-circle</v-icon>
-                <span>Weekly revenue summary reports</span>
+                <span><strong>Advanced</strong> weekly revenue &amp; tax summary reports</span>
               </div>
 
 
@@ -414,7 +418,7 @@ onMounted(() => {
               </div>
               <div class="feature-item highlight-feature">
                 <v-icon size="18" color="primary">mdi-chart-bar</v-icon>
-                <span>Weekly revenue &amp; tax summary reports</span>
+                <span><strong>Advanced</strong> weekly revenue &amp; tax summary reports</span>
               </div>
 
               <p class="feature-section-label mt-4">Project Tracking &amp; Team</p>

@@ -1,5 +1,5 @@
 import { ref, watchEffect } from 'vue';
-import { doc, setDoc, getDoc, onSnapshot } from 'firebase/firestore';
+import { doc, setDoc, getDoc, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage, functions } from './useFirebase';
 import { httpsCallable } from 'firebase/functions';
@@ -19,7 +19,8 @@ function getInitialSettings() {
     reminderSettings: {
       enabled: true,
       triggers: ['3_days_before', 'on_due_date', '7_days_overdue']
-    }
+    },
+    weeklyReportEnabled: true
   };
 }
 
@@ -125,6 +126,7 @@ const saveUserSettings = async (newSettings, logoFile) => {
     const settingsToSave = {
       ...newSettings,
       company: { ...newSettings.company, logoUrl },
+      weeklyReportEnabled: newSettings.weeklyReportEnabled !== false,
     };
     
     // Strip invoiceCounter to prevent overwriting or resetting the incrementing invoice counter sequence
@@ -132,6 +134,17 @@ const saveUserSettings = async (newSettings, logoFile) => {
     
     const docRef = doc(db, 'userSettings', orgId);
     await setDoc(docRef, settingsToSave, { merge: true });
+
+    // Sync weeklyReportOptOut to users collection for direct lookup in Cloud Functions
+    try {
+      const userRef = doc(db, 'users', profile.id);
+      await setDoc(userRef, {
+        weeklyReportOptOut: newSettings.weeklyReportEnabled === false,
+        weeklyReportUpdatedAt: serverTimestamp(),
+      }, { merge: true });
+    } catch (userErr) {
+      console.warn("Could not sync weeklyReportOptOut to user doc:", userErr.message);
+    }
 
   } catch (err) {
     console.error("Fatal error saving user settings: ", err);
