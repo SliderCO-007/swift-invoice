@@ -2716,4 +2716,21 @@ Offer weekly invoice activity reports to all registered ScanGo Invoice users (fr
   - Node.js CLI script integrating Firebase Admin and Resend to send the responsive dark-themed launch announcement to all registered users.
   - Features `--dry-run`, `--test <email>`, `--limit <n>`, recipient filtering (skips opted-out accounts), progress bars, and error recovery.
 
+## Weekly Report Overdue Invoices Highlighting & Action Alert (v115)
+
+### Purpose
+Transform the Monday weekly invoice report from a passive summary into an actionable collections tool. Specifically highlight overdue invoices that require immediate attention so small businesses and freelancers never let late payments drift forgotten.
+
+### Key Changes
+- **Overdue Invoices Query & Categorization (`functions/weeklyReport.js` & `functions/previewReport.js`)**:
+  - Fetch unpaid invoices (`pending`, `sent`, `overdue`) and dynamically calculate overdue status: `status === 'overdue' || (dueDate && dueDate < startOfToday)`.
+  - Accurately calculate days overdue for each past-due item.
+  - Separate unpaid receivables into distinct categories: **Overdue** (past due) vs **Due This Week** (upcoming 7 days).
+  - Update `hasActivity` check to trigger if any overdue invoices exist, preventing accounts with past-due balances from receiving a misleading "All Caught Up" message.
+  - Dynamic subject line: includes `Action Required on X Overdue Invoice(s) ⚠️` when overdue accounts exist.
+- **Visual Design & Email Template (`functions/weeklyReport.js` & `functions/previewReport.js`)**:
+  - **Summary Metrics Bar**: Added a high-contrast card for **Overdue** (`$totalOverdue`, badge in urgent red `#f87171`) alongside Paid and Due This Week.
+  - **Action Required: Overdue Section**: Prominent alert card with glassmorphic red gradient, action badge, itemized list of overdue invoices (with invoice #, client name, amount, and days overdue), and direct "Review in Dashboard" action button.
+
+
 
