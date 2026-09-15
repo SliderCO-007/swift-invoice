@@ -265,7 +265,7 @@ exports.sendPreviewReport = onCall({ enforceAppCheck: false }, async (request) =
             Never chase late payments manually again. ScanGo Pro sends automated email reminders before and after due dates, captures receipt expenses with AI, and tracks billable hours.
           </p>
           <a href="https://scangoinvoice.com/pricing" style="display: inline-block; background: #3b82f6; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; font-size: 13.5px;">
-            Upgrade to Pro for $4.99/mo &rarr;
+            Upgrade to Pro ($9/mo) &rarr;
           </a>
         </div>
       `;
