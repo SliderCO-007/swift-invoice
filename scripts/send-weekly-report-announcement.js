@@ -356,13 +356,53 @@ async function run() {
   let recipients = [];
 
   if (targetOverride) {
-    recipients.push({
-      id: 'test-user-id-001',
-      email: targetOverride,
-      name: nameOverride || 'Test User',
-      subscriptionStatus: 'free',
-      weeklyReportOptOut: false
-    });
+    const targetEmail = targetOverride.trim().toLowerCase();
+    console.log(`🔍 Looking up registered account in Firestore for: ${targetEmail}...`);
+    const usersSnap = await db.collection('users').get();
+    let matchedDoc = null;
+
+    for (const doc of usersSnap.docs) {
+      const d = doc.data();
+      if ((d.email && d.email.trim().toLowerCase() === targetEmail) || doc.id === targetOverride) {
+        matchedDoc = doc;
+        break;
+      }
+    }
+
+    if (matchedDoc) {
+      const d = matchedDoc.data();
+      const realUid = matchedDoc.id;
+      const realName = nameOverride || d.name || (d.company && d.company.name) || '';
+      console.log(`✅ Found registered user in database:`);
+      console.log(`   UID:    ${realUid}`);
+      console.log(`   Name:   ${realName || '(No name set)'}`);
+      console.log(`   Email:  ${d.email || targetOverride}`);
+      console.log(`   Plan:   ${d.subscriptionStatus || 'free'}`);
+
+      recipients.push({
+        id: realUid,
+        email: targetOverride,
+        name: realName,
+        subscriptionStatus: d.subscriptionStatus || 'free',
+        weeklyReportOptOut: d.weeklyReportOptOut === true,
+      });
+    } else {
+      const explicitUid = getArgValue('--uid', null);
+      if (explicitUid) {
+        console.log(`   Using explicit UID provided via --uid: ${explicitUid}`);
+        recipients.push({
+          id: explicitUid,
+          email: targetOverride,
+          name: nameOverride || 'Valued User',
+          subscriptionStatus: 'free',
+          weeklyReportOptOut: false,
+        });
+      } else {
+        console.error(`❌ User with email "${targetOverride}" was not found in registered 'users' collection.`);
+        console.log(`   Please specify the email address of an existing registered user, or pass --uid=<valid_user_id>.`);
+        process.exit(1);
+      }
+    }
   } else {
     console.log(`🔍 Fetching registered users from Firestore ('users' collection)...`);
     const usersSnap = await db.collection('users').get();

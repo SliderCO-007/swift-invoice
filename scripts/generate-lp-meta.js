@@ -47,6 +47,12 @@ const landingPages = [
     title: 'Guides & Resources for Contractors & Small Businesses | ScanGo Invoice',
     description: 'Practical cash-flow strategies, confident pricing blueprints, and mobile invoicing tips for trade contractors, freelancers, and female entrepreneurs.',
     url: 'https://scangoinvoice.com/blog/'
+  },
+  {
+    path: 'unsubscribe',
+    title: 'Notification Preferences & Unsubscribe | ScanGo Invoice',
+    description: 'Manage your automated weekly report email notification preferences for ScanGo Invoice.',
+    url: 'https://scangoinvoice.com/unsubscribe/'
   }
 ];
 
