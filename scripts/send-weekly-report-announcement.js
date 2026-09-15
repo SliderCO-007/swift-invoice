@@ -46,7 +46,12 @@ function getGcloudAccessToken() {
     const out = execSync('gcloud auth print-access-token', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
     return out ? out.trim() : null;
   } catch (err) {
-    return null;
+    try {
+      const out = execSync('powershell -NoProfile -Command "gcloud auth print-access-token"', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
+      return out ? out.trim() : null;
+    } catch {
+      return null;
+    }
   }
 }
 
@@ -161,22 +166,25 @@ const resend = new ResendClass(resendApiKey);
 const token = getGcloudAccessToken();
 let db;
 
-if (admin) {
+// Priority 1: Standalone Firestore with OAuth token from gcloud
+if (FirestoreClass && token) {
+  try {
+    db = new FirestoreClass({
+      projectId,
+      authClient: {
+        getRequestHeaders: async () => ({ Authorization: `Bearer ${token}` })
+      }
+    });
+  } catch (e) {
+    console.warn("⚠️ Standalone Firestore init with token failed, trying fallback:", e.message);
+  }
+}
+
+// Priority 2: Firebase Admin (if running in GCP or with service account)
+if (!db && admin) {
   try {
     if (!admin.apps.length) {
-      if (token) {
-        admin.initializeApp({
-          projectId,
-          credential: {
-            getAccessToken: async () => ({
-              access_token: token,
-              expires_in: 3600,
-            }),
-          },
-        });
-      } else {
-        admin.initializeApp({ projectId });
-      }
+      admin.initializeApp({ projectId });
     }
     db = admin.firestore();
   } catch (err) {
@@ -184,15 +192,17 @@ if (admin) {
   }
 }
 
+// Priority 3: Standalone Firestore default credentials
 if (!db && FirestoreClass) {
-  db = new FirestoreClass({
-    projectId,
-    ...(token ? { token } : {}),
-  });
+  try {
+    db = new FirestoreClass({ projectId });
+  } catch (e) {
+    // Fallback
+  }
 }
 
 if (!db) {
-  console.error("❌ Failed to initialize Firestore. Please ensure you are logged into gcloud or set GOOGLE_APPLICATION_CREDENTIALS.");
+  console.error("❌ Failed to initialize Firestore. Please ensure you are logged into gcloud (`gcloud auth login`) or set GOOGLE_APPLICATION_CREDENTIALS.");
   process.exit(1);
 }
 
