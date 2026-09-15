@@ -175,20 +175,33 @@ const goToPricing = () => {
       <div v-if="successMessage" class="success-notification">{{ successMessage }}</div>
       
       <div class="preview-section">
-        <div class="d-flex justify-space-between align-center mb-2">
-          <div>
-            <h3>Weekly Invoice Report</h3>
-            <p class="text-subtitle-2 text-medium-emphasis">
-              Get an automated summary emailed every Monday at 8:00 AM with paid invoices, upcoming due dates, and cash flow tips.
-            </p>
-          </div>
-          <v-chip v-if="localSettings.weeklyReportEnabled !== false" color="green-darken-1" size="small" variant="flat" prepend-icon="mdi-email-check">
+        <div class="d-flex justify-space-between align-center mb-2 flex-wrap ga-2">
+          <h3 class="mb-0">Weekly Invoice Report</h3>
+          <v-chip
+            v-if="localSettings.weeklyReportEnabled !== false"
+            color="green-darken-1"
+            size="small"
+            variant="flat"
+            prepend-icon="mdi-email-check"
+            class="flex-shrink-0"
+          >
             ACTIVE
           </v-chip>
-          <v-chip v-else color="grey-darken-1" size="small" variant="flat" prepend-icon="mdi-email-off">
+          <v-chip
+            v-else
+            color="grey-darken-1"
+            size="small"
+            variant="flat"
+            prepend-icon="mdi-email-off"
+            class="flex-shrink-0"
+          >
             OPTED OUT
           </v-chip>
         </div>
+
+        <p class="text-subtitle-2 text-medium-emphasis mb-3">
+          Get an automated summary emailed every Monday at 8:00 AM with paid invoices, upcoming due dates, and cash flow tips.
+        </p>
 
         <div class="mt-3">
           <v-switch
