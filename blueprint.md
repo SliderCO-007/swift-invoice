@@ -2746,6 +2746,35 @@ Resolve broken payment links in automated client reminder emails. Previously, au
   - Added hash interceptor inside `router.beforeEach` to detect incoming URLs containing `#/payment/:id` or `#/pay/:id` and seamlessly forward them to `/pay/:invoiceId` with browser URL replacement.
   - Wrapped hash selector querying in `scrollBehavior` within a `try-catch` block to prevent invalid selector DOM exceptions when encountering hash paths.
 
+## Social Media Campaign: "The Two-Sided Win" (v117)
 
+### Purpose
+Drive organic social acquisition across Facebook and Instagram by focusing on the dual benefits of ScanGo Invoice: solving the administrative headache for trade business owners and eliminating payment friction for clients through instant on-invoice Apple Pay / Google Pay QR checkout.
 
+### Deliverables & Strategy (`social_campaign_two_sided_win.md`)
+- **Core Narrative:** Friction kills cash flow. Clients delay paying invoices when they have to dig out checkbooks or log into desktop banks. ScanGo Invoice solves both sides: the business owner sends in 60s from the truck, and the client pays in 5s via Apple Pay QR scan.
+- **Instagram Creative Package:** High-converting carousel post copy, first-line hook optimized for feed preview, link-in-bio CTA, and 3-tiered hashtag taxonomy.
+- **Facebook Creative Package:** Direct-response feed post with clickable link (`https://scangoinvoice.com`), pain/benefit structure, and engagement hooks.
+- **6-Slide Storyboard:** Step-by-step layout detailing hook, friction, owner superpower, client superpower, win-win outcome, and starter tier CTA.
+- **Dedicated Campaign Visuals:**
+  - `scango_winwin_cover`: 3D dual-phone aesthetic showcasing instantaneous 60s sent ➔ 5s paid bridge.
+  - `scango_client_pay`: First-person commercial photo of a client scanning the invoice QR code with Apple Pay Face ID popup.
+  - `scango_owner_field`: Authentic photo of a contractor in his truck smiling with relief after sending the invoice on-site.
+
+## Educational & Comparative Blog Post: ScanGo vs. QuickBooks & Xero (v118)
+
+### Purpose
+Provide a high-converting, educational blog post comparing ScanGo Invoice to legacy corporate accounting suites (QuickBooks Online and Xero). Specifically address the needs of freelancers, trade pros, and small businesses who are paying $400–$1,000+/year for bloated double-entry software when all they actually need is fast mobile invoicing, on-site project tracking, and frictionless online payment collection.
+
+### Key Changes
+- **New Comparative Article (`src/data/blogPosts.js`)**:
+  - Slug: `scango-vs-quickbooks-xero-comparison`
+  - Title: *"ScanGo Invoice vs. QuickBooks & Xero: Do You Really Need a $400/Year Accounting Ledger?"*
+  - Subtitle: *"Why thousands of freelancers, solo operators, and small businesses are ditching bloated corporate accounting software for streamlined, mobile-first invoicing."*
+  - Featured status: Set as primary `featured: true` article pinned to the hero spotlight on `/blog`.
+  - Comprehensive comparison matrix comparing pricing ($0 / $9/mo vs $35–$99/mo), learning curves, dynamic on-invoice QR codes, text-to-pay SMS, mobile receipt scanning, 1-click project billing, and unlimited team seats.
+  - Objective breakdown detailing when a business actually needs full accounting software (double-entry general ledger, multi-warehouse inventory, certified CPA audit) vs when ScanGo is the superior, agile choice.
+  - Conversion CTA tailored for a free starter account (3 free invoices/month, no credit card required).
+- **Featured Post Realignment (`src/data/blogPosts.js`)**:
+  - Updated previous featured post (ID 1) to `featured: false` to ensure seamless single-spotlight rendering in `BlogIndex.vue`.
 
