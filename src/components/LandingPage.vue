@@ -140,12 +140,7 @@
                     >
                   </div>
                   <div class="text-left">
-                    <div class="d-flex align-center">
-                      <v-icon color="warning" size="small" v-for="n in 5" :key="n"
-                        >mdi-star</v-icon
-                      >
-                    </div>
-                    <div class="text-caption text-grey-lighten-1 mt-1 font-weight-medium">
+                    <div class="text-caption text-grey-lighten-1 font-weight-medium">
                       Loved by 20,000+ users
                     </div>
                   </div>
@@ -259,23 +254,6 @@
       <section class="social-proof">
         <div class="container">
           <div class="social-proof-wrapper">
-            <div class="trust-score-block">
-              <div class="d-flex align-center justify-center justify-md-start mb-2">
-                <span class="text-h4 font-weight-bold text-white mr-3">4.8</span>
-                <div>
-                  <div class="d-flex align-center">
-                    <v-icon color="warning" size="small" v-for="n in 5" :key="n">mdi-star</v-icon>
-                  </div>
-                  <div class="text-caption text-grey-lighten-1 mt-0.5">Trustpilot Rating</div>
-                </div>
-              </div>
-              <p class="text-body-2 text-blue-grey-lighten-2 mb-0">
-                {{ trustRatingText }}
-              </p>
-            </div>
-            
-            <div class="proof-divider d-none d-md-block"></div>
-            
             <div class="testimonials-grid">
               <div class="testimonial-card" v-for="t in testimonials" :key="t.author">
                 <p class="testimonial-text">
@@ -778,19 +756,6 @@ const badges = computed(() => {
       subtitle: 'Send instant payment link texts directly to client smartphones'
     }
   ]
-})
-
-const trustRatingText = computed(() => {
-  if (props.variant === 'contractor') {
-    return 'Loved by 1,000+ local service pros worldwide.'
-  } else if (props.variant === 'weekend') {
-    return 'Loved by hundreds of busy business owners.'
-  } else if (props.variant === 'time_is_money') {
-    return 'Loved by hundreds of field crews and service professionals.'
-  } else if (props.variant === 'no_paywall') {
-    return 'Loved by hundreds of contractors, freelancers, and small business owners.'
-  }
-  return 'Loved by 20,000+ freelancers and agency owners worldwide.'
 })
 
 const testimonials = computed(() => {
@@ -2224,48 +2189,20 @@ main section[id] {
 }
 
 .social-proof-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-@media (min-width: 960px) {
-  .social-proof-wrapper {
-    flex-direction: row;
-    align-items: center;
-  }
-  .trust-score-block {
-    flex: 0 0 280px;
-  }
-  .testimonials-grid {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-  }
-}
-
-.trust-score-block {
-  text-align: center;
-}
-
-@media (min-width: 960px) {
-  .trust-score-block {
-    text-align: left;
-  }
-}
-
-.proof-divider {
-  width: 1px;
-  background: rgba(255, 255, 255, 0.08);
-  align-self: stretch;
-  margin: 0 1.5rem;
+  width: 100%;
 }
 
 .testimonials-grid {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .testimonials-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
 }
 
 .testimonial-card {

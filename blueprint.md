@@ -2778,3 +2778,40 @@ Provide a high-converting, educational blog post comparing ScanGo Invoice to leg
 - **Featured Post Realignment (`src/data/blogPosts.js`)**:
   - Updated previous featured post (ID 1) to `featured: false` to ensure seamless single-spotlight rendering in `BlogIndex.vue`.
 
+## Weekly Report Multi-Day Delivery & Daily Batching Architecture (v119)
+
+### Purpose
+Work around Resend's 100 email per day free tier limit as the user base exceeds 100 accounts, ensuring all users continue receiving their weekly updates without delivery failure or starving daily transactional emails.
+
+### Key Strategy & Architectural Decisions
+1. **Schedule Staggering (Monday Active / Tuesday All Caught Up)**:
+   - **Mondays at 08:00 AM Central**: Send weekly reports to accounts with invoice activity (invoices marked paid in the last 7 days, due in the upcoming 7 days, or overdue).
+   - **Tuesdays at 08:00 AM Central**: Deliver "All Caught Up" re-engagement reports to accounts with zero invoice activity.
+   - **Wednesdays at 08:00 AM Central (Catch-up Buffer)**: Automatically process any overflow accounts if active or inactive user volume ever exceeds daily caps.
+2. **Aggressive Batching & Quota Protection**:
+   - Hard daily cap of **85 emails/day** per scheduled run, leaving an ironclad 15-email buffer for daily transactional emails (automated payment reminders, welcome emails, client invite emails, SMS invoice notifications).
+   - Built-in API throttling (200ms delay between Resend API calls) to prevent burst rate limit errors.
+3. **Idempotence & Cycle Tracking via Firestore**:
+   - Track `lastWeeklyReportSentAt` server timestamp on each user's document upon successful delivery.
+   - Skip any user who has already received a weekly report within the past 5.5 days, preventing duplicate sends regardless of trigger frequency or retries.
+   - Prioritize unsent active accounts before zero-activity accounts on overflow runs.
+
+## Trustpilot Guidelines Compliance: Homepage Rating & Score Remediation (v120)
+
+### Purpose
+Bring the homepage (`LandingPage.vue`) into full compliance with Trustpilot Business guidelines following Trustpilot notification regarding unofficial widgets, TrustScores, star ratings, or review counts. Ensure all Trustpilot references are strictly confined to the official TrustBox widget loaded in the footer.
+
+### Key Changes
+1. **Hero Section Social Proof Cleanup (`src/components/LandingPage.vue`)**:
+   - Removed the 5-star rating icons adjacent to the user avatar cluster.
+   - Preserved user avatar stack and "Loved by 20,000+ users" badge linked to `/reviews`, cleanly aligned horizontally.
+2. **Social Proof Section Redesign (`src/components/LandingPage.vue`)**:
+   - Removed unofficial `trust-score-block` displaying "4.8", 5 stars, and "Trustpilot Rating".
+   - Removed obsolete vertical divider (`.proof-divider`).
+   - Expanded customer testimonials (`.testimonials-grid`) into a responsive, full-width 3-column grid (on tablet/desktop screens) highlighting authentic user quotes.
+3. **Code & Style Hygiene (`src/components/LandingPage.vue`)**:
+   - Removed obsolete `trustRatingText` computed property.
+   - Cleaned up obsolete CSS classes (`.trust-score-block`, `.proof-divider`) while optimizing `.testimonials-grid` and `.social-proof-wrapper` styling.
+4. **Footer TrustBox Preservation (`src/components/TrustpilotWidget.vue`)**:
+   - Maintained official Trustpilot TrustBox widget in the site footer with verified `data-template-id` and business credentials.
+
