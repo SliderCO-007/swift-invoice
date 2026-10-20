@@ -327,30 +327,30 @@ onUnmounted(() => {
       </header>
 
       <!-- Sample "Send to Yourself" Guided Banner -->
-      <div v-if="invoice.isSample" class="sample-test-drive-banner mb-6 pa-4 rounded-xl">
-        <div class="d-flex align-start justify-space-between flex-wrap gap-3">
-          <div class="d-flex align-start gap-3" style="flex: 1; min-width: 260px;">
+      <div v-if="invoice.isSample" class="sample-test-drive-banner mb-6 rounded-xl">
+        <div class="sample-banner-inner">
+          <div class="sample-banner-body">
             <div class="sample-icon-wrap">
-              <v-icon color="#2dd4bf" size="26">mdi-rocket-launch-outline</v-icon>
+              <v-icon color="#2dd4bf" size="24">mdi-rocket-launch-outline</v-icon>
             </div>
-            <div>
-              <div class="d-flex align-center gap-2 flex-wrap">
-                <span class="font-weight-bold text-white text-subtitle-1">60-Second Test Drive: Send This Sample Invoice to Yourself!</span>
-                <v-chip color="teal-accent-3" size="x-small" variant="flat" class="font-weight-bold">100% Risk-Free</v-chip>
+            <div class="sample-text-col">
+              <div class="sample-title-row">
+                <span class="sample-banner-title">60-Second Test Drive: Send This Sample Invoice to Yourself!</span>
+                <v-chip color="teal-accent-3" size="x-small" variant="flat" class="font-weight-bold flex-shrink-0">100% Risk-Free</v-chip>
               </div>
-              <p class="text-body-2 text-grey-lighten-1 mb-0 mt-1" style="line-height: 1.5;">
-                We pre-filled your email (<strong class="text-white">{{ invoice.client.email || 'your inbox' }}</strong>) as the client, added two sample items, and included a <strong>Sample QR Code</strong>. Click <strong>Save &amp; Preview to Send</strong> to email it to yourself—and you can clear this test with 1 click afterward so it doesn't count against your 3 free monthly invoices!
+              <p class="sample-banner-desc">
+                We pre-filled your email (<strong class="text-white sample-email-break">{{ invoice.client.email || 'your inbox' }}</strong>) as the client, added two sample items, and included a <strong>Sample QR Code</strong>. Click <strong>Save &amp; Preview to Send</strong> to email it to yourself—and you can clear this test with 1 click afterward so it doesn't count against your 3 free monthly invoices!
               </p>
             </div>
           </div>
-          <div class="d-flex align-center gap-2 flex-shrink-0">
+          <div class="sample-banner-actions">
             <v-btn
               @click="saveInvoice"
               :loading="isProcessing"
               color="teal-accent-4"
               variant="flat"
               size="default"
-              class="text-white text-none font-weight-bold rounded-lg px-5"
+              class="text-white text-none font-weight-bold rounded-lg sample-cta-btn"
               prepend-icon="mdi-send-check-outline"
             >
               Save &amp; Preview to Send
@@ -364,12 +364,12 @@ onUnmounted(() => {
         v-if="user && !connectStatus.chargesEnabled && !settingsLoading && stripeStatusHaveLoaded && !isStripeBannerDismissed"
         class="stripe-tip-card mb-6 pa-4 rounded-xl d-flex align-center justify-space-between flex-wrap gap-3"
       >
-        <div class="d-flex align-center gap-3" style="flex: 1; min-width: 260px;">
+        <div class="d-flex align-center ga-3" style="flex: 1; min-width: 0;">
           <div class="tip-icon-bg">
             <v-icon color="#635bff" size="22">mdi-credit-card-outline</v-icon>
           </div>
           <div>
-            <div class="d-flex align-center gap-2">
+            <div class="d-flex align-center flex-wrap ga-2">
               <span class="font-weight-bold text-white text-subtitle-2">Accept Payments Online</span>
               <span class="optional-pill text-caption">Optional</span>
             </div>
@@ -1008,16 +1008,118 @@ onUnmounted(() => {
   border: 1px solid rgba(45, 212, 191, 0.35);
   box-shadow: 0 8px 30px rgba(20, 184, 166, 0.12);
   backdrop-filter: blur(12px);
+  padding: 1.25rem 1.5rem;
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.sample-banner-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+
+.sample-banner-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.sample-text-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.sample-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.sample-banner-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.35;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.sample-banner-desc {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  line-height: 1.5;
+  margin: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.sample-email-break {
+  word-break: break-all;
+}
+
+.sample-banner-actions {
+  flex-shrink: 0;
+}
+
+.sample-cta-btn {
+  padding: 0 1.25rem !important;
+  height: auto !important;
+  min-height: 44px;
+  white-space: normal !important;
+}
+
+:deep(.sample-cta-btn .v-btn__content) {
+  white-space: normal !important;
+  text-align: center;
+  line-height: 1.3;
 }
 
 .sample-icon-wrap {
-  width: 46px;
-  height: 46px;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
   background: rgba(45, 212, 191, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .sample-test-drive-banner {
+    padding: 1rem;
+  }
+  .sample-banner-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  .sample-banner-body {
+    gap: 0.75rem;
+  }
+  .sample-icon-wrap {
+    width: 38px;
+    height: 38px;
+  }
+  .sample-banner-title {
+    font-size: 0.95rem;
+  }
+  .sample-banner-desc {
+    font-size: 0.85rem;
+  }
+  .sample-banner-actions {
+    width: 100%;
+  }
+  .sample-cta-btn {
+    width: 100%;
+    padding: 10px 16px !important;
+  }
 }
 </style>

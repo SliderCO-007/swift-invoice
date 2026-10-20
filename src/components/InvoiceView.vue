@@ -717,29 +717,29 @@ const safeInvoice = computed(() => {
       <header class="invoice-view-header">
         <!-- Sample "Send to Yourself" Action Banner -->
         <div v-if="isOwner && isSampleInvoice" class="sample-send-banner no-print mb-2">
-          <div class="d-flex align-center justify-space-between flex-wrap gap-3">
-            <div class="d-flex align-start gap-3" style="flex: 1; min-width: 260px;">
+          <div class="sample-view-banner-inner">
+            <div class="sample-view-banner-body">
               <div class="sample-banner-icon">
-                <v-icon color="#2dd4bf" size="26">mdi-email-fast-outline</v-icon>
+                <v-icon color="#2dd4bf" size="24">mdi-email-fast-outline</v-icon>
               </div>
-              <div>
-                <div class="d-flex align-center gap-2 flex-wrap">
-                  <span class="font-weight-bold text-white text-subtitle-1">Ready for Your Inbox! Send This Sample Invoice to Yourself</span>
-                  <v-chip color="teal-accent-3" size="x-small" variant="flat" class="font-weight-bold">Step 2 of 2</v-chip>
+              <div class="sample-view-text-col">
+                <div class="sample-view-title-row">
+                  <span class="sample-view-title">Ready for Your Inbox! Send This Sample Invoice to Yourself</span>
+                  <v-chip color="teal-accent-3" size="x-small" variant="flat" class="font-weight-bold flex-shrink-0">Step 2 of 2</v-chip>
                 </div>
-                <p class="text-body-2 text-grey-lighten-1 mb-0 mt-1" style="line-height: 1.5;">
-                  Try switching between the <strong>6 templates</strong> below, then click <strong>Email This Test Invoice to Myself</strong> to receive the PDF in your inbox (<strong class="text-white">{{ safeInvoice.client?.email }}</strong>) and scan the sample QR code!
+                <p class="sample-view-desc">
+                  Try switching between the <strong>6 templates</strong> below, then click <strong>Email This Test Invoice to Myself</strong> to receive the PDF in your inbox (<strong class="text-white sample-email-break">{{ safeInvoice.client?.email }}</strong>) and scan the sample QR code!
                 </p>
               </div>
             </div>
-            <div class="d-flex align-center gap-2 flex-shrink-0">
+            <div class="sample-view-actions">
               <v-btn
                 @click="sendInvoiceEmail"
                 :loading="isSendingEmail"
                 color="teal-accent-4"
                 size="large"
                 variant="flat"
-                class="text-white text-none font-weight-bold rounded-lg px-6 elevation-3"
+                class="text-white text-none font-weight-bold rounded-lg elevation-3 sample-send-cta-btn"
                 prepend-icon="mdi-send"
               >
                 Email This Test Invoice to Myself
@@ -1379,17 +1379,118 @@ const safeInvoice = computed(() => {
   padding: 1.25rem 1.5rem;
   box-shadow: 0 10px 30px rgba(20, 184, 166, 0.15);
   backdrop-filter: blur(12px);
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.sample-view-banner-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+
+.sample-view-banner-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.sample-view-text-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.sample-view-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.sample-view-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.35;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.sample-view-desc {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  line-height: 1.5;
+  margin: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.sample-email-break {
+  word-break: break-all;
+}
+
+.sample-view-actions {
+  flex-shrink: 0;
+}
+
+.sample-send-cta-btn {
+  padding: 0 1.5rem !important;
+  height: auto !important;
+  min-height: 48px;
+  white-space: normal !important;
+}
+
+:deep(.sample-send-cta-btn .v-btn__content) {
+  white-space: normal !important;
+  text-align: center;
+  line-height: 1.3;
 }
 
 .sample-banner-icon {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
   background: rgba(45, 212, 191, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .sample-send-banner {
+    padding: 1rem;
+  }
+  .sample-view-banner-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  .sample-view-banner-body {
+    gap: 0.75rem;
+  }
+  .sample-banner-icon {
+    width: 38px;
+    height: 38px;
+  }
+  .sample-view-title {
+    font-size: 0.95rem;
+  }
+  .sample-view-desc {
+    font-size: 0.85rem;
+  }
+  .sample-view-actions {
+    width: 100%;
+  }
+  .sample-send-cta-btn {
+    width: 100%;
+    padding: 12px 16px !important;
+  }
 }
 
 .sample-celebration-card {

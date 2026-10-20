@@ -2837,5 +2837,6 @@ Create a frictionless, high-converting "Send to Yourself" first-invoice activati
 5. **Sample QR Destination Page (`src/components/StripeSampleGuide.vue` & `src/router/index.js`)**:
    - Public/authenticated route `/pay/sample-guide` that opens when the user scans or clicks the QR code on their sample invoice.
    - Summarizes the key advantages of connecting Stripe (instant Apple Pay, Google Pay, Card, & ACH checkout, 3x faster payouts, automated "Paid" status & receipts) and presents a high-level 3-step checklist to connect their account in 2 minutes, with a direct CTA to `/settings#stripe-connect`.
+   - Mobile responsive optimization: replaced rigid inline `min-width: 260px` and utility flex classes on the sample banners (`InvoiceEditor.vue` and `InvoiceView.vue`) with zero-min-width flex columns (`min-width: 0`), `overflow-wrap: break-word`, email break rules (`word-break: break-all`), and multi-line wrapping Vuetify buttons so long headlines and email addresses never overflow mobile cards.
 
 
