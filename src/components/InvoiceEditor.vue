@@ -362,42 +362,45 @@ onUnmounted(() => {
       <!-- Stripe Connect Tip Alert for Authenticated Users (Dismissable & Non-blocking) -->
       <div
         v-if="user && !connectStatus.chargesEnabled && !settingsLoading && stripeStatusHaveLoaded && !isStripeBannerDismissed"
-        class="stripe-tip-card mb-6 pa-4 rounded-xl d-flex align-center justify-space-between flex-wrap gap-3"
+        class="stripe-tip-card mb-6 rounded-xl"
       >
-        <div class="d-flex align-center ga-3" style="flex: 1; min-width: 0;">
-          <div class="tip-icon-bg">
-            <v-icon color="#635bff" size="22">mdi-credit-card-outline</v-icon>
-          </div>
-          <div>
-            <div class="d-flex align-center flex-wrap ga-2">
-              <span class="font-weight-bold text-white text-subtitle-2">Accept Payments Online</span>
-              <span class="optional-pill text-caption">Optional</span>
+        <div class="stripe-tip-inner">
+          <div class="stripe-tip-body">
+            <div class="tip-icon-bg">
+              <v-icon color="#635bff" size="22">mdi-credit-card-outline</v-icon>
             </div>
-            <p class="text-caption text-grey-lighten-1 mb-0 mt-1" style="line-height: 1.4;">
-              You can create & send invoices right now! Connect Stripe when you're ready to collect credit card, Apple Pay, or ACH payments.
-            </p>
+            <div class="stripe-tip-text-col">
+              <div class="stripe-tip-title-row">
+                <span class="font-weight-bold text-white text-subtitle-2">Accept Payments Online</span>
+                <span class="optional-pill text-caption">Optional</span>
+              </div>
+              <p class="text-caption text-grey-lighten-1 mb-0 mt-1 stripe-tip-desc">
+                You can create &amp; send invoices right now! Connect Stripe when you're ready to collect credit card, Apple Pay, or ACH payments.
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div class="d-flex align-center gap-2 flex-shrink-0">
-          <v-btn 
-            to="/settings#stripe-connect" 
-            color="#635bff" 
-            variant="flat" 
-            size="small"
-            class="text-none font-weight-bold rounded-lg px-4"
-          >
-            Connect Stripe
-            <v-icon end size="14" class="ml-1">mdi-arrow-right</v-icon>
-          </v-btn>
-          <v-btn
-            icon="mdi-close"
-            variant="text"
-            size="small"
-            color="grey-lighten-1"
-            @click="dismissStripeBanner"
-            title="Dismiss tip"
-          ></v-btn>
+          <div class="stripe-tip-actions">
+            <v-btn 
+              to="/settings#stripe-connect" 
+              color="#635bff" 
+              variant="flat" 
+              size="small"
+              class="text-none font-weight-bold rounded-lg px-4 stripe-connect-cta-btn"
+            >
+              Connect Stripe
+              <v-icon end size="14" class="ml-1">mdi-arrow-right</v-icon>
+            </v-btn>
+            <v-btn
+              icon="mdi-close"
+              variant="text"
+              size="small"
+              color="grey-lighten-1"
+              class="stripe-dismiss-btn"
+              @click="dismissStripeBanner"
+              title="Dismiss tip"
+            ></v-btn>
+          </div>
         </div>
       </div>
 
@@ -930,9 +933,54 @@ onUnmounted(() => {
 }
 
 .stripe-tip-card {
+  position: relative;
   background: rgba(99, 91, 255, 0.06);
   border: 1px solid rgba(99, 91, 255, 0.2);
   backdrop-filter: blur(12px);
+  padding: 1rem 1.25rem;
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.stripe-tip-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.stripe-tip-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.stripe-tip-text-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.stripe-tip-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.stripe-tip-desc {
+  line-height: 1.45;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.stripe-tip-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .tip-icon-bg {
@@ -953,6 +1001,33 @@ onUnmounted(() => {
   padding: 2px 7px;
   border-radius: 6px;
   font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .stripe-tip-card {
+    padding: 1rem;
+  }
+  .stripe-tip-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.85rem;
+  }
+  .stripe-tip-body {
+    padding-right: 1.75rem;
+    gap: 0.75rem;
+  }
+  .stripe-tip-actions {
+    width: 100%;
+  }
+  .stripe-connect-cta-btn {
+    width: 100%;
+    min-height: 40px;
+  }
+  .stripe-dismiss-btn {
+    position: absolute !important;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
 }
 
 @media print {
