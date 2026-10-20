@@ -483,17 +483,21 @@ onUnmounted(() => {
           <div v-for="(item, index) in invoice.items" :key="index" class="item-row">
             <v-row align="center">
               <v-col cols="12" md="5">
-                <v-combobox v-model="item.description" :items="itemDescriptions" label="Select or type to add an item" variant="solo" density="comfortable" @update:model-value="(desc) => handleDescriptionUpdate(item, desc)" clearable>
+                <v-combobox v-model="item.description" :items="itemDescriptions" label="Select or type to add an item" variant="solo" density="comfortable" hide-details="auto" @update:model-value="(desc) => handleDescriptionUpdate(item, desc)" clearable>
                   <template v-slot:no-data><v-list-item><v-list-item-title>No items found. <router-link to="/items">Add one?</router-link></v-list-item-title></v-list-item></template>
                 </v-combobox>
               </v-col>
-              <v-col cols="4" md="2"><v-text-field type="number" label="Quantity" v-model.number="item.quantity" density="comfortable" variant="solo"></v-text-field></v-col>
-              <v-col cols="4" md="2"><v-text-field type="number" label="Price" v-model.number="item.price" density="comfortable" variant="solo"></v-text-field></v-col>
-              <v-col cols="4" md="2" class="d-flex align-center justify-center">
+              <v-col cols="12" sm="6" md="2">
+                <v-text-field type="number" label="Quantity" v-model.number="item.quantity" density="comfortable" variant="solo" hide-details="auto"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6" md="2">
+                <v-text-field type="number" label="Price" prefix="$" v-model.number="item.price" density="comfortable" variant="solo" hide-details="auto"></v-text-field>
+              </v-col>
+              <v-col cols="6" md="2" class="d-flex align-center justify-start justify-md-center">
                 <v-checkbox v-model="item.taxable" label="Tax" color="primary" density="comfortable" hide-details class="mt-0"></v-checkbox>
               </v-col>
-              <v-col cols="12" md="1" class="d-flex align-center justify-center">
-                <v-btn icon @click="removeItem(index)" variant="text" color="red-lighten-2">
+              <v-col cols="6" md="1" class="d-flex align-center justify-end justify-md-center">
+                <v-btn icon @click="removeItem(index)" variant="text" color="red-lighten-2" title="Remove item">
                   <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
                 </v-btn>
               </v-col>
@@ -668,7 +672,7 @@ onUnmounted(() => {
 .form-section h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: #fff; }
 .responsive-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
 .address-grid-city-state { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-.item-.row { margin-bottom: 1rem; }
+.item-row { margin-bottom: 1rem; }
 .editor-footer { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; border-top: 2px solid rgba(255,255,255,0.1); padding-top: 1.5rem; }
 .preview-content { background: #111d2f; padding: 2rem; height: 100%; overflow-y: auto; }
 .totals-summary { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); }
