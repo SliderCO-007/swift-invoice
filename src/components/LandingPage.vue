@@ -876,7 +876,7 @@ watch(
     if (profile) {
       if (profile.role === 'member') {
         router.push('/projects')
-      } else if ((profile.invoiceCount || 0) === 0) {
+      } else if ((profile.invoiceCount || 0) === 0 && !profile.sampleCompleted) {
         router.push('/invoice/new?sample=true')
       } else {
         router.push('/dashboard')

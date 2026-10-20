@@ -4,7 +4,8 @@ import { useRoute, useRouter } from 'vue-router'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 import { httpsCallable } from 'firebase/functions'
-import { functions } from '../composables/useFirebase.js'
+import { doc, setDoc } from 'firebase/firestore'
+import { db, functions } from '../composables/useFirebase.js'
 import { currentUser, userProfile } from '../composables/useAuth.js'
 import useInvoices from '../composables/useInvoices'
 import useUserSettings from '../composables/useUserSettings'
@@ -637,6 +638,20 @@ const sendInvoiceEmail = async () => {
     snackbarText.value = result.data.message
     if (isSampleInvoice.value) {
       sampleSentModal.value = true
+      const orgId = userProfile.value?.orgId || userProfile.value?.id || currentUser.value?.uid
+      if (orgId) {
+        try {
+          await Promise.all([
+            setDoc(doc(db, 'users', orgId), { sampleCompleted: true }, { merge: true }),
+            setDoc(doc(db, 'userSettings', orgId), { sampleCompleted: true }, { merge: true })
+          ])
+          if (userProfile.value) {
+            userProfile.value = { ...userProfile.value, sampleCompleted: true }
+          }
+        } catch (flagErr) {
+          console.warn('Could not persist sampleCompleted flag:', flagErr)
+        }
+      }
     }
   } catch (error) {
     console.error('Error sending email:', error)

@@ -15,6 +15,7 @@ function getInitialSettings() {
     defaultDiscount: 0,
     defaultDiscountType: 'percentage',
     invoiceCounter: 0,
+    sampleCompleted: false,
     currency: 'USD',
     reminderSettings: {
       enabled: true,

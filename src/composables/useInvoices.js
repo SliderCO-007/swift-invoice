@@ -269,9 +269,14 @@ const useInvoices = () => {
 
     loading.value = true;
     try {
+      let updatedCount = 0;
+      let wasSampleInvoice = false;
+      const currentMonthKey = new Date().toISOString().slice(0, 7);
+
       await runTransaction(db, async (transaction) => {
         const invoiceRef = doc(db, 'invoices', id);
         const userRef = doc(db, 'users', orgId);
+        const settingsRef = doc(db, 'userSettings', orgId);
 
         const invoiceDoc = await transaction.get(invoiceRef);
         const userDoc = await transaction.get(userRef);
@@ -283,18 +288,36 @@ const useInvoices = () => {
           throw new Error("Invoice not found or permission denied.");
         }
 
+        wasSampleInvoice = !!data?.isSample;
         transaction.delete(invoiceRef);
         
         if (userDoc.exists()) {
-          const currentMonthKey = new Date().toISOString().slice(0, 7);
           const userData = userDoc.data();
           const currentCount = userData.invoiceCountMonth === currentMonthKey ? (userData.invoiceCount || 0) : 0;
-          transaction.update(userRef, { 
-            invoiceCount: Math.max(0, currentCount - 1),
+          updatedCount = Math.max(0, currentCount - 1);
+          const userUpdate = { 
+            invoiceCount: updatedCount,
             invoiceCountMonth: currentMonthKey
-          });
+          };
+          if (wasSampleInvoice) {
+            userUpdate.sampleCompleted = true;
+          }
+          transaction.update(userRef, userUpdate);
+        }
+
+        if (wasSampleInvoice) {
+          transaction.set(settingsRef, { sampleCompleted: true }, { merge: true });
         }
       });
+
+      if (userProfile.value) {
+        userProfile.value = {
+          ...userProfile.value,
+          invoiceCount: updatedCount,
+          invoiceCountMonth: currentMonthKey,
+          ...(wasSampleInvoice ? { sampleCompleted: true } : {})
+        };
+      }
     } catch (err) {
       error.value = `Failed to delete invoice: ${err.message}`;
       throw err;

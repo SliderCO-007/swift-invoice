@@ -92,6 +92,13 @@ const invoiceLimitReached = computed(() => {
 });
 const hasInvoices = computed(() => invoices.value && invoices.value.length > 0);
 const isDataLoading = computed(() => invoicesLoading.value || settingsLoading.value || stripeLoading.value);
+const hasCompletedSample = computed(() => {
+  return !!(
+    userProfile.value?.sampleCompleted ||
+    settings.value?.sampleCompleted ||
+    (settings.value?.invoiceCounter || 0) > 0
+  );
+});
 
 const dialogDelete = ref(false);
 const itemToDeleteId = ref(null);
@@ -324,20 +331,25 @@ const totalOverdueRevenue = computed(() => {
               </div>
               <div v-else-if="!invoices.length && !isDataLoading" class="no-invoices-container">
                 <img src="/no_invoices.svg" alt="No Invoices Illustration" class="no-invoices-illustration" />
-                <h3 class="text-h5 font-weight-bold mb-2">Welcome to ScanGo Invoice</h3>
+                <h3 class="text-h5 font-weight-bold mb-2">
+                  {{ hasCompletedSample ? 'Ready for Your First Client Invoice' : 'Welcome to ScanGo Invoice' }}
+                </h3>
                 <p class="text-body-1 text-grey-lighten-1 mt-1 mb-6" style="max-width: 480px; margin: 0 auto; line-height: 1.5;">
-                  We pre-filled your registration details into a sample invoice. Click below to see your professional invoice in seconds!
+                  {{ hasCompletedSample
+                    ? 'Your sample test drive is complete and your 3 free monthly invoices are ready. Click below to create a real invoice for your client!'
+                    : 'We pre-filled your registration details into a sample invoice. Click below to see your professional invoice in seconds!'
+                  }}
                 </p>
                 <v-btn 
-                  to="/invoice/new?sample=true" 
+                  :to="hasCompletedSample ? '/invoice/new' : '/invoice/new?sample=true'" 
                   color="primary" 
                   size="large" 
                   rounded="lg"
                   elevation="3"
                   class="text-none font-weight-bold first-invoice-btn mt-2"
                 >
-                  <v-icon start class="mr-1">mdi-flash</v-icon>
-                  <span>Create Your First Invoice (Prefilled)</span>
+                  <v-icon start class="mr-1">{{ hasCompletedSample ? 'mdi-plus-circle-outline' : 'mdi-flash' }}</v-icon>
+                  <span>{{ hasCompletedSample ? 'Create Client Invoice' : 'Create Your First Invoice (Prefilled)' }}</span>
                 </v-btn>
               </div>
 
