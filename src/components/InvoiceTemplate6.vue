@@ -159,13 +159,15 @@ const primaryRgb = computed(() => {
         </thead>
         <tbody>
           <tr v-for="(item, index) in invoice.items" :key="index" :style="{ borderBottom: `1px solid rgba(${primaryRgb}, 0.1)` }">
-            <td class="col-desc">
-              {{ item.description }}
-              <span v-if="invoice.taxRate > 0 && item.taxable === false" style="font-size: 0.7rem; opacity: 0.65; margin-left: 0.25rem; border: 1px solid rgba(128,128,128,0.3); padding: 1px 4px; border-radius: 3px; font-weight: normal; display: inline-block; vertical-align: middle;">No Tax</span>
+            <td class="col-desc" data-label="ITEM_DESCRIPTION">
+              <span>
+                {{ item.description }}
+                <span v-if="invoice.taxRate > 0 && item.taxable === false" style="font-size: 0.7rem; opacity: 0.65; margin-left: 0.25rem; border: 1px solid rgba(128,128,128,0.3); padding: 1px 4px; border-radius: 3px; font-weight: normal; display: inline-block; vertical-align: middle;">No Tax</span>
+              </span>
             </td>
-            <td class="col-qty text-center font-mono">{{ item.quantity }}</td>
-            <td class="col-price text-right font-mono">{{ formatCurrency(item.price) }}</td>
-            <td class="col-total text-right font-mono font-weight-bold">{{ formatCurrency(item.quantity * item.price) }}</td>
+            <td class="col-qty text-center font-mono" data-label="QTY">{{ item.quantity }}</td>
+            <td class="col-price text-right font-mono" data-label="UNIT_VAL">{{ formatCurrency(item.price) }}</td>
+            <td class="col-total text-right font-mono font-weight-bold" data-label="NET_VAL">{{ formatCurrency(item.quantity * item.price) }}</td>
           </tr>
         </tbody>
       </table>
@@ -242,9 +244,11 @@ const primaryRgb = computed(() => {
   box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.05));
   font-family: 'Space Grotesk', sans-serif;
   color: #1a1a24;
+  width: 100%;
   max-width: 900px;
   margin: 0 auto;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .font-mono {
@@ -311,7 +315,7 @@ const primaryRgb = computed(() => {
 
 .tech-parties-section {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 2rem;
   margin-bottom: 1.5rem;
 }
@@ -323,6 +327,9 @@ const primaryRgb = computed(() => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .box-tag {
@@ -337,16 +344,22 @@ const primaryRgb = computed(() => {
   padding: 1rem;
   font-size: 0.82em;
   line-height: 1.5;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .entity-name {
   font-size: 1.1em;
   margin: 0 0 0.4rem 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .entity-detail {
   margin: 0;
   color: #555;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .tech-status-strip {
@@ -425,23 +438,31 @@ const primaryRgb = computed(() => {
 
 .tech-bottom-section {
   display: grid;
-  grid-template-columns: 1.3fr 1fr;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
   gap: 2rem;
   margin-bottom: 2rem;
   break-inside: avoid;
   page-break-inside: avoid;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.tech-bottom-left {
+.tech-bottom-left,
+.tech-bottom-right {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .notes-text {
   font-family: 'Share Tech Mono', monospace;
   font-size: 0.85em;
   color: #444;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .tech-payment-box {
@@ -450,11 +471,15 @@ const primaryRgb = computed(() => {
   padding: 1rem;
   break-inside: avoid;
   page-break-inside: avoid;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .tech-payment-grid {
   display: grid;
-  grid-template-columns: 100px 1fr;
+  grid-template-columns: 100px minmax(0, 1fr);
   gap: 1.2rem;
   align-items: center;
 }
@@ -472,6 +497,7 @@ const primaryRgb = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  min-width: 0;
 }
 
 .instr-header {
@@ -479,6 +505,8 @@ const primaryRgb = computed(() => {
   font-size: 0.78em;
   font-weight: 700;
   margin: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .instr-body {
@@ -486,12 +514,16 @@ const primaryRgb = computed(() => {
   color: #555;
   margin: 0;
   line-height: 1.4;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .tech-totals-table {
   width: 100%;
+  max-width: 100%;
   border-collapse: collapse;
   border: 1px solid;
+  box-sizing: border-box;
 }
 
 .tech-totals-table td {
@@ -526,21 +558,49 @@ const primaryRgb = computed(() => {
 /* Responsive Styles */
 @media (max-width: 768px) {
   .invoice-tech-layout {
-    padding: 1.5rem;
+    padding: 1.25rem 1rem;
   }
 
   .tech-header {
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.25rem;
+  }
+
+  .header-left,
+  .header-right {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .tech-company-name {
+    font-size: 1.4rem;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  .meta-grid-table {
+    width: 100%;
+  }
+
+  .meta-grid-val {
+    min-width: 0;
   }
 
   .tech-parties-section {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 1rem;
   }
 
   .tech-bottom-section {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+  }
+
+  .tech-payment-grid {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    text-align: center;
+    gap: 0.85rem;
   }
 
   /* Table cards on mobile */
@@ -558,13 +618,26 @@ const primaryRgb = computed(() => {
   .tech-items-table td {
     display: flex;
     justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
     padding: 0.4rem 0;
     border-bottom: none;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  .tech-items-table td.col-desc {
+    flex-direction: column;
+    gap: 0.25rem;
+    text-align: left;
   }
 
   .tech-items-table td::before {
     content: attr(data-label);
     font-weight: 700;
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    color: #64748b;
   }
 
   .tech-items-table td.col-qty,
