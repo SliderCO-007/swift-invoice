@@ -134,7 +134,7 @@ const goToDashboard = () => {
           <v-icon color="grey-darken-1" class="d-none d-sm-flex">mdi-arrow-right</v-icon>
           <div class="preview-step">
             <div class="preview-icon-circle">
-              <v-icon color="#34d399" size="24">mdi-cash-Fast</v-icon>
+              <v-icon color="#34d399" size="24">mdi-cash-fast</v-icon>
             </div>
             <div>
               <div class="preview-step-title">3. Marked Paid Automatically</div>
@@ -526,7 +526,7 @@ const goToDashboard = () => {
 
 .cta-text-col {
   flex: 1;
-  min-width: 240px;
+  min-width: 0;
 }
 
 .cta-heading {
@@ -550,6 +550,20 @@ const goToDashboard = () => {
   flex-wrap: wrap;
 }
 
+.cta-buttons-col .v-btn {
+  height: auto !important;
+  min-height: 48px !important;
+  padding: 12px 20px !important;
+  white-space: normal !important;
+}
+
+:deep(.cta-buttons-col .v-btn .v-btn__content) {
+  white-space: normal !important;
+  text-align: center;
+  line-height: 1.3;
+  overflow-wrap: break-word;
+}
+
 .stripe-cta-btn {
   color: #ffffff !important;
   box-shadow: 0 8px 24px rgba(99, 91, 255, 0.35);
@@ -557,32 +571,43 @@ const goToDashboard = () => {
 
 @media (max-width: 768px) {
   .sample-guide-page {
-    padding: 1.5rem 1rem 4rem;
+    padding: 1.25rem 0.85rem 4rem;
   }
   .glass-hero-card,
   .glass-steps-card {
-    padding: 1.5rem;
+    padding: 1.25rem;
   }
   .hero-title {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
+  }
+  .section-title {
+    font-size: 1.35rem;
   }
   .advantages-grid {
     grid-template-columns: 1fr;
   }
+  .advantage-card,
+  .step-row,
+  .cta-footer-box {
+    padding: 1.15rem;
+  }
   .checkout-preview-strip {
     flex-direction: column;
     align-items: flex-start;
+    padding: 1rem;
   }
   .cta-actions-wrap {
     flex-direction: column;
     align-items: stretch;
+    gap: 1rem;
   }
   .cta-buttons-col {
     flex-direction: column;
+    align-items: stretch;
     width: 100%;
   }
   .cta-buttons-col .v-btn {
-    width: 100%;
+    width: 100% !important;
   }
 }
 </style>

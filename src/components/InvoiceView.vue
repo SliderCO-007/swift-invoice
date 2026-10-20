@@ -1092,71 +1092,64 @@ const safeInvoice = computed(() => {
     </v-dialog>
 
     <!-- Post-Send Sample Celebration & 1-Click Quota Restoration Modal -->
-    <v-dialog v-model="sampleSentModal" max-width="540px" persistent>
-      <v-card class="sample-celebration-card pa-4">
-        <div class="text-center pt-2 pb-2">
+    <v-dialog v-model="sampleSentModal" max-width="520px" persistent>
+      <v-card class="sample-celebration-card">
+        <div class="celebration-modal-body text-center">
           <div class="celebration-icon-circle mx-auto mb-3">
-            <v-icon color="#34d399" size="36">mdi-check-decagram</v-icon>
+            <v-icon color="#34d399" size="32">mdi-check-decagram</v-icon>
           </div>
-          <h3 class="text-h5 font-weight-bold text-white mb-2">
+          <h3 class="celebration-modal-title font-weight-bold text-white mb-2">
             Check Your Inbox! 🎉
           </h3>
-          <p class="text-body-2 text-grey-lighten-1 mb-4" style="line-height: 1.55;">
-            We just emailed your sample invoice PDF to <strong class="text-white">{{ safeInvoice?.client?.email }}</strong>. Open the PDF and scan or click the <strong>Sample QR Code</strong> to see how instant client payments work!
+          <p class="celebration-modal-desc text-grey-lighten-1 mb-4">
+            We just emailed your sample invoice PDF to <strong class="text-white sample-email-break">{{ safeInvoice?.client?.email }}</strong>. Open the PDF and scan or click the <strong>Sample QR Code</strong> to see how instant client payments work!
           </p>
 
-          <div class="quota-restore-box text-left pa-4 mb-4">
-            <div class="d-flex align-center gap-2 mb-1">
-              <v-icon color="#38bdf8" size="20">mdi-shield-refresh-outline</v-icon>
+          <div class="quota-restore-box text-left mb-4">
+            <div class="quota-restore-header">
+              <v-icon color="#38bdf8" size="20" class="quota-shield-icon">mdi-shield-refresh-outline</v-icon>
               <span class="font-weight-bold text-white text-subtitle-2">Keep Your 3 Free Monthly Invoices Full</span>
             </div>
             <p class="text-caption text-grey-lighten-1 mb-0" style="line-height: 1.45;">
-              Since the PDF is already in your email inbox, would you like to clear this sample test from your workspace so it doesn't clutter your dashboard or count toward your 3 free monthly invoices?
+              Since the PDF is already in your email inbox, clearing this sample test removes it from your workspace and restores your full <strong>3/3 free monthly invoice quota</strong>.
             </p>
           </div>
 
-          <div class="d-flex flex-column ga-2">
+          <div class="celebration-actions">
             <v-btn
               color="teal-accent-4"
               size="large"
               variant="flat"
-              class="text-white text-none font-weight-bold rounded-lg"
+              class="text-white text-none font-weight-bold rounded-lg celebration-btn"
               :loading="isClearingSample"
               prepend-icon="mdi-broom"
               @click="clearSampleAndCreateReal"
             >
-              Clear Test &amp; Create a Real Invoice (Restores Quota)
+              Clear Test &amp; Create Real Invoice
             </v-btn>
             <v-btn
               color="primary"
               size="large"
               variant="tonal"
-              class="text-none font-weight-bold rounded-lg"
+              class="text-none font-weight-bold rounded-lg celebration-btn"
               :loading="isClearingSample"
               prepend-icon="mdi-delete-sweep-outline"
               @click="clearSampleAndGoDashboard"
             >
-              Clear Test &amp; Go to Dashboard (Restores Quota)
+              Clear Test &amp; Go to Dashboard
             </v-btn>
             <v-btn
               variant="text"
               color="grey-lighten-1"
               size="small"
-              class="text-none mt-1"
+              class="text-none celebration-btn-tertiary"
               :disabled="isClearingSample"
               @click="sampleSentModal = false"
             >
-              Keep Sample Invoice on My Dashboard
+              Keep Sample on My Dashboard
             </v-btn>
           </div>
         </div>
-      </v-card>
-    </v-dialog>
-    <v-dialog v-if="false"><v-card><v-card-actions><v-btn
-          >
-            Cancel
-          </v-btn>
-        </v-card-actions>
       </v-card>
     </v-dialog>
   </div>
@@ -1499,11 +1492,29 @@ const safeInvoice = computed(() => {
   border: 1px solid rgba(45, 212, 191, 0.35) !important;
   border-radius: 20px !important;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65) !important;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.celebration-modal-body {
+  padding: 1.5rem;
+}
+
+.celebration-modal-title {
+  font-size: 1.4rem;
+  line-height: 1.3;
+}
+
+.celebration-modal-desc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .celebration-icon-circle {
-  width: 68px;
-  height: 68px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   background: rgba(52, 211, 153, 0.12);
   border: 1px solid rgba(52, 211, 153, 0.3);
@@ -1516,5 +1527,78 @@ const safeInvoice = computed(() => {
   background: rgba(56, 189, 248, 0.08);
   border: 1px solid rgba(56, 189, 248, 0.25);
   border-radius: 12px;
+  padding: 1rem;
+}
+
+.quota-restore-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-bottom: 0.4rem;
+}
+
+.quota-shield-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.celebration-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  width: 100%;
+}
+
+.celebration-btn {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 48px !important;
+  padding: 12px 16px !important;
+  white-space: normal !important;
+}
+
+:deep(.celebration-btn .v-btn__content) {
+  white-space: normal !important;
+  text-align: center;
+  line-height: 1.3;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.celebration-btn-tertiary {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 40px !important;
+  padding: 8px 12px !important;
+  white-space: normal !important;
+}
+
+:deep(.celebration-btn-tertiary .v-btn__content) {
+  white-space: normal !important;
+  text-align: center;
+  line-height: 1.3;
+}
+
+@media (max-width: 600px) {
+  .celebration-modal-body {
+    padding: 1.15rem;
+  }
+  .celebration-icon-circle {
+    width: 50px;
+    height: 50px;
+  }
+  .celebration-modal-title {
+    font-size: 1.25rem;
+  }
+  .celebration-modal-desc {
+    font-size: 0.85rem;
+  }
+  .quota-restore-box {
+    padding: 0.85rem;
+  }
+  .celebration-btn {
+    padding: 10px 12px !important;
+    font-size: 0.88rem !important;
+  }
 }
 </style>
