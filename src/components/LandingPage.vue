@@ -565,7 +565,7 @@
 <script setup>
 import { ref, watch, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuth, currentUser } from '../composables/useAuth.js'
+import { useAuth, currentUser, userProfile } from '../composables/useAuth.js'
 import { useMeta } from '../composables/useMeta'
 import { useDisplay } from 'vuetify'
 import { event } from 'vue-gtag'
@@ -871,6 +871,21 @@ const handleGoogleSignIn = async () => {
 }
 
 watch(
+  userProfile,
+  (profile) => {
+    if (profile) {
+      if (profile.role === 'member') {
+        router.push('/projects')
+      } else if ((profile.invoiceCount || 0) === 0) {
+        router.push('/invoice/new?sample=true')
+      } else {
+        router.push('/dashboard')
+      }
+    }
+  },
+  { immediate: true }
+)
+if (false) watch(
   currentUser,
   (user) => {
     if (user) {

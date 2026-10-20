@@ -25,12 +25,16 @@ const total = computed(() => props.invoice.total || 0)
 const paymentUrl = computed(() => {
   if (props.userProfile?.chargesEnabled && props.invoice?.id) {
     return `${window.location.origin}/pay/${props.invoice.id}`
+  } else if (props.invoice?.isSample) {
+    return `${window.location.origin}/stripe-setup-guide`
   }
   return null
 })
 
 const paymentQrImageUrl = computed(() => {
   if (props.userProfile?.chargesEnabled && props.invoice?.id) {
+    return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&ecc=H&data=${encodeURIComponent(paymentUrl.value)}`
+  } else if (props.invoice?.isSample && paymentUrl.value) {
     return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&ecc=H&data=${encodeURIComponent(paymentUrl.value)}`
   }
   return null
@@ -125,7 +129,7 @@ const primaryRgb = computed(() => {
       </div>
 
       <div
-        v-if="userProfile?.chargesEnabled && paymentQrImageUrl"
+        v-if="(userProfile?.chargesEnabled || invoice?.isSample) && paymentQrImageUrl"
         class="sidebar-section payment-section payment-qr-code"
       >
         <a :href="paymentUrl" target="_blank" rel="noopener noreferrer" class="payment-link" style="text-decoration: none; color: inherit; display: block; text-align: center;">
@@ -136,7 +140,7 @@ const primaryRgb = computed(() => {
               <img v-if="userProfile?.chargesEnabled && settings?.company?.logoUrl" :src="settings.company.logoUrl" crossorigin="anonymous" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 28%; height: 28%; object-fit: contain; background: white; border-radius: 4px; padding: 2px;" />
             </div>
           </div>
-          <p class="payment-cta" :style="{ color: primaryColor }">Scan or click to pay</p>
+          <p class="payment-cta" :style="{ color: primaryColor }">{{ userProfile?.chargesEnabled ? 'Scan or click to pay' : 'Sample QR — See How It Works' }}</p>
         </a>
       </div>
     </aside>

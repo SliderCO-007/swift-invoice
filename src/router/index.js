@@ -191,6 +191,7 @@ const routes = [
     component: () => import('../components/UserGuidePage.vue'),
     meta: { requiresAuth: false }
   },
+  { path: '/stripe-setup-guide', name: 'StripeSampleGuide', component: () => import('../components/StripeSampleGuide.vue'), meta: { requiresAuth: false } },
   { path: '/projects',          name: 'Projects',      component: () => import('../components/ProjectsView.vue'),  meta: { requiresAuth: true } },
   { path: '/projects/new',      name: 'ProjectNew',    component: () => import('../components/ProjectEditor.vue'), meta: { requiresAuth: true } },
   { path: '/projects/:id',      name: 'ProjectDetail', component: () => import('../components/ProjectDetail.vue'), meta: { requiresAuth: true } },

@@ -25,12 +25,16 @@ const total = computed(() => props.invoice.total || 0)
 const paymentUrl = computed(() => {
   if (props.userProfile?.chargesEnabled && props.invoice?.id) {
     return `${window.location.origin}/pay/${props.invoice.id}`
+  } else if (props.invoice?.isSample) {
+    return `${window.location.origin}/stripe-setup-guide`
   }
   return null
 })
 
 const paymentQrImageUrl = computed(() => {
   if (props.userProfile?.chargesEnabled && props.invoice?.id) {
+    return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&ecc=H&data=${encodeURIComponent(paymentUrl.value)}`
+  } else if (props.invoice?.isSample && paymentUrl.value) {
     return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&ecc=H&data=${encodeURIComponent(paymentUrl.value)}`
   }
   return null
@@ -176,7 +180,7 @@ const primaryRgb = computed(() => {
         </div>
 
         <div
-          v-if="userProfile?.chargesEnabled && paymentQrImageUrl"
+          v-if="(userProfile?.chargesEnabled || invoice?.isSample) && paymentQrImageUrl"
           class="tech-payment-box payment-qr-code"
           :style="{ borderColor: `rgba(${primaryRgb}, 0.25)` }"
         >
@@ -190,7 +194,7 @@ const primaryRgb = computed(() => {
               </div>
               <div class="payment-instructions">
                 <p class="instr-header" :style="{ color: primaryColor }">[ SECURE_PAYMENT_NODE ]</p>
-                <p class="instr-body">Stripe secure transfer protocols initialized. Scan QR code or click image to finalize invoice transaction online.</p>
+                <p class="instr-body">{{ userProfile?.chargesEnabled ? 'Stripe secure transfer protocols initialized. Scan QR code or click image to finalize invoice transaction online.' : 'Sample QR Code Preview. Scan or click to see how instant online Stripe payments work and how to set up in 2 minutes.' }}</p>
               </div>
             </div>
           </a>

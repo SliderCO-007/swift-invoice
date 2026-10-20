@@ -2815,3 +2815,27 @@ Bring the homepage (`LandingPage.vue`) into full compliance with Trustpilot Busi
 4. **Footer TrustBox Preservation (`src/components/TrustpilotWidget.vue`)**:
    - Maintained official Trustpilot TrustBox widget in the site footer with verified `data-template-id` and business credentials.
 
+## "Send to Yourself" First Invoice Activation Flow & Sample QR Guide (v121)
+
+### Purpose
+Create a frictionless, high-converting "Send to Yourself" first-invoice activation experience for newly registered users. Guide new signups directly into a pre-filled sample invoice addressed to their own email, render a scannable/clickable sample QR code that opens an interactive Stripe Setup & Advantages Guide (`/pay/sample-guide`), and provide a 1-click "Clear Test Invoice & Restore Free Quota" post-send celebration modal so testing never penalizes their 3-invoice monthly limit.
+
+### Key Changes
+1. **Signup & Dashboard Routing (`src/composables/useAuth.js`, `src/components/LandingPage.vue`, `src/components/CompanyInfoPrompt.vue`)**:
+   - Track `isNewSignup` in `useAuth.js` when `createInitialUserData` executes so Google One-Tap signups on `LandingPage.vue` route directly to `/invoice/new?sample=true` (matching `RegisterPage.vue`).
+   - Update `CompanyInfoPrompt.vue` "Create First Invoice" button to route to `/invoice/new?sample=true`.
+2. **"Send to Yourself" Sample Editor (`src/components/InvoiceEditor.vue`)**:
+   - Detect `route.query.sample === 'true'` during new invoice initialization.
+   - Pre-fill `invoice.isSample = true`, set the Client ("To") name and email to the user's own name (`(Sample Client — Yourself)`) and email, and populate 2 realistic sample line items (`Consultation & Project Discovery` and `On-Site Setup & Materials`) so totals calculate immediately.
+   - Display a prominent glassmorphic "30-Second Test Drive: Send This Sample Invoice to Yourself" banner at the top of the editor and update the primary save CTA to `Save & Preview to Send to Myself` (routing to `/invoice/:id?sampleTest=true`).
+3. **Sample QR Code across All 6 Invoice Templates (`src/components/InvoiceTemplate*.vue`, `src/components/InvoiceEditor.vue`)**:
+   - Enable the QR code block when `userProfile?.chargesEnabled` OR `invoice?.isSample` is true.
+   - When `invoice?.isSample` is true and Stripe is not yet connected, generate a QR code and link pointing to `${window.location.origin}/pay/sample-guide` with a clear label (`Scan or click to preview how clients pay`).
+4. **Post-Save "Send to Yourself" Handoff & Quota Restoration (`src/components/InvoiceView.vue`)**:
+   - Display a highlighted glassmorphic banner when viewing a sample/test invoice (`invoice.isSample || route.query.sampleTest === 'true'`), featuring a 1-click **`Email This Test Invoice to Myself`** button.
+   - Upon sending the sample email, display a celebratory modal confirming delivery to their inbox, reminding them to scan/click the sample QR code inside the PDF, and offering a 1-click **`Clear Test Invoice & Restore Free Quota`** action (which deletes the test invoice and decrements `invoiceCount` back to 0) alongside **`Keep on Dashboard`**.
+5. **Sample QR Destination Page (`src/components/StripeSampleGuide.vue` & `src/router/index.js`)**:
+   - Public/authenticated route `/pay/sample-guide` that opens when the user scans or clicks the QR code on their sample invoice.
+   - Summarizes the key advantages of connecting Stripe (instant Apple Pay, Google Pay, Card, & ACH checkout, 3x faster payouts, automated "Paid" status & receipts) and presents a high-level 3-step checklist to connect their account in 2 minutes, with a direct CTA to `/settings#stripe-connect`.
+
+

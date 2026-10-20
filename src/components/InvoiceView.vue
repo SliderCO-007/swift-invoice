@@ -17,7 +17,7 @@ import InvoiceTemplate6 from './InvoiceTemplate6.vue'
 
 const route = useRoute()
 const router = useRouter()
-const { getInvoice, updateInvoiceStatus, updateInvoice, sendInvoiceSms, getSmsLogs, loading, error } = useInvoices()
+const { getInvoice, updateInvoiceStatus, updateInvoice, deleteInvoice, sendInvoiceSms, getSmsLogs, loading, error } = useInvoices()
 const { settings, fetchUserSettings } = useUserSettings()
 
 const invoice = ref(null)
@@ -35,6 +35,44 @@ const smsPhone = ref('')
 const isSendingSms = ref(false)
 const smsLogs = ref([])
 const smsConsentAttested = ref(false)
+const sampleSentModal = ref(false)
+const isClearingSample = ref(false)
+
+const isSampleInvoice = computed(() => {
+  return !!(invoice.value?.isSample || route.query.sampleTest === 'true')
+})
+
+const clearSampleAndCreateReal = async () => {
+  if (!invoice.value?.id || isClearingSample.value) return
+  isClearingSample.value = true
+  try {
+    await deleteInvoice(invoice.value.id)
+    sampleSentModal.value = false
+    router.push('/invoice/new')
+  } catch (err) {
+    console.error('Error clearing sample invoice:', err)
+    snackbarText.value = 'Could not remove sample invoice.'
+    snackbar.value = true
+  } finally {
+    isClearingSample.value = false
+  }
+}
+
+const clearSampleAndGoDashboard = async () => {
+  if (!invoice.value?.id || isClearingSample.value) return
+  isClearingSample.value = true
+  try {
+    await deleteInvoice(invoice.value.id)
+    sampleSentModal.value = false
+    router.push('/dashboard')
+  } catch (err) {
+    console.error('Error clearing sample invoice:', err)
+    snackbarText.value = 'Could not remove sample invoice.'
+    snackbar.value = true
+  } finally {
+    isClearingSample.value = false
+  }
+}
 
 const openSmsModal = async () => {
   smsPhone.value = invoice.value?.client?.phone || ''
@@ -597,6 +635,9 @@ const sendInvoiceEmail = async () => {
     }
 
     snackbarText.value = result.data.message
+    if (isSampleInvoice.value) {
+      sampleSentModal.value = true
+    }
   } catch (error) {
     console.error('Error sending email:', error)
 
@@ -674,6 +715,38 @@ const safeInvoice = computed(() => {
     </div>
     <div v-else-if="safeInvoice">
       <header class="invoice-view-header">
+        <!-- Sample "Send to Yourself" Action Banner -->
+        <div v-if="isOwner && isSampleInvoice" class="sample-send-banner no-print mb-2">
+          <div class="d-flex align-center justify-space-between flex-wrap gap-3">
+            <div class="d-flex align-start gap-3" style="flex: 1; min-width: 260px;">
+              <div class="sample-banner-icon">
+                <v-icon color="#2dd4bf" size="26">mdi-email-fast-outline</v-icon>
+              </div>
+              <div>
+                <div class="d-flex align-center gap-2 flex-wrap">
+                  <span class="font-weight-bold text-white text-subtitle-1">Ready for Your Inbox! Send This Sample Invoice to Yourself</span>
+                  <v-chip color="teal-accent-3" size="x-small" variant="flat" class="font-weight-bold">Step 2 of 2</v-chip>
+                </div>
+                <p class="text-body-2 text-grey-lighten-1 mb-0 mt-1" style="line-height: 1.5;">
+                  Try switching between the <strong>6 templates</strong> below, then click <strong>Email This Test Invoice to Myself</strong> to receive the PDF in your inbox (<strong class="text-white">{{ safeInvoice.client?.email }}</strong>) and scan the sample QR code!
+                </p>
+              </div>
+            </div>
+            <div class="d-flex align-center gap-2 flex-shrink-0">
+              <v-btn
+                @click="sendInvoiceEmail"
+                :loading="isSendingEmail"
+                color="teal-accent-4"
+                size="large"
+                variant="flat"
+                class="text-white text-none font-weight-bold rounded-lg px-6 elevation-3"
+                prepend-icon="mdi-send"
+              >
+                Email This Test Invoice to Myself
+              </v-btn>
+            </div>
+          </div>
+        </div>
         <div class="header-top-row">
           <v-btn
             v-if="isOwner"
@@ -1017,6 +1090,75 @@ const safeInvoice = computed(() => {
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- Post-Send Sample Celebration & 1-Click Quota Restoration Modal -->
+    <v-dialog v-model="sampleSentModal" max-width="540px" persistent>
+      <v-card class="sample-celebration-card pa-4">
+        <div class="text-center pt-2 pb-2">
+          <div class="celebration-icon-circle mx-auto mb-3">
+            <v-icon color="#34d399" size="36">mdi-check-decagram</v-icon>
+          </div>
+          <h3 class="text-h5 font-weight-bold text-white mb-2">
+            Check Your Inbox! 🎉
+          </h3>
+          <p class="text-body-2 text-grey-lighten-1 mb-4" style="line-height: 1.55;">
+            We just emailed your sample invoice PDF to <strong class="text-white">{{ safeInvoice?.client?.email }}</strong>. Open the PDF and scan or click the <strong>Sample QR Code</strong> to see how instant client payments work!
+          </p>
+
+          <div class="quota-restore-box text-left pa-4 mb-4">
+            <div class="d-flex align-center gap-2 mb-1">
+              <v-icon color="#38bdf8" size="20">mdi-shield-refresh-outline</v-icon>
+              <span class="font-weight-bold text-white text-subtitle-2">Keep Your 3 Free Monthly Invoices Full</span>
+            </div>
+            <p class="text-caption text-grey-lighten-1 mb-0" style="line-height: 1.45;">
+              Since the PDF is already in your email inbox, would you like to clear this sample test from your workspace so it doesn't clutter your dashboard or count toward your 3 free monthly invoices?
+            </p>
+          </div>
+
+          <div class="d-flex flex-column ga-2">
+            <v-btn
+              color="teal-accent-4"
+              size="large"
+              variant="flat"
+              class="text-white text-none font-weight-bold rounded-lg"
+              :loading="isClearingSample"
+              prepend-icon="mdi-broom"
+              @click="clearSampleAndCreateReal"
+            >
+              Clear Test &amp; Create a Real Invoice (Restores Quota)
+            </v-btn>
+            <v-btn
+              color="primary"
+              size="large"
+              variant="tonal"
+              class="text-none font-weight-bold rounded-lg"
+              :loading="isClearingSample"
+              prepend-icon="mdi-delete-sweep-outline"
+              @click="clearSampleAndGoDashboard"
+            >
+              Clear Test &amp; Go to Dashboard (Restores Quota)
+            </v-btn>
+            <v-btn
+              variant="text"
+              color="grey-lighten-1"
+              size="small"
+              class="text-none mt-1"
+              :disabled="isClearingSample"
+              @click="sampleSentModal = false"
+            >
+              Keep Sample Invoice on My Dashboard
+            </v-btn>
+          </div>
+        </div>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-if="false"><v-card><v-card-actions><v-btn
+          >
+            Cancel
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -1229,5 +1371,49 @@ const safeInvoice = computed(() => {
   .no-print {
     display: none !important;
   }
+}
+.sample-send-banner {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.16) 0%, rgba(56, 189, 248, 0.1) 100%);
+  border: 1px solid rgba(45, 212, 191, 0.4);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 10px 30px rgba(20, 184, 166, 0.15);
+  backdrop-filter: blur(12px);
+}
+
+.sample-banner-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(45, 212, 191, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sample-celebration-card {
+  background: #111d2f !important;
+  color: #f1f5f9 !important;
+  border: 1px solid rgba(45, 212, 191, 0.35) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65) !important;
+}
+
+.celebration-icon-circle {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: rgba(52, 211, 153, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quota-restore-box {
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 12px;
 }
 </style>

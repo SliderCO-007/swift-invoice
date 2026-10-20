@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const createInvoice = () => {
-  router.push('/invoice/new');
+  router.push('/invoice/new?sample=true');
 };
 
 const goToSettings = () => {
@@ -26,12 +26,12 @@ const goToSettings = () => {
           <span class="step-badge">🚀 30-Second Setup</span>
           <span class="completion-pill">Profile: Auto-Filled</span>
         </div>
-        <h4>Create Your First Invoice Now</h4>
-        <p>Your account profile details are ready. Customize your business name & logo as you edit your invoice!</p>
+        <h4>Test Drive: Send Your First Invoice to Yourself</h4>
+        <p>Your profile is ready! Send a pre-filled sample invoice with a demo QR code to your own inbox in 30 seconds.</p>
       </div>
       <div class="prompt-actions">
         <button @click="createInvoice" class="prompt-action-btn primary-btn">
-          <span>Create First Invoice</span>
+          <span>Send Sample to Myself</span>
           <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="18px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/></svg>
         </button>
         <button @click="goToSettings" class="prompt-action-btn secondary-btn">Full Setup</button>

@@ -151,7 +151,7 @@ const saveInvoice = async () => {
     }
 
     setFormDirty(false);
-    router.push({ name: 'InvoiceView', params: { id: finalInvoiceId } });
+    router.push({ name: 'InvoiceView', params: { id: finalInvoiceId }, query: invoice.value.isSample ? { sampleTest: 'true' } : {} });
   } catch (error) {
     console.error("Failed to save invoice:", error);
     saveError.value = error.message || 'An unexpected error occurred.';
@@ -243,6 +243,19 @@ const initializeInvoice = async () => {
         }));
       }
       if (prefill.notes) invoice.value.notes = prefill.notes;
+    } else if (route.query.sample === 'true') {
+      invoice.value.isSample = true;
+      const selfName = userProfile.value?.name || user.value?.displayName || (user.value?.email ? user.value.email.split('@')[0] : 'Valued Client');
+      invoice.value.client.name = `${selfName} (Sample — Sent to Yourself)`;
+      invoice.value.client.email = user.value?.email || '';
+      invoice.value.client.phone = userProfile.value?.phone || settings.value?.company?.phone || '';
+      invoice.value.items = [
+        { description: 'Consultation & Project Discovery (Sample Item)', quantity: 2, price: 125, taxable: false },
+        { description: 'On-Site Materials & Setup (Sample Item)', quantity: 1, price: 85, taxable: true }
+      ];
+      invoice.value.notes = 'Thank you for your business! Try scanning or clicking the sample QR code on this invoice to see how instant online payments work.';
+      if (true) {
+    }
     }
 
     if (!invoice.value.items.length) {
@@ -309,9 +322,42 @@ onUnmounted(() => {
     <UpgradeModal v-model="showLimitModal" />
     <div class="editor-form-card">
       <header class="editor-header">
-        <h1>{{ invoiceId === 'new' ? 'Create Invoice' : `Invoice #${invoice.invoiceNumber}` }}</h1>
+        <h1>{{ invoice.isSample ? 'Test Drive: Send Your First Invoice to Yourself' : (invoiceId === 'new' ? 'Create Invoice' : `Invoice #${invoice.invoiceNumber}`) }}</h1>
         <v-btn :to="{ name: 'Dashboard' }" color="white" variant="flat" class="text-indigo-darken-4 font-weight-bold">Back to Dashboard</v-btn>
       </header>
+
+      <!-- Sample "Send to Yourself" Guided Banner -->
+      <div v-if="invoice.isSample" class="sample-test-drive-banner mb-6 pa-4 rounded-xl">
+        <div class="d-flex align-start justify-space-between flex-wrap gap-3">
+          <div class="d-flex align-start gap-3" style="flex: 1; min-width: 260px;">
+            <div class="sample-icon-wrap">
+              <v-icon color="#2dd4bf" size="26">mdi-rocket-launch-outline</v-icon>
+            </div>
+            <div>
+              <div class="d-flex align-center gap-2 flex-wrap">
+                <span class="font-weight-bold text-white text-subtitle-1">60-Second Test Drive: Send This Sample Invoice to Yourself!</span>
+                <v-chip color="teal-accent-3" size="x-small" variant="flat" class="font-weight-bold">100% Risk-Free</v-chip>
+              </div>
+              <p class="text-body-2 text-grey-lighten-1 mb-0 mt-1" style="line-height: 1.5;">
+                We pre-filled your email (<strong class="text-white">{{ invoice.client.email || 'your inbox' }}</strong>) as the client, added two sample items, and included a <strong>Sample QR Code</strong>. Click <strong>Save &amp; Preview to Send</strong> to email it to yourself—and you can clear this test with 1 click afterward so it doesn't count against your 3 free monthly invoices!
+              </p>
+            </div>
+          </div>
+          <div class="d-flex align-center gap-2 flex-shrink-0">
+            <v-btn
+              @click="saveInvoice"
+              :loading="isProcessing"
+              color="teal-accent-4"
+              variant="flat"
+              size="default"
+              class="text-white text-none font-weight-bold rounded-lg px-5"
+              prepend-icon="mdi-send-check-outline"
+            >
+              Save &amp; Preview to Send
+            </v-btn>
+          </div>
+        </div>
+      </div>
 
       <!-- Stripe Connect Tip Alert for Authenticated Users (Dismissable & Non-blocking) -->
       <div
@@ -571,13 +617,13 @@ onUnmounted(() => {
             elevation="3"
           >
             <v-icon start class="mr-1">mdi-content-save-outline</v-icon>
-            {{ isProcessing ? 'Saving...' : 'Save' }}
+            {{ isProcessing ? 'Saving...' : (invoice.isSample ? 'Save & Preview' : 'Save') }}
           </v-btn>
         </div>
 
         <footer class="editor-footer d-none d-md-flex">
           <v-btn @click="showPreview = true" color="secondary">Preview Invoice</v-btn>
-          <v-btn @click="saveInvoice" :loading="isProcessing" color="primary">{{ isProcessing ? 'Saving...' : 'Save Invoice' }}</v-btn>
+          <v-btn @click="saveInvoice" :loading="isProcessing" color="primary">{{ isProcessing ? 'Saving...' : (invoice.isSample ? 'Save & Preview to Send to Myself' : 'Save Invoice') }}</v-btn>
         </footer>
       </div>
     </div>
@@ -956,5 +1002,22 @@ onUnmounted(() => {
     padding: 12px;
     margin-bottom: 12px;
   }
+}
+.sample-test-drive-banner {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.14) 0%, rgba(56, 189, 248, 0.08) 100%);
+  border: 1px solid rgba(45, 212, 191, 0.35);
+  box-shadow: 0 8px 30px rgba(20, 184, 166, 0.12);
+  backdrop-filter: blur(12px);
+}
+
+.sample-icon-wrap {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: rgba(45, 212, 191, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 </style>
