@@ -2843,3 +2843,30 @@ Create a frictionless, high-converting "Send to Yourself" first-invoice activati
    - Tech Grid Template Mobile Overflow Fix (`src/components/InvoiceTemplate6.vue`): Replaced unconstrained `1fr` CSS grid tracks in `.tech-parties-section`, `.tech-bottom-section`, and `.tech-payment-grid` with `minmax(0, 1fr)` and `min-width: 0` on child boxes, stacked the QR payment box vertically on mobile screens (`@media (max-width: 768px)`), and added `data-label` attributes to mobile item table cells so inner boxes never bleed past the right edge of `.invoice-tech-layout`.
 
 
+
+## Receipt Rescue Campaign Landing Page & Attribution (v122)
+
+### Purpose
+Create a dedicated marketing landing page (`/lp/receipt-rescue`) tailored specifically for the Facebook Video Ad campaign (`1015(1).mp4`) where a contractor in his truck ditches unreadable crumpled paper receipts, snaps receipt photos, tracks hours in the app, and converts project work to invoices ("BAM! Start tracking Projects for FREE TODAY!").
+
+### Proposed Changes
+
+#### [NEW] [src/components/ReceiptRescueLandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ReceiptRescueLandingPage.vue)
+- Create wrapper component that mounts `LandingPage.vue` with `variant="receipt_rescue"`.
+- Set session attribution `signup_source` to `lp_receipt_rescue` in `sessionStorage` on mount.
+
+#### [MODIFY] [src/components/LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Add `receipt_rescue` variant support in computed copy properties:
+  - `heroTitleText`: `"Ditch the Unreadable Receipts."`
+  - `heroTitleHighlight`: `"Track Projects for Free."`
+  - `heroSubtitleText`: `"Stop spending hours sorting through crumpled truck receipts just to guess your project expenses. Snap receipt photos on the spot, track hours directly in the app, and turn project work into paid invoices in one click — BAM!"`
+  - `riskReductionText`: `"Start tracking unlimited projects for FREE today. Includes 3 free invoices/month — no credit card required."`
+  - `badges`: custom 4-badge suite emphasizing Snap Receipt Photos, Track Hours in the Truck, 1-Click Invoice — BAM!, and Instant QR & Text-2-Pay.
+  - `metaTitle` and `metaDescription` for search engines and Meta card previews.
+- Ensure Meta Pixel `ViewContent` event tags `LP - receipt_rescue`.
+
+#### [MODIFY] [src/router/index.js](file:///C:/Users/curth/git/swift-invoice/src/router/index.js)
+- Register route `/lp/receipt-rescue` pointing to dynamic import `ReceiptRescueLandingPage.vue`.
+
+#### [MODIFY] [scripts/generate-lp-meta.js](file:///C:/Users/curth/git/swift-invoice/scripts/generate-lp-meta.js)
+- Add `lp/receipt-rescue` entry with full Open Graph and Twitter Card metadata to ensure social scrapers and Facebook link previews render high-converting previews.

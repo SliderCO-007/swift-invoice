@@ -43,6 +43,12 @@ const landingPages = [
     url: 'https://scangoinvoice.com/lp/no-paywall/'
   },
   {
+    path: 'lp/receipt-rescue',
+    title: 'Ditch Unreadable Receipts & Track Projects for Free | ScanGo Invoice',
+    description: 'Stop sorting through crumpled truck receipts to guess project expenses. Snap receipt photos, track hours in the app, and convert projects to invoices for free.',
+    url: 'https://scangoinvoice.com/lp/receipt-rescue/'
+  },
+  {
     path: 'blog',
     title: 'Guides & Resources for Contractors & Small Businesses | ScanGo Invoice',
     description: 'Practical cash-flow strategies, confident pricing blueprints, and mobile invoicing tips for trade contractors, freelancers, and female entrepreneurs.',

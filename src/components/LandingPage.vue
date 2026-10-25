@@ -599,6 +599,8 @@ const heroTitleText = computed(() => {
     return 'Because Time is Money.'
   } else if (props.variant === 'no_paywall') {
     return "What's a Paywall?"
+  } else if (props.variant === 'receipt_rescue') {
+    return 'Ditch the Unreadable Receipts.'
   }
   return 'Turn Tracked Work into Paid Invoices'
 })
@@ -612,6 +614,8 @@ const heroTitleHighlight = computed(() => {
     return 'Stop Giving Yours Away.'
   } else if (props.variant === 'no_paywall') {
     return 'Send Invoices for $0.'
+  } else if (props.variant === 'receipt_rescue') {
+    return 'Track Projects for Free.'
   }
   return 'in One Click.'
 })
@@ -625,6 +629,8 @@ const heroSubtitleText = computed(() => {
     return 'Stop losing billable hours and forgetting project expenses. ScanGo Invoice tracks time, receipts, and expenses on the go for you and your team—all from your phone.'
   } else if (props.variant === 'no_paywall') {
     return 'Stop paying $40/mo subscriptions just to bill your clients. ScanGo unlocks direct Email & Text-2-Pay SMS, instant Stripe QR checkout, and jobsite tracking—with zero paywalls to get started.'
+  } else if (props.variant === 'receipt_rescue') {
+    return 'Stop spending hours sorting through crumpled truck receipts just to guess your project expenses. Snap receipt photos on the spot, track hours directly in the app, and turn project work into paid invoices in one click — BAM!'
   }
   return 'Digitize your workflow on the go. Snap receipts to track expenses, log project hours, and get paid instantly via customer "Scan-to-Pay" QR codes.'
 })
@@ -636,6 +642,8 @@ const riskReductionText = computed(() => {
     return 'Free up your weekends today. No credit card required.'
   } else if (props.variant === 'no_paywall') {
     return '100% Free Starter Plan. No credit card required.'
+  } else if (props.variant === 'receipt_rescue') {
+    return 'Start tracking unlimited projects for FREE today. Includes 3 free invoices/month — no credit card required.'
   }
   return 'Free tier includes unlimited projects and 3 free invoices per month. No credit card required.'
 })
@@ -731,6 +739,29 @@ const badges = computed(() => {
         type: 'invoice',
         title: '3 Invoices Every Month',
         subtitle: 'Your free allowance resets automatically on the 1st of every month as your business grows'
+      }
+    ]
+  } else if (props.variant === 'receipt_rescue') {
+    return [
+      {
+        type: 'invoice',
+        title: 'Snap Receipt Photos',
+        subtitle: 'Ditch faded paper receipts—photograph and attach project expenses right on the spot'
+      },
+      {
+        type: 'tracking',
+        title: 'Log Hours in the Truck',
+        subtitle: 'Track billable hours and labor rates directly in the app before you leave the job site'
+      },
+      {
+        type: 'convert',
+        title: '1-Click Invoice — BAM!',
+        subtitle: 'Convert tracked project hours and receipt expenses into a clean invoice in seconds'
+      },
+      {
+        type: 'sms',
+        title: 'Instant QR & Text-2-Pay',
+        subtitle: 'Clients scan your QR code or tap an SMS link to pay instantly via Apple Pay, Card, or ACH'
       }
     ]
   }
@@ -916,6 +947,8 @@ const metaTitle = props.variant === 'contractor'
       ? 'ScanGo Invoice - Time is Money | Professional Mobile Invoicing'
       : props.variant === 'no_paywall'
         ? "What's a Paywall? | ScanGo Free Invoicing & Instant Mobile Payments"
+        : props.variant === 'receipt_rescue'
+          ? 'Ditch Unreadable Receipts & Track Projects for Free | ScanGo Invoice'
         : 'ScanGo Invoice | Simple Digital Invoicing';
 
 const metaDescription = props.variant === 'contractor'
@@ -926,6 +959,8 @@ const metaDescription = props.variant === 'contractor'
       ? 'Track time and expenses on your phone for you and your team. Stop losing billable hours and turn tracked work into paid client invoices instantly.'
       : props.variant === 'no_paywall'
         ? 'Stop paying monthly subscriptions just to bill clients. ScanGo unlocks free email & Text-2-Pay SMS invoicing, instant Stripe QR codes, and jobsite tracking with no credit card required.'
+        : props.variant === 'receipt_rescue'
+          ? 'Stop sorting through crumpled truck receipts to guess project expenses. Snap receipt photos, track hours in the app, and convert projects to invoices for free.'
         : 'Create, download, and track professional invoices for a simple monthly or yearly price. ScanGo Invoice generates branded payment links and QR codes so customers can pay instantly.';
 
 useMeta(

@@ -30,6 +30,11 @@ const routes = [
     component: () => import('../components/NoPaywallLandingPage.vue'),
   },
   {
+    path: '/lp/receipt-rescue',
+    name: 'ReceiptRescueLandingPage',
+    component: () => import('../components/ReceiptRescueLandingPage.vue'),
+  },
+  {
     path: '/features',
     name: 'Features',
     component: () => import('../components/FeaturesPage.vue'),
