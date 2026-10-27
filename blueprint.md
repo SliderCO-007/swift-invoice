@@ -2915,3 +2915,21 @@ Increase new registered user conversion into Stripe Connect setup by embedding a
 
 #### [MODIFY] [src/components/OnboardingWizard.vue](file:///C:/Users/curth/git/swift-invoice/src/components/OnboardingWizard.vue)
 - Embed `<StripeTrustBadge :company-name="localSettings.company?.name" />` above the wizard footer and offer a "Save & Connect Stripe (2 Min)" button alongside "Save & Go to Dashboard".
+
+
+## Mobile Stripe Connect Card & Banner Layout Optimization (v124)
+
+### Purpose
+Fix the cramped mobile layout and right-edge chip overflow on the Stripe Connect onboarding box in `InvoiceEditor.vue` (`/invoice/new`) and `Dashboard.vue` (`/dashboard`) so that the description text, `StripeTrustBadge` component (including reassurance microcopy), and action buttons span 100% of the card width on mobile—matching the clean, full-width layout in `UserSettings.vue`.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/InvoiceEditor.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceEditor.vue)
+- Restructure `.stripe-tip-card` so the header row (`.stripe-tip-header`: icon + title + "Optional" pill + dismiss `×` button) sits cleanly at the top, while `.stripe-tip-desc`, `<StripeTrustBadge :company-name="invoice.sender?.name || settings?.company?.name" />` (with full microcopy), and `.stripe-tip-actions` span the full width of the card without left-icon column indentation or right dismiss-button padding.
+- Restructure `.sample-test-drive-banner` similarly so its header row (`.sample-header-row`: icon + title + "100% Risk-Free" chip) sits at the top on mobile while the description and CTA button span full width.
+
+#### [MODIFY] [src/components/Dashboard.vue](file:///C:/Users/curth/git/swift-invoice/src/components/Dashboard.vue)
+- Update `.stripe-warning-banner` (and `.stripe-error-banner`) so the icon and title share a `.banner-header-row`, allowing the description and `<StripeTrustBadge :company-name="settings?.company?.name" />` to span the full card width without being indented by the left icon column on mobile.
+
+#### [MODIFY] [src/components/StripeTrustBadge.vue](file:///C:/Users/curth/git/swift-invoice/src/components/StripeTrustBadge.vue)
+- Add defensive responsive wrapping rules (`max-width: 100%`, `white-space: normal` on `.method-chip` for very narrow viewports, and `overflow-wrap: break-word` on `.methods-label`) so chips and labels never bleed past the badge border on any mobile screen width.

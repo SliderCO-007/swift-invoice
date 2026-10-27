@@ -158,6 +158,8 @@ const displayCompany = computed(() => {
   letter-spacing: 0.04em;
   color: #94a3b8;
   margin-right: 0.15rem;
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
 
 .methods-pills-wrap {
@@ -165,6 +167,8 @@ const displayCompany = computed(() => {
   align-items: center;
   flex-wrap: wrap;
   gap: 0.35rem;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .method-chip {
@@ -178,6 +182,8 @@ const displayCompany = computed(() => {
   font-weight: 600;
   color: #f1f5f9;
   white-space: nowrap;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .trust-microcopy {
@@ -202,6 +208,13 @@ const displayCompany = computed(() => {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.35rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .method-chip {
+    white-space: normal;
+    word-break: break-word;
   }
 }
 </style>

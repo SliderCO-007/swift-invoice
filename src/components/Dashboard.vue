@@ -266,11 +266,13 @@ const totalOverdueRevenue = computed(() => {
       >
         <div class="banner-content">
           <div class="banner-text-wrapper">
-            <v-icon color="#635bff" class="banner-icon mr-3">mdi-credit-card-outline</v-icon>
             <div class="banner-text">
-              <span class="banner-title">Online Payments Not Connected</span>
+              <div class="banner-header-row">
+                <v-icon color="#635bff" class="banner-icon mr-2">mdi-credit-card-outline</v-icon>
+                <span class="banner-title">Online Payments Not Connected</span>
+              </div>
               <p class="banner-desc mb-3">Enable 1-tap client checkout and automatic "Paid" invoice updates in about 2 minutes:</p>
-              <StripeTrustBadge :company-name="settings?.company?.name" compact />
+              <StripeTrustBadge :company-name="settings?.company?.name" />
             </div>
           </div>
           <v-btn 
@@ -278,6 +280,7 @@ const totalOverdueRevenue = computed(() => {
             :loading="stripeLoading"
             color="#635bff" 
             variant="flat" 
+            prepend-icon="mdi-credit-card-outline"
             class="connect-btn-banner text-none font-weight-bold"
           >
             Connect with Stripe
@@ -530,23 +533,34 @@ const totalOverdueRevenue = computed(() => {
   display: flex;
   align-items: flex-start;
   text-align: left;
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+
+.banner-header-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.35rem;
 }
 
 .banner-icon {
-  margin-top: 0.15rem;
-  font-size: 28px;
+  font-size: 26px;
+  flex-shrink: 0;
 }
 
 .banner-text {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  width: 100%;
 }
 
 .banner-title {
   font-size: 1.1rem;
   font-weight: 700;
   color: #fff;
-  margin-bottom: 0.25rem;
 }
 
 .banner-desc {

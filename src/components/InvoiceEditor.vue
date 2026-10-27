@@ -339,18 +339,18 @@ onUnmounted(() => {
       <div v-if="invoice.isSample" class="sample-test-drive-banner mb-6 rounded-xl">
         <div class="sample-banner-inner">
           <div class="sample-banner-body">
-            <div class="sample-icon-wrap">
-              <v-icon color="#2dd4bf" size="24">mdi-rocket-launch-outline</v-icon>
-            </div>
-            <div class="sample-text-col">
+            <div class="sample-header-row">
+              <div class="sample-icon-wrap">
+                <v-icon color="#2dd4bf" size="24">mdi-rocket-launch-outline</v-icon>
+              </div>
               <div class="sample-title-row">
                 <span class="sample-banner-title">60-Second Test Drive: Send This Sample Invoice to Yourself!</span>
                 <v-chip color="teal-accent-3" size="x-small" variant="flat" class="font-weight-bold flex-shrink-0">100% Risk-Free</v-chip>
               </div>
-              <p class="sample-banner-desc">
-                We pre-filled your email (<strong class="text-white sample-email-break">{{ invoice.client.email || 'your inbox' }}</strong>) as the client, added two sample items, and included a <strong>Sample QR Code</strong>. Click <strong>Save &amp; Preview to Send</strong> to email it to yourself—and you can clear this test with 1 click afterward so it doesn't count against your 3 free monthly invoices!
-              </p>
             </div>
+            <p class="sample-banner-desc">
+              We pre-filled your email (<strong class="text-white sample-email-break">{{ invoice.client.email || 'your inbox' }}</strong>) as the client, added two sample items, and included a <strong>Sample QR Code</strong>. Click <strong>Save &amp; Preview to Send</strong> to email it to yourself—and you can clear this test with 1 click afterward so it doesn't count against your 3 free monthly invoices!
+            </p>
           </div>
           <div class="sample-banner-actions">
             <v-btn
@@ -375,19 +375,19 @@ onUnmounted(() => {
       >
         <div class="stripe-tip-inner">
           <div class="stripe-tip-body">
-            <div class="tip-icon-bg">
-              <v-icon color="#635bff" size="22">mdi-credit-card-outline</v-icon>
-            </div>
-            <div class="stripe-tip-text-col">
+            <div class="stripe-tip-header">
+              <div class="tip-icon-bg">
+                <v-icon color="#635bff" size="22">mdi-credit-card-outline</v-icon>
+              </div>
               <div class="stripe-tip-title-row">
-                <span class="font-weight-bold text-white text-subtitle-2">Accept Payments Online</span>
+                <span class="font-weight-bold text-white text-subtitle-1">Accept Payments Online</span>
                 <span class="optional-pill text-caption">Optional</span>
               </div>
-              <p class="text-caption text-grey-lighten-1 mb-2 mt-1 stripe-tip-desc">
-                You can create &amp; send invoices right now! Connect Stripe in 2 minutes when you're ready to collect instant online payments:
-              </p>
-              <StripeTrustBadge :company-name="invoice.sender?.name || settings?.company?.name" compact />
             </div>
+            <p class="text-body-2 text-grey-lighten-1 mb-3 mt-2 stripe-tip-desc">
+              You can create &amp; send invoices right now! Connect Stripe in 2 minutes when you're ready to collect instant online payments:
+            </p>
+            <StripeTrustBadge :company-name="invoice.sender?.name || settings?.company?.name" />
           </div>
 
           <div class="stripe-tip-actions">
@@ -396,11 +396,11 @@ onUnmounted(() => {
               :loading="stripeConnectLoading"
               color="#635bff" 
               variant="flat" 
-              size="small"
+              size="default"
+              prepend-icon="mdi-credit-card-outline"
               class="text-none font-weight-bold rounded-lg px-4 stripe-connect-cta-btn"
             >
               Connect with Stripe
-              <v-icon end size="14" class="ml-1">mdi-arrow-right</v-icon>
             </v-btn>
             <v-btn
               icon="mdi-close"
@@ -949,10 +949,10 @@ onUnmounted(() => {
 
 .stripe-tip-card {
   position: relative;
-  background: rgba(99, 91, 255, 0.06);
-  border: 1px solid rgba(99, 91, 255, 0.2);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(99, 91, 255, 0.3);
   backdrop-filter: blur(12px);
-  padding: 1rem 1.25rem;
+  padding: 1.25rem;
   box-sizing: border-box;
   max-width: 100%;
   overflow: hidden;
@@ -962,19 +962,22 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .stripe-tip-body {
   display: flex;
-  align-items: flex-start;
-  gap: 0.85rem;
+  flex-direction: column;
+  align-items: stretch;
   flex: 1;
   min-width: 0;
+  width: 100%;
 }
 
-.stripe-tip-text-col {
-  flex: 1;
+.stripe-tip-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   min-width: 0;
 }
 
@@ -983,10 +986,12 @@ onUnmounted(() => {
   align-items: center;
   flex-wrap: wrap;
   gap: 0.5rem;
+  min-width: 0;
 }
 
 .stripe-tip-desc {
-  line-height: 1.45;
+  line-height: 1.5;
+  color: #e2e8f0 !important;
   overflow-wrap: break-word;
   word-break: break-word;
 }
@@ -1020,28 +1025,27 @@ onUnmounted(() => {
 
 @media (max-width: 768px) {
   .stripe-tip-card {
-    padding: 1rem;
+    padding: 1.15rem;
   }
   .stripe-tip-inner {
     flex-direction: column;
     align-items: stretch;
-    gap: 0.85rem;
+    gap: 1rem;
   }
-  .stripe-tip-body {
-    padding-right: 1.75rem;
-    gap: 0.75rem;
+  .stripe-tip-header {
+    padding-right: 2.25rem;
   }
   .stripe-tip-actions {
     width: 100%;
   }
   .stripe-connect-cta-btn {
     width: 100%;
-    min-height: 40px;
+    min-height: 44px;
   }
   .stripe-dismiss-btn {
     position: absolute !important;
-    top: 0.5rem;
-    right: 0.5rem;
+    top: 0.65rem;
+    right: 0.65rem;
   }
 }
 
@@ -1113,14 +1117,18 @@ onUnmounted(() => {
 
 .sample-banner-body {
   display: flex;
-  align-items: flex-start;
-  gap: 1rem;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.65rem;
   flex: 1;
   min-width: 0;
+  width: 100%;
 }
 
-.sample-text-col {
-  flex: 1;
+.sample-header-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   min-width: 0;
 }
 
@@ -1129,7 +1137,8 @@ onUnmounted(() => {
   align-items: center;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-bottom: 0.35rem;
+  min-width: 0;
+  flex: 1;
 }
 
 .sample-banner-title {
