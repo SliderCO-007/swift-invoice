@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import useUserSettings from '../composables/useUserSettings';
 import useStripeConnect from '../composables/useStripeConnect';
 import { currentUser, userProfile, isAuthReady } from '../composables/useAuth.js';
+import StripeTrustBadge from './StripeTrustBadge.vue';
 
 const router = useRouter();
 
@@ -362,9 +363,10 @@ const goToPricing = () => {
               </div>
               
               <div class="stripe-body">
-                <p>
+                <p class="mb-3">
                   Stripe Connect is used to securely accept credit cards, Apple Pay, Google Pay, and bank payments directly on your invoices.
                 </p>
+                <StripeTrustBadge :company-name="localSettings.company?.name" class="mb-4" />
 
                 <div v-if="stripeError" class="error-notification mt-3">
                   {{ stripeError }}

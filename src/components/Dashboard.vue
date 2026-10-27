@@ -11,6 +11,7 @@ import CompanyInfoPrompt from './CompanyInfoPrompt.vue';
 import UpgradePrompt from './UpgradePrompt.vue';
 import UpgradeModal from './UpgradeModal.vue';
 import DashboardChart from './DashboardChart.vue';
+import StripeTrustBadge from './StripeTrustBadge.vue';
 
 const router = useRouter();
 const { mobile } = useDisplay();
@@ -19,7 +20,11 @@ const showLimitModal = ref(false);
 
 const { invoices, loading: invoicesLoading, error: invoicesError, deleteInvoice } = useInvoices();
 const { settings, loading: settingsLoading, error: settingsError } = useUserSettings();
-const { connectStatus, fetchConnectStatus, loading: stripeLoading, error: stripeError } = useStripeConnect();
+const { connectStatus, fetchConnectStatus, createConnectAccount, loading: stripeLoading, error: stripeError } = useStripeConnect();
+
+const handleDirectStripeConnect = async () => {
+  await createConnectAccount('/dashboard');
+};
 
 // --- ROBUST INITIAL LOAD TRACKING ---
 const invoicesHaveLoaded = ref(false);
@@ -264,16 +269,18 @@ const totalOverdueRevenue = computed(() => {
             <v-icon color="#635bff" class="banner-icon mr-3">mdi-credit-card-outline</v-icon>
             <div class="banner-text">
               <span class="banner-title">Online Payments Not Connected</span>
-              <p class="banner-desc">You won't be able to accept credit cards, Apple Pay, or ACH payments on your invoices until you connect a payment account.</p>
+              <p class="banner-desc mb-3">Enable 1-tap client checkout and automatic "Paid" invoice updates in about 2 minutes:</p>
+              <StripeTrustBadge :company-name="settings?.company?.name" compact />
             </div>
           </div>
           <v-btn 
-            to="/settings#stripe-connect" 
+            @click="handleDirectStripeConnect"
+            :loading="stripeLoading"
             color="#635bff" 
             variant="flat" 
-            class="connect-btn-banner"
+            class="connect-btn-banner text-none font-weight-bold"
           >
-            Connect Now
+            Connect with Stripe
           </v-btn>
         </div>
       </div>
@@ -292,10 +299,11 @@ const totalOverdueRevenue = computed(() => {
             </div>
           </div>
           <v-btn 
-            to="/settings" 
+            @click="handleDirectStripeConnect"
+            :loading="stripeLoading"
             color="#ff5252" 
             variant="flat" 
-            class="connect-btn-banner text-none"
+            class="connect-btn-banner text-none font-weight-bold"
           >
             Reconnect Stripe
           </v-btn>

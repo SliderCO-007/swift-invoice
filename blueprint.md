@@ -2870,3 +2870,48 @@ Create a dedicated marketing landing page (`/lp/receipt-rescue`) tailored specif
 
 #### [MODIFY] [scripts/generate-lp-meta.js](file:///C:/Users/curth/git/swift-invoice/scripts/generate-lp-meta.js)
 - Add `lp/receipt-rescue` entry with full Open Graph and Twitter Card metadata to ensure social scrapers and Facebook link previews render high-converting previews.
+
+## Stripe Connect ACH Capability Check & Resilient Checkout Session (v123)
+
+### Purpose
+Resolve the `500 Internal Server Error` (`The payment method type provided: us_bank_account is invalid`) encountered when clients click "Pay Invoice" on connected accounts where `us_bank_account_ach_payments` is not active. Ensure ACH is requested during Express onboarding, dynamically checked before including `us_bank_account` in Checkout sessions, and safely falls back to `['card']` if Stripe rejects `us_bank_account`.
+
+### Key Changes
+1. **Request ACH Capability on Onboarding (`functions/stripeConnect.js` -> `createConnectAccount`)**:
+   - Include `us_bank_account_ach_payments: { requested: true }` alongside `card_payments` and `transfers` when creating new Stripe Express accounts.
+2. **Dynamic Capability Check & Safe Fallback (`functions/stripeConnect.js` -> `createInvoicePaymentSession`)**:
+   - Retrieve the connected Stripe account (`stripe.accounts.retrieve(connectAccountId)`) to inspect `account.capabilities?.us_bank_account_ach_payments === 'active'`.
+   - Include `'us_bank_account'` and `payment_method_options.us_bank_account` only when currency is `'usd'` AND `us_bank_account_ach_payments` is `'active'` on the connected account.
+   - Add a defensive fallback in `stripe.checkout.sessions.create`: if Stripe still throws an error referencing `us_bank_account` (e.g., if disabled at the platform level), automatically retry with `payment_method_types: ['card']` so client invoice payments never fail.
+
+## Stripe Trust Badge & 1-Click Onboarding Connect (v123)
+
+### Purpose
+Increase new registered user conversion into Stripe Connect setup by embedding a sleek, reusable `StripeTrustBadge.vue` component across all 5 user onboarding touchpoints (`InvoiceEditor.vue`, `StripeSampleGuide.vue`, `Dashboard.vue`, `UserSettings.vue`, and `OnboardingWizard.vue`) and upgrading onboarding "Connect Stripe" buttons to trigger the Stripe Express onboarding redirect directly in 1 click (eliminating the extra redirect to `/settings`).
+
+### Proposed Changes
+
+#### [NEW] [src/components/StripeTrustBadge.vue](file:///C:/Users/curth/git/swift-invoice/src/components/StripeTrustBadge.vue)
+- Create a responsive, glassmorphic component displaying:
+  - Security & Payout Assurance Bar: `🔒 Secured by Stripe • 256-Bit Encryption • Direct Payouts to [Company Name / Your Bank]`
+  - Payment Method Pills: `Apple Pay`, `Google Pay`, `Visa / Mastercard`, `ACH Bank Transfer`
+  - Optional reassurance microcopy: *"ScanGo never stores your bank credentials or holds your funds."*
+- Support `companyName` prop and `compact` variant for inline banner placement.
+
+#### [MODIFY] [src/components/InvoiceEditor.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceEditor.vue)
+- Embed `<StripeTrustBadge :company-name="invoice.sender?.name || settings?.company?.name" compact />` inside `.stripe-tip-card`.
+- Upgrade the "Connect Stripe" button in `.stripe-tip-card` to call `handleDirectStripeConnect` (`createConnectAccount(route.fullPath)`) directly with a loading state.
+
+#### [MODIFY] [src/components/StripeSampleGuide.vue](file:///C:/Users/curth/git/swift-invoice/src/components/StripeSampleGuide.vue)
+- Embed `<StripeTrustBadge :company-name="settings?.company?.name || userProfile?.name" />` in the `.cta-footer-box`.
+- Update `goToSetup` so authenticated users launch `createConnectAccount('/dashboard')` directly in 1 click with loading state (`stripeLoading`).
+
+#### [MODIFY] [src/components/Dashboard.vue](file:///C:/Users/curth/git/swift-invoice/src/components/Dashboard.vue)
+- Embed `<StripeTrustBadge :company-name="settings?.company?.name" compact />` inside `.stripe-warning-banner`.
+- Update the "Connect Now" button in `.stripe-warning-banner` (and `.stripe-error-banner`) to trigger `createConnectAccount('/dashboard')` directly in 1 click with `:loading="stripeLoading"`.
+
+#### [MODIFY] [src/components/UserSettings.vue](file:///C:/Users/curth/git/swift-invoice/src/components/UserSettings.vue)
+- Embed `<StripeTrustBadge :company-name="localSettings.company?.name" />` inside `#stripe-connect` `.stripe-body`.
+
+#### [MODIFY] [src/components/OnboardingWizard.vue](file:///C:/Users/curth/git/swift-invoice/src/components/OnboardingWizard.vue)
+- Embed `<StripeTrustBadge :company-name="localSettings.company?.name" />` above the wizard footer and offer a "Save & Connect Stripe (2 Min)" button alongside "Save & Go to Dashboard".

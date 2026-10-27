@@ -2,6 +2,8 @@
 import { ref, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import useUserSettings from '../composables/useUserSettings';
+import useStripeConnect from '../composables/useStripeConnect';
+import StripeTrustBadge from './StripeTrustBadge.vue';
 import { currentUser, isAuthReady } from '../composables/useAuth.js';
 import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
@@ -14,6 +16,11 @@ const {
   error: settingsError, 
   saveUserSettings,
 } = useUserSettings();
+
+const {
+  createConnectAccount,
+  loading: stripeLoading,
+} = useStripeConnect();
 
 const logoFile = ref(null);
 const logoPreview = ref(null);
@@ -90,6 +97,27 @@ const handleSaveCompany = async () => {
 
 const handleSkipCompany = () => {
   router.push('/dashboard');
+};
+
+const handleSaveAndConnectStripe = async () => {
+  if (!localSettings.value.company.name) {
+    saveError.value = 'Company Name is required.';
+    return;
+  }
+  isSaving.value = true;
+  saveError.value = '';
+  try {
+    await saveUserSettings(localSettings.value, logoFile.value);
+    if (!settingsError.value) {
+      await createConnectAccount('/dashboard');
+    } else {
+      saveError.value = settingsError.value;
+    }
+  } catch (err) {
+    saveError.value = err.message || 'Failed to save settings.';
+  } finally {
+    isSaving.value = false;
+  }
 };
 </script>
 
@@ -204,11 +232,36 @@ const handleSkipCompany = () => {
             </div>
           </div>
 
+          <div class="mt-6">
+            <StripeTrustBadge :company-name="localSettings.company.name" />
+          </div>
+
           <div v-if="saveError" class="error-notification">{{ saveError }}</div>
 
           <footer class="wizard-footer">
             <v-btn type="button" variant="text" class="skip-btn" @click="handleSkipCompany">Skip for now</v-btn>
-            <v-btn type="submit" class="continue-btn" :loading="isSaving" color="indigo-darken-3">Save & Go to Dashboard</v-btn>
+            <div class="wizard-actions-right">
+              <v-btn
+                type="button"
+                variant="outlined"
+                color="grey-lighten-1"
+                class="continue-btn-secondary text-none font-weight-bold"
+                :loading="isSaving && !stripeLoading"
+                @click="handleSaveCompany"
+              >
+                Save &amp; Go to Dashboard
+              </v-btn>
+              <v-btn
+                type="button"
+                color="#635bff"
+                class="continue-btn text-white"
+                prepend-icon="mdi-lock-check-outline"
+                :loading="stripeLoading"
+                @click="handleSaveAndConnectStripe"
+              >
+                Save &amp; Connect Stripe (2 Min)
+              </v-btn>
+            </div>
           </footer>
         </form>
       </div>
@@ -396,6 +449,17 @@ const handleSkipCompany = () => {
   font-size: 0.95rem; 
 }
 
+.wizard-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.continue-btn-secondary {
+  border-radius: 8px !important;
+  height: 48px !important;
+  padding: 0 1.25rem !important;
+}
 .wizard-footer { 
   display: flex; 
   justify-content: space-between; 
@@ -425,7 +489,8 @@ const handleSkipCompany = () => {
 @media (max-width: 768px) {
   .onboarding-card { padding: 2rem 1.5rem; }
   .form-grid { grid-template-columns: 1fr; }
-  .wizard-footer { flex-direction: column-reverse; gap: 1rem; }
-  .wizard-footer button { width: 100%; }
+  .wizard-footer { flex-direction: column-reverse; gap: 1rem; align-items: stretch; }
+  .wizard-actions-right { flex-direction: column-reverse; width: 100%; align-items: stretch; }
+  .wizard-footer button, .wizard-actions-right .v-btn { width: 100% !important; height: auto !important; min-height: 48px !important; padding: 12px 16px !important; white-space: normal !important; }
 }
 </style>

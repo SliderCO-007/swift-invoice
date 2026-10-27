@@ -4,8 +4,13 @@ import { useRouter } from 'vue-router';
 import { currentUser, userProfile } from '../composables/useAuth.js';
 import { useMeta } from '../composables/useMeta.js';
 import Logo from './Logo.vue';
+import StripeTrustBadge from './StripeTrustBadge.vue';
+import useStripeConnect from '../composables/useStripeConnect.js';
+import useUserSettings from '../composables/useUserSettings.js';
 
 const router = useRouter();
+const { createConnectAccount, loading: stripeLoading } = useStripeConnect();
+const { settings } = useUserSettings();
 
 useMeta(
   'Instant Online Invoice Payments Guide | ScanGo Invoice',
@@ -67,9 +72,9 @@ const setupSteps = [
   }
 ];
 
-const goToSetup = () => {
+const goToSetup = async () => {
   if (isAuthenticated.value) {
-    router.push('/settings#stripe-connect');
+    await createConnectAccount('/dashboard');
   } else {
     router.push('/register');
   }
@@ -214,9 +219,10 @@ const goToDashboard = () => {
             <div v-else class="cta-actions-wrap">
               <div class="cta-text-col">
                 <h4 class="cta-heading">Ready to accept instant payments on your invoices?</h4>
-                <p class="cta-subtext">
-                  Connect your Stripe account in Settings or head back to your Dashboard to create your first real client invoice.
+                <p class="cta-subtext mb-3">
+                  Launch Stripe’s 2-minute guided Express setup right now, or head back to your Dashboard to create your first real client invoice.
                 </p>
+                <StripeTrustBadge :company-name="settings?.company?.name || userProfile?.name" />
               </div>
               <div class="cta-buttons-col">
                 <v-btn
@@ -225,9 +231,10 @@ const goToDashboard = () => {
                   rounded="lg"
                   class="font-weight-bold text-none px-6 stripe-cta-btn"
                   prepend-icon="mdi-credit-card-check-outline"
+                  :loading="stripeLoading"
                   @click="goToSetup"
                 >
-                  {{ isAuthenticated ? 'Connect Stripe in Settings' : 'Create Free Account' }}
+                  {{ isAuthenticated ? 'Connect with Stripe Now' : 'Create Free Account' }}
                 </v-btn>
                 <v-btn
                   v-if="isAuthenticated"

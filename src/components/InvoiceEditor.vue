@@ -17,6 +17,7 @@ import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import Logo from './Logo.vue';
 import UpgradeModal from './UpgradeModal.vue';
+import StripeTrustBadge from './StripeTrustBadge.vue';
 import { useMobileNav } from '../composables/useMobileNav';
 
 // --- Composables ---
@@ -26,7 +27,7 @@ const { customers } = useCustomers(); // Automatically fetches and updates based
 const { items, fetchItems, stopFetching: stopFetchingItems } = useItems();
 const { setFormDirty } = useMobileNav();
  
-const { connectStatus, fetchConnectStatus } = useStripeConnect();
+const { connectStatus, fetchConnectStatus, createConnectAccount, loading: stripeConnectLoading } = useStripeConnect();
 const router = useRouter();
 const route = useRoute();
 
@@ -50,6 +51,14 @@ watch(invoice, () => {
 const dismissStripeBanner = () => {
   isStripeBannerDismissed.value = true;
   localStorage.setItem('swift_invoice_editor_stripe_dismissed', 'true');
+};
+
+const handleDirectStripeConnect = async () => {
+  try {
+    await createConnectAccount(route.fullPath || '/invoice/new');
+  } catch (err) {
+    console.error('Error launching Stripe Connect:', err);
+  }
 };
 
 const isCompanyIncomplete = computed(() => {
@@ -374,21 +383,23 @@ onUnmounted(() => {
                 <span class="font-weight-bold text-white text-subtitle-2">Accept Payments Online</span>
                 <span class="optional-pill text-caption">Optional</span>
               </div>
-              <p class="text-caption text-grey-lighten-1 mb-0 mt-1 stripe-tip-desc">
-                You can create &amp; send invoices right now! Connect Stripe when you're ready to collect credit card, Apple Pay, or ACH payments.
+              <p class="text-caption text-grey-lighten-1 mb-2 mt-1 stripe-tip-desc">
+                You can create &amp; send invoices right now! Connect Stripe in 2 minutes when you're ready to collect instant online payments:
               </p>
+              <StripeTrustBadge :company-name="invoice.sender?.name || settings?.company?.name" compact />
             </div>
           </div>
 
           <div class="stripe-tip-actions">
             <v-btn 
-              to="/settings#stripe-connect" 
+              @click="handleDirectStripeConnect"
+              :loading="stripeConnectLoading"
               color="#635bff" 
               variant="flat" 
               size="small"
               class="text-none font-weight-bold rounded-lg px-4 stripe-connect-cta-btn"
             >
-              Connect Stripe
+              Connect with Stripe
               <v-icon end size="14" class="ml-1">mdi-arrow-right</v-icon>
             </v-btn>
             <v-btn
