@@ -49,6 +49,51 @@ const teamMembersList = computed(() => {
 const selectedCustomer = ref(null);
 const isProcessing = ref(false);
 const formError    = ref(null);
+const showNotesModal = ref(false);
+
+// Resolve the matched customer from picker, clientId, or clientName
+const activeCustomer = computed(() => {
+  if (selectedCustomer.value?.id) {
+    return customers.value.find(c => c.id === selectedCustomer.value.id) || selectedCustomer.value;
+  }
+  if (form.value.clientId) {
+    const byId = customers.value.find(c => c.id === form.value.clientId);
+    if (byId) return byId;
+  }
+  if (form.value.clientName?.trim()) {
+    const targetName = form.value.clientName.trim().toLowerCase();
+    return customers.value.find(c => c.name?.trim().toLowerCase() === targetName) || null;
+  }
+  return null;
+});
+
+// Return customer's notes sorted newest-first
+const activeCustomerNotes = computed(() => {
+  const notes = activeCustomer.value?.notes;
+  if (!Array.isArray(notes) || !notes.length) return [];
+  return [...notes].sort((a, b) => {
+    const timeA = new Date(a.createdAt || 0).getTime();
+    const timeB = new Date(b.createdAt || 0).getTime();
+    return timeB - timeA;
+  });
+});
+
+const latestCustomerNote = computed(() => {
+  return activeCustomerNotes.value.length ? activeCustomerNotes.value[0] : null;
+});
+
+const formatNoteTimestamp = (isoString) => {
+  if (!isoString) return '';
+  const date = new Date(isoString);
+  if (isNaN(date.getTime())) return isoString;
+  return date.toLocaleString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit'
+  });
+};
 
 // Pre-fill client fields from customer picker
 watch(selectedCustomer, (c) => {
@@ -67,6 +112,10 @@ onMounted(async () => {
         assignedMembers: [],
         ...project
       });
+      if (project.clientId) {
+        const match = customers.value.find(c => c.id === project.clientId);
+        if (match) selectedCustomer.value = match;
+      }
     } catch (err) {
       formError.value = 'Could not load project.';
     }
@@ -159,7 +208,20 @@ const cancel = () => {
 
         <!-- Client -->
         <div class="field-group">
-          <label class="field-label">Client</label>
+          <div class="d-flex justify-space-between align-center flex-wrap ga-2">
+            <label class="field-label">Client</label>
+            <v-btn
+              v-if="activeCustomerNotes.length"
+              size="small"
+              color="primary"
+              variant="tonal"
+              class="text-none customer-notes-btn"
+              @click="showNotesModal = true"
+            >
+              <v-icon start size="16">mdi-notebook-outline</v-icon>
+              View Customer Notes ({{ activeCustomerNotes.length }})
+            </v-btn>
+          </div>
           <v-autocomplete
             v-model="selectedCustomer"
             :items="customers"
@@ -171,7 +233,18 @@ const cancel = () => {
             clearable
             hide-details
             class="mb-2"
-          />
+          >
+            <template v-slot:item="{ props, item }">
+              <v-list-item v-bind="props">
+                <template v-slot:append v-if="item.raw?.notes?.length">
+                  <v-chip size="x-small" color="primary" variant="tonal">
+                    <v-icon start size="12">mdi-notebook-outline</v-icon>
+                    {{ item.raw.notes.length }}
+                  </v-chip>
+                </template>
+              </v-list-item>
+            </template>
+          </v-autocomplete>
           <v-text-field
             v-model="form.clientName"
             variant="solo"
@@ -179,6 +252,31 @@ const cancel = () => {
             placeholder="Or type a client name"
             hide-details
           />
+
+          <!-- Latest Customer Note Indicator Banner (when notes exist) -->
+          <div
+            v-if="latestCustomerNote"
+            class="customer-note-indicator mt-2 pa-3 rounded d-flex justify-space-between align-center ga-3"
+            @click="showNotesModal = true"
+          >
+            <div class="min-w-0 flex-grow-1">
+              <div class="d-flex align-center ga-2 mb-1 flex-wrap">
+                <span class="text-caption font-weight-bold text-primary d-flex align-center">
+                  <v-icon size="14" class="me-1" color="primary">mdi-notebook-check-outline</v-icon>
+                  Latest Customer Note
+                </span>
+                <span class="text-caption" style="color: #94a3b8;">
+                  {{ formatNoteTimestamp(latestCustomerNote.createdAt) }}
+                </span>
+              </div>
+              <p class="text-body-2 mb-0 text-truncate" style="color: #e2e8f0;">
+                {{ latestCustomerNote.text }}
+              </p>
+            </div>
+            <v-btn size="x-small" color="primary" variant="outlined" class="text-none flex-shrink-0">
+              View All ({{ activeCustomerNotes.length }})
+            </v-btn>
+          </div>
         </div>
 
         <!-- Description -->
@@ -261,6 +359,48 @@ const cancel = () => {
       </div>
 
     </div>
+
+    <!-- Customer Notes Log Dialog -->
+    <v-dialog v-model="showNotesModal" max-width="600">
+      <v-card v-if="activeCustomer" style="background:#16243a; color:#f1f5f9; border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(16px);">
+        <v-card-title class="pa-4 bg-primary d-flex justify-space-between align-center flex-wrap ga-2">
+          <div class="d-flex align-center">
+            <v-icon class="me-2" color="white">mdi-notebook-outline</v-icon>
+            <span class="text-h6 font-weight-bold text-white">{{ activeCustomer.name }} — Customer Notes</span>
+          </div>
+          <v-chip size="x-small" color="white" variant="outlined">
+            <v-icon start size="12">mdi-shield-lock-outline</v-icon>
+            Append-Only Log
+          </v-chip>
+        </v-card-title>
+        <v-card-text class="pa-4">
+          <div class="notes-modal-list">
+            <div
+              v-for="note in activeCustomerNotes"
+              :key="note.id || note.createdAt"
+              class="note-modal-entry pa-3 mb-3 rounded"
+            >
+              <div class="d-flex justify-space-between align-center mb-1 flex-wrap ga-2">
+                <span class="text-caption font-weight-bold text-primary d-flex align-center">
+                  <v-icon size="14" class="me-1" color="primary">mdi-clock-check-outline</v-icon>
+                  {{ formatNoteTimestamp(note.createdAt) }}
+                </span>
+                <span v-if="note.authorName" class="text-caption" style="color: #94a3b8;">
+                  Added by {{ note.authorName }}
+                </span>
+              </div>
+              <div class="text-body-2" style="white-space: pre-wrap; word-break: break-word; color: #f1f5f9;">
+                {{ note.text }}
+              </div>
+            </div>
+          </div>
+        </v-card-text>
+        <v-card-actions class="pa-4 pt-0">
+          <v-spacer />
+          <v-btn @click="showNotesModal = false" variant="text" color="white">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <!-- Delete Project Confirmation Dialog -->
     <v-dialog v-model="showDeleteConfirm" max-width="500">
@@ -363,6 +503,34 @@ const cancel = () => {
 
 .required {
   color: #f87171;
+}
+
+.customer-note-indicator {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 3px solid rgb(var(--v-theme-primary));
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.customer-note-indicator:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.min-w-0 {
+  min-width: 0;
+}
+
+.notes-modal-list {
+  max-height: 360px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.note-modal-entry {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 3px solid rgb(var(--v-theme-primary));
 }
 
 .form-actions {

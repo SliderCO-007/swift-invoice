@@ -1,7 +1,16 @@
 import { ref, watch } from 'vue';
-import { collection, onSnapshot, query, addDoc, updateDoc, deleteDoc, doc, getDoc, setDoc } from 'firebase/firestore';
+import { collection, onSnapshot, query, addDoc, updateDoc, deleteDoc, doc, arrayUnion } from 'firebase/firestore';
 import { db } from './useFirebase';
 import { currentUser, userProfile } from './useAuth';
+
+// Helper to construct an immutable, timestamped note entry
+const createNoteEntry = (text, profile, user) => ({
+  id: `note_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+  text: text.trim(),
+  createdAt: new Date().toISOString(),
+  authorId: user?.uid || profile?.id || 'system',
+  authorName: profile?.name || user?.displayName || user?.email || 'Team Member'
+});
 
 // --- SHARED STATE (SINGLETON) ---
 const customers = ref([]);
@@ -30,7 +39,16 @@ const setupCustomerListener = (orgId) => {
         address2: 'Suite 100',
         city: 'Anytown',
         state: 'NY',
-        zip: '10001'
+        zip: '10001',
+        notes: [
+          {
+            id: 'mock-note-1',
+            text: 'Prefers text notifications before arrival. Gate code #4821.',
+            createdAt: new Date().toISOString(),
+            authorId: 'demo',
+            authorName: 'Demo User'
+          }
+        ]
       }
     ];
     loading.value = false;
@@ -65,31 +83,69 @@ watch(userProfile, (newProfile) => {
 
 export function useCustomers() {
 
-  const addCustomer = async (customerData) => {
+  const addCustomer = async (customerData, initialNoteText = '') => {
     const profile = userProfile.value;
     if (!profile) throw new Error("User not authenticated");
     const orgId = profile.orgId || profile.id;
 
     try {
+      const payload = { ...customerData };
+      const existingNotes = Array.isArray(payload.notes) ? [...payload.notes] : [];
+      if (initialNoteText && initialNoteText.trim()) {
+        existingNotes.push(createNoteEntry(initialNoteText, profile, currentUser.value));
+      }
+      payload.notes = existingNotes;
+
       const customersCollection = collection(db, 'users', orgId, 'customers');
-      await addDoc(customersCollection, customerData);
+      const docRef = await addDoc(customersCollection, payload);
+      return docRef.id;
     } catch (err) {
       console.error("Error adding customer:", err);
-      error.value = "Failed to add customer."; 
+      error.value = "Failed to add customer.";
+      throw err;
     }
   };
 
-  const updateCustomer = async (customerId, updatedData) => {
+  const updateCustomer = async (customerId, updatedData, newNoteText = '') => {
     const profile = userProfile.value;
     if (!profile) throw new Error("User not authenticated");
     const orgId = profile.orgId || profile.id;
 
     try {
+      // Never allow profile updates to overwrite or remove existing notes (RIM append-only compliance)
+      const safeData = { ...updatedData };
+      delete safeData.notes;
+
+      if (newNoteText && newNoteText.trim()) {
+        safeData.notes = arrayUnion(createNoteEntry(newNoteText, profile, currentUser.value));
+      }
+
       const customerDoc = doc(db, 'users', orgId, 'customers', customerId);
-      await updateDoc(customerDoc, updatedData);
+      await updateDoc(customerDoc, safeData);
     } catch (err) {
       console.error("Error updating customer:", err);
       error.value = "Failed to update customer.";
+      throw err;
+    }
+  };
+
+  const addCustomerNote = async (customerId, noteText) => {
+    const profile = userProfile.value;
+    if (!profile) throw new Error("User not authenticated");
+    if (!noteText || !noteText.trim()) return null;
+    const orgId = profile.orgId || profile.id;
+
+    try {
+      const entry = createNoteEntry(noteText, profile, currentUser.value);
+      const customerDoc = doc(db, 'users', orgId, 'customers', customerId);
+      await updateDoc(customerDoc, {
+        notes: arrayUnion(entry)
+      });
+      return entry;
+    } catch (err) {
+      console.error("Error adding customer note:", err);
+      error.value = "Failed to add customer note.";
+      throw err;
     }
   };
 
@@ -114,6 +170,7 @@ export function useCustomers() {
     error,     // The real-time error state
     addCustomer,
     updateCustomer,
+    addCustomerNote,
     deleteCustomer
   };
 }

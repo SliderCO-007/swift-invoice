@@ -39,8 +39,16 @@ service cloud.firestore {
       allow update: if isOwner(userId) || (request.auth != null && resource.data.orgId == request.auth.uid);
       
       // A user's organization owns these customers and items.
+      // Customer notes enforce RIM append-only integrity on update.
       match /customers/{customerId} {
-        allow read, write, create, delete: if isOrgMember(userId);
+        allow read, create, delete: if isOrgMember(userId);
+        allow update: if isOrgMember(userId) && (
+          !('notes' in resource.data) || (
+            'notes' in request.resource.data &&
+            request.resource.data.notes.size() >= resource.data.notes.size() &&
+            request.resource.data.notes.hasAll(resource.data.notes)
+          )
+        );
       }
       match /items/{itemId} {
         allow read, write, create, delete: if isOrgMember(userId);

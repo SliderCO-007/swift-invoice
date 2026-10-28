@@ -2933,3 +2933,38 @@ Fix the cramped mobile layout and right-edge chip overflow on the Stripe Connect
 
 #### [MODIFY] [src/components/StripeTrustBadge.vue](file:///C:/Users/curth/git/swift-invoice/src/components/StripeTrustBadge.vue)
 - Add defensive responsive wrapping rules (`max-width: 100%`, `white-space: normal` on `.method-chip` for very narrow viewports, and `overflow-wrap: break-word` on `.methods-label`) so chips and labels never bleed past the badge border on any mobile screen width.
+
+
+## Append-Only Customer Notes & Activity Log (v125)
+
+### Purpose
+Introduce a RIM-compliant (Records and Information Management), append-only timestamped Customer Notes log at the customer profile level. This ensures business owners and field technicians can record and review chronological customer history (e.g., gate codes, site instructions, billing preferences, call logs) without any historical entries ever being overwritten or lost.
+
+### Proposed Changes
+
+#### [MODIFY] [src/composables/useCustomers.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useCustomers.js)
+- Add `addCustomerNote(customerId, noteText)` method using Firestore `arrayUnion` to append an immutable note entry (`{ id, text, createdAt, authorId, authorName }`) to `users/{orgId}/customers/{customerId}`.
+- Update `addCustomer` to support an optional initial note (`initialNote`) when creating a new customer, converting it into the first timestamped entry in `notes: []`.
+- Safeguard `updateCustomer` so standard profile edits never overwrite or truncate the existing `notes` array.
+
+#### [MODIFY] [src/components/CustomersView.vue](file:///C:/Users/curth/git/swift-invoice/src/components/CustomersView.vue)
+- Add a **Notes** column to the desktop data table displaying a note count badge, latest note snippet, and 1-click trigger to open the Customer Notes Log modal.
+- Display the latest timestamped note preview on mobile customer cards along with a **Notes** action button.
+- Create a dedicated, glassmorphic **Customer Notes Log Modal** showing the full append-only chronological history (newest first) with timestamps, author attribution, a RIM-compliance indicator ("Append-only log • History is permanent"), and an inline input to append a new timestamped note.
+- Embed the append-only Notes log and "Add New Note" input inside the **Add / Edit Customer** dialog so users can also add notes while creating or editing a customer.
+- Include the formatted chronological `Notes History` in the Customer CSV export (`exportCustomersOutput`).
+
+#### [MODIFY] [src/components/ProjectEditor.vue](file:///C:/Users/curth/git/swift-invoice/src/components/ProjectEditor.vue)
+- Resolve the active customer profile via `selectedCustomer`, `form.clientId`, or `form.clientName`.
+- Display a note count indicator badge inside the customer autocomplete dropdown items when notes exist on a customer.
+- When the selected/linked customer has existing notes, surface a prominent **"View Customer Notes (N)"** button and latest-note preview banner directly under the Client selector, opening a glassmorphic Customer Notes dialog showing the full timestamped log.
+
+#### [MODIFY] [firestore.rules](file:///C:/Users/curth/git/swift-invoice/firestore.rules)
+- Enforce RIM append-only integrity on `users/{userId}/customers/{customerId}` updates so existing entries in `resource.data.notes` must be preserved (`request.resource.data.notes.hasAll(resource.data.notes)` and `request.resource.data.notes.size() >= resource.data.notes.size()`).
+
+### Verification Plan
+- **Add Customer with Initial Note**: Create a new customer with an initial note and verify the note is saved with an accurate timestamp and author attribution.
+- **Append Notes via Log Modal & Edit Dialog**: Add subsequent notes to an existing customer and confirm they append cleanly in chronological order without modifying or overwriting prior entries.
+- **Project Editor Notes Indicator**: Select a customer with notes in `ProjectEditor.vue` and verify the note count badge, preview banner, and read-only notes modal appear.
+- **RIM Append-Only Protection**: Verify there are no edit or delete controls on historical notes and that profile edits preserve all existing notes.
+- **CSV Export**: Export customers to CSV and verify the `Notes History` column includes the full timestamped log.
