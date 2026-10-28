@@ -2968,3 +2968,19 @@ Introduce a RIM-compliant (Records and Information Management), append-only time
 - **Project Editor Notes Indicator**: Select a customer with notes in `ProjectEditor.vue` and verify the note count badge, preview banner, and read-only notes modal appear.
 - **RIM Append-Only Protection**: Verify there are no edit or delete controls on historical notes and that profile edits preserve all existing notes.
 - **CSV Export**: Export customers to CSV and verify the `Notes History` column includes the full timestamped log.
+
+
+
+## Scheduling & Appointment Management (v126 — Proposed)
+
+### Purpose
+Introduce a high-value Scheduling & Field Dispatch business function that bridges customer management, project tracking, and mobile invoicing. Enable solo operators and teams to schedule client appointments/jobs, view daily/weekly agendas on mobile, assign team members, and convert completed appointments directly into active projects or pre-filled invoices.
+
+### Proposed Architecture & Discovery Scope (Next Phase)
+- **Data Model (`schedules` / `appointments` collection):**
+  - `orgId`, `customerId`, `customerName`, `projectId` (optional link), `title`, `description`, `location`, `startAt`, `endAt`, `status` (`scheduled` | `in_progress` | `completed` | `cancelled`), `assignedMembers`, `reminderSent`, `createdAt`, `updatedAt`.
+- **Core Workflows to Finalize in Architecture Session:**
+  1. **Internal Dispatch & Mobile Agenda:** Responsive Calendar / Agenda view (`/schedule`) optimized for mobile field use with quick access to the linked Customer's append-only Notes Log and 1-tap navigation (`maps:` / `tel:`).
+  2. **1-Click Job-to-Project / Job-to-Invoice Conversion:** Convert a scheduled appointment into a time-tracked Project or directly into a pre-populated Invoice upon completion.
+  3. **Client Notifications & Reminders (Optional / Pro Tier):** Automated SMS/email appointment confirmations and day-before reminders leveraging existing Resend and SMS Cloud Functions infrastructure.
+  4. **Calendar Sync / `.ics` Feed:** Evaluating native in-app calendar vs. Google/Apple Calendar integration.
