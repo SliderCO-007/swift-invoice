@@ -62,6 +62,7 @@ exports.createConnectAccount = onCall({ enforceAppCheck: false }, async (request
         type: 'express',
         capabilities: {
           card_payments: { requested: true },
+          us_bank_account_ach_payments: { requested: true },
           transfers: { requested: true },
         },
       };
@@ -410,7 +411,19 @@ exports.createInvoicePaymentSession = onCall({ enforceAppCheck: false }, async (
 
 
     const currency = (invoiceData.currency || 'USD').toLowerCase();
-    const paymentMethodTypes = currency === 'usd' ? ['card', 'us_bank_account'] : ['card'];
+
+    // Check if the connected account has active ACH (us_bank_account_ach_payments) capability
+    let achEnabled = false;
+    if (currency === 'usd') {
+      try {
+        const connectedAccount = await stripe.accounts.retrieve(connectAccountId);
+        achEnabled = connectedAccount.capabilities?.us_bank_account_ach_payments === 'active';
+      } catch (acctErr) {
+        console.warn(`Could not verify capabilities for ${connectAccountId} (${acctErr.message}). Defaulting to card only.`);
+      }
+    }
+
+    const paymentMethodTypes = achEnabled ? ['card', 'us_bank_account'] : ['card'];
 
     const sessionParams = {
       payment_method_types: paymentMethodTypes,
@@ -437,7 +450,7 @@ exports.createInvoicePaymentSession = onCall({ enforceAppCheck: false }, async (
       cancel_url: cancelUrl,
     };
 
-    if (currency === 'usd') {
+    if (achEnabled) {
       sessionParams.payment_method_options = {
         us_bank_account: {
           financial_connections: {
@@ -447,9 +460,23 @@ exports.createInvoicePaymentSession = onCall({ enforceAppCheck: false }, async (
       };
     }
 
-    const session = await stripe.checkout.sessions.create(sessionParams, {
-      stripeAccount: connectAccountId,
-    });
+    let session;
+    try {
+      session = await stripe.checkout.sessions.create(sessionParams, {
+        stripeAccount: connectAccountId,
+      });
+    } catch (checkoutErr) {
+      if (achEnabled && checkoutErr.message && checkoutErr.message.includes('us_bank_account')) {
+        console.warn(`us_bank_account rejected by Stripe (${checkoutErr.message}). Falling back to card only.`);
+        sessionParams.payment_method_types = ['card'];
+        delete sessionParams.payment_method_options;
+        session = await stripe.checkout.sessions.create(sessionParams, {
+          stripeAccount: connectAccountId,
+        });
+      } else {
+        throw checkoutErr;
+      }
+    }
 
     return { url: session.url };
   } catch (error) {
