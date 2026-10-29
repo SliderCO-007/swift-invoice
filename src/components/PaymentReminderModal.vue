@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { format, isValid, differenceInCalendarDays, startOfToday } from 'date-fns'
 import useInvoices from '../composables/useInvoices'
+import { currentUser, userProfile } from '../composables/useAuth.js'
 
 const props = defineProps({
   modelValue: {
@@ -55,6 +56,16 @@ const companyName = computed(() => {
     props.invoice?.sender?.name ||
     props.settings?.company?.name ||
     'Our Team'
+  )
+})
+
+const replyToEmail = computed(() => {
+  return (
+    props.invoice?.sender?.email ||
+    props.settings?.company?.email ||
+    userProfile.value?.email ||
+    currentUser.value?.email ||
+    ''
   )
 })
 
@@ -168,6 +179,7 @@ const handleSendReminder = async () => {
       reminderCount: res.reminderCount ?? reminderCount.value + 1,
       lastReminderSentAt: res.lastReminderSentAt ? new Date(res.lastReminderSentAt) : new Date(),
       recipientEmail: cleanEmail,
+      sentTo: cleanEmail,
       message: res.message || `Payment reminder sent to ${cleanEmail}!`,
     })
     isOpen.value = false
@@ -276,6 +288,10 @@ const handleSendReminder = async () => {
             <div class="meta-row">
               <span class="meta-key">To:</span>
               <span class="meta-val">{{ recipientEmail }}</span>
+            </div>
+            <div v-if="replyToEmail" class="meta-row">
+              <span class="meta-key">Reply-To:</span>
+              <span class="meta-val text-teal-accent-2">{{ replyToEmail }}</span>
             </div>
             <div class="meta-row">
               <span class="meta-key">Subject:</span>

@@ -206,7 +206,11 @@ exports.sendPaymentReminder = onCall({ enforceAppCheck: false }, async (request)
       userData.name ||
       "Your Service Provider";
     const replyToEmail =
-      invoiceData.sender?.email || settings.company?.email || userData.email || undefined;
+      invoiceData.sender?.email ||
+      settings.company?.email ||
+      userData.email ||
+      auth.token?.email ||
+      undefined;
 
     const currency = invoiceData.currency || settings.currency || "USD";
     const totalAmount = calculateInvoiceTotal(invoiceData);
