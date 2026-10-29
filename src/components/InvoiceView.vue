@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { format, isValid, isBefore, startOfToday, differenceInCalendarDays } from 'date-fns'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 import { httpsCallable } from 'firebase/functions'
@@ -15,6 +16,7 @@ import InvoiceTemplate3 from './InvoiceTemplate3.vue'
 import InvoiceTemplate4 from './InvoiceTemplate4.vue'
 import InvoiceTemplate5 from './InvoiceTemplate5.vue'
 import InvoiceTemplate6 from './InvoiceTemplate6.vue'
+import PaymentReminderModal from './PaymentReminderModal.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -705,8 +707,16 @@ const safeInvoice = computed(() => {
 
   const total = postDiscountSubtotal + taxAmount
 
-  let status = invoice.value.status || ''
-  status = status.charAt(0).toUpperCase() + status.slice(1)
+  const rawStatus = (invoice.value.status || 'pending').toLowerCase()
+  let status = rawStatus.charAt(0).toUpperCase() + rawStatus.slice(1)
+  if (rawStatus === 'pending' || rawStatus === 'sent' || rawStatus === 'overdue') {
+    const dueDateObj = invoice.value.dueDate?.toDate ? invoice.value.dueDate.toDate() : new Date(invoice.value.dueDate)
+    if (rawStatus === 'overdue' || (isValid(dueDateObj) && isBefore(dueDateObj, startOfToday()))) {
+      status = 'Overdue'
+    } else {
+      status = 'Pending'
+    }
+  }
 
   return {
     ...invoice.value,
@@ -717,6 +727,33 @@ const safeInvoice = computed(() => {
     status,
   }
 })
+
+const reminderModalOpen = ref(false)
+
+const isOverdue = computed(() => safeInvoice.value?.status === 'Overdue')
+
+const daysOverdue = computed(() => {
+  if (!invoice.value?.dueDate) return 0
+  const dueDateObj = invoice.value.dueDate?.toDate ? invoice.value.dueDate.toDate() : new Date(invoice.value.dueDate)
+  if (!isValid(dueDateObj)) return 0
+  return Math.max(0, differenceInCalendarDays(startOfToday(), dueDateObj))
+})
+
+const formattedLastReminder = computed(() => {
+  const raw = invoice.value?.lastReminderSentAt
+  if (!raw) return null
+  const d = raw?.toDate ? raw.toDate() : new Date(raw)
+  return isValid(d) ? format(d, "MMM d, yyyy 'at' h:mm a") : null
+})
+
+const handleReminderSent = (payload) => {
+  if (invoice.value) {
+    invoice.value.reminderCount = payload.reminderCount
+    invoice.value.lastReminderSentAt = payload.lastReminderSentAt
+  }
+  snackbarText.value = payload.message || 'Payment reminder sent!'
+  snackbar.value = true
+}
 </script>
 
 <template>
@@ -775,8 +812,67 @@ const safeInvoice = computed(() => {
           </v-btn>
         </div>
 
-        <div class="header-title-row">
+        <div class="header-title-row d-flex align-center flex-wrap ga-3">
           <h1 class="invoice-title">Invoice #{{ safeInvoice.invoiceNumber }}</h1>
+          <v-chip
+            v-if="safeInvoice.status === 'Overdue'"
+            color="red-darken-1"
+            variant="flat"
+            size="small"
+            class="font-weight-bold text-uppercase"
+            prepend-icon="mdi-alert-circle-outline"
+          >
+            Overdue{{ daysOverdue > 0 ? ` (${daysOverdue}d)` : '' }}
+          </v-chip>
+        </div>
+
+        <!-- Overdue Status & 1-Click Payment Reminder Banner -->
+        <div
+          v-if="isOwner && isOverdue && !isSampleInvoice"
+          class="overdue-reminder-banner no-print"
+          data-html2canvas-ignore="true"
+        >
+          <div class="overdue-banner-inner">
+            <div class="overdue-banner-body">
+              <div class="overdue-banner-icon">
+                <v-icon color="#f87171" size="24">mdi-bell-ring-outline</v-icon>
+              </div>
+              <div class="overdue-banner-text-col">
+                <div class="overdue-banner-title-row">
+                  <span class="overdue-banner-title">
+                    This Invoice is {{ daysOverdue > 0 ? `${daysOverdue} ${daysOverdue === 1 ? 'Day' : 'Days'} ` : '' }}Overdue
+                  </span>
+                  <span v-if="safeInvoice.reminderCount > 0" class="reminder-tracking-pill">
+                    <v-icon size="14" class="mr-1">mdi-check-all</v-icon>
+                    {{ safeInvoice.reminderCount }} {{ safeInvoice.reminderCount === 1 ? 'Reminder' : 'Reminders' }} Sent
+                  </span>
+                  <span v-else class="reminder-tracking-pill reminder-pill-unsent">
+                    No Reminders Sent Yet
+                  </span>
+                </div>
+                <p class="overdue-banner-desc">
+                  <template v-if="safeInvoice.reminderCount > 0 && formattedLastReminder">
+                    Last payment reminder was sent on <strong class="text-white">{{ formattedLastReminder }}</strong> to <strong class="text-white">{{ safeInvoice.client?.email || 'client' }}</strong>. You can send a follow-up reminder anytime.
+                  </template>
+                  <template v-else>
+                    Send a courteous, ready-to-go payment reminder email to <strong class="text-white">{{ safeInvoice.client?.name || 'your customer' }}</strong> with a 1-click online payment link.
+                  </template>
+                </p>
+              </div>
+            </div>
+            <div class="overdue-banner-actions">
+              <v-btn
+                @click="reminderModalOpen = true"
+                color="#ef4444"
+                size="large"
+                variant="flat"
+                class="text-white text-none font-weight-bold rounded-lg elevation-3 overdue-remind-cta-btn"
+                prepend-icon="mdi-bell-ring-outline"
+              >
+                {{ safeInvoice.reminderCount > 0 ? 'Send Follow-Up Reminder' : 'Send Payment Reminder' }}
+              </v-btn>
+            </div>
+          </div>
         </div>
 
         <div v-if="isOwner" class="header-controls-row">
@@ -849,7 +945,7 @@ const safeInvoice = computed(() => {
               Mark as Pending
             </v-btn>
             <v-btn
-              v-if="safeInvoice.status === 'Pending'"
+              v-if="safeInvoice.status === 'Pending' || safeInvoice.status === 'Overdue'"
               @click="confirmDialog = true"
               color="green"
               large
@@ -857,6 +953,16 @@ const safeInvoice = computed(() => {
               prepend-icon="mdi-check-circle"
             >
               Mark as Paid
+            </v-btn>
+            <v-btn
+              v-if="safeInvoice.status === 'Overdue'"
+              @click="reminderModalOpen = true"
+              color="#ef4444"
+              large
+              class="mr-4 text-white font-weight-bold"
+              prepend-icon="mdi-bell-ring-outline"
+            >
+              Send Reminder
             </v-btn>
             <v-btn
               @click="downloadPDF"
@@ -1167,6 +1273,14 @@ const safeInvoice = computed(() => {
         </div>
       </v-card>
     </v-dialog>
+
+    <!-- One-Click Overdue Payment Reminder Modal -->
+    <PaymentReminderModal
+      v-model="reminderModalOpen"
+      :invoice="safeInvoice"
+      :settings="settings"
+      @sent="handleReminderSent"
+    />
   </div>
 </template>
 
@@ -1614,6 +1728,119 @@ const safeInvoice = computed(() => {
   .celebration-btn {
     padding: 10px 12px !important;
     font-size: 0.88rem !important;
+  }
+}
+
+/* Overdue Payment Reminder Banner Styles */
+.overdue-reminder-banner {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.16) 0%, rgba(245, 158, 11, 0.08) 100%);
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 10px 30px rgba(239, 68, 68, 0.15);
+  backdrop-filter: blur(12px);
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.overdue-banner-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+
+.overdue-banner-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.overdue-banner-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.overdue-banner-text-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.overdue-banner-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 0.35rem;
+}
+
+.overdue-banner-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.35;
+}
+
+.reminder-tracking-pill {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(245, 158, 11, 0.18);
+  color: #fcd34d;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+
+.reminder-pill-unsent {
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.overdue-banner-desc {
+  font-size: 0.9rem;
+  color: #e2e8f0;
+  line-height: 1.5;
+  margin: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.overdue-banner-actions {
+  flex-shrink: 0;
+}
+
+.overdue-remind-cta-btn {
+  padding: 0 1.4rem !important;
+  min-height: 46px;
+}
+
+@media (max-width: 768px) {
+  .overdue-reminder-banner {
+    padding: 1rem;
+  }
+  .overdue-banner-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  .overdue-banner-actions {
+    width: 100%;
+  }
+  .overdue-remind-cta-btn {
+    width: 100%;
   }
 }
 </style>

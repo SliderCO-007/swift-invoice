@@ -335,11 +335,49 @@ exports.getInvoiceForPayment = onCall({ enforceAppCheck: false }, async (request
 
     const invoiceData = invoiceDoc.data();
     
-    // Calculate total
-    const subtotal = (invoiceData.items || []).reduce((acc, item) => acc + (item.quantity || 0) * (item.price || 0), 0);
+    // Calculate total (accounting for discounts and per-item taxability)
+    const items = Array.isArray(invoiceData.items) ? invoiceData.items : [];
+    const subtotal = items.reduce((acc, item) => acc + (item.quantity || 0) * (item.price || 0), 0);
+    const taxableSubtotal = items.reduce((acc, item) => {
+      const isTaxable = item.taxable !== false;
+      return acc + (isTaxable ? (item.quantity || 0) * (item.price || 0) : 0);
+    }, 0);
+    let discountAmount = 0;
+    if (invoiceData.discount) {
+      discountAmount = invoiceData.discountType === 'percentage'
+        ? subtotal * (Number(invoiceData.discount) / 100)
+        : Number(invoiceData.discount);
+    }
+    const postDiscountSubtotal = subtotal - discountAmount;
     const taxRate = Number(invoiceData.taxRate) || 0;
-    const taxAmount = subtotal * (taxRate / 100);
-    const totalAmount = subtotal + taxAmount;
+    let taxAmount = 0;
+    if (taxRate > 0 && subtotal > 0) {
+      const ratio = taxableSubtotal / subtotal;
+      const postDiscountTaxableSubtotal = taxableSubtotal - (discountAmount * ratio);
+      taxAmount = Math.max(0, postDiscountTaxableSubtotal) * (taxRate / 100);
+    }
+    const totalAmount = Math.max(0, postDiscountSubtotal + taxAmount);
+
+    // Derive dynamic overdue status if invoice is pending/sent and dueDate is before today
+    let derivedStatus = invoiceData.status || 'pending';
+    const rawStatus = derivedStatus.toLowerCase();
+    if (rawStatus === 'pending' || rawStatus === 'sent') {
+      const rawDue = invoiceData.dueDate;
+      let dueObj = null;
+      if (rawDue) {
+        if (typeof rawDue.toDate === 'function') dueObj = rawDue.toDate();
+        else if (rawDue._seconds !== undefined) dueObj = new Date(rawDue._seconds * 1000);
+        else if (rawDue.seconds !== undefined) dueObj = new Date(rawDue.seconds * 1000);
+        else dueObj = new Date(rawDue);
+      }
+      if (dueObj && !isNaN(dueObj.getTime())) {
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+        if (dueObj < startOfToday) {
+          derivedStatus = 'overdue';
+        }
+      }
+    }
 
     // Get merchant's connect account ID
     const userDoc = await db.collection('users').doc(invoiceData.userId).get();
@@ -351,7 +389,7 @@ exports.getInvoiceForPayment = onCall({ enforceAppCheck: false }, async (request
     return {
       id: invoiceDoc.id,
       invoiceNumber: invoiceData.invoiceNumber,
-      status: invoiceData.status,
+      status: derivedStatus,
       totalAmount: totalAmount,
       currency: invoiceData.currency || 'USD',
       clientName: invoiceData.client?.name || 'Client',

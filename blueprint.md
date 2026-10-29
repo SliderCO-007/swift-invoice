@@ -2984,3 +2984,45 @@ Introduce a high-value Scheduling & Field Dispatch business function that bridge
   2. **1-Click Job-to-Project / Job-to-Invoice Conversion:** Convert a scheduled appointment into a time-tracked Project or directly into a pre-populated Invoice upon completion.
   3. **Client Notifications & Reminders (Optional / Pro Tier):** Automated SMS/email appointment confirmations and day-before reminders leveraging existing Resend and SMS Cloud Functions infrastructure.
   4. **Calendar Sync / `.ics` Feed:** Evaluating native in-app calendar vs. Google/Apple Calendar integration.
+
+
+
+## Overdue Invoice Status & One-Click Payment Reminders (v126)
+
+### Purpose
+Ensure invoices whose due date has passed dynamically display an `Overdue` status across both the owner's views (`InvoiceView.vue`, all 6 invoice templates, `InvoiceEditor.vue` preview) and the customer-facing payment portal (`PublicPayment.vue` at `/pay/:invoiceId`), matching the dashboard (`InvoiceTable.vue`). Empower organization owners to send one-click payment reminder emails with executive-grade default copy (and optional customization), while tracking `reminderCount` and `lastReminderSentAt` on the invoice.
+
+### Proposed Changes
+
+#### [NEW] [functions/paymentReminder.js](file:///C:/Users/curth/git/swift-invoice/functions/paymentReminder.js)
+- Implement callable Cloud Function `sendPaymentReminder` using the existing Resend transactional email service.
+- Verify authentication and invoice ownership (`userId` / `orgId`).
+- Render a dark-themed HTML payment reminder email featuring an `Overdue Notice` badge, the owner's polite message, an itemized summary box (Invoice #, Due Date, Amount Due), and a prominent **"Pay Invoice Online Now →"** button (`https://scangoinvoice.com/pay/${invoiceId}`).
+- Increment `reminderCount` (`FieldValue.increment(1)`), record `lastReminderSentAt` (`FieldValue.serverTimestamp()`), and append to `reminderHistory` on `invoices/{invoiceId}`.
+
+#### [MODIFY] [functions/index.js](file:///C:/Users/curth/git/swift-invoice/functions/index.js)
+- Export `sendPaymentReminder` from `./paymentReminder`.
+
+#### [MODIFY] [functions/stripeConnect.js](file:///C:/Users/curth/git/swift-invoice/functions/stripeConnect.js)
+- Update `getInvoiceForPayment` to compute dynamic `overdue` status when `status` is `pending` or `sent` and `dueDate` is past due, and compute accurate total including line-item taxability and discounts.
+
+#### [MODIFY] [src/composables/useInvoices.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useInvoices.js)
+- Normalize `lastReminderSentAt` (converting Firestore Timestamps to `Date`) and `reminderCount` on invoice listeners and `getInvoice`.
+- Expose `sendPaymentReminder({ invoiceId, recipientEmail, subject, message })` calling the `sendPaymentReminder` Cloud Function.
+
+#### [NEW] [src/components/PaymentReminderModal.vue](file:///C:/Users/curth/git/swift-invoice/src/components/PaymentReminderModal.vue)
+- Reusable glassmorphic confirmation modal (Option A) pre-filled with a polite, professional overdue reminder message and subject line interpolating client name, invoice number, total due, due date, and company name.
+- Display a reminder history banner when `reminderCount > 0` showing how many reminders have been sent and when the last one was sent.
+- Provide a 1-click **Send Payment Reminder** primary CTA alongside a **Customize Message** toggle (with a **Reset to Default** option).
+
+#### [MODIFY] [src/components/InvoiceView.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceView.vue)
+- Dynamically compute `Overdue` status in `safeInvoice` when `status` is `pending`, `sent`, or `overdue` and `dueDate < startOfToday()`.
+- Allow `Mark as Paid` for both `Pending` and `Overdue` invoices.
+- Render an Overdue Status & Reminder Tracking banner for the owner with days overdue, `reminderCount`, `lastReminderSentAt`, and a 1-click **Send Payment Reminder** button.
+
+#### [MODIFY] [src/components/InvoiceTable.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceTable.vue) & [src/components/Dashboard.vue](file:///C:/Users/curth/git/swift-invoice/src/components/Dashboard.vue)
+- Display reminder count and last sent date alongside `Overdue` invoices on desktop and mobile views.
+- Add a **Remind** button for overdue invoices to open `PaymentReminderModal.vue` directly from the dashboard.
+
+#### [MODIFY] [src/components/PublicPayment.vue](file:///C:/Users/curth/git/swift-invoice/src/components/PublicPayment.vue)
+- Derive `displayStatus` dynamically so past-due unpaid invoices display an urgent red `OVERDUE` badge on the customer-facing payment page.

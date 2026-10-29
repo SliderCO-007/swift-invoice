@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { format, isValid, isBefore, startOfToday } from 'date-fns';
 import useUserSettings from '../composables/useUserSettings';
+import PaymentReminderModal from './PaymentReminderModal.vue';
 
 const props = defineProps({
   invoices: {
@@ -18,6 +19,20 @@ const emit = defineEmits(['delete-invoice', 'edit-invoice']);
 const router = useRouter();
 
 const expandedRows = ref([]);
+const reminderModalOpen = ref(false);
+const selectedReminderInvoice = ref(null);
+const reminderSnackbar = ref(false);
+const reminderSnackbarText = ref('');
+
+const openReminderModal = (invoice) => {
+  selectedReminderInvoice.value = invoice;
+  reminderModalOpen.value = true;
+};
+
+const handleReminderSent = (payload) => {
+  reminderSnackbarText.value = `Payment reminder #${payload.reminderCount} sent to ${payload.sentTo}`;
+  reminderSnackbar.value = true;
+};
 
 const toggleRow = (id) => {
   const index = expandedRows.value.indexOf(id);
@@ -37,9 +52,14 @@ const statusOrder = {
 };
 
 const getInvoiceStatus = (invoice) => {
-  if (invoice.status.toLowerCase() === 'paid') return 'Paid';
-  const dueDate = invoice.dueDate?.toDate ? invoice.dueDate.toDate() : new Date(invoice.dueDate);
-  if (isValid(dueDate) && isBefore(dueDate, startOfToday())) return 'Overdue';
+  const raw = (invoice.status || 'pending').toLowerCase();
+  if (raw === 'paid') return 'Paid';
+  if (raw === 'overdue') return 'Overdue';
+  if (raw === 'pending' || raw === 'sent') {
+    const dueDate = invoice.dueDate?.toDate ? invoice.dueDate.toDate() : new Date(invoice.dueDate);
+    if (isValid(dueDate) && isBefore(dueDate, startOfToday())) return 'Overdue';
+    return 'Pending';
+  }
   return invoice.status || 'Pending';
 };
 
@@ -64,6 +84,12 @@ const formatDate = (timestamp) => {
   if (!timestamp) return 'N/A';
   const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
   return isValid(date) ? format(date, 'MMM d, yyyy') : 'N/A';
+};
+
+const formatShortDate = (timestamp) => {
+  if (!timestamp) return '';
+  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+  return isValid(date) ? format(date, 'MMM d') : '';
 };
 
 const formatCurrency = (value) => new Intl.NumberFormat(undefined, { style: 'currency', currency: settings.value.currency || 'USD' }).format(value || 0);
@@ -158,12 +184,34 @@ const exportToCSV = () => {
               <td>{{ formatDate(invoice.dueDate) }}</td>
               <td class="font-weight-bold">{{ formatCurrency(invoice.total) }}</td>
               <td>
-                <v-chip :color="getStatusColor(invoice.status)" size="small" text-color="white" label class="text-capitalize font-weight-medium">
-                  {{ invoice.status }}
-                </v-chip>
+                <div class="d-flex flex-column align-start ga-1">
+                  <v-chip :color="getStatusColor(invoice.status)" size="small" text-color="white" label class="text-capitalize font-weight-medium">
+                    {{ invoice.status }}
+                  </v-chip>
+                  <span
+                    v-if="invoice.status === 'Overdue' && invoice.reminderCount > 0"
+                    class="reminder-meta-pill"
+                    :title="`Last reminder sent ${formatDate(invoice.lastReminderSentAt)}`"
+                  >
+                    <v-icon size="11" class="mr-1">mdi-bell-check-outline</v-icon>
+                    {{ invoice.reminderCount }}x • {{ formatShortDate(invoice.lastReminderSentAt) }}
+                  </span>
+                </div>
               </td>
               <td class="text-right">
                 <div class="d-flex justify-end align-center">
+                  <v-btn
+                    v-if="invoice.status === 'Overdue'"
+                    size="small"
+                    color="#ef4444"
+                    variant="tonal"
+                    prepend-icon="mdi-bell-ring-outline"
+                    @click="openReminderModal(invoice)"
+                    class="mr-2 rounded-lg text-capitalize font-weight-bold"
+                    title="Send One-Click Overdue Payment Reminder"
+                  >
+                    Remind
+                  </v-btn>
                   <v-btn size="small" color="primary" variant="flat" @click="$emit('edit-invoice', invoice.id)" class="mr-2 rounded-lg text-capitalize">
                     Edit
                   </v-btn>
@@ -226,8 +274,30 @@ const exportToCSV = () => {
                   <span class="detail-label">Due Date</span>
                   <span class="detail-value font-weight-bold">{{ formatDate(invoice.dueDate) }}</span>
                 </div>
+                <div v-if="invoice.status === 'Overdue'" class="detail-field" style="grid-column: span 2;">
+                  <span class="detail-label">Payment Reminders</span>
+                  <span class="detail-value">
+                    <template v-if="invoice.reminderCount > 0">
+                      {{ invoice.reminderCount }} sent • Last on {{ formatDate(invoice.lastReminderSentAt) }}
+                    </template>
+                    <template v-else>
+                      No reminders sent yet
+                    </template>
+                  </span>
+                </div>
               </div>
-              <div class="action-buttons d-flex justify-end ga-2">
+              <div class="action-buttons d-flex justify-end flex-wrap ga-2">
+                <v-btn
+                  v-if="invoice.status === 'Overdue'"
+                  size="small"
+                  color="#ef4444"
+                  variant="flat"
+                  prepend-icon="mdi-bell-ring-outline"
+                  class="text-capitalize rounded-lg font-weight-bold"
+                  @click="openReminderModal(invoice)"
+                >
+                  Remind
+                </v-btn>
                 <v-btn size="small" color="primary" variant="flat" class="text-capitalize rounded-lg" @click="$emit('edit-invoice', invoice.id)">
                   View / Edit
                 </v-btn>
@@ -240,12 +310,42 @@ const exportToCSV = () => {
         </div>
       </div>
     </div>
+
+    <!-- Payment Reminder Confirmation & Customization Modal -->
+    <PaymentReminderModal
+      v-model="reminderModalOpen"
+      :invoice="selectedReminderInvoice"
+      :settings="settings"
+      @sent="handleReminderSent"
+    />
+
+    <v-snackbar v-model="reminderSnackbar" :timeout="4000" color="primary" location="top right">
+      {{ reminderSnackbarText }}
+    </v-snackbar>
   </div>
 </template>
 
 <style scoped>
 .invoice-list-container {
   margin-top: 1rem;
+}
+
+.reminder-meta-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 999px;
+  padding: 1px 7px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.ga-1 {
+  gap: 0.25rem;
 }
 
 .table-header-row {

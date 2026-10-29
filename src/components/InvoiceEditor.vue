@@ -13,7 +13,7 @@ import InvoiceTemplate3 from './InvoiceTemplate3.vue';
 import InvoiceTemplate4 from './InvoiceTemplate4.vue';
 import InvoiceTemplate5 from './InvoiceTemplate5.vue';
 import InvoiceTemplate6 from './InvoiceTemplate6.vue';
-import { format } from 'date-fns';
+import { format, isValid, isBefore, startOfToday } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import Logo from './Logo.vue';
 import UpgradeModal from './UpgradeModal.vue';
@@ -121,6 +121,18 @@ const taxAmount = computed(() => {
   return Math.max(0, postDiscountTaxableSubtotal) * (rate / 100);
 });
 const total = computed(() => subtotal.value - discountAmount.value + taxAmount.value);
+const previewStatus = computed(() => {
+  const raw = (invoice.value.status || 'pending').toLowerCase();
+  if (raw === 'paid') return 'Paid';
+  if (raw === 'pending' || raw === 'sent' || raw === 'overdue') {
+    const dueObj = invoice.value.dueDate ? new Date(invoice.value.dueDate) : null;
+    if (raw === 'overdue' || (dueObj && isValid(dueObj) && isBefore(dueObj, startOfToday()))) {
+      return 'Overdue';
+    }
+    return 'Pending';
+  }
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
+});
 const itemDescriptions = computed(() => items.value.filter(i => i.type !== 'expense-category' && i.description).map(i => i.description));
 
 // --- Methods ---
@@ -662,12 +674,12 @@ onUnmounted(() => {
         </div>
 
         <div class="preview-content">
-          <InvoiceTemplate v-if="invoice.style === 'classic'" :invoice="{...invoice, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
-          <InvoiceTemplate2 v-else-if="invoice.style === 'modern'" :invoice="{...invoice, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
-          <InvoiceTemplate3 v-else-if="invoice.style === 'corporate'" :invoice="{...invoice, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
-          <InvoiceTemplate4 v-else-if="invoice.style === 'solid'" :invoice="{...invoice, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
-          <InvoiceTemplate5 v-else-if="invoice.style === 'creative'" :invoice="{...invoice, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
-          <InvoiceTemplate6 v-else-if="invoice.style === 'tech'" :invoice="{...invoice, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
+          <InvoiceTemplate v-if="invoice.style === 'classic'" :invoice="{...invoice, status: previewStatus, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
+          <InvoiceTemplate2 v-else-if="invoice.style === 'modern'" :invoice="{...invoice, status: previewStatus, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
+          <InvoiceTemplate3 v-else-if="invoice.style === 'corporate'" :invoice="{...invoice, status: previewStatus, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
+          <InvoiceTemplate4 v-else-if="invoice.style === 'solid'" :invoice="{...invoice, status: previewStatus, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
+          <InvoiceTemplate5 v-else-if="invoice.style === 'creative'" :invoice="{...invoice, status: previewStatus, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
+          <InvoiceTemplate6 v-else-if="invoice.style === 'tech'" :invoice="{...invoice, status: previewStatus, invoiceNumber: invoice.invoiceNumber || '000001', subtotal, discountAmount, taxAmount, total}" :settings="settings" />
         </div>
       </v-card>
     </v-dialog>

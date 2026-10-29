@@ -2,7 +2,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import useStripeConnect from '../composables/useStripeConnect';
-import { format } from 'date-fns';
+import { format, isValid, isBefore, startOfToday } from 'date-fns';
 
 const route = useRoute();
 const { getInvoiceForPayment, createPaymentSession, loading: stripeLoading } = useStripeConnect();
@@ -35,25 +35,33 @@ const formattedTotal = computed(() => {
   }).format(invoice.value.totalAmount);
 });
 
+const parseDueDate = (dueDate) => {
+  if (!dueDate) return null;
+  if (typeof dueDate.toDate === 'function') return dueDate.toDate();
+  if (dueDate._seconds !== undefined) return new Date(dueDate._seconds * 1000);
+  if (dueDate.seconds !== undefined) return new Date(dueDate.seconds * 1000);
+  return new Date(dueDate);
+};
+
 const formattedDueDate = computed(() => {
   if (!invoice.value || !invoice.value.dueDate) return '';
-  
-  let dateObj;
-  const dueDate = invoice.value.dueDate;
-  
-  // Handle Firestore Timestamp object (if returned raw from functions)
-  if (dueDate._seconds !== undefined) {
-    dateObj = new Date(dueDate._seconds * 1000);
-  } else if (dueDate.seconds !== undefined) {
-    dateObj = new Date(dueDate.seconds * 1000);
-  } else {
-    dateObj = new Date(dueDate);
-  }
-  
-  // Prevent Invalid time value error
-  if (isNaN(dateObj.getTime())) return 'Invalid Date';
-  
+  const dateObj = parseDueDate(invoice.value.dueDate);
+  if (!dateObj || isNaN(dateObj.getTime())) return 'Invalid Date';
   return format(dateObj, 'MMM dd, yyyy');
+});
+
+const displayStatus = computed(() => {
+  if (!invoice.value) return 'Pending';
+  const raw = (invoice.value.status || 'pending').toLowerCase();
+  if (raw === 'paid') return 'Paid';
+  if (raw === 'pending' || raw === 'sent' || raw === 'overdue') {
+    const dueObj = parseDueDate(invoice.value.dueDate);
+    if (raw === 'overdue' || (dueObj && isValid(dueObj) && isBefore(dueObj, startOfToday()))) {
+      return 'Overdue';
+    }
+    return 'Pending';
+  }
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
 });
 
 const handlePay = async () => {
@@ -93,8 +101,8 @@ const handlePay = async () => {
         <div class="details-grid">
           <div class="detail-item">
             <span class="label">Status</span>
-            <span class="value status-badge" :class="invoice.status.toLowerCase()">
-              {{ invoice.status.toUpperCase() }}
+            <span class="value status-badge" :class="displayStatus.toLowerCase()">
+              {{ displayStatus.toUpperCase() }}
             </span>
           </div>
           <div class="detail-item" v-if="invoice.dueDate">
@@ -289,6 +297,12 @@ const handlePay = async () => {
 .status-badge.pending, .status-badge.sent {
   background: #fef9c3;
   color: #854d0e;
+}
+
+.status-badge.overdue {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
 }
 
 .action-section {

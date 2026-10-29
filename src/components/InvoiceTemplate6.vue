@@ -98,7 +98,11 @@ const primaryRgb = computed(() => {
             * Upload custom logo in <router-link to="/settings">Settings</router-link>
           </p>
         </div>
-        <div class="tech-sys-status" :style="{ color: `rgba(${primaryRgb}, 0.7)` }">
+        <div
+          class="tech-sys-status"
+          :class="{ 'tech-status-overdue': invoice.status && invoice.status.toLowerCase() === 'overdue' }"
+          :style="{ color: invoice.status && invoice.status.toLowerCase() === 'overdue' ? '#dc2626' : `rgba(${primaryRgb}, 0.7)` }"
+        >
           <span>[ STATUS ]   : {{ invoice.status.toUpperCase() }}</span>
         </div>
       </div>
@@ -290,6 +294,16 @@ const primaryRgb = computed(() => {
   font-family: 'Share Tech Mono', monospace;
   font-size: 0.72em;
   letter-spacing: 0.5px;
+}
+
+.tech-status-overdue {
+  font-weight: 700;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  display: inline-flex;
+  align-self: flex-start;
 }
 
 .meta-grid-table {

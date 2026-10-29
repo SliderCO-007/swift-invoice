@@ -80,6 +80,8 @@ const setupInvoiceListener = (orgId) => {
         issueDate: data.issueDate?.toDate(),
         dueDate: data.dueDate?.toDate(),
         paidAt: data.paidAt?.toDate(),
+        lastReminderSentAt: data.lastReminderSentAt?.toDate ? data.lastReminderSentAt.toDate() : (data.lastReminderSentAt ? new Date(data.lastReminderSentAt) : null),
+        reminderCount: data.reminderCount || 0,
         total: calculateTotal(data),
       };
     });
@@ -123,6 +125,8 @@ const useInvoices = () => {
             issueDate: data.issueDate?.toDate(),
             dueDate: data.dueDate?.toDate(),
             paidAt: data.paidAt?.toDate(),
+            lastReminderSentAt: data.lastReminderSentAt?.toDate ? data.lastReminderSentAt.toDate() : (data.lastReminderSentAt ? new Date(data.lastReminderSentAt) : null),
+            reminderCount: data.reminderCount || 0,
           };
         }
       }
@@ -357,7 +361,19 @@ const useInvoices = () => {
     }
   };
 
-  return { invoices, loading, error, getInvoice, createInvoice, updateInvoice, deleteInvoice, updateInvoiceStatus, sendInvoiceSms, getSmsLogs };
+  const sendPaymentReminder = async ({ invoiceId, recipientEmail, subject, message }) => {
+    error.value = null;
+    try {
+      const sendReminderFn = httpsCallable(functions, 'sendPaymentReminder');
+      const response = await sendReminderFn({ invoiceId, recipientEmail, subject, message });
+      return response.data;
+    } catch (err) {
+      console.error('Error sending payment reminder:', err);
+      throw err;
+    }
+  };
+
+  return { invoices, loading, error, getInvoice, createInvoice, updateInvoice, deleteInvoice, updateInvoiceStatus, sendInvoiceSms, getSmsLogs, sendPaymentReminder };
 };
 
 export default useInvoices;
