@@ -3026,3 +3026,6 @@ Ensure invoices whose due date has passed dynamically display an `Overdue` statu
 
 #### [MODIFY] [src/components/PublicPayment.vue](file:///C:/Users/curth/git/swift-invoice/src/components/PublicPayment.vue)
 - Derive `displayStatus` dynamically so past-due unpaid invoices display an urgent red `OVERDUE` badge on the customer-facing payment page.
+
+#### [MODIFY] [src/components/PricingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/PricingPage.vue)
+- Add **"One-click overdue payment reminders"** as an included feature in the **Communication** / **Communication & Automation** section across all three pricing tiers (Free, Monthly, and Yearly Pro).

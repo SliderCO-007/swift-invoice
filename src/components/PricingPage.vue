@@ -162,6 +162,10 @@ onMounted(() => {
                 <v-icon size="18" color="success">mdi-check-circle</v-icon>
                 <span>Text-2-Pay SMS invoicing</span>
               </div>
+              <div class="feature-item">
+                <v-icon size="18" color="success">mdi-check-circle</v-icon>
+                <span>One-click overdue payment reminders</span>
+              </div>
               <div class="feature-item muted">
                 <v-icon size="18" color="rgba(255,255,255,0.2)">mdi-close-circle</v-icon>
                 <span>Automated payment reminders</span>
@@ -282,6 +286,10 @@ onMounted(() => {
               <div class="feature-item highlight-feature">
                 <v-icon size="18" color="teal-accent-4">mdi-cellphone-text</v-icon>
                 <span><strong>Text-2-Pay SMS invoicing</strong> &amp; receipts</span>
+              </div>
+              <div class="feature-item highlight-feature">
+                <v-icon size="18" color="primary">mdi-check-circle</v-icon>
+                <span><strong>One-click overdue payment reminders</strong></span>
               </div>
               <div class="feature-item highlight-feature">
                 <v-icon size="18" color="amber-accent-3">mdi-bell-ring-outline</v-icon>
@@ -411,6 +419,10 @@ onMounted(() => {
               <div class="feature-item highlight-feature">
                 <v-icon size="18" color="teal-accent-4">mdi-cellphone-text</v-icon>
                 <span><strong>Text-2-Pay SMS invoicing</strong> &amp; receipts</span>
+              </div>
+              <div class="feature-item highlight-feature">
+                <v-icon size="18" color="primary">mdi-email-fast-outline</v-icon>
+                <span><strong>One-click overdue payment reminders</strong></span>
               </div>
               <div class="feature-item highlight-feature">
                 <v-icon size="18" color="amber-accent-3">mdi-bell-ring-outline</v-icon>
