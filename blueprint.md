@@ -3029,3 +3029,16 @@ Ensure invoices whose due date has passed dynamically display an `Overdue` statu
 
 #### [MODIFY] [src/components/PricingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/PricingPage.vue)
 - Add **"One-click overdue payment reminders"** as an included feature in the **Communication** / **Communication & Automation** section across all three pricing tiers (Free, Monthly, and Yearly Pro).
+
+
+## Stripe Sample Guide Desktop Layout Refinement (v127)
+
+### Purpose
+Eliminate the duplicate `<Logo />` in the hero card of `/stripe-setup-guide` (`StripeSampleGuide.vue`) and resolve desktop layout squeezing in the CTA footer and checkout preview strip.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/StripeSampleGuide.vue](file:///C:/Users/curth/git/swift-invoice/src/components/StripeSampleGuide.vue)
+- Remove the duplicate `<Logo />` from `.hero-header-row` (since `<AppBar />` already displays the brand logo on desktop and mobile).
+- Stack `.cta-actions-wrap` vertically (`flex-direction: column; align-items: stretch`) so `.cta-text-col` and `<StripeTrustBadge />` span the full width of `.cta-footer-box` without being squeezed by the side-by-side action buttons, while keeping `.cta-buttons-col` in a clean horizontal button row on desktop and full-width stacked on mobile (`<= 768px`).
+- Update `.checkout-preview-strip` and `.preview-step` (`flex: 1; min-width: 0`) so all 3 steps distribute evenly across a single horizontal row on desktop without orphaning Step 3, and align `.preview-arrow` visibility (`display: none` at `<= 768px`) with the responsive column breakpoint.

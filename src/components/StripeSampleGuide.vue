@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { currentUser, userProfile } from '../composables/useAuth.js';
 import { useMeta } from '../composables/useMeta.js';
-import Logo from './Logo.vue';
+
 import StripeTrustBadge from './StripeTrustBadge.vue';
 import useStripeConnect from '../composables/useStripeConnect.js';
 import useUserSettings from '../composables/useUserSettings.js';
@@ -99,9 +99,6 @@ const goToDashboard = () => {
       <!-- Hero Card -->
       <div class="glass-hero-card mb-8">
         <div class="hero-header-row">
-          <div class="logo-box">
-            <Logo />
-          </div>
           <v-chip color="teal-accent-3" variant="tonal" size="small" class="font-weight-bold">
             <v-icon start size="14">mdi-check-circle</v-icon>
             Test Drive Success!
@@ -126,7 +123,7 @@ const goToDashboard = () => {
               <div class="preview-step-sub">From PDF, Email, or SMS</div>
             </div>
           </div>
-          <v-icon color="grey-darken-1" class="d-none d-sm-flex">mdi-arrow-right</v-icon>
+          <v-icon color="grey-darken-1" class="preview-arrow">mdi-arrow-right</v-icon>
           <div class="preview-step">
             <div class="preview-icon-circle">
               <v-icon color="#818cf8" size="24">mdi-cellphone-check</v-icon>
@@ -136,7 +133,7 @@ const goToDashboard = () => {
               <div class="preview-step-sub">Apple Pay, Google Pay, Card, ACH</div>
             </div>
           </div>
-          <v-icon color="grey-darken-1" class="d-none d-sm-flex">mdi-arrow-right</v-icon>
+          <v-icon color="grey-darken-1" class="preview-arrow">mdi-arrow-right</v-icon>
           <div class="preview-step">
             <div class="preview-icon-circle">
               <v-icon color="#34d399" size="24">mdi-cash-fast</v-icon>
@@ -331,18 +328,23 @@ const goToDashboard = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.85rem;
   background: rgba(15, 23, 42, 0.65);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
   padding: 1.25rem 1.5rem;
-  flex-wrap: wrap;
 }
 
 .preview-step {
   display: flex;
   align-items: center;
   gap: 0.85rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.preview-arrow {
+  flex-shrink: 0;
 }
 
 .preview-icon-circle {
@@ -525,14 +527,13 @@ const goToDashboard = () => {
 
 .cta-actions-wrap {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1.25rem;
 }
 
 .cta-text-col {
-  flex: 1;
+  width: 100%;
   min-width: 0;
 }
 
@@ -553,7 +554,7 @@ const goToDashboard = () => {
 .cta-buttons-col {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.85rem;
   flex-wrap: wrap;
 }
 
@@ -603,9 +604,10 @@ const goToDashboard = () => {
     align-items: flex-start;
     padding: 1rem;
   }
+  .preview-arrow {
+    display: none !important;
+  }
   .cta-actions-wrap {
-    flex-direction: column;
-    align-items: stretch;
     gap: 1rem;
   }
   .cta-buttons-col {
