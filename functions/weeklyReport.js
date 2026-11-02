@@ -143,7 +143,7 @@ const buildWeeklyReportEmail = ({
         <div style="background: rgba(96, 165, 250, 0.08); border: 1px solid rgba(96, 165, 250, 0.2); border-radius: 8px; padding: 18px; text-align: left; margin: 16px 0 24px 0;">
           <p style="color: #60a5fa; font-size: 12px; font-weight: 700; margin: 0 0 6px 0; text-transform: uppercase; letter-spacing: 0.5px;">💡 Weekly Cash Flow Pro-Tip</p>
           <p style="color: #e2e8f0; font-size: 14px; line-height: 1.6; margin: 0;">
-            Businesses that invoice immediately upon job completion get paid on average <strong>14 days faster</strong> than those billing at the end of the month. Keep your revenue pipeline humming!
+            Invoices with clear, itemized line descriptions are <strong>3x less likely</strong> to be delayed by client questions. Adding brief project details and due dates upfront helps clients approve and pay faster!
           </p>
         </div>
 

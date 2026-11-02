@@ -41,6 +41,7 @@ const zeroActivityCandidate = {
 const zeroEmail = buildWeeklyReportEmail(zeroActivityCandidate);
 assert.strictEqual(zeroEmail.emailSubject, "Weekly Report: You're all caught up! 🎉", "Subject should be all caught up");
 assert(zeroEmail.emailHtml.includes("You're All Caught Up!"), "Body should contain all caught up header");
+assert(zeroEmail.emailHtml.includes("3x less likely"), "Body should contain the updated itemized line descriptions pro-tip");
 assert(zeroEmail.emailHtml.includes("PRO UPGRADE"), "Free tier user should receive Pro upsell banner");
 assert(!zeroEmail.emailHtml.includes("⭐ PRO SUBSCRIBER"), "Free tier user should not have Pro badge");
 console.log("✔ Test 2 Passed: Zero activity user receives 'All Caught Up' template and Pro upgrade banner.");

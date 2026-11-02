@@ -3042,3 +3042,18 @@ Eliminate the duplicate `<Logo />` in the hero card of `/stripe-setup-guide` (`S
 - Remove the duplicate `<Logo />` from `.hero-header-row` (since `<AppBar />` already displays the brand logo on desktop and mobile).
 - Stack `.cta-actions-wrap` vertically (`flex-direction: column; align-items: stretch`) so `.cta-text-col` and `<StripeTrustBadge />` span the full width of `.cta-footer-box` without being squeezed by the side-by-side action buttons, while keeping `.cta-buttons-col` in a clean horizontal button row on desktop and full-width stacked on mobile (`<= 768px`).
 - Update `.checkout-preview-strip` and `.preview-step` (`flex: 1; min-width: 0`) so all 3 steps distribute evenly across a single horizontal row on desktop without orphaning Step 3, and align `.preview-arrow` visibility (`display: none` at `<= 768px`) with the responsive column breakpoint.
+
+
+## Weekly Status Email "All Caught Up" Pro-Tip Update (v128)
+
+### Purpose
+Refresh the **💡 Weekly Cash Flow Pro-Tip** body copy in the "All Caught Up" weekly status and preview emails to emphasize itemized line descriptions for reducing payment delays.
+
+### Proposed Changes
+
+#### [MODIFY] [functions/weeklyReport.js](file:///C:/Users/curth/git/swift-invoice/functions/weeklyReport.js) & [functions/previewReport.js](file:///C:/Users/curth/git/swift-invoice/functions/previewReport.js)
+- Update the "💡 Weekly Cash Flow Pro-Tip" text in the zero-activity ("All Caught Up") section to:
+  `Invoices with clear, itemized line descriptions are <strong>3x less likely</strong> to be delayed by client questions. Adding brief project details and due dates upfront helps clients approve and pay faster!`
+
+#### [MODIFY] [scripts/test_weekly_report.cjs](file:///C:/Users/curth/git/swift-invoice/scripts/test_weekly_report.cjs)
+- Add assertion verifying the updated pro-tip text is rendered in the "All Caught Up" email template.
