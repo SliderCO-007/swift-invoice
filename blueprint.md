@@ -3057,3 +3057,46 @@ Refresh the **💡 Weekly Cash Flow Pro-Tip** body copy in the "All Caught Up" w
 
 #### [MODIFY] [scripts/test_weekly_report.cjs](file:///C:/Users/curth/git/swift-invoice/scripts/test_weekly_report.cjs)
 - Add assertion verifying the updated pro-tip text is rendered in the "All Caught Up" email template.
+
+
+
+## Voice-Powered Invoice Creation (v129)
+
+### Purpose
+Enable mobile-first and desktop users to create a new draft invoice in one shot using spoken natural language commands. The system captures speech via the browser's Web Speech API (`SpeechRecognition` / `webkitSpeechRecognition`), passes the transcript along with the user's existing Customers and Catalog Items context to a Firebase Cloud Function powered by Gemini (`GEMINI_API_KEY`), performs intelligent fuzzy matching against saved clients and catalog items (or populates a verbal best-guess match), and opens the populated Invoice Editor for review while enforcing the 3 invoices/month Free Starter limit.
+
+### Proposed Changes
+
+#### [NEW] [functions/parseVoiceInvoice.js](file:///C:/Users/curth/git/swift-invoice/functions/parseVoiceInvoice.js)
+- Implement callable Cloud Function `parseVoiceInvoice` using `defineString("GEMINI_API_KEY")`.
+- Accept `{ transcript, todayDate, customers, catalogItems }`, invoke Gemini with structured JSON schema output (`responseMimeType: "application/json"`), and return matched/extracted `matchedCustomerId`, `client`, `items`, `issueDate`, `dueDate`, `taxRate`, `discount`, `discountType`, `status`, and `notes`.
+- Include a server-side heuristic fallback parser if `GEMINI_API_KEY` is not yet configured.
+
+#### [MODIFY] [functions/index.js](file:///C:/Users/curth/git/swift-invoice/functions/index.js)
+- Export `parseVoiceInvoice` from `./parseVoiceInvoice`.
+
+#### [NEW] [src/composables/useVoiceInvoice.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useVoiceInvoice.js)
+- Manage Web Speech API (`SpeechRecognition` / `webkitSpeechRecognition`) lifecycle, live interim/final transcript state, microphone errors, and browser support detection.
+- Provide `parseVoiceCommand(transcript, { customers, items })` calling the `parseVoiceInvoice` Cloud Function with a resilient local NLP + fuzzy-match fallback for offline/dev resilience.
+
+#### [NEW] [src/components/VoiceInvoiceModal.vue](file:///C:/Users/curth/git/swift-invoice/src/components/VoiceInvoiceModal.vue)
+- Mobile-first glassmorphic dialog featuring a 72px pulsing microphone button, animated soundwave bars, tap-to-try sample voice prompts, and an editable transcript textarea.
+- Emit `@parsed` with the structured invoice payload to populate the Invoice Editor.
+
+#### [MODIFY] [src/components/InvoiceEditor.vue](file:///C:/Users/curth/git/swift-invoice/src/components/InvoiceEditor.vue)
+- Add a **"Voice Invoice"** button (`mdi-microphone`) in the editor header to launch `VoiceInvoiceModal.vue` directly inside `/invoice/new`.
+- Support `route.query.voice === 'true'` and `history.state.invoicePrefill` (including `matchedCustomerId`, `client`, `items`, `dueDate`, `issueDate`, `taxRate`, `discount`, `discountType`, `status`, and `notes`).
+- Render a dismissible AI Voice Prefill confirmation banner summarizing the matched client and populated line items for review.
+
+#### [MODIFY] [src/components/MobileBottomNav.vue](file:///C:/Users/curth/git/swift-invoice/src/components/MobileBottomNav.vue)
+- Add a **"Voice Invoice"** quick action tile (`mdi-microphone`) to the `+` Quick Actions sheet, enforcing `invoiceLimitReached` for Free Starter users.
+
+#### [MODIFY] [src/components/Dashboard.vue](file:///C:/Users/curth/git/swift-invoice/src/components/Dashboard.vue)
+- Add a **"Voice Invoice"** button (`mdi-microphone`) in the dashboard header / empty state and a desktop floating mic action button above the `+` FAB, enforcing `invoiceLimitReached` for Free Starter users.
+
+### Verification Plan
+- **Cloud Function Validation**: Verify `functions/parseVoiceInvoice.js` loads cleanly and handles both Gemini JSON extraction and fallback parsing.
+- **Voice Capture & Editable Transcript**: Open `VoiceInvoiceModal`, test mic capture / sample prompt / manual transcript editing, and verify structured output generation.
+- **Fuzzy Matching**: Speak an existing customer name (e.g., "John Smith") and catalog item description, and verify the customer autocomplete and item price auto-populate in `InvoiceEditor.vue`.
+- **Verbal Best-Guess**: Speak a brand-new client name and line items with quantities/rates, and verify `InvoiceEditor.vue` populates them for review.
+- **Free Tier Limit**: Verify that if a Free Starter user has reached 3 invoices in the current month, tapping "Voice Invoice" triggers `UpgradeModal`.

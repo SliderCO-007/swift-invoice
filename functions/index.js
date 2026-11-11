@@ -55,6 +55,9 @@ exports.sendPaymentReminder = paymentReminder.sendPaymentReminder;
 const monthlyReset = require("./monthlyReset");
 exports.resetMonthlyInvoiceCounts = monthlyReset.resetMonthlyInvoiceCounts;
 
+const parseVoiceInvoice = require("./parseVoiceInvoice");
+exports.parseVoiceInvoice = parseVoiceInvoice.parseVoiceInvoice;
+
 
 
 /**

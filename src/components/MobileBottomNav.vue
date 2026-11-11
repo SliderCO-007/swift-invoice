@@ -4,6 +4,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { currentUser, userProfile, useAuth } from '../composables/useAuth';
 import { useMobileNav } from '../composables/useMobileNav';
 import UpgradeModal from './UpgradeModal.vue';
+import VoiceInvoiceModal from './VoiceInvoiceModal.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -21,6 +22,7 @@ const {
 } = useMobileNav();
 
 const showLimitModal = ref(false);
+const showVoiceModal = ref(false);
 
 const isAuthenticated = computed(() => !!currentUser.value);
 const user = computed(() => currentUser.value);
@@ -60,6 +62,23 @@ const handleQuickNewInvoice = () => {
     return;
   }
   router.push('/invoice/new');
+};
+
+const handleQuickVoiceInvoice = () => {
+  closeQuickActions();
+  if (invoiceLimitReached.value) {
+    showLimitModal.value = true;
+    return;
+  }
+  showVoiceModal.value = true;
+};
+
+const handleVoiceParsed = (parsedPayload) => {
+  router.push({
+    path: '/invoice/new',
+    query: { voiceRun: String(Date.now()) },
+    state: { invoicePrefill: parsedPayload }
+  });
 };
 
 const handleQuickNewProject = () => {
@@ -165,6 +184,18 @@ const handleLogout = async () => {
         </div>
 
         <div class="quick-actions-grid">
+          <!-- Voice Invoice Tile -->
+          <button class="action-card" @click="handleQuickVoiceInvoice">
+            <div class="action-card-icon teal-gradient">
+              <v-icon icon="mdi-microphone" size="26" color="white"></v-icon>
+            </div>
+            <div class="action-card-info">
+              <span class="action-name">Voice Invoice</span>
+              <span class="action-desc">Speak to pre-fill client &amp; line items with AI</span>
+            </div>
+            <v-icon icon="mdi-chevron-right" size="20" class="action-chevron"></v-icon>
+          </button>
+
           <!-- New Invoice Tile -->
           <button class="action-card" @click="handleQuickNewInvoice">
             <div class="action-card-icon primary-gradient">
@@ -433,6 +464,7 @@ const handleLogout = async () => {
     </v-dialog>
 
     <UpgradeModal v-model="showLimitModal" />
+    <VoiceInvoiceModal v-model="showVoiceModal" @parsed="handleVoiceParsed" />
   </div>
 </template>
 
@@ -626,6 +658,10 @@ const handleLogout = async () => {
 
 .primary-gradient {
   background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+}
+
+.teal-gradient {
+  background: linear-gradient(135deg, #0d9488 0%, #0284c7 100%);
 }
 
 .emerald-gradient {

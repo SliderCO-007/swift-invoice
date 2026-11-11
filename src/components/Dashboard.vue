@@ -12,11 +12,13 @@ import UpgradePrompt from './UpgradePrompt.vue';
 import UpgradeModal from './UpgradeModal.vue';
 import DashboardChart from './DashboardChart.vue';
 import StripeTrustBadge from './StripeTrustBadge.vue';
+import VoiceInvoiceModal from './VoiceInvoiceModal.vue';
 
 const router = useRouter();
 const { mobile } = useDisplay();
 const activeTab = ref('invoices');
 const showLimitModal = ref(false);
+const showVoiceModal = ref(false);
 
 const { invoices, loading: invoicesLoading, error: invoicesError, deleteInvoice } = useInvoices();
 const { settings, loading: settingsLoading, error: settingsError } = useUserSettings();
@@ -114,6 +116,22 @@ const createNewInvoice = () => {
     return;
   }
   router.push('/invoice/new');
+};
+
+const openVoiceInvoice = () => {
+  if (invoiceLimitReached.value) {
+    showLimitModal.value = true;
+    return;
+  }
+  showVoiceModal.value = true;
+};
+
+const handleVoiceParsed = (parsedPayload) => {
+  router.push({
+    path: '/invoice/new',
+    query: { voiceRun: String(Date.now()) },
+    state: { invoicePrefill: parsedPayload }
+  });
 };
 
 const editInvoice = (invoiceId) => {
@@ -236,9 +254,22 @@ const totalOverdueRevenue = computed(() => {
           <h1 class="welcome-message">Your Invoices</h1>
           <p class="date-display">A summary of your recent invoices.</p>
         </div>
+        <div class="dashboard-header-actions">
+          <v-btn
+            @click="openVoiceInvoice"
+            color="#0d9488"
+            variant="flat"
+            rounded="lg"
+            prepend-icon="mdi-microphone"
+            class="text-white text-none font-weight-bold voice-dashboard-btn"
+          >
+            Voice Invoice
+          </v-btn>
+        </div>
       </header>
 
       <UpgradeModal v-model="showLimitModal" />
+      <VoiceInvoiceModal v-model="showVoiceModal" @parsed="handleVoiceParsed" />
 
       <v-alert
         v-if="invoiceLimitReached"
@@ -471,7 +502,22 @@ const totalOverdueRevenue = computed(() => {
   backdrop-filter: none !important;
   box-shadow: none !important;
 }
-.dashboard-header { padding: 1rem 1rem 0 1rem; }
+.dashboard-header {
+  padding: 1rem 1rem 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.dashboard-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.voice-dashboard-btn {
+  box-shadow: 0 4px 16px rgba(13, 148, 136, 0.35);
+}
 .welcome-message { font-size: 2.2rem; font-weight: 700; color: #fff; }
 .date-display { font-size: 1rem; color: #94A3B8; }
 .no-invoices-container { text-align: center; padding: 4rem 2rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(16px); border-radius: 24px; margin-top: 2rem; color: #f1f5f9; }
@@ -600,7 +646,21 @@ const totalOverdueRevenue = computed(() => {
 
 @media (max-width: 600px) {
     .dashboard-container { padding: 0.5rem; }
-    .dashboard-header { text-align: center; padding: 1.5rem 0.5rem 0 0.5rem; }
+    .dashboard-header {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 1.5rem 0.5rem 0 0.5rem;
+    }
+    .dashboard-header-actions {
+      width: 100%;
+      justify-content: center;
+    }
+    .voice-dashboard-btn {
+      width: 100%;
+      max-width: 340px;
+      min-height: 44px;
+    }
     .welcome-message { font-size: 1.8rem; }
     .invoices-header-desktop { display: none; }
     .dashboard-footer { padding: 2rem 0.5rem 1rem; }

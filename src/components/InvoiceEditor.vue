@@ -18,6 +18,7 @@ import { enUS } from 'date-fns/locale';
 import Logo from './Logo.vue';
 import UpgradeModal from './UpgradeModal.vue';
 import StripeTrustBadge from './StripeTrustBadge.vue';
+import VoiceInvoiceModal from './VoiceInvoiceModal.vue';
 import { useMobileNav } from '../composables/useMobileNav';
 
 // --- Composables ---
@@ -42,6 +43,9 @@ const showLimitModal = ref(false);
 const stripeStatusHaveLoaded = ref(false);
 const saveAsDefaultCompany = ref(true);
 const isStripeBannerDismissed = ref(localStorage.getItem('swift_invoice_editor_stripe_dismissed') === 'true');
+const showVoiceModal = ref(false);
+const voicePrefillBanner = ref(null);
+let isApplyingVoicePrefill = false;
 
 // Watch for changes to mark form as dirty
 watch(invoice, () => {
@@ -194,6 +198,94 @@ const handleDescriptionUpdate = (item, newDescription) => {
   if (foundItem) item.price = foundItem.price;
 };
 
+const applyInvoicePrefill = (prefill) => {
+  if (!prefill) return;
+  isApplyingVoicePrefill = true;
+
+  try {
+    // 1. Check if prefill matched an existing customer ID or name
+    let matchedCustomerObj = null;
+    if (prefill.matchedCustomerId && customers.value?.length) {
+      matchedCustomerObj = customers.value.find(c => c.id === prefill.matchedCustomerId) || null;
+    }
+    if (!matchedCustomerObj && prefill.client?.name && customers.value?.length) {
+      const targetLower = prefill.client.name.toLowerCase().trim();
+      matchedCustomerObj = customers.value.find(c => (c.name || '').toLowerCase().trim() === targetLower) || null;
+    }
+
+    if (matchedCustomerObj) {
+      selectedCustomer.value = matchedCustomerObj;
+    } else {
+      selectedCustomer.value = null;
+    }
+
+    if (prefill.client) {
+      const mergedClient = {
+        ...createFreshInvoice().client,
+        ...(matchedCustomerObj || {}),
+      };
+      Object.keys(prefill.client).forEach((key) => {
+        if (prefill.client[key]) {
+          mergedClient[key] = prefill.client[key];
+        }
+      });
+      invoice.value.client = mergedClient;
+    }
+
+    if (prefill.items?.length) {
+      invoice.value.items = prefill.items.map(item => ({
+        description: item.description || '',
+        quantity: Number(item.quantity) > 0 ? Number(item.quantity) : 1,
+        price: Number(item.price) >= 0 ? Number(item.price) : 0,
+        taxable: item.taxable !== false
+      }));
+    }
+
+    if (prefill.issueDate) {
+      const parsedIssue = new Date(String(prefill.issueDate).replace(/-/g, '/'));
+      if (isValid(parsedIssue)) invoice.value.issueDate = parsedIssue;
+    }
+    if (prefill.dueDate) {
+      const parsedDue = new Date(String(prefill.dueDate).replace(/-/g, '/'));
+      if (isValid(parsedDue)) invoice.value.dueDate = parsedDue;
+    }
+    if (typeof prefill.taxRate === 'number' && !isNaN(prefill.taxRate)) {
+      invoice.value.taxRate = prefill.taxRate;
+    }
+    if (typeof prefill.discount === 'number' && !isNaN(prefill.discount)) {
+      invoice.value.discount = prefill.discount;
+    }
+    if (prefill.discountType === 'percentage' || prefill.discountType === 'flat') {
+      invoice.value.discountType = prefill.discountType;
+    }
+    if (prefill.status === 'estimate' || prefill.status === 'pending') {
+      invoice.value.status = prefill.status;
+    }
+    if (prefill.notes) {
+      invoice.value.notes = prefill.notes;
+    }
+
+    if (prefill.rawTranscript || prefill.summary) {
+      voicePrefillBanner.value = {
+        summary: prefill.summary || 'Invoice fields populated from your voice command.',
+        transcript: prefill.rawTranscript || '',
+        matchedCustomer: !!matchedCustomerObj || !!prefill.matchedCustomerId,
+        clientName: invoice.value.client?.name || '',
+        itemCount: invoice.value.items?.length || 0
+      };
+    }
+  } finally {
+    setTimeout(() => {
+      isApplyingVoicePrefill = false;
+    }, 0);
+  }
+};
+
+const handleVoiceParsed = (parsedPayload) => {
+  invoice.value.isSample = false;
+  applyInvoicePrefill(parsedPayload);
+};
+
 // --- Initialization Logic ---
 const initializeInvoice = async () => {
   const id = route.params.id;
@@ -253,17 +345,12 @@ const initializeInvoice = async () => {
       invoice.value.sender.email = user.value.email;
     }
 
-    // Invoice bridge: check for project prefill data passed via router state
+    // Invoice bridge: check for project or voice prefill data passed via router state
     const prefill = history.state?.invoicePrefill;
     if (prefill) {
-      if (prefill.client) Object.assign(invoice.value.client, prefill.client);
-      if (prefill.items?.length) {
-        invoice.value.items = prefill.items.map(item => ({
-          ...item,
-          taxable: item.taxable !== false
-        }));
-      }
-      if (prefill.notes) invoice.value.notes = prefill.notes;
+      applyInvoicePrefill(prefill);
+    } else if (route.query.voice === 'true') {
+      showVoiceModal.value = true;
     } else if (route.query.sample === 'true') {
       invoice.value.isSample = true;
       const selfName = userProfile.value?.name || user.value?.displayName || (user.value?.email ? user.value.email.split('@')[0] : 'Valued Client');
@@ -303,10 +390,18 @@ watch(user, async (newUser) => {
 }, { immediate: true });
 
 watch(selectedCustomer, (newCustomer) => {
+  if (isApplyingVoicePrefill) return;
   if (newCustomer) {
     invoice.value.client = { ...createFreshInvoice().client, ...newCustomer };
   } else {
     invoice.value.client = createFreshInvoice().client;
+  }
+});
+
+watch(() => route.query.voiceRun, () => {
+  if (history.state?.invoicePrefill) {
+    invoice.value.isSample = false;
+    applyInvoicePrefill(history.state.invoicePrefill);
   }
 });
 
@@ -341,11 +436,65 @@ onUnmounted(() => {
 <template>
   <div class="editor-container">
     <UpgradeModal v-model="showLimitModal" />
+    <VoiceInvoiceModal v-model="showVoiceModal" @parsed="handleVoiceParsed" />
     <div class="editor-form-card">
       <header class="editor-header">
         <h1>{{ invoice.isSample ? 'Test Drive: Send Your First Invoice to Yourself' : (invoiceId === 'new' ? 'Create Invoice' : `Invoice #${invoice.invoiceNumber}`) }}</h1>
-        <v-btn :to="{ name: 'Dashboard' }" color="white" variant="flat" class="text-indigo-darken-4 font-weight-bold">Back to Dashboard</v-btn>
+        <div class="editor-header-actions">
+          <v-btn
+            @click="showVoiceModal = true"
+            color="#0d9488"
+            variant="flat"
+            prepend-icon="mdi-microphone"
+            class="text-white text-none font-weight-bold voice-invoice-header-btn"
+          >
+            Voice Invoice
+          </v-btn>
+          <v-btn :to="{ name: 'Dashboard' }" color="white" variant="flat" class="text-indigo-darken-4 font-weight-bold">Back to Dashboard</v-btn>
+        </div>
       </header>
+
+      <!-- Voice Invoice AI Prefill Review Banner -->
+      <div v-if="voicePrefillBanner" class="voice-prefill-banner mb-6 rounded-xl">
+        <div class="voice-prefill-inner">
+          <div class="voice-prefill-body">
+            <div class="voice-prefill-title-row">
+              <div class="voice-prefill-icon">
+                <v-icon icon="mdi-microphone-message" color="#2dd4bf" size="22"></v-icon>
+              </div>
+              <span class="voice-prefill-title">Voice Invoice Populated — Review Below</span>
+              <span v-if="voicePrefillBanner.matchedCustomer" class="matched-customer-badge">
+                <v-icon icon="mdi-check-decagram" size="14" class="mr-1"></v-icon>
+                Matched Saved Customer
+              </span>
+            </div>
+            <p class="voice-prefill-summary">{{ voicePrefillBanner.summary }}</p>
+            <p v-if="voicePrefillBanner.transcript" class="voice-prefill-quote">
+              “{{ voicePrefillBanner.transcript }}”
+            </p>
+          </div>
+          <div class="voice-prefill-actions">
+            <v-btn
+              size="small"
+              variant="tonal"
+              color="teal-accent-2"
+              prepend-icon="mdi-microphone"
+              class="text-none font-weight-bold"
+              @click="showVoiceModal = true"
+            >
+              Speak Again
+            </v-btn>
+            <v-btn
+              icon="mdi-close"
+              size="small"
+              variant="text"
+              color="grey-lighten-1"
+              @click="voicePrefillBanner = null"
+              title="Dismiss banner"
+            ></v-btn>
+          </div>
+        </div>
+      </div>
 
       <!-- Sample "Send to Yourself" Guided Banner -->
       <div v-if="invoice.isSample" class="sample-test-drive-banner mb-6 rounded-xl">
@@ -1231,6 +1380,111 @@ onUnmounted(() => {
   .sample-cta-btn {
     width: 100%;
     padding: 10px 16px !important;
+  }
+}
+
+.editor-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.voice-invoice-header-btn {
+  box-shadow: 0 4px 16px rgba(13, 148, 136, 0.35);
+}
+
+.voice-prefill-banner {
+  background: linear-gradient(135deg, rgba(13, 148, 136, 0.14) 0%, rgba(2, 132, 199, 0.1) 100%);
+  border: 1px solid rgba(45, 212, 191, 0.35);
+  padding: 1.15rem 1.35rem;
+  backdrop-filter: blur(12px);
+}
+
+.voice-prefill-inner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.voice-prefill-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.voice-prefill-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.voice-prefill-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(45, 212, 191, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.voice-prefill-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.matched-customer-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #2dd4bf;
+  background: rgba(45, 212, 191, 0.14);
+  border: 1px solid rgba(45, 212, 191, 0.3);
+  border-radius: 999px;
+  padding: 2px 9px;
+}
+
+.voice-prefill-summary {
+  font-size: 0.88rem;
+  color: #e2e8f0;
+  margin: 0;
+}
+
+.voice-prefill-quote {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  font-style: italic;
+  margin: 0;
+}
+
+.voice-prefill-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .editor-header-actions {
+    width: 100%;
+  }
+  .editor-header-actions .v-btn {
+    flex: 1 1 auto;
+  }
+  .voice-prefill-inner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .voice-prefill-actions {
+    justify-content: space-between;
   }
 }
 </style>
