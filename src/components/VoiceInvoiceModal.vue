@@ -1,6 +1,6 @@
 <script setup>
 import { computed, watch, onMounted } from 'vue';
-import { useVoiceInvoice } from '../composables/useVoiceInvoice';
+import { useVoiceInvoice, mergeTwoTranscripts } from '../composables/useVoiceInvoice';
 import { useCustomers } from '../composables/useCustomers';
 import { useItems } from '../composables/useItems';
 
@@ -77,7 +77,7 @@ const applySamplePrompt = (sample) => {
 };
 
 const handleGenerate = async () => {
-  const combined = [transcript.value, interimTranscript.value].filter(Boolean).join(' ').trim();
+  const combined = mergeTwoTranscripts(transcript.value, interimTranscript.value);
   const parsed = await parseVoiceCommand(combined, {
     customers: customers.value || [],
     items: items.value || [],
@@ -127,10 +127,10 @@ const closeModal = () => {
       <v-divider class="border-opacity-15" color="white"></v-divider>
 
       <!-- Main Body -->
-      <v-card-text class="voice-modal-body pa-5">
+      <v-card-text class="voice-modal-body pa-4 pa-sm-5">
         <!-- Fuzzy Match Context Pill -->
-        <div class="fuzzy-context-bar mb-4">
-          <v-icon icon="mdi-account-search-outline" size="16" color="#38bdf8" class="mr-1"></v-icon>
+        <div class="fuzzy-context-bar mb-3">
+          <v-icon icon="mdi-account-search-outline" size="16" color="#38bdf8" class="mr-1 flex-shrink-0"></v-icon>
           <span>
             Fuzzy matching active against
             <strong class="text-white">{{ customerCount }} saved customer{{ customerCount === 1 ? '' : 's' }}</strong>
@@ -165,7 +165,7 @@ const closeModal = () => {
                 <span class="bar"></span>
                 <span class="bar"></span>
               </div>
-              <span class="listening-label">Listening... Speak naturally, then tap stop</span>
+              <span class="listening-label">Listening... (auto-stops after 5s pause, or tap to stop)</span>
             </template>
             <template v-else>
               <span class="idle-label">
@@ -197,7 +197,7 @@ const closeModal = () => {
           {{ error }}
         </v-alert>
 
-        <!-- Editable Transcript Box -->
+        <!-- Editable Dark-Mode Transcript Box -->
         <div class="transcript-section">
           <div class="d-flex align-center justify-space-between mb-1">
             <label class="transcript-label">Voice Transcript (Editable)</label>
@@ -215,12 +215,14 @@ const closeModal = () => {
           <v-textarea
             v-model="transcript"
             rows="3"
-            auto-grow
-            variant="solo"
+            no-resize
+            variant="outlined"
+            bg-color="rgba(15, 23, 42, 0.9)"
+            color="#2dd4bf"
             density="comfortable"
             placeholder="e.g., &quot;Create an invoice for John Smith for 4 hours of plumbing repair at $95 an hour and $60 for parts, due next Friday&quot;"
             hide-details
-            class="transcript-textarea"
+            class="transcript-textarea-dark"
             :disabled="isParsing"
           ></v-textarea>
         </div>
@@ -292,7 +294,7 @@ const closeModal = () => {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 18px 20px 14px;
+  padding: 16px 20px 12px;
   gap: 12px;
 }
 
@@ -352,8 +354,8 @@ const closeModal = () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20px 16px;
-  margin-bottom: 16px;
+  padding: 16px 14px;
+  margin-bottom: 14px;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px dashed rgba(255, 255, 255, 0.14);
@@ -367,8 +369,8 @@ const closeModal = () => {
 }
 
 .mic-trigger-btn {
-  width: 72px;
-  height: 72px;
+  width: 68px;
+  height: 68px;
   border-radius: 50%;
   border: none;
   background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%);
@@ -415,19 +417,19 @@ const closeModal = () => {
 }
 
 .idle-label {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 600;
   color: #f1f5f9;
 }
 
 .idle-subhint {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   color: #94a3b8;
   margin-top: 2px;
 }
 
 .listening-label {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: #2dd4bf;
   margin-top: 6px;
@@ -489,6 +491,40 @@ const closeModal = () => {
   font-size: 0.82rem;
   font-weight: 600;
   color: #cbd5e1;
+}
+
+/* Dark Mode Transcript Textarea */
+.transcript-textarea-dark :deep(.v-field) {
+  background: rgba(15, 23, 42, 0.9) !important;
+  border-radius: 12px !important;
+  color: #f8fafc !important;
+}
+
+.transcript-textarea-dark :deep(.v-field__outline) {
+  --v-field-border-opacity: 0.22;
+  color: rgba(148, 163, 184, 0.5) !important;
+}
+
+.transcript-textarea-dark :deep(.v-field--focused .v-field__outline) {
+  --v-field-border-opacity: 1;
+  color: #2dd4bf !important;
+}
+
+.transcript-textarea-dark :deep(textarea),
+.transcript-textarea-dark :deep(.v-field__input) {
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+  caret-color: #2dd4bf !important;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  max-height: 110px;
+  overflow-y: auto;
+}
+
+.transcript-textarea-dark :deep(textarea::placeholder) {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1;
 }
 
 .clear-text-btn {

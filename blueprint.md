@@ -3100,3 +3100,21 @@ Enable mobile-first and desktop users to create a new draft invoice in one shot 
 - **Fuzzy Matching**: Speak an existing customer name (e.g., "John Smith") and catalog item description, and verify the customer autocomplete and item price auto-populate in `InvoiceEditor.vue`.
 - **Verbal Best-Guess**: Speak a brand-new client name and line items with quantities/rates, and verify `InvoiceEditor.vue` populates them for review.
 - **Free Tier Limit**: Verify that if a Free Starter user has reached 3 invoices in the current month, tapping "Voice Invoice" triggers `UpgradeModal`.
+
+
+
+## Mobile Speech Recognition Deduplication, 5-Second Pause Auto-Stop, & Dark Transcript UI (v130)
+
+### Purpose
+Resolve the Android Chrome `SpeechRecognition` cumulative prefix duplication issue (where `continuous = true` caused progressive phrases like `"invoice" -> "invoice Curtis" -> "invoice Curtis home"` to be concatenated repeatedly), add an automatic 5-second silence cutoff timer, and style the transcript box in dark glassmorphic mode with constrained height so the microphone button stays visible on mobile screens.
+
+### Proposed Changes
+
+#### [MODIFY] [src/composables/useVoiceInvoice.js](file:///C:/Users/curth/git/swift-invoice/src/composables/useVoiceInvoice.js)
+- Implement `mergeTwoTranscripts(prevText, nextText)` to detect cumulative prefix supersets, suffix duplicates, and word-level boundary overlaps emitted by Android Chrome's speech engine.
+- Set `rec.continuous = !isMobileBrowser` on mobile devices and seamlessly restart on `onend` while within the active listening window to prevent Android's continuous speech buffer from compounding duplicates.
+- Add a 5-second silence auto-stop timer (`SILENCE_AUTO_STOP_MS = 5000`) that resets on every speech result and automatically stops the microphone after 5 seconds of pause.
+
+#### [MODIFY] [src/components/VoiceInvoiceModal.vue](file:///C:/Users/curth/git/swift-invoice/src/components/VoiceInvoiceModal.vue)
+- Style the editable transcript `<v-textarea>` in dark mode (`bg-color="rgba(15, 23, 42, 0.9)"`, light `#f8fafc` text, `#2dd4bf` focus border) instead of a white background.
+- Replace unbounded `auto-grow` with fixed `rows="3"` (`no-resize`, `max-height: 110px` with internal scroll) so the microphone button and header remain visible on mobile viewports.

@@ -3,6 +3,54 @@ import { httpsCallable } from 'firebase/functions';
 import { functions } from './useFirebase';
 import { format } from 'date-fns';
 
+const SILENCE_AUTO_STOP_MS = 5000;
+
+/**
+ * Merges two speech segments while eliminating Android Chrome's cumulative prefix/overlap duplication.
+ * Example:
+ *   mergeTwoTranscripts("invoice Curtis", "invoice Curtis home") -> "invoice Curtis home"
+ *   mergeTwoTranscripts("invoice Curtis home", "Curtis home for new website") -> "invoice Curtis home for new website"
+ */
+export function mergeTwoTranscripts(prevText, nextText) {
+  const a = String(prevText || '').replace(/\s+/g, ' ').trim();
+  const b = String(nextText || '').replace(/\s+/g, ' ').trim();
+  if (!a) return b;
+  if (!b) return a;
+
+  const aLower = a.toLowerCase();
+  const bLower = b.toLowerCase();
+
+  // Case 1: b is a cumulative superset of a (classic Android Chrome behavior)
+  if (bLower.startsWith(aLower)) {
+    return b;
+  }
+
+  // Case 2: a already ends with b (duplicate emission)
+  if (aLower.endsWith(bLower)) {
+    return a;
+  }
+
+  // Case 3: b is completely contained at the start of a (regression in interim result)
+  if (aLower.startsWith(bLower)) {
+    return a;
+  }
+
+  // Case 4: Word-level suffix/prefix overlap (e.g., a="invoice Curtis home", b="Curtis home for website")
+  const wordsA = a.split(' ');
+  const wordsB = b.split(' ');
+  const maxOverlap = Math.min(wordsA.length, wordsB.length);
+
+  for (let overlap = maxOverlap; overlap >= 1; overlap--) {
+    const suffixA = wordsA.slice(wordsA.length - overlap).join(' ').toLowerCase();
+    const prefixB = wordsB.slice(0, overlap).join(' ').toLowerCase();
+    if (suffixA === prefixB) {
+      return [...wordsA, ...wordsB.slice(overlap)].join(' ');
+    }
+  }
+
+  return `${a} ${b}`;
+}
+
 /**
  * Compute a normalized similarity score (0..1) between two strings for client/catalog fuzzy matching.
  */
@@ -106,7 +154,6 @@ export function localParseVoiceCommand(transcript, todayDate, customers = [], ca
       extractedClientName = clientMatch[1]
         .replace(/^(?:for|to|client|customer|an?\s+invoice\s+for|create\s+an?\s+invoice\s+for)\s+/i, '')
         .trim();
-      // Title-case verbal best guess
       extractedClientName = extractedClientName
         .split(/\s+/)
         .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
@@ -211,7 +258,6 @@ export function localParseVoiceCommand(transcript, todayDate, customers = [], ca
         desc = leadingQty[2].trim();
       }
     } else {
-      // Check if chunk mentions a quantity + catalog item without explicit price (e.g., "3 hours of plumbing")
       const leadingQtyOnly = chunk.match(
         /^(\d+(?:\.\d+)?|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:hours?\s+of\s+|hrs?\s+of\s+|units?\s+of\s+)?(.+)$/i
       );
@@ -328,56 +374,89 @@ export function useVoiceInvoice() {
 
   const isSpeechSupported = computed(() => !!SpeechRecognitionClass);
 
+  // Detect mobile browser (Android Chrome / iOS Safari) where continuous=true causes cumulative duplication
+  const isMobileBrowser =
+    typeof navigator !== 'undefined' &&
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || '');
+
   let recognition = null;
   let baseTranscriptBeforeSession = '';
+  let shouldKeepListening = false;
+  let silenceTimer = null;
+
+  const clearSilenceTimer = () => {
+    if (silenceTimer) {
+      clearTimeout(silenceTimer);
+      silenceTimer = null;
+    }
+  };
+
+  const resetSilenceTimer = () => {
+    clearSilenceTimer();
+    silenceTimer = setTimeout(() => {
+      // 5-second pause reached -> automatically stop listening
+      stopListening();
+    }, SILENCE_AUTO_STOP_MS);
+  };
 
   const initRecognition = () => {
     if (!SpeechRecognitionClass) return null;
     const rec = new SpeechRecognitionClass();
     rec.lang = (typeof navigator !== 'undefined' && navigator.language) || 'en-US';
     rec.interimResults = true;
-    // Mobile browsers handle continuous=false or true differently; continuous=true with manual stop works well when we accumulate final segments carefully
-    rec.continuous = true;
+    // Use continuous=false on mobile to prevent Android Chrome's cumulative prefix duplication buffer;
+    // onend automatically restarts while within the 5-second pause window.
+    rec.continuous = !isMobileBrowser;
     rec.maxAlternatives = 1;
 
     rec.onstart = () => {
       isListening.value = true;
       error.value = null;
+      resetSilenceTimer();
     };
 
     rec.onresult = (event) => {
+      resetSilenceTimer();
+
       let sessionFinal = '';
       let sessionInterim = '';
 
       for (let i = 0; i < event.results.length; i++) {
         const res = event.results[i];
-        const textPiece = res[0]?.transcript || '';
+        const textPiece = (res[0]?.transcript || '').trim();
+        if (!textPiece) continue;
+
         if (res.isFinal) {
-          sessionFinal += textPiece + ' ';
+          sessionFinal = mergeTwoTranscripts(sessionFinal, textPiece);
         } else {
-          sessionInterim += textPiece;
+          sessionInterim = mergeTwoTranscripts(sessionInterim, textPiece);
         }
       }
 
-      const combinedFinal = [baseTranscriptBeforeSession, sessionFinal.trim()]
-        .filter(Boolean)
-        .join(' ')
-        .replace(/\s+/g, ' ')
-        .trim();
+      // If interim starts with sessionFinal, strip the already-finalized prefix from interim display
+      if (
+        sessionFinal &&
+        sessionInterim &&
+        sessionInterim.toLowerCase().startsWith(sessionFinal.toLowerCase())
+      ) {
+        sessionInterim = sessionInterim.slice(sessionFinal.length).trim();
+      }
 
-      transcript.value = combinedFinal;
-      interimTranscript.value = sessionInterim.trim();
+      transcript.value = mergeTwoTranscripts(baseTranscriptBeforeSession, sessionFinal);
+      interimTranscript.value = sessionInterim;
     };
 
     rec.onerror = (event) => {
       if (event.error === 'no-speech') {
-        // Ignore benign silence timeout
+        // Silence during a mobile segment; let silenceTimer govern the 5s cutoff
         return;
       }
       if (event.error === 'aborted') {
-        isListening.value = false;
         return;
       }
+      shouldKeepListening = false;
+      clearSilenceTimer();
+
       if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
         error.value =
           "Microphone access was blocked. Please allow microphone permissions in your browser, or tap the text box below and use your phone keyboard's dictation mic.";
@@ -390,14 +469,26 @@ export function useVoiceInvoice() {
     };
 
     rec.onend = () => {
+      // Commit any remaining interim text using deduplicating merge
       if (interimTranscript.value) {
-        transcript.value = [transcript.value, interimTranscript.value]
-          .filter(Boolean)
-          .join(' ')
-          .replace(/\s+/g, ' ')
-          .trim();
+        transcript.value = mergeTwoTranscripts(transcript.value, interimTranscript.value);
         interimTranscript.value = '';
       }
+      baseTranscriptBeforeSession = transcript.value.trim();
+
+      // If still within the 5-second pause window and user hasn't manually stopped, restart seamlessly on mobile
+      if (shouldKeepListening && silenceTimer !== null) {
+        try {
+          recognition = initRecognition();
+          recognition.start();
+          return;
+        } catch (restartErr) {
+          // Fall through to stop cleanly
+        }
+      }
+
+      clearSilenceTimer();
+      shouldKeepListening = false;
       isListening.value = false;
     };
 
@@ -414,28 +505,39 @@ export function useVoiceInvoice() {
 
     try {
       if (recognition && isListening.value) {
-        recognition.stop();
+        stopListening();
         return;
       }
+      shouldKeepListening = true;
       baseTranscriptBeforeSession = transcript.value.trim();
       interimTranscript.value = '';
       recognition = initRecognition();
       recognition.start();
+      resetSilenceTimer();
     } catch (err) {
       console.error('Error starting speech recognition:', err);
       error.value = 'Could not start microphone. Please try again.';
+      shouldKeepListening = false;
+      clearSilenceTimer();
       isListening.value = false;
     }
   };
 
   const stopListening = () => {
-    if (recognition && isListening.value) {
+    shouldKeepListening = false;
+    clearSilenceTimer();
+    if (recognition) {
       try {
         recognition.stop();
       } catch (e) {
         // ignore
       }
     }
+    if (interimTranscript.value) {
+      transcript.value = mergeTwoTranscripts(transcript.value, interimTranscript.value);
+      interimTranscript.value = '';
+    }
+    baseTranscriptBeforeSession = transcript.value.trim();
     isListening.value = false;
   };
 
