@@ -197,10 +197,14 @@ const closeModal = () => {
           {{ error }}
         </v-alert>
 
-        <!-- Editable Dark-Mode Transcript Box -->
+        <!-- Editable Elevated Slate Transcript Box (Approach #1) -->
         <div class="transcript-section">
-          <div class="d-flex align-center justify-space-between mb-1">
-            <label class="transcript-label">Voice Transcript (Editable)</label>
+          <div class="d-flex align-center justify-space-between mb-2">
+            <div class="transcript-label-badge">
+              <v-icon icon="mdi-text-box-edit-outline" size="15" color="#38bdf8" class="mr-1"></v-icon>
+              <span>Voice Transcript</span>
+              <span class="edit-hint-pill">Tap to Edit</span>
+            </div>
             <button
               v-if="transcript"
               type="button"
@@ -217,12 +221,16 @@ const closeModal = () => {
             rows="3"
             no-resize
             variant="outlined"
-            bg-color="rgba(15, 23, 42, 0.9)"
+            bg-color="#1e293b"
             color="#2dd4bf"
             density="comfortable"
             placeholder="e.g., &quot;Create an invoice for John Smith for 4 hours of plumbing repair at $95 an hour and $60 for parts, due next Friday&quot;"
             hide-details
-            class="transcript-textarea-dark"
+            class="transcript-textarea-elevated"
+            :class="{
+              'has-content': !!transcript.trim(),
+              'is-recording': isListening
+            }"
             :disabled="isParsing"
           ></v-textarea>
         </div>
@@ -487,43 +495,77 @@ const closeModal = () => {
   font-style: italic;
 }
 
-.transcript-label {
-  font-size: 0.82rem;
+.transcript-label-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  gap: 4px;
+}
+
+.edit-hint-pill {
+  font-size: 0.68rem;
   font-weight: 600;
-  color: #cbd5e1;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  padding: 1px 7px;
+  border-radius: 999px;
+  margin-left: 4px;
 }
 
-/* Dark Mode Transcript Textarea */
-.transcript-textarea-dark :deep(.v-field) {
-  background: rgba(15, 23, 42, 0.9) !important;
+/* Approach #1: Elevated Slate Well with Luminous Border & State Glow */
+.transcript-textarea-elevated :deep(.v-field) {
+  background: linear-gradient(180deg, #1e293b 0%, #172234 100%) !important;
   border-radius: 12px !important;
-  color: #f8fafc !important;
+  color: #ffffff !important;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35), 0 2px 10px rgba(0, 0, 0, 0.2) !important;
+  transition: box-shadow 0.2s ease, background 0.2s ease;
 }
 
-.transcript-textarea-dark :deep(.v-field__outline) {
-  --v-field-border-opacity: 0.22;
-  color: rgba(148, 163, 184, 0.5) !important;
+.transcript-textarea-elevated :deep(.v-field__outline) {
+  --v-field-border-opacity: 1 !important;
+  --v-field-border-width: 1.5px !important;
+  color: rgba(56, 189, 248, 0.55) !important;
+  transition: color 0.2s ease;
 }
 
-.transcript-textarea-dark :deep(.v-field--focused .v-field__outline) {
-  --v-field-border-opacity: 1;
+.transcript-textarea-elevated:hover :deep(.v-field__outline) {
+  color: rgba(56, 189, 248, 0.8) !important;
+}
+
+.transcript-textarea-elevated.has-content :deep(.v-field__outline),
+.transcript-textarea-elevated.is-recording :deep(.v-field__outline),
+.transcript-textarea-elevated :deep(.v-field--focused .v-field__outline) {
+  --v-field-border-width: 2px !important;
   color: #2dd4bf !important;
 }
 
-.transcript-textarea-dark :deep(textarea),
-.transcript-textarea-dark :deep(.v-field__input) {
-  color: #f8fafc !important;
-  -webkit-text-fill-color: #f8fafc !important;
+.transcript-textarea-elevated.has-content :deep(.v-field),
+.transcript-textarea-elevated.is-recording :deep(.v-field),
+.transcript-textarea-elevated :deep(.v-field--focused) {
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.3),
+    0 0 0 3px rgba(45, 212, 191, 0.16) !important;
+}
+
+.transcript-textarea-elevated :deep(textarea),
+.transcript-textarea-elevated :deep(.v-field__input) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
   caret-color: #2dd4bf !important;
-  font-size: 0.92rem;
-  line-height: 1.45;
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.5;
   max-height: 110px;
   overflow-y: auto;
 }
 
-.transcript-textarea-dark :deep(textarea::placeholder) {
-  color: #64748b !important;
-  -webkit-text-fill-color: #64748b !important;
+.transcript-textarea-elevated :deep(textarea::placeholder) {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+  font-weight: 400;
   opacity: 1;
 }
 

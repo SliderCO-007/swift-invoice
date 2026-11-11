@@ -3116,5 +3116,5 @@ Resolve the Android Chrome `SpeechRecognition` cumulative prefix duplication iss
 - Add a 5-second silence auto-stop timer (`SILENCE_AUTO_STOP_MS = 5000`) that resets on every speech result and automatically stops the microphone after 5 seconds of pause.
 
 #### [MODIFY] [src/components/VoiceInvoiceModal.vue](file:///C:/Users/curth/git/swift-invoice/src/components/VoiceInvoiceModal.vue)
-- Style the editable transcript `<v-textarea>` in dark mode (`bg-color="rgba(15, 23, 42, 0.9)"`, light `#f8fafc` text, `#2dd4bf` focus border) instead of a white background.
+- Style the editable transcript `<v-textarea>` using an **Elevated Slate Well** design (`linear-gradient(180deg, #1e293b 0%, #172234 100%)` stepped up in luminance from the `#111d2f` card surface), a `1.5px` luminous sky-blue border (`rgba(56, 189, 248, 0.55)`), a top-left `Tap to Edit` pill badge, and an active/populated `#2dd4bf` teal border with outer glow (`0 0 0 3px rgba(45, 212, 191, 0.16)`).
 - Replace unbounded `auto-grow` with fixed `rows="3"` (`no-resize`, `max-height: 110px` with internal scroll) so the microphone button and header remain visible on mobile viewports.
