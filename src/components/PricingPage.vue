@@ -15,7 +15,7 @@ const selectedPlan = ref(null);
 
 useMeta(
   'ScanGo Invoice | Pricing',
-  'ScanGo Invoice offers flexible pricing plans to fit your needs. Start for free with 3 invoices per month, or upgrade to Pro ($9/mo) or Agency ($90/yr) plans for unlimited invoicing and advanced features. All plans include professional invoice templates, client management, and secure payment options.',
+  'ScanGo Invoice offers flexible pricing plans to fit your needs. Start for free with 3 invoices per month, or upgrade to Pro ($9/mo) or Agency ($90/yr) plans for unlimited invoicing and advanced features. All plans include AI Voice-to-Invoice creation, professional invoice templates, client management, and secure payment options.',
 );
 
 // Mapping of plan names to their corresponding Price IDs
@@ -102,6 +102,11 @@ onMounted(() => {
 
             <v-card-text class="flex-grow-1 pt-4">
               <p class="feature-section-label">Invoicing</p>
+              <div class="feature-item voice-feature-highlight">
+                <v-icon size="18" color="#2dd4bf">mdi-microphone</v-icon>
+                <span><strong>AI Voice-to-Invoice</strong> creation</span>
+                <span class="voice-new-pill">NEW</span>
+              </div>
               <div class="feature-item">
                 <v-icon size="18" color="success">mdi-check-circle</v-icon>
                 <span><strong>3 invoices</strong> per month (resets monthly)</span>
@@ -227,6 +232,11 @@ onMounted(() => {
 
             <v-card-text class="flex-grow-1 pt-4">
               <p class="feature-section-label">Invoicing</p>
+              <div class="feature-item voice-feature-highlight">
+                <v-icon size="18" color="#2dd4bf">mdi-microphone</v-icon>
+                <span><strong>AI Voice-to-Invoice</strong> creation</span>
+                <span class="voice-new-pill">NEW</span>
+              </div>
               <div class="feature-item">
                 <v-icon size="18" color="success">mdi-check-circle</v-icon>
                 <span><strong>Unlimited</strong> invoices</span>
@@ -376,6 +386,11 @@ onMounted(() => {
               </div>
 
               <p class="feature-section-label">Invoicing &amp; Branding</p>
+              <div class="feature-item voice-feature-highlight">
+                <v-icon size="18" color="#2dd4bf">mdi-microphone</v-icon>
+                <span><strong>AI Voice-to-Invoice</strong> creation</span>
+                <span class="voice-new-pill">NEW</span>
+              </div>
               <div class="feature-item">
                 <v-icon size="18" color="success">mdi-check-circle</v-icon>
                 <span><strong>Unlimited invoices</strong>, estimates &amp; receipts</span>
@@ -604,6 +619,29 @@ onMounted(() => {
 .feature-item.highlight-feature {
   color: #fff;
   font-weight: 500;
+}
+
+.feature-item.voice-feature-highlight {
+  background: linear-gradient(135deg, rgba(45, 212, 191, 0.14), rgba(56, 189, 248, 0.12));
+  border: 1px solid rgba(45, 212, 191, 0.4);
+  border-radius: 10px;
+  padding: 0.5rem 0.65rem;
+  margin: 0.25rem 0 0.45rem;
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgba(45, 212, 191, 0.12);
+}
+
+.voice-new-pill {
+  margin-left: auto;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #042f2e;
+  background: linear-gradient(135deg, #2dd4bf, #38bdf8);
+  padding: 2px 7px;
+  border-radius: 999px;
+  line-height: 1.3;
 }
 
 :deep(.v-btn) {

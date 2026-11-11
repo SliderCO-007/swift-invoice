@@ -22,6 +22,14 @@
                   ><span class="text-gradient">ScanGo</span> Invoice</span
                 >
               </div>
+              <div class="d-flex justify-center justify-md-start mb-4">
+                <router-link to="/features" class="hero-voice-callout">
+                  <span class="voice-callout-pill">NEW</span>
+                  <v-icon size="16" color="#2dd4bf" class="mx-1">mdi-microphone</v-icon>
+                  <span class="voice-callout-text"><strong>AI Voice-to-Invoice:</strong> Speak to create invoices in seconds</span>
+                  <v-icon size="15" color="#38bdf8" class="ml-1">mdi-arrow-right</v-icon>
+                </router-link>
+              </div>
               <h1 class="hero-title">{{ heroTitleText }}</h1>
               <h1 class="hero-title"><span class="text-gradient">{{ heroTitleHighlight }}</span></h1>
               <p class="hero-subtitle mt-4 mb-6">
@@ -239,6 +247,17 @@
                   <rect x="6" y="2" width="12" height="20" rx="3" stroke="url(#grad-sms)" stroke-width="2" />
                   <path d="M9 7H15M9 10H13" stroke="url(#grad-sms)" stroke-width="1.5" stroke-linecap="round" />
                   <circle cx="12" cy="17" r="1" fill="#2dd4bf" />
+                </svg>
+                <svg v-else-if="badge.type === 'voice'" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="grad-voice" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#2dd4bf" />
+                      <stop offset="100%" stop-color="#38bdf8" />
+                    </linearGradient>
+                  </defs>
+                  <rect x="9" y="2" width="6" height="11" rx="3" fill="rgba(45, 212, 191, 0.2)" stroke="url(#grad-voice)" stroke-width="2" />
+                  <path d="M5 10V11C5 14.866 8.13401 18 12 18C15.866 18 19 14.866 19 11V10" stroke="url(#grad-voice)" stroke-width="2" stroke-linecap="round" />
+                  <path d="M12 18V22M8 22H16" stroke="url(#grad-voice)" stroke-width="2" stroke-linecap="round" />
                 </svg>
               </div>
               <div class="badge-content">
@@ -768,8 +787,11 @@ const badges = computed(() => {
   return [
     {
       type: 'invoice',
-      title: '60s Mobile Invoicing',
-      subtitle: 'Create & send professional invoices from your phone in under 60 seconds'
+      type: 'voice',
+      title: 'AI Voice-to-Invoice',
+      subtitle: 'Speak client & line items into your phone — AI pre-fills your invoice in seconds',
+      _legacyTitle: '60s Mobile Invoicing',
+      _subtitleLegacy: 'Create & send professional invoices from your phone in under 60 seconds'
     },
     {
       type: 'tracking',
@@ -813,6 +835,11 @@ const testimonials = computed(() => {
 })
 
 const faqs = ref([
+  {
+    question: 'How does AI Voice-to-Invoice creation work?',
+    answer:
+      'Just tap the Voice Invoice microphone button on your phone or laptop and speak naturally — for example, "Invoice John Smith for 4 hours of plumbing repair at $95/hr and a $45 valve, due next Friday." ScanGo\'s AI fuzzy-matches your saved Customers and Catalog Items and pre-fills the invoice editor for instant review.',
+  },
   {
     question: 'How do customers pay on ScanGo?',
     answer:
@@ -1013,6 +1040,57 @@ main section[id] {
 
 .hero-content {
   text-align: left;
+}
+
+.hero-voice-callout {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: linear-gradient(135deg, rgba(45, 212, 191, 0.14), rgba(56, 189, 248, 0.14));
+  border: 1px solid rgba(45, 212, 191, 0.45);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem 0.4rem 0.5rem;
+  color: #f8fafc;
+  text-decoration: none;
+  font-size: 0.85rem;
+  line-height: 1.3;
+  box-shadow: 0 4px 20px rgba(45, 212, 191, 0.15);
+  transition: all 0.25s ease;
+}
+
+.hero-voice-callout:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.7);
+  box-shadow: 0 8px 25px rgba(45, 212, 191, 0.28);
+  background: linear-gradient(135deg, rgba(45, 212, 191, 0.22), rgba(56, 189, 248, 0.2));
+}
+
+.voice-callout-pill {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #042f2e;
+  background: linear-gradient(135deg, #2dd4bf, #38bdf8);
+  padding: 2px 8px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.voice-callout-text {
+  color: #e2e8f0;
+}
+
+.voice-callout-text strong {
+  color: #5eead4;
+  font-weight: 700;
+}
+
+@media (max-width: 600px) {
+  .hero-voice-callout {
+    font-size: 0.76rem;
+    padding: 0.35rem 0.75rem 0.35rem 0.45rem;
+    text-align: left;
+  }
 }
 
 .hero-title {
@@ -2059,7 +2137,58 @@ main section[id] {
     padding: 1rem 0 2rem 0;
   }
 
-  .hero-title {
+  .hero-voice-callout {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: linear-gradient(135deg, rgba(45, 212, 191, 0.14), rgba(56, 189, 248, 0.14));
+  border: 1px solid rgba(45, 212, 191, 0.45);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem 0.4rem 0.5rem;
+  color: #f8fafc;
+  text-decoration: none;
+  font-size: 0.85rem;
+  line-height: 1.3;
+  box-shadow: 0 4px 20px rgba(45, 212, 191, 0.15);
+  transition: all 0.25s ease;
+}
+
+.hero-voice-callout:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.7);
+  box-shadow: 0 8px 25px rgba(45, 212, 191, 0.28);
+  background: linear-gradient(135deg, rgba(45, 212, 191, 0.22), rgba(56, 189, 248, 0.2));
+}
+
+.voice-callout-pill {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #042f2e;
+  background: linear-gradient(135deg, #2dd4bf, #38bdf8);
+  padding: 2px 8px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.voice-callout-text {
+  color: #e2e8f0;
+}
+
+.voice-callout-text strong {
+  color: #5eead4;
+  font-weight: 700;
+}
+
+@media (max-width: 600px) {
+  .hero-voice-callout {
+    font-size: 0.76rem;
+    padding: 0.35rem 0.75rem 0.35rem 0.45rem;
+    text-align: left;
+  }
+}
+
+.hero-title {
     font-size: 2.2rem;
     line-height: 1.2;
     margin-bottom: 0.8rem;
@@ -2122,7 +2251,58 @@ main section[id] {
 }
 
 @media (max-width: 480px) {
-  .hero-title {
+  .hero-voice-callout {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: linear-gradient(135deg, rgba(45, 212, 191, 0.14), rgba(56, 189, 248, 0.14));
+  border: 1px solid rgba(45, 212, 191, 0.45);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem 0.4rem 0.5rem;
+  color: #f8fafc;
+  text-decoration: none;
+  font-size: 0.85rem;
+  line-height: 1.3;
+  box-shadow: 0 4px 20px rgba(45, 212, 191, 0.15);
+  transition: all 0.25s ease;
+}
+
+.hero-voice-callout:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.7);
+  box-shadow: 0 8px 25px rgba(45, 212, 191, 0.28);
+  background: linear-gradient(135deg, rgba(45, 212, 191, 0.22), rgba(56, 189, 248, 0.2));
+}
+
+.voice-callout-pill {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #042f2e;
+  background: linear-gradient(135deg, #2dd4bf, #38bdf8);
+  padding: 2px 8px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.voice-callout-text {
+  color: #e2e8f0;
+}
+
+.voice-callout-text strong {
+  color: #5eead4;
+  font-weight: 700;
+}
+
+@media (max-width: 600px) {
+  .hero-voice-callout {
+    font-size: 0.76rem;
+    padding: 0.35rem 0.75rem 0.35rem 0.45rem;
+    text-align: left;
+  }
+}
+
+.hero-title {
     font-size: 1.8rem;
   }
 

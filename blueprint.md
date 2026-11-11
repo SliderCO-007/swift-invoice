@@ -3118,3 +3118,29 @@ Resolve the Android Chrome `SpeechRecognition` cumulative prefix duplication iss
 #### [MODIFY] [src/components/VoiceInvoiceModal.vue](file:///C:/Users/curth/git/swift-invoice/src/components/VoiceInvoiceModal.vue)
 - Style the editable transcript `<v-textarea>` using an **Elevated Slate Well** design (`linear-gradient(180deg, #1e293b 0%, #172234 100%)` stepped up in luminance from the `#111d2f` card surface), a `1.5px` luminous sky-blue border (`rgba(56, 189, 248, 0.55)`), a top-left `Tap to Edit` pill badge, and an active/populated `#2dd4bf` teal border with outer glow (`0 0 0 3px rgba(45, 212, 191, 0.16)`).
 - Replace unbounded `auto-grow` with fixed `rows="3"` (`no-resize`, `max-height: 110px` with internal scroll) so the microphone button and header remain visible on mobile viewports.
+
+
+
+## Website Marketing Integration for AI Voice Invoice (v131)
+
+### Purpose
+Showcase the new **AI Voice-to-Invoice** feature prominently across the public marketing website:
+1. Position **Create Invoices by Voice** as the **first feature item** on `FeaturesPage.vue` with a custom glassmorphic Voice Invoice mockup card showing the pulsing microphone, animated soundwave bars, Elevated Slate Well transcript preview, and AI fuzzy-matched customer/line item chips.
+2. Add **AI Voice-to-Invoice creation** as a **predominant highlighted bullet** (`mdi-microphone` + `NEW` pill badge) at the top of the Invoicing section across all 3 pricing tiers (Free, Monthly, and Yearly Pro) on `PricingPage.vue`.
+3. Add a clickable **AI Voice-to-Invoice** announcement badge/callout in the hero section, update the primary hero benefit badge to feature AI Voice-to-Invoice, and add an FAQ item on `LandingPage.vue`.
+
+### Proposed Changes
+
+#### [MODIFY] [src/components/FeaturesPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/FeaturesPage.vue)
+- Insert **Create Invoices by Voice** as the #1 feature row with `.feature-ai-badge`, 3 key benefit bullets, `"Included on All Plans (Free & Pro)"` chip, and the animated `.voice-mockup-card` visual.
+- Adjust alternating `.feature-row` / `.feature-row.reverse` classes across all 6 feature sections.
+- Update `useMeta` description to include AI Voice-to-Invoice creation.
+
+#### [MODIFY] [src/components/PricingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/PricingPage.vue)
+- Add `.feature-item.voice-feature-highlight` with `mdi-microphone`, `<strong>AI Voice-to-Invoice</strong> creation`, and `.voice-new-pill` (`NEW`) at the top of the Invoicing section on the Free, Monthly, and Yearly Pro plan cards.
+- Update `useMeta` description to highlight AI Voice-to-Invoice creation across all plans.
+
+#### [MODIFY] [src/components/LandingPage.vue](file:///C:/Users/curth/git/swift-invoice/src/components/LandingPage.vue)
+- Add `.hero-voice-callout` announcement pill above `.hero-title` linking to `/features`.
+- Add `badge.type === 'voice'` gradient microphone SVG and update the first hero benefit badge on the main landing page to `AI Voice-to-Invoice`.
+- Add an FAQ entry explaining how AI Voice-to-Invoice creation works.
