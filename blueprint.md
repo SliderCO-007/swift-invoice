@@ -3144,3 +3144,18 @@ Showcase the new **AI Voice-to-Invoice** feature prominently across the public m
 - Add `.hero-voice-callout` announcement pill above `.hero-title` linking to `/features`.
 - Add `badge.type === 'voice'` gradient microphone SVG and update the first hero benefit badge on the main landing page to `AI Voice-to-Invoice`.
 - Add an FAQ entry explaining how AI Voice-to-Invoice creation works.
+
+
+
+## Founder Introduction Email & Outreach CLI (v132)
+
+### Purpose
+Humanize ScanGo Invoice with a personal founder introduction email from Curtis (`curtis@scangoinvoice.com`) to existing and future registered users. The email shares the founder story (helping freelancers, contractors, small businesses, and entrepreneurs get paid faster without complicated CRM or accounting software), invites users to reply for a quick 1-on-1 Zoom onboarding call/demo or with any questions, and includes a personal photo of Curtis at Trafalgar Square in London (`public/curtis-london.jpg`).
+
+### Proposed Changes
+
+#### [NEW] [scripts/send-founder-intro.js](file:///C:/Users/curth/git/swift-invoice/scripts/send-founder-intro.js)
+- Build a reusable CLI outreach script modeled after `scripts/send-reengagement-emails.js`.
+- Support targeting all existing users by default (`!data.founderIntroEmailSentAt`), with optional `--days-min=<n>` and `--days-max=<n>` filters for future automated cohort runs.
+- Support `--dry-run`, `--limit=<n>` (for batch pilots), `--to=<email>`, `--name=<name>`, `--from=<sender>`, `--subject=<subject>`, `--inline-cid`, `--force`, and interactive candidate exclusion/confirmation.
+- Send both a clean, personal-style HTML email (featuring `https://scangoinvoice.com/curtis-london.jpg` and Trafalgar Square caption) and a plain-text fallback via Resend, recording `founderIntroEmailSentAt` on each recipient's Firestore `users` document.
